@@ -1,0 +1,5 @@
+.circle-box-shadow {
+  -webkit-box-shadow: 1px 0px 300px 200px rgba(183, 156, 111, 1);
+  -moz-box-shadow: 1px 0px 300px 200px rgba(183, 156, 111, 1);
+  box-shadow: 1px 0px 300px 200px rgba(183, 156, 111, 1);
+}
