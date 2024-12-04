@@ -33,3 +33,14 @@ select:-webkit-autofill:focus {
   transition: background-color 5000s ease-in-out 0s;
   color: black;
 }
+
+.tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent rgb(255, 255, 255) transparent transparent;
+}

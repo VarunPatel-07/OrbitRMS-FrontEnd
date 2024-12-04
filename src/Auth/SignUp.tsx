@@ -36,7 +36,7 @@ function SignUp() {
       <div className="w-full h-screen">
         <div className="w-full h-full flex items-center justify-center bg-white lg:p-4 xl:p-7 overflow-hidden">
           <div className="w-full h-full flex items-stretch justify-center rounded-3xl shadow-2xl overflow-hidden">
-            <div className="w-[40%] h-full bg-[#242c40] flex flex-col items-center justify-between">
+            <div className="w-[40%] h-full bg-[var(--main-blue-color)] flex flex-col items-center justify-between">
               <div className="w-full flex items-center justify-center py-3">
                 <img src={OrbitRMS} alt="" className="w-48" />
               </div>
@@ -114,7 +114,7 @@ function SignUp() {
                       </div>
                       <div className="w-full pt-3">
                         <button
-                          className="login bg-[#242c40] w-full px-4 py-2.5 rounded-full"
+                          className="login bg-[var(--main-blue-color)] w-full px-4 py-2.5 rounded-full"
                           onClick={handelLoginSubmit}>
                           SignUp
                         </button>

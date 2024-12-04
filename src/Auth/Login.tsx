@@ -35,13 +35,13 @@ function Login() {
       <div className="w-full h-screen">
         <div className="w-full h-full flex items-center justify-center bg-white lg:p-4 xl:p-7 overflow-hidden">
           <div className="w-full h-full flex items-stretch justify-center rounded-3xl shadow-2xl overflow-hidden">
-            <div className="w-[40%] h-full bg-[#242c40] flex flex-col items-center justify-between">
+            <div className="w-[40%] h-full bg-[var(--main-blue-color)] flex flex-col items-center justify-between">
               <div className="w-full flex items-center justify-center py-3">
                 <img src={OrbitRMS} alt="" className="w-48" />
               </div>
               <img src={Illustration} alt="A Woman Setting On The Computer" className="w-full h-fit object-cover" />
             </div>
-            <div className="w-[60%] bg-[#e8e2e0] relative">
+            <div className="w-[60%] bg-[var(--main-white-color)] relative">
               <div className="w-full h-full px-4 pt-4 pb-8 flex flex-col justify-between">
                 <div className="w-full px-3 py-3  max-w-[400px] me-auto">
                   <h1 className="text-[#242c40] text-4xl font-serif text-nowrap text-start">
@@ -52,7 +52,7 @@ function Login() {
                   </p>
                 </div>
                 <div className="w-full flex items-center justify-center">
-                  <div className="login-form min-w-[60%] bg-[#e8e2e02f] backdrop-blur-sm py-14 px-14 relative z-10 flex items-center justify-center rounded-lg border border-[#242c40]">
+                  <div className="login-form min-w-[60%] bg-[var(--main-white-color)2f] backdrop-blur-sm py-14 px-14 relative z-10 flex items-center justify-center rounded-lg border border-[#242c40]">
                     <div className="grid grid-cols-1 w-full gap-4 ">
                       <div className="w-full">
                         <Input
@@ -87,7 +87,7 @@ function Login() {
                       </div>
                       <div className="w-full pt-3">
                         <button
-                          className="login bg-[#242c40] w-full px-4 py-2.5 rounded-full"
+                          className="login bg-[var(--main-blue-color)] w-full px-4 py-2.5 rounded-full"
                           onClick={handelLoginSubmit}>
                           login
                         </button>
