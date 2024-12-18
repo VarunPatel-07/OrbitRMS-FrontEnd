@@ -18,6 +18,7 @@ interface InputProps {
   labelFieldName?: string;
   isRequiredField?: boolean;
   RequiredFileTypeArray?: Array<string>;
+  setUrlErrorType?: (value: string) => void;
 }
 
 function Input(props: InputProps) {
@@ -35,26 +36,35 @@ function Input(props: InputProps) {
     labelFieldName,
     isRequiredField = false,
     RequiredFileTypeArray,
+    setUrlErrorType,
   } = props;
 
   const [isToggled, setIsToggled] = useState(false as boolean);
 
-  const updateValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const updateValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     const basicRegex = /^[a-zA-Z0-9\s]*$/;
-    if (setValue) {
-      if (Type === "url") {
-        console.log("url", val);
-        URLSafetyCheckerFunction(val);
-      } else {
-        if (Type === "email" || Type === "password") {
+    if (!setValue) return;
+    switch (Type) {
+      case "url":
+        if (val.length >= 0) {
           setValue(val);
-        } else {
-          if (basicRegex.test(val)) {
-            setValue(val);
+          const result: { urlStatus: string; isError: boolean; isEmptyString: boolean } =
+            await URLSafetyCheckerFunction(val);
+          if (setUrlErrorType) {
+            setUrlErrorType(result.urlStatus);
           }
         }
-      }
+        break;
+      case "email":
+      case "password":
+        setValue(val);
+        break;
+      default:
+        if (basicRegex.test(val)) {
+          setValue(val);
+        }
+        break;
     }
   };
 
@@ -81,7 +91,7 @@ function Input(props: InputProps) {
   return (
     <>
       {showLabelField && (
-        <label htmlFor="" className="text-lg font-sans font-semibold text-[var(--main-blue-color)]">
+        <label htmlFor="" className="text-lg font-sans font-semibold text-[var(--main-blue-color)] pb-1.5 inline-block">
           <span className="flex gap-1">
             <span>{labelFieldName}</span>
             {isRequiredField && <FaStarOfLife className="w-2 text-red-700" />}

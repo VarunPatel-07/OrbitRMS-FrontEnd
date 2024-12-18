@@ -2,37 +2,63 @@ import axios from "axios";
 
 const Google_API_Key = import.meta.env.VITE_GOOGLE_SAFE_BROWSING_CHECKER_API_KEY;
 
-export const URLSafetyCheckerFunction = (url: string) => {
-  console.log(url);
-  const CheckURLSafety = async () => {
-    const endpoint = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${Google_API_Key}`;
-    const requestBody = {
-      client: {
-        clientId: "your-client-id",
-        clientVersion: "1.0.0",
-      },
-      threatInfo: {
-        threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE"],
-        platformTypes: ["ANY_PLATFORM"],
-        threatEntryTypes: ["URL"],
-        threatEntries: [{ url }],
-      },
+export const URLSafetyCheckerFunction = async (url: string) => {
+  if (url.length == 0)
+    return {
+      urlStatus: "",
+      isError: false,
+      isEmptyString: true,
     };
-    try {
-      const response = await axios.post(endpoint, requestBody);
-      if (response.data && response.data.matches) {
-        // setResult("❌ The URL is unsafe!");
-        console.log("❌ The URL is unsafe!");
-      } else {
-        // setResult("✅ The URL is safe!");
-        console.log("✅ The URL is safe!");
-      }
-    } catch (error) {
-      // setResult("⚠️ Error checking URL safety.");
-      console.log("⚠️ Error checking URL safety.");
+  // Regular expression to validate URL format
+  const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w-]*)*\/?$/;
 
-      console.error(error);
-    }
+  if (!urlRegex.test(url)) {
+    console.log("⚠️ Invalid URL format.");
+    return {
+      urlStatus: "invalid",
+      isError: false,
+      isEmptyString: false,
+    };
+  }
+
+  const endpoint = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${Google_API_Key}`;
+  const requestBody = {
+    client: {
+      clientId: "your-client-id",
+      clientVersion: "1.0.0",
+    },
+    threatInfo: {
+      threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE"],
+      platformTypes: ["ANY_PLATFORM"],
+      threatEntryTypes: ["URL"],
+      threatEntries: [{ url }],
+    },
   };
-  CheckURLSafety();
+
+  try {
+    const response = await axios.post(endpoint, requestBody);
+    if (response.data && response.data.matches) {
+      console.log("❌ The URL is unsafe!");
+      return {
+        urlStatus: "unsafe",
+        isError: false,
+        isEmptyString: false,
+      };
+    } else {
+      console.log("✅ The URL is safe!");
+      return {
+        urlStatus: "safe",
+        isError: false,
+        isEmptyString: false,
+      };
+    }
+  } catch (error) {
+    console.log("⚠️ Error checking URL safety.");
+    console.error(error);
+    return {
+      urlStatus: "error",
+      isError: true,
+      isEmptyString: false,
+    };
+  }
 };
