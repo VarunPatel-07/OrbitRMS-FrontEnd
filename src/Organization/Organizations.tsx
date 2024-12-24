@@ -4,6 +4,7 @@ import moduleName from "../assets/SVG-Images/OJO4YQ0-removebg-preview.png";
 import { GoOrganization } from "react-icons/go";
 import { useState } from "react";
 import HelmetSeo from "../Helper/HelmetSeo";
+import { Link } from "react-router-dom";
 
 function Organizations() {
   const [currentSelectedSlider, setCurrentSelectedSlider] = useState("Register");
@@ -89,7 +90,9 @@ function Organizations() {
                 currentSelectedSlider === "Register" ? "translate-x-0" : "-translate-x-full"
               }`}>
               <div className="min-w-full w-full">
-                <button className="bg-[var(--main-blue-color)] w-fit mx-auto px-10 py-4 rounded-full font-serif text-base font-bold text-white flex items-center justify-center gap-2 relative overflow-hidden group z-10">
+                <Link
+                  className="bg-[var(--main-blue-color)] w-fit mx-auto px-10 py-4 rounded-full font-serif text-base font-bold text-white flex items-center justify-center gap-2 relative overflow-hidden group z-10"
+                  to={"/pages/register-organization"}>
                   <span className="inline-block relative z-10 group-hover:text-black transition-all duration-500">
                     <GoOrganization className="w-5 h-5" />
                   </span>
@@ -97,7 +100,7 @@ function Organizations() {
                     Register Your Organization
                   </span>
                   <span className="absolute w-full h-full rounded-full bg-white -translate-x-full group-hover:translate-x-0 transition-all duration-500"></span>
-                </button>
+                </Link>
               </div>
               <div className="min-w-full w-full">
                 <button className="bg-[var(--main-blue-color)] w-fit mx-auto px-10 py-4 rounded-full font-serif text-base font-bold text-white flex items-center justify-center gap-2 relative overflow-hidden group z-10">

@@ -19,6 +19,7 @@ interface InputProps {
   isRequiredField?: boolean;
   RequiredFileTypeArray?: Array<string>;
   setUrlErrorType?: (value: string) => void;
+  showDropFileScreenInFullScreen?: boolean;
 }
 
 function Input(props: InputProps) {
@@ -37,6 +38,7 @@ function Input(props: InputProps) {
     isRequiredField = false,
     RequiredFileTypeArray,
     setUrlErrorType,
+    showDropFileScreenInFullScreen = true,
   } = props;
 
   const [isToggled, setIsToggled] = useState(false as boolean);
@@ -77,6 +79,7 @@ function Input(props: InputProps) {
   };
 
   const onDrop = useCallback((acceptedFiles: Array<File>) => {
+    console.log(acceptedFiles);
     acceptedFiles.map((eachFile: File) => {
       if (uploadingFilesTypeCheckingFunction(eachFile)) {
         console.log("allowed for", eachFile.name);
@@ -91,20 +94,31 @@ function Input(props: InputProps) {
   return (
     <>
       {showLabelField && (
-        <label htmlFor="" className="text-lg font-sans font-semibold text-[var(--main-blue-color)] pb-1.5 inline-block">
-          <span className="flex gap-1">
+        <label
+          htmlFor=""
+          className="text-base font-sans font-semibold text-[var(--main-blue-color)] pb-1.5 inline-block">
+          <span className="flex gap-0.5">
             <span>{labelFieldName}</span>
-            {isRequiredField && <FaStarOfLife className="w-2 text-red-700" />}
+            {isRequiredField && <FaStarOfLife className="w-1.5 text-red-700" />}
           </span>
         </label>
       )}
       {Type === "file" ? (
-        <div {...getRootProps()}>
+        <div {...getRootProps()} className="mt-1.5">
           <input {...getInputProps()} />
           {isDragActive ? (
-            <div className="fixed top-0 left-0 w-full h-full bg-[rgba(0,0,0,0.5)] backdrop-blur-sm z-10 flex items-center justify-center">
-              <h6 className="text-5xl font-sans font-semibold">Drop the files here ...</h6>
-            </div>
+            showDropFileScreenInFullScreen ? (
+              <div className="fixed top-0 left-0 w-full h-full bg-[rgba(0,0,0,0.5)] backdrop-blur-sm z-50 flex items-center justify-center">
+                <h6 className="text-5xl font-sans font-semibold">Drop the files here ...</h6>
+              </div>
+            ) : (
+              <>
+                <div className="py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]">
+                  <FaCloudUploadAlt className="w-20 h-20 text-indigo-600" />
+                  <p className="text-base font-semibold text-indigo-700">Drop Files to Upload</p>
+                </div>
+              </>
+            )
           ) : (
             <>
               <div className="py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]">
@@ -117,7 +131,9 @@ function Input(props: InputProps) {
           )}
         </div>
       ) : (
-        <div className={clsx("bg-transparent rounded-full w-full relative", ClassName)}>
+        <div
+          className={clsx("bg-transparent rounded-full w-full relative", ClassName)}
+          style={{ border: showError && errorMessage ? "1px solid red" : "" }}>
           <input
             type={isToggled ? "text" : Type}
             value={value}
@@ -125,7 +141,7 @@ function Input(props: InputProps) {
             placeholder={placeHolder}
             className={`bg-transparent caret-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 ${
               viewPasswordBtn ? "pl-4 pr-10" : "px-4"
-            } autofill:bg-black autofill:text-black placeholder:${placeholderColor}`}
+            } autofill:!bg-black autofill:text-black placeholder:${placeholderColor}`}
             style={{ border: 0, color: "black" }}
           />
           {Type === "password" && viewPasswordBtn ? (
@@ -138,7 +154,7 @@ function Input(props: InputProps) {
         </div>
       )}
       {showError && errorMessage && (
-        <span className="text-rose-600 text-[10px] capitalize mt-1 block px-3.5">{errorMessage}</span>
+        <span className="text-rose-600 text-xs capitalize mt-1 block px-1.5">{errorMessage}</span>
       )}
     </>
   );

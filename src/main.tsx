@@ -7,22 +7,42 @@ import ErrorFallBack from "./Components/common/ErrorFallBack";
 import SignUp from "./Auth/SignUp";
 import App from "./App";
 import "./rootColors.css";
-import Organizations from "./Pages/Organizations";
-import RegisterLoginOrganizationForms from "./Components/RegisterLoginOrganizationForms";
+import Organizations from "./Organization/Organizations";
+import "react-tooltip/dist/react-tooltip.css";
+import ProtectedRoute from "./Helper/ProtectedRoute";
+import RegisterOrganizationForm from "./Organization/RegisterOrganizationForm";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/auth/login" element={<Login />} errorElement={<ErrorFallBack />} />
-        <Route path="/auth/signup" element={<SignUp />} errorElement={<ErrorFallBack />} />
-        <Route path="/pages/organizations" element={<Organizations />} errorElement={<ErrorFallBack />} />
+        <Route path="/auth/login" element={<Login />} />
+        <Route path="/auth/signup" element={<SignUp />} />
+        <Route
+          path="/pages/organizations"
+          element={
+            <ProtectedRoute>
+              <Organizations />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/pages/register-organization"
-          element={<RegisterLoginOrganizationForms />}
-          errorElement={<ErrorFallBack />}
+          element={
+            <ProtectedRoute>
+              <RegisterOrganizationForm />
+            </ProtectedRoute>
+          }
         />
-        <Route path="/" element={<App />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <App />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<ErrorFallBack />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

@@ -8,6 +8,7 @@ import "./auth.css";
 import HelmetSeo from "../Helper/HelmetSeo";
 import { useState } from "react";
 import { isValidEmail } from "../Helper/HelperFunctions";
+import { Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("" as string);
@@ -110,9 +111,11 @@ function Login() {
                       <div className="w-full">
                         <p className="text-center text-sm text-slate-800 capitalize">
                           don't have account?{" "}
-                          <span className="hover:underline hover:text-rose-600 cursor-pointer inline-block">
+                          <Link
+                            to={"/auth/signup"}
+                            className="hover:underline hover:text-rose-600 cursor-pointer inline-block">
                             SignUp
-                          </span>
+                          </Link>
                         </p>
                       </div>
                     </div>

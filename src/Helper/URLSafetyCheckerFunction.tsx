@@ -10,9 +10,9 @@ export const URLSafetyCheckerFunction = async (url: string) => {
       isEmptyString: true,
     };
   // Regular expression to validate URL format
-  const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w-]*)*\/?$/;
+  const urlRegex = /^(https?:\/\/)([^\s/?#]+)([^\s]*)$/;
 
-  if (!urlRegex.test(url)) {
+  if (!urlRegex.test(url) || url.split("https://").length > 2) {
     console.log("⚠️ Invalid URL format.");
     return {
       urlStatus: "invalid",
