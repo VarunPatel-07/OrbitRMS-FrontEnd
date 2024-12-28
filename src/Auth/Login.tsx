@@ -1,6 +1,6 @@
 import Illustration from "../assets/Images/a-minimalistic-illustration-of-a-professional-woma-qB-EvpaUTCW_7VPIzQCwAA-liCsDCsyRx6jUnjJ69VBsw.jpeg";
 import OrbitRMS from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
-import Input from "../Components/common/Input";
+import Input from "../common/Input";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 

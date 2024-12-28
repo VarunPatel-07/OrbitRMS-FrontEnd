@@ -3,7 +3,7 @@ import Navbar from "./Components/Navbar";
 import SideBar from "./Components/SideBar/SideBar";
 import ProtectedRoute from "./Helper/ProtectedRoute";
 import ClientInquiry from "./Pages/ClientInquiry/ClientInquiry";
-import ErrorFallBack from "./Components/common/ErrorFallBack";
+import ErrorFallBack from "./common/ErrorFallBack";
 
 function App() {
   return (

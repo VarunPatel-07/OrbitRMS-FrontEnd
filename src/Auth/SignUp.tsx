@@ -1,6 +1,6 @@
 import Illustration from "../assets/Images/a-minimalistic-illustration-of-a-professional-woma-qB-EvpaUTCW_7VPIzQCwAA-liCsDCsyRx6jUnjJ69VBsw.jpeg";
 import OrbitRMS from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
-import Input from "../Components/common/Input";
+import Input from "../common/Input";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 
@@ -138,7 +138,11 @@ function SignUp() {
                       <div className="w-full">
                         <p className="text-center text-sm text-slate-800 capitalize">
                           all ready have an account?{" "}
-                          <Link to={'/auth/login'} className="hover:underline hover:text-rose-600 cursor-pointer inline-block">login</Link>
+                          <Link
+                            to={"/auth/login"}
+                            className="hover:underline hover:text-rose-600 cursor-pointer inline-block">
+                            login
+                          </Link>
                         </p>
                       </div>
                     </div>

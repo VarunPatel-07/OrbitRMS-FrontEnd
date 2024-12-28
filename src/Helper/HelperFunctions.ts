@@ -15,3 +15,9 @@ export const UniqueMetaTagGeneratingFunction = (lengthOfString: number) => {
   const timeStamp = Date.now().toString(36);
   return `${uniqueString}-${timeStamp}`;
 };
+
+export const classNames = (defaultClass: string, conditionBasedClass: { [keys: string]: boolean }) => {
+  return `${defaultClass} ${Object.keys(conditionBasedClass)
+    .filter((key) => conditionBasedClass[key])
+    .join(" ")}`;
+};
