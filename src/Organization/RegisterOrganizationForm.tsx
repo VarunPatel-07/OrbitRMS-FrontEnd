@@ -10,7 +10,6 @@ import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import { Tooltip } from "react-tooltip";
 import { UniqueMetaTagGeneratingFunction } from "../Helper/HelperFunctions";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
 
 function RegisterOrganizationForm() {
   const [currentSliderCounter, setCurrentSliderCounter] = useState(1 as number);
@@ -417,7 +416,6 @@ function RegisterOrganizationForm() {
           </div>
         </div>
       </div>
-      <MainSuspenseLoader />
     </>
   );
 }

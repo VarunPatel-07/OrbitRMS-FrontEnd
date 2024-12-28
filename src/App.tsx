@@ -1,5 +1,9 @@
+import { Route, Routes } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 import SideBar from "./Components/SideBar/SideBar";
+import ProtectedRoute from "./Helper/ProtectedRoute";
+import ClientInquiry from "./Pages/ClientInquiry/ClientInquiry";
+import ErrorFallBack from "./Components/common/ErrorFallBack";
 
 function App() {
   return (
@@ -10,7 +14,12 @@ function App() {
           <div className="">
             <SideBar />
           </div>
-          <div className="w-full bg-[var(--main-white-color)]"></div>
+          <div className="w-full bg-[var(--main-white-color)]">
+            <Routes>
+              <Route path="/client-inquiry" element={<ProtectedRoute element={<ClientInquiry />} />} />
+              <Route path="*" element={<ErrorFallBack />} />
+            </Routes>
+          </div>
         </div>
       </div>
     </div>

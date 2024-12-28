@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { SidebarMenuItemInterface, SidebarMenuItems } from "./SidebarMenuItems";
 import { RiArrowLeftDoubleFill } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function SideBar() {
+  const navigation = useLocation();
   const [collapsed, setCollapsed] = useState(true as boolean);
 
   const handelSidebarCollapse = () => {
@@ -19,7 +20,11 @@ function SideBar() {
         <div className="w-full">
           <ul className="relative flex flex-col gap-2 px-[5px] pt-3">
             {SidebarMenuItems.map((item: SidebarMenuItemInterface) => (
-              <li key={item.id} className="w-full group relative rounded-md hover:bg-[#3b4a66]">
+              <li
+                key={item.id}
+                className={`w-full group relative rounded-md ${
+                  item.link == navigation.pathname ? "bg-blue-600" : "hover:bg-[#3b4a66]"
+                }`}>
                 <Link
                   to={item.link}
                   className={`w-full overflow-hidden flex gap-3 py-2.5 transition-all ${

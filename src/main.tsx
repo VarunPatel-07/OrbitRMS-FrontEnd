@@ -18,30 +18,13 @@ createRoot(document.getElementById("root")!).render(
       <Routes>
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/signup" element={<SignUp />} />
-        <Route
-          path="/pages/organizations"
-          element={
-            <ProtectedRoute>
-              <Organizations />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/pages/organizations" element={<ProtectedRoute element={<Organizations />} />} />
         <Route
           path="/pages/register-organization"
-          element={
-            <ProtectedRoute>
-              <RegisterOrganizationForm />
-            </ProtectedRoute>
-          }
+          element={<ProtectedRoute element={<RegisterOrganizationForm />} />}
         />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <App />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/*" element={<ProtectedRoute element={<App />} />} />
+
         <Route path="*" element={<ErrorFallBack />} />
       </Routes>
     </BrowserRouter>
