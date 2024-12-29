@@ -6,11 +6,12 @@ import Login from "./Auth/Login";
 import ErrorFallBack from "./common/ErrorFallBack";
 import SignUp from "./Auth/SignUp";
 import App from "./App";
-import "./rootColors.css";
+import "./css/rootColors.css";
 import Organizations from "./Organization/Organizations";
 import "react-tooltip/dist/react-tooltip.css";
 import ProtectedRoute from "./Helper/ProtectedRoute";
 import RegisterOrganizationForm from "./Organization/RegisterOrganizationForm";
+import "./css/font.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

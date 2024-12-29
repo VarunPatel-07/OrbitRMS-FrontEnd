@@ -14,7 +14,7 @@ function SideBar() {
 
   return (
     <div
-      className={`h-full bg-[var(--main-blue-color)] text-white flex flex-col  transition-all duration-300  ${
+      className={`h-full bg-[#3538CD] text-white flex flex-col  transition-all duration-300  ${
         collapsed ? "max-w-[57px] min-w-[57px]" : "min-w-[240px] max-w-[250px]"
       }`}>
       <div className="w-full h-full flex flex-col justify-between">
@@ -24,11 +24,11 @@ function SideBar() {
               <li
                 key={item.id}
                 className={`w-full group relative rounded-md ${
-                  item.link == navigation.pathname ? "bg-blue-600" : "hover:bg-[#3b4a66]"
+                  item.link == navigation.pathname ? "bg-[#444CE7]" : "hover:bg-[#444CE7]"
                 }`}>
                 <Link
                   to={item.link}
-                  className={`w-full overflow-hidden flex gap-3 py-2.5 transition-all ${
+                  className={`w-full overflow-hidden flex gap-3 py-2.5 transition-all font-inter ${
                     collapsed ? "px-[12px]" : "px-4"
                   }`}
                   data-tooltip-id={item.label}
@@ -42,7 +42,7 @@ function SideBar() {
                   </span>
                 </Link>
                 {/* Tooltip */}
-                {item.showToolTip && <Tooltip id={item.label}  opacity={'100'} className="z-[15] bg-white" />}
+                {item.showToolTip && <Tooltip id={item.label} opacity={"100"} className="z-[15] bg-white" />}
               </li>
             ))}
           </ul>

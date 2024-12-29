@@ -36,17 +36,17 @@ function Table({
             {columns.map((column, index) => (
               <th
                 key={column.key}
-                className={classNames("px-4 py-2 text-left bg-[#F9FAFB] text-black", {
+                className={classNames("px-4 py-2 text-left bg-[#F2F4F7] text-black", {
                   "border-r border-r-[#d8d9dc]": columns.length !== index + 1,
                 })}>
                 <span className="flex items-center justify-start gap-1">
                   <span>{column.title}</span>
-                  <span className="flex flex-col items-center justify-center w-5">
-                    <button className="h-5 flex items-center justify-center relative">
-                      <FaSortUp className="h-5 w-5 absolute bottom-[-9px] text-gray-500" />
+                  <span className="flex flex-col items-center justify-center w-4">
+                    <button className="h-4 flex items-center justify-center relative">
+                      <FaSortUp className="h-4 w-4 absolute bottom-[-8px] text-gray-500" />
                     </button>
-                    <button className="h-5 flex items-center justify-center relative">
-                      <FaSortDown className="h-5 w-5 absolute top-[-9px] text-gray-500" />
+                    <button className="h-4 flex items-center justify-center relative">
+                      <FaSortDown className="h-4 w-4 absolute top-[-8px] text-gray-500" />
                     </button>
                   </span>
                 </span>
@@ -55,13 +55,14 @@ function Table({
           </tr>
         </thead>
         <tbody>
-          {data.map((row: any) => (
+          {data.map((row: any, rowIndex: number) => (
             <tr key={row.id} className="">
               {columns.map((column, index) => (
                 <td
                   key={column.key}
-                  className={classNames("bg-[#F2F4F7] border-b border-b-[#d8d9dc] px-4 py-2 text-black", {
+                  className={classNames("bg-white px-4 py-2 text-black", {
                     "border-r border-r-[#d8d9dc]": columns.length !== index + 1,
+                    "border-b border-b-[#d8d9dc]": data.length !== rowIndex + 1,
                   })}>
                   {column.renderContent(row[column.key])}
                 </td>

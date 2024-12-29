@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
 import Breadcrumbs from "../../common/Breadcrumbs";
 import Table from "../../common/Table";
+import TableFilterSearchBar from "../../Components/TableFilterSearchBar";
 import TableInfoHeader from "../../Components/TableInfoHeader";
+import TablePagination from "../../Components/TablePagination";
 import HelmetSeo from "../../Helper/HelmetSeo";
 
 const BreadcrumbsObjects = [
@@ -66,8 +69,12 @@ const data = [
   { name: "Jane Smith", age: 30, email: "jane.smith@example.com" },
   { name: "Sam Wilson", age: 22, email: "sam.wilson@example.com" },
 ];
+const dropdownMenuArray = [10, 25, 50];
 
 function ClientInquiry() {
+  const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
+  const [selectedPage, setSelectedPage] = useState<number>(1);
+
   return (
     <>
       <HelmetSeo Title="Client Inquires | OrbitRMS" />
@@ -77,11 +84,20 @@ function ClientInquiry() {
           <div className="w-full h-full p-6">
             <div className="w-full h-full">
               <TableInfoHeader />
+              <TableFilterSearchBar />
               <Table
                 columns={columns}
                 data={data}
-                tableWrapperClass={"overflow-auto h-[calc(100vh-300px)] rounded-b-lg"}
+                tableWrapperClass={"overflow-auto max-h-[calc(100vh-345px)]"}
                 stickyHeaderClass="sticky top-0"
+              />
+              <TablePagination
+                paginationDropDownArray={dropdownMenuArray}
+                recordsPerPage={recordsPerPage}
+                setRecordsPerPage={setRecordsPerPage}
+                selectedPage={selectedPage}
+                setSelectedPage={setSelectedPage}
+                totalPage={10}
               />
             </div>
           </div>
