@@ -25,7 +25,6 @@ createRoot(document.getElementById("root")!).render(
           element={<ProtectedRoute element={<RegisterOrganizationForm />} />}
         />
         <Route path="/*" element={<ProtectedRoute element={<App />} />} />
-
         <Route path="*" element={<ErrorFallBack />} />
       </Routes>
     </BrowserRouter>
