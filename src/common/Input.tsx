@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import { FaCloudUploadAlt, FaEye, FaEyeSlash, FaStarOfLife } from "react-icons/fa";
 import { useDropzone } from "react-dropzone";
-import { URLSafetyCheckerFunction } from "../../Helper/URLSafetyCheckerFunction";
+import { URLSafetyCheckerFunction } from "../Helper/URLSafetyCheckerFunction";
 
 interface InputProps {
   Type?: "text" | "password" | "email" | "number" | "file" | "url"; // More specific input types
