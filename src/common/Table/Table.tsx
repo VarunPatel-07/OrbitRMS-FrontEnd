@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FaSortDown, FaSortUp } from "react-icons/fa";
-import { classNames } from "../Helper/HelperFunctions";
+import { classNames } from "../../Helper/HelperFunctions";
 import React from "react";
 
 interface Column {

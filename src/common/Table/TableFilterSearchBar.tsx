@@ -1,4 +1,4 @@
-import Input from "../common/Input";
+import Input from "../Input";
 
 export default function TableFilterSearchBar() {
   return (

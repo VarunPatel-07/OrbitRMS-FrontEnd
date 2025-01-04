@@ -1,8 +1,8 @@
 import React, { SetStateAction } from "react";
-import DropDown from "../common/DropDown";
-import { returnPaginationRang } from "../Helper/returnPaginationRange";
+import DropDown from "../DropDown";
+import { returnPaginationRang } from "../../Helper/returnPaginationRange";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
-import { classNames } from "../Helper/HelperFunctions";
+import { classNames } from "../../Helper/HelperFunctions";
 
 function TablePagination({
   paginationDropDownArray,

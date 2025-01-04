@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import Breadcrumbs from "../../common/Breadcrumbs";
-import Table from "../../common/Table";
-import TableFilterSearchBar from "../../Components/TableFilterSearchBar";
-import TableInfoHeader from "../../Components/TableInfoHeader";
-import TablePagination from "../../Components/TablePagination";
+import Table from "../../common/Table/Table";
+import TableFilterSearchBar from "../../common/Table/TableFilterSearchBar";
+import TableInfoHeader from "../../common/Table/TableInfoHeader";
+import TablePagination from "../../common/Table/TablePagination";
 import HelmetSeo from "../../Helper/HelmetSeo";
 
 const BreadcrumbsObjects = [
