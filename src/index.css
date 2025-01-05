@@ -44,15 +44,4 @@ select:-webkit-autofill:focus {
   border-style: solid;
   border-color: transparent rgb(255, 255, 255) transparent transparent;
 }
-/*  @keyframes rotateGradient {
-  0% {
-    background: linear-gradient(90deg, #fb923c, #f87171); 
-  }
-  100% {
-    background: linear-gradient(270deg, #fb923c, #f87171); 
-  }
-} 
 
-.animate-rotateGradient {
-  animation: 5s rotateGradient linear alternate-reverse infinite;
-} */
