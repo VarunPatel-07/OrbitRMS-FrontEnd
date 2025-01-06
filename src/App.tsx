@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import Navbar from "./Components/Navbar";
+import Navbar from "./Components/Navbar/Navbar";
 import SideBar from "./Components/SideBar/SideBar";
 import ProtectedRoute from "./Helper/ProtectedRoute";
 import ClientInquiry from "./Pages/ClientInquiry/ClientInquiry";

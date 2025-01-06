@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Breadcrumbs from "../../common/Breadcrumbs";
-import Table from "../../common/Table";
-import TableFilterSearchBar from "../../Components/TableFilterSearchBar";
-import TableInfoHeader from "../../Components/TableInfoHeader";
-import TablePagination from "../../Components/TablePagination";
+import Table from "../../common/Table/Table";
+import TableFilterSearchBar from "../../common/Table/TableFilterSearchBar";
+import TableInfoHeader from "../../common/Table/TableInfoHeader";
+import TablePagination from "../../common/Table/TablePagination";
 import HelmetSeo from "../../Helper/HelmetSeo";
+import DeleteModal from "../../Components/Modal/DeleteModal";
+import TableSkeletonLoader from "../../Components/Loader/Table/TableSkeletonLoader";
 
 const BreadcrumbsObjects = [
   { name: "Home", label: "home", link: "/home" },
@@ -69,12 +71,16 @@ const data = [
   { name: "Jane Smith", age: 30, email: "jane.smith@example.com" },
   { name: "Sam Wilson", age: 22, email: "sam.wilson@example.com" },
 ];
-const dropdownMenuArray = [10, 25, 50];
+const dropdownMenuArray = [10, 25, 50, 100];
 
 function ClientInquiry() {
   const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
   const [selectedPage, setSelectedPage] = useState<number>(1);
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [loadingClientData, setLoadingClientData] = useState(true);
+  useEffect(() => {
+    setLoadingClientData(true);
+  }, []);
   return (
     <>
       <HelmetSeo Title="Client Inquires | OrbitRMS" />
@@ -82,27 +88,32 @@ function ClientInquiry() {
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className="w-full h-full pt-10">
           <div className="w-full h-full p-6">
-            <div className="w-full h-full">
-              <TableInfoHeader />
-              <TableFilterSearchBar />
-              <Table
-                columns={columns}
-                data={data}
-                tableWrapperClass={"overflow-auto max-h-[calc(100vh-345px)]"}
-                stickyHeaderClass="sticky top-0"
-              />
-              <TablePagination
-                paginationDropDownArray={dropdownMenuArray}
-                recordsPerPage={recordsPerPage}
-                setRecordsPerPage={setRecordsPerPage}
-                selectedPage={selectedPage}
-                setSelectedPage={setSelectedPage}
-                totalPage={10}
-              />
-            </div>
+            {loadingClientData ? (
+              <TableSkeletonLoader tableHeaderCount={5} tableValueCount={10} />
+            ) : (
+              <div className="w-full h-full">
+                <TableInfoHeader />
+                <TableFilterSearchBar />
+                <Table
+                  columns={columns}
+                  data={data}
+                  tableWrapperClass={"overflow-auto max-h-[calc(100vh-345px)]"}
+                  stickyHeaderClass="sticky top-0"
+                />
+                <TablePagination
+                  paginationDropDownArray={dropdownMenuArray}
+                  recordsPerPage={recordsPerPage}
+                  setRecordsPerPage={setRecordsPerPage}
+                  selectedPage={selectedPage}
+                  setSelectedPage={setSelectedPage}
+                  totalPage={10}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
+      <DeleteModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} />
     </>
   );
 }
