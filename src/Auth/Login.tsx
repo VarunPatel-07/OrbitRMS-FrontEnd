@@ -7,23 +7,37 @@ import { FaApple } from "react-icons/fa";
 import "./auth.css";
 import HelmetSeo from "../Helper/HelmetSeo";
 import { useState } from "react";
-import { isValidEmail } from "../Helper/HelperFunctions";
+import { isValidEmail, storeDataInLocalStorage } from "../Helper/HelperFunctions";
 import { Link } from "react-router-dom";
+import { loginForm } from "../interface/funcParamInterface";
+import { loginApiFunction } from "../Helper/api";
 
 function Login() {
   const [email, setEmail] = useState("" as string);
   const [password, setPassword] = useState("" as string);
   const [showError, setShowError] = useState(false as boolean);
 
+  const handelLoginFunction = async (data: loginForm) => {
+    const res = await loginApiFunction("auth/login", data, "POST");
+    if (!res?.success) return;
+    storeDataInLocalStorage(res?.user_info, "user-info");
+  };
+
   const handelLoginSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    console.log("clicked");
     if (email.length < 1 || password.length < 4) {
       setShowError(true);
     } else {
       if (!isValidEmail(email)) {
         setShowError(true);
       }
+    }
+    if (!showError || email.length < 1 || password.length < 4 || !isValidEmail(email)) {
+      const loginData: loginForm = {
+        email: email,
+        password: password,
+      };
+      handelLoginFunction(loginData);
     }
   };
 

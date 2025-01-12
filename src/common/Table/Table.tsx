@@ -2,19 +2,9 @@
 import { FaSortDown, FaSortUp } from "react-icons/fa";
 import { classNames } from "../../Helper/HelperFunctions";
 import "../../css/common.css";
-import React from "react";
+import { Column } from "../../interface/propsInterface";
 
-interface Column {
-  key: string;
-  title: string | React.ReactElement;
-  isSortable: boolean;
-  isSticky: boolean;
-  canToggleVisibility: boolean;
-  align?: "left" | "center" | "right";
-  filterable?: boolean;
-  renderContent: (data: any) => React.ReactElement;
-  // onSortColumn: () => void;
-}
+
 
 function Table({
   columns,
@@ -37,7 +27,7 @@ function Table({
             {columns.map((column, index) => (
               <th
                 key={column.key}
-                className={classNames("px-4 py-2 text-left bg-[#eef0f4] text-black", {
+                className={classNames("px-6 py-2 text-left bg-[#eef0f4] text-black", {
                   "border-r border-r-[#d8d9dc]": columns.length !== index + 1,
                 })}>
                 <span className="flex items-center justify-start gap-1">
@@ -63,7 +53,7 @@ function Table({
               {columns.map((column, index) => (
                 <td
                   key={column.key}
-                  className={classNames("bg-white px-4 py-2 text-black group-hover:bg-gray-50 cursor-pointer", {
+                  className={classNames("bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointer", {
                     "border-r border-r-[#d8d9dc]": columns.length !== index + 1,
                     "border-b border-b-[#d8d9dc]": data.length !== rowIndex + 1,
                   })}>

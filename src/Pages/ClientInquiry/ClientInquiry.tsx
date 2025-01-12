@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Breadcrumbs from "../../common/Breadcrumbs";
 import Table from "../../common/Table/Table";
 import TableFilterSearchBar from "../../common/Table/TableFilterSearchBar";
@@ -77,10 +77,8 @@ function ClientInquiry() {
   const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
   const [selectedPage, setSelectedPage] = useState<number>(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [loadingClientData, setLoadingClientData] = useState(true);
-  useEffect(() => {
-    setLoadingClientData(true);
-  }, []);
+  const [loadingClientData] = useState(false);
+
   return (
     <>
       <HelmetSeo Title="Client Inquires | OrbitRMS" />

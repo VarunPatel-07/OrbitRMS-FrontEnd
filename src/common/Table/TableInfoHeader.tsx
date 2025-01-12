@@ -1,5 +1,6 @@
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { GrExpand } from "react-icons/gr";
+import Button from "../Button";
 
 function TableInfoHeader() {
   return (
@@ -12,12 +13,12 @@ function TableInfoHeader() {
           </span>
         </div>
         <div className="flex items-center justify-end gap-3">
-          <button className="text-slate-800 rounded-lg px-2 py-2 border border-[#D0D5DD] flex items-center justify-center">
+          <Button className="text-slate-800 rounded-lg px-2 py-2 border border-[#D0D5DD] flex items-center justify-center">
             <GrExpand />
-          </button>
-          <button className="text-slate-800 rounded-lg px-2 py-2 border border-[#D0D5DD] flex items-center justify-center">
+          </Button>
+          <Button className="text-slate-800 rounded-lg px-2 py-2 border border-[#D0D5DD] flex items-center justify-center">
             <BsThreeDotsVertical />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

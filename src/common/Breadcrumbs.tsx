@@ -1,14 +1,8 @@
 import { FaHome } from "react-icons/fa";
 import { GoChevronRight } from "react-icons/go";
 import { Link, useLocation } from "react-router-dom";
+import { BreadcrumbsProps } from "../interface/propsInterface";
 
-interface BreadcrumbsProps {
-  label: string;
-  name: string;
-  link: string;
-  target?: string;
-  customIcon?: React.ReactNode;
-}
 function Breadcrumbs({ BreadcrumbsNavigationFlow }: { BreadcrumbsNavigationFlow: Array<BreadcrumbsProps> }) {
   const navigation = useLocation();
   return (
