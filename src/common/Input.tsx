@@ -3,24 +3,7 @@ import clsx from "clsx";
 import { FaCloudUploadAlt, FaEye, FaEyeSlash, FaStarOfLife } from "react-icons/fa";
 import { useDropzone } from "react-dropzone";
 import { URLSafetyCheckerFunction } from "../Helper/URLSafetyCheckerFunction";
-
-interface InputProps {
-  Type?: "text" | "password" | "email" | "number" | "file" | "url"; // More specific input types
-  value?: string;
-  setValue?: (value: string) => void; // Function that updates the value
-  placeHolder?: string; // Optional placeholder
-  ClassName?: string;
-  placeholderColor?: string;
-  viewPasswordBtn?: boolean;
-  showError?: boolean;
-  errorMessage?: string;
-  showLabelField?: boolean;
-  labelFieldName?: string;
-  isRequiredField?: boolean;
-  RequiredFileTypeArray?: Array<string>;
-  setUrlErrorType?: (value: string) => void;
-  showDropFileScreenInFullScreen?: boolean;
-}
+import { InputProps } from "../interface/propsInterface";
 
 function Input(props: InputProps) {
   const {

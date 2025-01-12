@@ -1,17 +1,6 @@
 import React from "react";
+import { clientInquiryFiltersInterFace } from "../../interface/propsInterface";
 
-export interface operatorObject {
-  label: string;
-  value: string;
-}
-
-export interface clientInquiryFiltersInterFace {
-  id: string;
-  label: React.ReactElement;
-  operator?: Array<operatorObject>;
-  options?: Array<operatorObject>;
-  type: string;
-}
 
 export const clientInquiryFiltersArray: clientInquiryFiltersInterFace[] = [
   {
