@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Input from "../common/Input";
-import OrbitRMSLogo from "../assets/Images/OrbitRMS-Final-Logo-transperent.png";
+import OrbitRMSLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
 import FormStepCount from "../common/FormStepCount";
 import { PiTreeStructureFill } from "react-icons/pi";
 import HelmetSeo from "../Helper/HelmetSeo";

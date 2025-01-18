@@ -42,7 +42,28 @@ export const storeDataInLocalStorage = (_data: any, key: string, encrypted: bool
     }
     dataToStore = CryptoJS.AES.encrypt(_data, encryptionKey).toString();
   } else {
-    dataToStore = typeof _data == "object" ? JSON.stringify(_data) : String(_data);
+    dataToStore = JSON.stringify(_data);
   }
   localStorage.setItem(key, dataToStore);
+};
+
+export const getDataFromLocalStorage = (key: string, encrypted: boolean = false): any | null => {
+  try {
+    const localStorageData = localStorage.getItem(key);
+    if (!localStorageData) return null;
+
+    if (encrypted) {
+      if (!encryptionKey) throw new Error("Encryption key is required for decryption");
+      const decryptedData = CryptoJS.AES.decrypt(localStorageData, encryptionKey).toString(CryptoJS.enc.Utf8);
+      return JSON.parse(decryptedData);
+    }
+
+    return JSON.parse(localStorageData);
+  } catch (error) {
+    console.error(`Error reading from localStorage (key: ${key}):`, error);
+    return null;
+  }
+};
+export const clearLocalStorage = () => {
+  localStorage.clear();
 };

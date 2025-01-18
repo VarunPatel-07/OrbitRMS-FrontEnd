@@ -7,3 +7,33 @@
   scrollbar-width: none; /* Hides the scrollbar */
   -ms-overflow-style: none; /* For Internet Explorer 10+ */
 }
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 1s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-out {
+  animation: fadeOutNetflix 0.8s ease-in forwards;
+}
+
+@keyframes fadeOutNetflix {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5); /* Slight zoom-out effect */
+    visibility: hidden;
+  }
+}

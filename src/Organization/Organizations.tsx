@@ -18,8 +18,8 @@ function Organizations() {
   return (
     <>
       <HelmetSeo Title="Organizations | OrbitRMS" />
-      <div className="w-full h-screen bg-white px-12 py-12">
-        <div className="shadow-2xl w-full h-full bg-[var(--main-white-color)] rounded-2xl grid grid-cols-2 items-stretch justify-center overflow-hidden">
+      <div className="w-full h-screen bg-white">
+        <div className="w-full h-full bg-[var(--main-white-color)] grid grid-cols-2 items-stretch justify-center overflow-hidden">
           <div className="bg-[var(--main-white-color)] grid grid-cols-1 items-end justify-end px-6 relative">
             <img src={OrbitRMS_Logo} className="w-48 mx-auto absolute top-7 left-1/2 -translate-x-1/2" alt="" />
             <img
@@ -32,21 +32,21 @@ function Organizations() {
           <div className="bg-gradient-to-r from-[#fb923c] to-[#f87171] animate-rotateGradient flex flex-col items-center justify-between px-6 py-20 relative gap-10 overflow-hidden">
             <div className="grid grid-cols-1 gap-y-16 items-start justify-start relative z-10">
               <div className="max-w-[90%] mx-auto rounded-md overflow-hidden border-[1.2px] border-[var(--main-blue-color)] p-1">
-                <div className="grid grid-cols-2 relative gap-2">
+                <div className="grid grid-cols-2 relative gap-4">
                   <span
                     className={`absolute w-1/2 bg-[var(--main-white-color)] top-0 h-full rounded-md transition-all duration-500 left-0 ${
                       currentSelectedSlider === "Register" ? "translate-x-0" : "translate-x-full"
                     }`}></span>
                   <button
                     className={`text-[var(--main-blue-color)] relative z-10 capitalize text-base font-sans font-semibold px-4 py-2.5 bg-transparent ${
-                      currentSelectedSlider === "Register" ? "" : "hover:bg-[rgba(255,255,255,0.6)] rounded-lg"
+                      currentSelectedSlider === "Register" ? "" : "hover:bg-[rgba(255,255,255,0.2)] rounded-lg"
                     }`}
                     onClick={() => handleTopNavigationSliderButton("Register")}>
                     Register Your Organization
                   </button>
                   <button
                     className={`text-[var(--main-blue-color)] relative z-10 capitalize text-base font-sans font-semibold px-4 py-2.5 bg-transparent ${
-                      currentSelectedSlider === "Join" ? "" : "hover:bg-[rgba(255,255,255,0.6)] rounded-lg"
+                      currentSelectedSlider === "Join" ? "" : "hover:bg-[rgba(255,255,255,0.2)] rounded-lg"
                     }`}
                     onClick={() => handleTopNavigationSliderButton("Join")}>
                     Join an Organization
