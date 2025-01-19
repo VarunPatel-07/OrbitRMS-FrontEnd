@@ -3,6 +3,7 @@ import validator from "validator";
 import * as CryptoJS from "crypto-js";
 
 const encryptionKey = import.meta.env.VITE_ENCRYPTION_KEY;
+const current_environment = import.meta.env.VITE_ENVIRONMENT;
 
 export const isValidEmail = (email: string) => {
   const isValid = validator.isEmail(email);
@@ -30,7 +31,11 @@ export const ErrorHandler = (message: string, error: Error) => {
   console.log(`GlobalErrorHandler:<${message}>`, error);
 };
 // const encryptedData = ;
-export const storeDataInLocalStorage = (_data: any, key: string, encrypted: boolean = false) => {
+export const storeDataInLocalStorage = (
+  _data: any,
+  key: string,
+  encrypted: boolean = current_environment == "PRODUCTION" ? true : false
+) => {
   if (!key) {
     console.error("the key is required to store the data");
     return;
@@ -47,15 +52,22 @@ export const storeDataInLocalStorage = (_data: any, key: string, encrypted: bool
   localStorage.setItem(key, dataToStore);
 };
 
-export const getDataFromLocalStorage = (key: string, encrypted: boolean = false): any | null => {
+export const getDataFromLocalStorage = (
+  key: string,
+  encrypted: boolean = current_environment == "PRODUCTION" ? true : false
+): any | null => {
   try {
     const localStorageData = localStorage.getItem(key);
     if (!localStorageData) return null;
 
     if (encrypted) {
       if (!encryptionKey) throw new Error("Encryption key is required for decryption");
-      const decryptedData = CryptoJS.AES.decrypt(localStorageData, encryptionKey).toString(CryptoJS.enc.Utf8);
-      return JSON.parse(decryptedData);
+      const decryptedData = CryptoJS.AES.decrypt(localStorageData, encryptionKey).toString();
+      if (key != "authenticationToken") {
+        return JSON.parse(decryptedData);
+      } else {
+        return decryptedData;
+      }
     }
 
     return JSON.parse(localStorageData);
