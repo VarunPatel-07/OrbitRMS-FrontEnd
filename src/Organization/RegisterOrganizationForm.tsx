@@ -10,6 +10,8 @@ import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import { Tooltip } from "react-tooltip";
 import { UniqueMetaTagGeneratingFunction } from "../Helper/HelperFunctions";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { endpointObject, multiplePostApi } from "../Helper/api/multipleAPI";
+import { useDebounce } from "../Hooks/useDebounce";
 
 function RegisterOrganizationForm() {
   const [currentSliderCounter, setCurrentSliderCounter] = useState(1 as number);
@@ -43,6 +45,39 @@ function RegisterOrganizationForm() {
     setCurrentSliderCounter(currentSliderCounter + 1);
   };
 
+  const handleUrlMetaTagVerification = async () => {
+    IncrementTheSliderCounter();
+    const formData = new FormData();
+    formData.append("url", websiteUrl);
+    formData.append("meta_tag_name", "orbitrms");
+    formData.append("meta_tag_content", uniqueMetaTagString);
+    const apiArray: Array<endpointObject> = [
+      {
+        endPoint: "organization/verify-organization-url",
+        protected: true,
+        isFormData: true,
+        data: formData,
+      },
+    ];
+
+    const responses = await multiplePostApi(apiArray);
+    const res = responses?.[0];
+    if (res?.success) {
+      // todo we will show the success notification
+      setVerifyingYourWebsite({ verifying: false, is_verified: true });
+      IncrementTheSliderCounter();
+    } else {
+      // todo we will show the notification when the verification fails
+      setVerifyingYourWebsite({ verifying: false, is_verified: false });
+      IncrementTheSliderCounter();
+
+    }
+  };
+
+  const verifyUrlMetaTagWithDebounce = useDebounce(() => {
+    handleUrlMetaTagVerification();
+  }, 500);
+
   const validateInputAndAdvanceSlider = async (counter: number) => {
     switch (counter) {
       case 1:
@@ -56,7 +91,8 @@ function RegisterOrganizationForm() {
           IncrementTheSliderCounter();
         }
         setVerifyingYourWebsite({ verifying: true, is_verified: false });
-        IncrementTheSliderCounter();
+        verifyUrlMetaTagWithDebounce();
+        // IncrementTheSliderCounter();
         break;
       case 3:
         if (
@@ -397,8 +433,9 @@ function RegisterOrganizationForm() {
                 </button>
               ) : (
                 <button
-                  className="bg-green-600 px-6 py-2.5 rounded-full text-base font-sans capitalize font-semibold text-white flex items-center justify-center gap-2 transition-all"
-                  onClick={saveAndContinueButtonHandler}>
+                  className="bg-green-600 px-6 py-2.5 rounded-full text-base font-sans capitalize font-semibold text-white flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                  onClick={saveAndContinueButtonHandler}
+                  disabled={verifyingYourWebsite.verifying}>
                   <span>Save and Continue</span>
                   <FaArrowRightLong className="w-4" />
                 </button>
@@ -406,8 +443,9 @@ function RegisterOrganizationForm() {
 
               {currentSliderCounter > 1 && (
                 <button
-                  className="bg-gray-700 px-6 py-2.5 rounded-full text-base font-sans capitalize font-semibold text-white flex items-center justify-center gap-2 transition-all"
-                  onClick={handelBackButton}>
+                  className="bg-gray-700 px-6 py-2.5 rounded-full text-base font-sans capitalize font-semibold text-white flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                  onClick={handelBackButton}
+                  disabled={verifyingYourWebsite.verifying}>
                   <FaArrowLeftLong className="w-4" />
                   <span>back</span>
                 </button>

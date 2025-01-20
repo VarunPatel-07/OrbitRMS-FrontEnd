@@ -1,6 +1,6 @@
 import axios, { AxiosRequestHeaders } from "axios";
 import { loginForm, signUpForm } from "../../interface/funcParamInterface";
-import { clearLocalStorage, ErrorHandler, getDataFromLocalStorage, storeDataInLocalStorage } from "../HelperFunctions";
+import { clearLocalStorage, ErrorHandler, storeDataInLocalStorage } from "../HelperFunctions";
 import { endpointObject, multipleFetchApi } from "./multipleAPI";
 import React, { SetStateAction } from "react";
 
@@ -100,13 +100,14 @@ export const verifyUsersLoginStatus = async (setShowGlobalLoader: React.Dispatch
     {
       endPoint: "auth/verify-user",
       protected: true,
+      isFormData: true,
     },
   ];
   const responses = await multipleFetchApi(endpointArray);
   const res = responses?.[0];
   if (res?.success) {
     setShowGlobalLoader(false);
-    const user = getDataFromLocalStorage("user-info");
+    const user = res?.user_info;
     if (user?.default_organization_id || user?.organizations.length >= 1) {
       console.log("hello");
     } else {
