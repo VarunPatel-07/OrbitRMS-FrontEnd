@@ -2,11 +2,9 @@
 import Illustration from "../assets/Images/a-minimalistic-illustration-of-a-professional-woma-qB-EvpaUTCW_7VPIzQCwAA-liCsDCsyRx6jUnjJ69VBsw.jpeg";
 import OrbitRMS from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
 import Input from "../common/Input";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa";
 import "./auth.css";
 import HelmetSeo from "../Helper/HelmetSeo";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isValidEmail } from "../Helper/HelperFunctions";
 import { Link } from "react-router-dom";
 import { loginForm } from "../interface/funcParamInterface";
@@ -15,6 +13,8 @@ import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 function Login() {
+  const defaultInputRef = useRef<HTMLInputElement>(null);
+
   const [email, setEmail] = useState("" as string);
   const [password, setPassword] = useState("" as string);
   const [showError, setShowError] = useState(false as boolean);
@@ -42,6 +42,7 @@ function Login() {
 
   useEffect(() => {
     verifyUsersLoginStatus(setShowGlobalLoader);
+    defaultInputRef.current?.focus();
   }, []);
 
   return (
@@ -62,27 +63,31 @@ function Login() {
                 <img src={Illustration} alt="A Woman Setting On The Computer" className="w-full h-fit object-cover" />
               </div>
               <div className="w-[60%] bg-[var(--main-white-color)] relative">
-                <div className="w-full h-full px-4 pt-4 pb-8 flex flex-col justify-between">
-                  <div className="w-full px-3 py-3  max-w-[400px] me-auto">
+                <div className="w-full h-full px-4 pt-4 pb-8 flex flex-col justify-center">
+                  <div className="w-full px-3 py-3  max-w-[500px] me-auto">
                     <h1 className="text-[#242c40] text-4xl font-serif text-nowrap text-start">
                       logIn To <span className="font-semibold">Orbit</span>RMS
                     </h1>
-                    <p className="font-serif text-[#242c40] font-normal text-base capitalize pt-2">
+                    <p className="font-serif text-[#242c40] font-normal text-sm capitalize pt-2">
                       to simplify your work, manage everything in one place, and stay ahead with ease!
                     </p>
                   </div>
-                  <div className="w-full flex items-center justify-center">
-                    <div className="login-form min-w-[60%] bg-[var(--main-white-color)2f] backdrop-blur-sm py-14 px-14 relative z-10 flex items-center justify-center rounded-lg border border-[#242c40]">
+                  <div className="w-full flex items-center justify-center h-full">
+                    <div className="login-form min-w-[50%] bg-[var(--main-white-color)2f] backdrop-blur-sm py-14 px-14 relative z-10 flex items-center justify-center border border-[#242c40] rounded-lg">
                       <div className="grid grid-cols-1 w-full gap-4 ">
                         <div className="w-full">
                           <Input
-                            ClassName="border-[1.5px] border-slate-500 text-black rounded-2xl bg-slate-50"
+                            ClassName="border-[1.5px] border-slate-500 text-black rounded-lg bg-slate-50"
                             placeHolder="Email"
                             Type="email"
                             value={email}
                             setValue={setEmail}
                             placeholderColor="text-gray-500"
                             showError={showError} // Pass the showError state
+                            isRequiredField={true}
+                            showLabelField={true}
+                            labelFieldName="Organization Email"
+                            ref={defaultInputRef}
                             errorMessage={
                               email.length < 1
                                 ? "This field is required"
@@ -94,16 +99,22 @@ function Login() {
                         </div>
                         <div className="w-full">
                           <Input
-                            ClassName="border-[1.5px] border-slate-500 text-black rounded-2xl bg-slate-50"
+                            ClassName="border-[1.5px] border-slate-500 text-black rounded-lg bg-slate-50"
                             placeHolder="Password"
                             Type="password"
                             value={password}
                             setValue={setPassword}
                             placeholderColor="text-gray-500"
                             viewPasswordBtn={true}
+                            isRequiredField={true}
+                            labelFieldName="Password"
+                            showLabelField={true}
                             showError={showError} // Pass the showError state
                             errorMessage={password.length < 4 ? "password is required" : ""}
                           />
+                          <div className="w-full flex items-center justify-end pt-1">
+                            <span className="text-blue-700 capitalize text-sm font-medium">Forgot Password</span>
+                          </div>
                         </div>
                         <div className="w-full pt-3">
                           <button
@@ -120,21 +131,6 @@ function Login() {
                             ) : (
                               "Log in"
                             )}
-                          </button>
-                        </div>
-                        <div className="w-full grid grid-cols-3 items-center justify-center py-2.5">
-                          <span className="w-full h-[1px] bg-black inline-block rounded"></span>
-                          <span className="text-slate-700 capitalize text-xs text-center">or login with </span>
-                          <span className="w-full h-[1px] bg-black inline-block rounded"></span>
-                        </div>
-                        <div className="w-full grid grid-cols-1 items-center gap-3.5">
-                          <button className="w-full capitalize bg-white text-black rounded-full px-3 py-3 flex items-center justify-center gap-2 ">
-                            <FcGoogle className="text-2xl" />
-                            <span className="inline-block">login with google</span>
-                          </button>
-                          <button className="w-full capitalize bg-slate-950 text-white rounded-full px-3 py-3 flex items-center justify-center gap-2">
-                            <FaApple className="text-2xl" />
-                            <span className="inline-block">login with apple</span>
                           </button>
                         </div>
                         <div className="w-full">

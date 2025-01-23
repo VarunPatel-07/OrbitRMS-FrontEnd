@@ -4,7 +4,7 @@ import { getDataFromLocalStorage } from "../HelperFunctions";
 export interface endpointObject {
   endPoint: string;
   protected: boolean;
-  isFormData: boolean;
+  isFormData?: boolean;
   data?: FormData;
 }
 
@@ -30,6 +30,20 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
         headers: headers,
       };
 
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error) {
+        // Handle error (e.g., return an error object or log it)
+        console.error(`Error fetching data from ${eachEndPoint.endPoint}`, error);
+        return null;
+      }
+    } else {
+      const url = eachEndPoint.endPoint;
+      const config = {
+        method: "GET",
+        url,
+      };
       try {
         const res = await axios(config);
         return res?.data;

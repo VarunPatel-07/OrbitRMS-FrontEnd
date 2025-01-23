@@ -72,8 +72,8 @@ export const signUpApiFunction = async (
       const formData = new FormData();
       formData.append("email", data.email);
       formData.append("password", data.password);
-      formData.append("first_name", data.firstName);
-      formData.append("last_name", data.lastName);
+      formData.append("first_name", data.organizationName);
+      formData.append("last_name", data.portalUrl);
       formData.append("username", data.userName);
       Object.assign(config, { data: formData });
     } else {

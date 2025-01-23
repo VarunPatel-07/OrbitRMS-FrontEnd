@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import { FaCloudUploadAlt, FaEye, FaEyeSlash, FaStarOfLife } from "react-icons/fa";
 import { useDropzone } from "react-dropzone";
@@ -22,13 +22,15 @@ function Input(props: InputProps) {
     RequiredFileTypeArray,
     setUrlErrorType,
     showDropFileScreenInFullScreen = true,
+    ref,
+    showCountryCodeSlug = false,
   } = props;
 
   const [isToggled, setIsToggled] = useState(false as boolean);
 
   const updateValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    const basicRegex = /^[a-zA-Z0-9\s]*$/;
+    const basicRegex = /^[^|+=:;?]*$/;
     if (!setValue) return;
     switch (Type) {
       case "url":
@@ -74,13 +76,15 @@ function Input(props: InputProps) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+
+  
+  useEffect()
+
   return (
     <>
       {showLabelField && (
-        <label
-          htmlFor=""
-          className="text-base font-sans font-semibold text-[var(--main-blue-color)] pb-1.5 inline-block">
-          <span className="flex gap-0.5">
+        <label htmlFor="" className="text-sm font-sans font-normal text-[var(--main-blue-color)] pb-2 inline-block">
+          <span className="flex gap-1">
             <span>{labelFieldName}</span>
             {isRequiredField && <FaStarOfLife className="w-1.5 text-red-700" />}
           </span>
@@ -114,26 +118,33 @@ function Input(props: InputProps) {
           )}
         </div>
       ) : (
-        <div
-          className={clsx("bg-transparent rounded-full w-full relative", ClassName)}
-          style={{ border: showError && errorMessage ? "1px solid red" : "" }}>
-          <input
-            type={isToggled ? "text" : Type}
-            value={value}
-            onChange={updateValue}
-            placeholder={placeHolder}
-            className={`bg-transparent caret-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 ${
-              viewPasswordBtn ? "pl-4 pr-10" : "px-4"
-            } autofill:!bg-black autofill:text-black placeholder:${placeholderColor}`}
-            style={{ border: 0, color: "black" }}
-          />
-          {Type === "password" && viewPasswordBtn ? (
-            <span
-              className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 inline-block text-lg z-10"
-              onClick={() => setIsToggled(!isToggled)}>
-              {isToggled ? <FaEye /> : <FaEyeSlash />}
-            </span>
-          ) : null}
+        <div className="flex">
+          {Type == "number" && showCountryCodeSlug && <span>+91</span>}
+          <div
+            className={clsx(
+              "bg-transparent rounded-full w-full relative focus-within:border-blue-600 focus-within:shadow-[0_0_4px_1px_rgba(37,99,237,0.25)]",
+              ClassName
+            )}
+            style={{ border: showError && errorMessage ? "1px solid red" : "" }}>
+            <input
+              type={isToggled ? "text" : Type}
+              value={value}
+              onChange={updateValue}
+              placeholder={placeHolder}
+              className={`bg-transparent caret-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 ${
+                viewPasswordBtn ? "pl-4 pr-10" : "px-4"
+              } autofill:!bg-black autofill:text-black placeholder:${placeholderColor}`}
+              style={{ border: 0, color: "black" }}
+              ref={ref}
+            />
+            {Type === "password" && viewPasswordBtn ? (
+              <span
+                className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 inline-block text-lg z-10"
+                onClick={() => setIsToggled(!isToggled)}>
+                {isToggled ? <FaEye /> : <FaEyeSlash />}
+              </span>
+            ) : null}
+          </div>
         </div>
       )}
       {showError && errorMessage && (
