@@ -1,3 +1,5 @@
+import React from "react";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface BreadcrumbsProps {
   label: string;
@@ -23,6 +25,8 @@ export interface InputProps {
   RequiredFileTypeArray?: Array<string>;
   setUrlErrorType?: (value: string) => void;
   showDropFileScreenInFullScreen?: boolean;
+  ref?: React.Ref<HTMLInputElement>;
+  showCountryCodeSlug?: boolean;
 }
 
 export interface Column {

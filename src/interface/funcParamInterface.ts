@@ -7,6 +7,6 @@ export interface signUpForm {
   email: string;
   password: string;
   userName: string;
-  firstName: string;
-  lastName: string;
+  organizationName: string;
+  portalUrl: string;
 }
