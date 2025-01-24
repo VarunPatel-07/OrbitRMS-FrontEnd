@@ -60,7 +60,7 @@ function Login() {
                 <div className="w-full flex items-center justify-center py-3">
                   <img src={OrbitRMS} alt="" className="w-48" />
                 </div>
-                <img src={Illustration} alt="A Woman Setting On The Computer" className="w-full h-fit object-cover" />
+                <img src={Illustration} alt="A Woman Setting On The Computer" className="w-full h-[1000px] object-cover" />
               </div>
               <div className="w-[60%] bg-[var(--main-white-color)] relative">
                 <div className="w-full h-full px-4 pt-4 pb-8 flex flex-col justify-center">
