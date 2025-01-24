@@ -4,6 +4,8 @@ import { FaCloudUploadAlt, FaEye, FaEyeSlash, FaStarOfLife } from "react-icons/f
 import { useDropzone } from "react-dropzone";
 import { URLSafetyCheckerFunction } from "../Helper/URLSafetyCheckerFunction";
 import { InputProps } from "../interface/propsInterface";
+import { FetchCountryData } from "../Helper/countryDataHelper";
+import DropDown from "./DropDown";
 
 function Input(props: InputProps) {
   const {
@@ -26,7 +28,9 @@ function Input(props: InputProps) {
     showCountryCodeSlug = false,
   } = props;
 
-  const [isToggled, setIsToggled] = useState(false as boolean);
+  const [isToggled, setIsToggled] = useState<boolean>(false);
+  const [countryData, setCountryData] = useState<Array<string>>([]);
+  const [dropDownSelectedValue, setDropDownSelectedValue] = useState<string | number>("");
 
   const updateValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -76,79 +80,105 @@ function Input(props: InputProps) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+  useEffect(() => {
+    if (showCountryCodeSlug && Type == "number") {
+      FetchCountryData(setCountryData);
+    }
+  }, []);
 
-  
-  useEffect()
+  const handelInputFileUpload = () => {
+    return (
+      <div {...getRootProps()} className="mt-1.5">
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          showDropFileScreenInFullScreen ? (
+            <div className="fixed top-0 left-0 w-full h-full bg-[rgba(0,0,0,0.5)] backdrop-blur-sm z-50 flex items-center justify-center">
+              <h6 className="text-5xl font-sans font-semibold">Drop the files here ...</h6>
+            </div>
+          ) : (
+            <>
+              <div className="py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]">
+                <FaCloudUploadAlt className="w-20 h-20 text-indigo-600" />
+                <p className="text-base font-semibold text-indigo-700">Drop Files to Upload</p>
+              </div>
+            </>
+          )
+        ) : (
+          <>
+            <div className="py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]">
+              <FaCloudUploadAlt className="w-20 h-20 text-indigo-600" />
+              <p className="text-base text-black">
+                Drag & Drop Files or <span>Browse</span>
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const renderInputField = () => {
+    return (
+      <div className="flex">
+        {Type == "number" && showCountryCodeSlug && (
+          <DropDown
+            dropdownMenuArray={countryData}
+            dropDownSelectedValue={dropDownSelectedValue}
+            setDropDownSelectedValue={setDropDownSelectedValue}
+            styleDropdownButton="h-full bg-slate-100/[50] rounded-l-lg rounded-r-none border-[1.5px] border-slate-500 border-r-0"
+          />
+        )}
+        <div
+          className={clsx(
+            "bg-transparent rounded-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter",
+            ClassName
+          )}
+          style={{ border: showError && errorMessage ? "1px solid red" : "" }}>
+          <input
+            type={isToggled ? "text" : Type}
+            value={value}
+            onChange={updateValue}
+            placeholder={placeHolder}
+            className={`bg-transparent caret-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter ${
+              viewPasswordBtn ? "pl-4 pr-10" : "px-4"
+            } autofill:!bg-black autofill:text-black placeholder:${placeholderColor}`}
+            style={{ border: 0, color: "black" }}
+            ref={ref}
+          />
+          {Type === "password" && viewPasswordBtn ? (
+            <span
+              className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 inline-block text-lg z-10 text-black"
+              onClick={() => setIsToggled(!isToggled)}>
+              {isToggled ? <FaEye className="transition-all" /> : <FaEyeSlash className="transition-all" />}
+            </span>
+          ) : null}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCheckBox = () => {
+    return (
+      <span className="relative inline-block min-w-4 min-h-4 border border-black/[.65] rounded-sm">
+        <span className="inline-block bg-white absolute top-0 left-0"></span>
+        <span className="inline-block bg-white absolute top-0 left-0"></span>
+      </span>
+    );
+  };
 
   return (
     <>
       {showLabelField && (
-        <label htmlFor="" className="text-sm font-sans font-normal text-[var(--main-blue-color)] pb-2 inline-block">
+        <label htmlFor="" className="text-sm font-inter font-normal text-black/[.65] pb-2 inline-block">
           <span className="flex gap-1">
             <span>{labelFieldName}</span>
             {isRequiredField && <FaStarOfLife className="w-1.5 text-red-700" />}
           </span>
         </label>
       )}
-      {Type === "file" ? (
-        <div {...getRootProps()} className="mt-1.5">
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            showDropFileScreenInFullScreen ? (
-              <div className="fixed top-0 left-0 w-full h-full bg-[rgba(0,0,0,0.5)] backdrop-blur-sm z-50 flex items-center justify-center">
-                <h6 className="text-5xl font-sans font-semibold">Drop the files here ...</h6>
-              </div>
-            ) : (
-              <>
-                <div className="py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]">
-                  <FaCloudUploadAlt className="w-20 h-20 text-indigo-600" />
-                  <p className="text-base font-semibold text-indigo-700">Drop Files to Upload</p>
-                </div>
-              </>
-            )
-          ) : (
-            <>
-              <div className="py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]">
-                <FaCloudUploadAlt className="w-20 h-20 text-indigo-600" />
-                <p className="text-base text-black">
-                  Drag & Drop Files or <span>Browse</span>
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      ) : (
-        <div className="flex">
-          {Type == "number" && showCountryCodeSlug && <span>+91</span>}
-          <div
-            className={clsx(
-              "bg-transparent rounded-full w-full relative focus-within:border-blue-600 focus-within:shadow-[0_0_4px_1px_rgba(37,99,237,0.25)]",
-              ClassName
-            )}
-            style={{ border: showError && errorMessage ? "1px solid red" : "" }}>
-            <input
-              type={isToggled ? "text" : Type}
-              value={value}
-              onChange={updateValue}
-              placeholder={placeHolder}
-              className={`bg-transparent caret-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 ${
-                viewPasswordBtn ? "pl-4 pr-10" : "px-4"
-              } autofill:!bg-black autofill:text-black placeholder:${placeholderColor}`}
-              style={{ border: 0, color: "black" }}
-              ref={ref}
-            />
-            {Type === "password" && viewPasswordBtn ? (
-              <span
-                className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 inline-block text-lg z-10"
-                onClick={() => setIsToggled(!isToggled)}>
-                {isToggled ? <FaEye /> : <FaEyeSlash />}
-              </span>
-            ) : null}
-          </div>
-        </div>
-      )}
+      {Type === "file" ? handelInputFileUpload() : Type == "checkbox" ? renderCheckBox() : renderInputField()}
       {showError && errorMessage && (
-        <span className="text-rose-600 text-xs capitalize mt-1 block px-1.5">{errorMessage}</span>
+        <span className="text-rose-600 text-xs capitalize mt-1 block px-1.5 font-inter">{errorMessage}</span>
       )}
     </>
   );

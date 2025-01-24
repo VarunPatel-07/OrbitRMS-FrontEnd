@@ -1,42 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Illustration from "../assets/Images/a-minimalistic-illustration-of-a-professional-woma-qB-EvpaUTCW_7VPIzQCwAA-liCsDCsyRx6jUnjJ69VBsw.jpeg";
-import OrbitRMS from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
-import Input from "../common/Input";
 import "./auth.css";
 import HelmetSeo from "../Helper/HelmetSeo";
-import { useEffect, useRef, useState } from "react";
-import { isValidEmail } from "../Helper/HelperFunctions";
-import { Link } from "react-router-dom";
-import { loginForm } from "../interface/funcParamInterface";
-import { loginApiFunction, verifyUsersLoginStatus } from "../Helper/api/api";
+import React, { useEffect, useRef, useState } from "react";
+import { verifyUsersLoginStatus } from "../Helper/api/api";
+import signInGradientBgImage from "../assets/Images/gradient-bg.png";
+import signIn3dImage from "../assets/Images/sign-in-page-3d-image.png";
+import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
+import Input from "../common/Input";
+import Button from "../common/Button";
 import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { isValidEmail } from "../Helper/HelperFunctions";
 
 function Login() {
   const defaultInputRef = useRef<HTMLInputElement>(null);
 
-  const [email, setEmail] = useState("" as string);
-  const [password, setPassword] = useState("" as string);
-  const [showError, setShowError] = useState(false as boolean);
-  const [loading, setLoading] = useState(false as boolean);
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [showError, setShowError] = useState<boolean>(false);
 
-  const handelLoginSubmit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (email.length < 1 || password.length < 4) {
+    if (email.trim().length === 0 || password.length < 5 || !isValidEmail(email)) {
       setShowError(true);
-    } else {
-      if (!isValidEmail(email)) {
-        setShowError(true);
-      }
+      return;
     }
-    if (email.length > 1 && password.length > 4 && isValidEmail(email)) {
-      const loginData: loginForm = {
-        email: email,
-        password: password,
-      };
+    if (email.trim().length != 0 && password.length >= 6 && isValidEmail(email)) {
       setLoading(true);
-      await loginApiFunction("auth/login", loginData, "POST", setLoading);
     }
   };
 
@@ -53,101 +44,131 @@ function Login() {
       />
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
-        <div className="w-full h-screen transition-all fade-in">
-          <div className="w-full h-full flex items-center justify-center bg-white overflow-hidden">
-            <div className="w-full h-full flex items-stretch justify-center overflow-hidden">
-              <div className="w-[40%] h-full bg-[var(--main-blue-color)] flex flex-col items-center justify-between">
-                <div className="w-full flex items-center justify-center py-3">
-                  <img src={OrbitRMS} alt="" className="w-48" />
+        <div className="h-screen w-screen bg-[var(--them-pink-color)]">
+          <div className="w-full h-full flex items-stretch justify-start relative">
+            <img src={signInGradientBgImage} className="w-2/3 h-full absolute top-0 left-0" />
+            <img
+              src={signIn3dImage}
+              className="w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block"
+              alt=""
+            />
+            <div className="w-1/3 relative hidden md:block">
+              <div className="w-full h-full p-7">
+                <div>
+                  <img src={orbitLogo} className="max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]" alt="" />
                 </div>
-                <img src={Illustration} alt="A Woman Setting On The Computer" className="w-full h-fit object-cover" />
+                <div className="pt-7 ">
+                  <h1 className="font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5">
+                    OrbitRMS: Simplify, Streamline, Succeed.
+                  </h1>
+                </div>
               </div>
-              <div className="w-[60%] bg-[var(--main-white-color)] relative">
-                <div className="w-full h-full px-4 pt-4 pb-8 flex flex-col justify-center">
-                  <div className="w-full px-3 py-3  max-w-[500px] me-auto">
-                    <h1 className="text-[#242c40] text-4xl font-serif text-nowrap text-start">
-                      logIn To <span className="font-semibold">Orbit</span>RMS
+            </div>
+            <div className="rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10">
+              <div className="login-form w-full h-full relative z-20 flex items-center justify-center">
+                <form
+                  className="flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0"
+                  onSubmit={handleFormSubmit}>
+                  <div className="flex flex-col items-start justify-start gap-2">
+                    <h1 className="font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black">
+                      Sign Into <span className="text-[var(--them-orange-color)]">OrbitRMS!</span>
                     </h1>
-                    <p className="font-serif text-[#242c40] font-normal text-sm capitalize pt-2">
-                      to simplify your work, manage everything in one place, and stay ahead with ease!
+                    <p className="text-black text-sm font-light font-inter">
+                      Sign in and unite all your resources in one orbit!"
                     </p>
                   </div>
-                  <div className="w-full flex items-center justify-center h-full">
-                    <div className="login-form min-w-[50%] bg-[var(--main-white-color)2f] backdrop-blur-sm py-14 px-14 relative z-10 flex items-center justify-center border border-[#242c40] rounded-lg">
-                      <div className="grid grid-cols-1 w-full gap-4 ">
-                        <div className="w-full">
-                          <Input
-                            ClassName="border-[1.5px] border-slate-500 text-black rounded-lg bg-slate-50"
-                            placeHolder="Email"
-                            Type="email"
-                            value={email}
-                            setValue={setEmail}
-                            placeholderColor="text-gray-500"
-                            showError={showError} // Pass the showError state
-                            isRequiredField={true}
-                            showLabelField={true}
-                            labelFieldName="Organization Email"
-                            ref={defaultInputRef}
-                            errorMessage={
-                              email.length < 1
-                                ? "This field is required"
-                                : !isValidEmail(email)
-                                ? "Invalid email address"
+                  <div className="grid grid-cols-1 gap-y-6 sm:gap-y-8 w-full">
+                    <div className="w-full">
+                      <Input
+                        ClassName="border border-black/[.65] text-black"
+                        showLabelField={true}
+                        labelFieldName="Email"
+                        isRequiredField={true}
+                        value={email}
+                        Type="email"
+                        setValue={setEmail}
+                        showError={showError}
+                        errorMessage={
+                          showError
+                            ? email.trim() === ""
+                              ? "This field is required."
+                              : !isValidEmail(email)
+                              ? "Please enter a valid email address."
+                              : ""
+                            : ""
+                        }
+                      />
+                    </div>
+                    <div className="w-full grid grid-cols-1 gap-y-3">
+                      <div className="w-full">
+                        <Input
+                          ClassName="border border-black/[.65]"
+                          showLabelField={true}
+                          labelFieldName="Password"
+                          isRequiredField={true}
+                          Type="password"
+                          viewPasswordBtn={true}
+                          value={password}
+                          setValue={setPassword}
+                          showError={showError}
+                          errorMessage={
+                            showError
+                              ? password.trim().length === 0
+                                ? "This field is required."
+                                : password.trim().length < 6
+                                ? "Password must be at least 6 characters."
                                 : ""
-                            }
-                          />
+                              : ""
+                          }
+                        />
+                      </div>
+                      <div className="w-full flex items-center justify-between">
+                        <div className="flex items-center justify-start gap-1.5">
+                          <Input Type="checkbox" />
+                          <span className="text-black font-light text-sm font-inter">Remember Me</span>
                         </div>
-                        <div className="w-full">
-                          <Input
-                            ClassName="border-[1.5px] border-slate-500 text-black rounded-lg bg-slate-50"
-                            placeHolder="Password"
-                            Type="password"
-                            value={password}
-                            setValue={setPassword}
-                            placeholderColor="text-gray-500"
-                            viewPasswordBtn={true}
-                            isRequiredField={true}
-                            labelFieldName="Password"
-                            showLabelField={true}
-                            showError={showError} // Pass the showError state
-                            errorMessage={password.length < 4 ? "password is required" : ""}
-                          />
-                          <div className="w-full flex items-center justify-end pt-1">
-                            <span className="text-blue-700 capitalize text-sm font-medium">Forgot Password</span>
-                          </div>
-                        </div>
-                        <div className="w-full pt-3">
-                          <button
-                            className="login bg-[var(--main-blue-color)] w-full px-4 py-2.5 rounded-full disabled:opacity-70 disabled:cursor-not-allowed"
-                            onClick={handelLoginSubmit}
-                            disabled={loading}>
-                            {loading ? (
-                              <span className="flex items-center justify-center gap-3" role="status" aria-live="polite">
-                                <span>
-                                  <AiOutlineLoading3Quarters className="animate-spin text-base font-extrabold text-primary" />
-                                </span>
-                                <span>Logging in...</span>
-                              </span>
-                            ) : (
-                              "Log in"
-                            )}
-                          </button>
-                        </div>
-                        <div className="w-full">
-                          <p className="text-center text-sm text-slate-800 capitalize">
-                            don't have account?{" "}
-                            <Link
-                              to={"/auth/signup"}
-                              className="hover:underline hover:text-rose-600 cursor-pointer inline-block">
-                              SignUp
-                            </Link>
-                          </p>
-                        </div>
+                        <span className="text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer">
+                          Forgot Password?
+                        </span>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="bg-[#b79c6f] w-60 h-60 rounded-full absolute -right-32 -bottom-32 circle-box-shadow"></div>
+                  <div className="w-full grid grid-cols-1 gap-y-8">
+                    <Button
+                      Type="submit"
+                      className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all"
+                      disabled={loading}>
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg
+                            className="mr-3 -ml-1 size-5 animate-spin text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24">
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              stroke-width="4"></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span>Signing In...</span>
+                        </span>
+                      ) : (
+                        <span>Sign In</span>
+                      )}
+                    </Button>
+                    <p className="font-inter w-full text-sm text-black">
+                      Don’t have an account?{" "}
+                      <span className="font-medium text-[var(--them-orange-color)] cursor-pointer">Sign Up</span>
+                    </p>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
