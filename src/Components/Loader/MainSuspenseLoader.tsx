@@ -17,7 +17,7 @@ function MainSuspenseLoader({ loading }: { loading: boolean }) {
 
   return (
     <div
-      className={`w-screen h-screen bg-slate-50 backdrop-blur-sm fixed top-0 left-0 z-20 ${fadeOut ? "fade-out" : ""}`}>
+      className={`w-screen h-screen bg-slate-50 backdrop-blur-sm fixed top-0 left-0 z-50 ${fadeOut ? "fade-out" : ""}`}>
       <div className="w-full h-full flex items-center justify-center relative">
         <div className="flex flex-col items-center justify-end gap-28">
           <img src={OrbitRMSTransparentLogo} className="w-80 animate-pulse" alt="Logo" />

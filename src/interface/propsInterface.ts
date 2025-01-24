@@ -10,7 +10,7 @@ export interface BreadcrumbsProps {
 }
 
 export interface InputProps {
-  Type?: "text" | "password" | "email" | "number" | "file" | "url"; // More specific input types
+  Type?: "text" | "password" | "email" | "number" | "file" | "url" | "checkbox"; // More specific input types
   value?: string;
   setValue?: (value: string) => void; // Function that updates the value
   placeHolder?: string; // Optional placeholder

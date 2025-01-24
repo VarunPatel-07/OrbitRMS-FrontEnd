@@ -1,15 +1,18 @@
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { classNames } from "../Helper/HelperFunctions";
+import clsx from "clsx";
 
 function DropDown({
   dropDownSelectedValue,
   setDropDownSelectedValue,
   dropdownMenuArray,
+  styleDropdownButton,
 }: {
   dropDownSelectedValue: string | number;
   setDropDownSelectedValue: React.Dispatch<SetStateAction<string | number>>;
   dropdownMenuArray: Array<string | number>;
+  styleDropdownButton?: string;
 }) {
   const refBox = useRef<HTMLDivElement>(null);
   const [showDropDownMenu, setShowDropDownMenu] = useState(false);
@@ -35,7 +38,7 @@ function DropDown({
     <div className="relative" ref={refBox}>
       <div
         className={classNames(
-          "absolute bottom-full mb-1 text-black bg-white shadow-lg min-w-16 transition-all origin-bottom rounded-md",
+          "absolute bottom-full mb-1 text-black bg-white shadow-lg min-w-16 transition-all origin-bottom rounded-md overflow-auto max-h-[200px]",
           {
             "scale-y-100 opacity-100": showDropDownMenu,
             "scale-y-0 opacity-0": !showDropDownMenu,
@@ -54,7 +57,10 @@ function DropDown({
         </ul>
       </div>
       <button
-        className="px-2.5 pr-8 py-1 bg-white border border-[#D0D5DD] rounded-lg relative min-w-16"
+        className={clsx(
+          "px-2.5 pr-8 py-1 bg-white border border-[#D0D5DD] rounded-lg relative min-w-16 h-full",
+          styleDropdownButton
+        )}
         onClick={() => setShowDropDownMenu(!showDropDownMenu)}>
         <span className="text-black font-inter text-sm">{dropDownSelectedValue}</span>
         <span className="absolute right-1 top-1/2 -translate-y-1/2">

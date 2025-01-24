@@ -180,7 +180,7 @@ function SignUp() {
                           </div>
                           <div className="w-full">
                             <Input
-                              ClassName="border-[1.5px] border-slate-500 text-black rounded-lg bg-slate-50"
+                              ClassName="border-[1.5px] border-slate-500 text-black rounded-lg rounded-l-none bg-slate-50"
                               placeHolder="Password"
                               Type="number"
                               value={password}
@@ -192,6 +192,7 @@ function SignUp() {
                               viewPasswordBtn={true}
                               showError={showError} // Pass the showError state
                               errorMessage={password.length < 4 ? "password is required" : ""}
+                              showCountryCodeSlug={true}
                             />
                           </div>
                           <div className="w-full pt-3">

@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "./Auth/Login";
+import SignIn from "./Auth/SignIn";
 import ErrorFallBack from "./common/ErrorFallBack";
 import SignUp from "./Auth/SignUp";
 import App from "./App";
@@ -17,7 +17,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/auth/login" element={<Login />} />
+        <Route path="/auth/sign-in" element={<SignIn />} />
         <Route path="/auth/signup" element={<SignUp />} />
         <Route path="/pages/organizations" element={<ProtectedRoute element={<Organizations />} />} />
         <Route
