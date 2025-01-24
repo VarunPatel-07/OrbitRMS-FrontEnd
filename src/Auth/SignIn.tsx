@@ -11,7 +11,7 @@ import Button from "../common/Button";
 import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
 import { isValidEmail } from "../Helper/HelperFunctions";
 
-function Login() {
+function SignIn() {
   const defaultInputRef = useRef<HTMLInputElement>(null);
 
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
@@ -178,4 +178,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default SignIn;
