@@ -178,7 +178,7 @@ function Input(props: InputProps) {
       )}
       {Type === "file" ? handelInputFileUpload() : Type == "checkbox" ? renderCheckBox() : renderInputField()}
       {showError && errorMessage && (
-        <span className="text-rose-600 text-xs capitalize mt-1 block px-1.5 font-inter">{errorMessage}</span>
+        <span className="text-rose-600  text-xs  mt-1 block px-1.5 font-inter">{errorMessage}</span>
       )}
     </>
   );

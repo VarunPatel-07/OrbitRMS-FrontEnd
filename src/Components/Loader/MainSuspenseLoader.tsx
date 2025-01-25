@@ -33,3 +33,10 @@ function MainSuspenseLoader({ loading }: { loading: boolean }) {
 }
 
 export default MainSuspenseLoader;
+
+
+
+
+
+
+
