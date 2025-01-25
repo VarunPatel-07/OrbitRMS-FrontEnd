@@ -4,13 +4,17 @@ import HelmetSeo from "../Helper/HelmetSeo";
 import React, { useEffect, useRef, useState } from "react";
 import { verifyUsersLoginStatus } from "../Helper/api/api";
 import signInGradientBgImage from "../assets/Images/gradient-bg.png";
-import signIn3dImage from "../assets/Images/sign-in-page-3d-image.png";
+import signIn3dImage from "../assets/Images/sign-in-page-3d-image.webp";
 import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
 import { isValidEmail } from "../Helper/HelperFunctions";
 import { Link } from "react-router-dom";
+<<<<<<< Updated upstream
+=======
+import Loader from "../common/Loader";
+>>>>>>> Stashed changes
 
 function SignIn() {
   const defaultInputRef = useRef<HTMLInputElement>(null);
@@ -102,7 +106,7 @@ function SignIn() {
                       <Input
                         ClassName="border border-black/[.65] text-black"
                         showLabelField={true}
-                        labelFieldName="Email"
+                        labelFieldName="Organization Email"
                         isRequiredField={true}
                         value={email}
                         Type="email"
@@ -149,9 +153,11 @@ function SignIn() {
                             Remember Me
                           </span>
                         </div>
-                        <span className="text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer">
+                        <Link
+                          to={"/auth/forgot-password"}
+                          className="text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer">
                           Forgot Password?
-                        </span>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -159,6 +165,7 @@ function SignIn() {
                     <Button
                       Type="submit"
                       className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all"
+<<<<<<< Updated upstream
                       disabled={loading}
                     >
                       {loading ? (
@@ -188,13 +195,22 @@ function SignIn() {
                       ) : (
                         <span>Sign In</span>
                       )}
+=======
+                      disabled={loading}>
+                      {loading ? <Loader loaderText="Signing In..." /> : <span>Sign In</span>}
+>>>>>>> Stashed changes
                     </Button>
                     <p className="text-center font-inter w-full text-sm text-black">
                       Don’t have an account?{" "}
+<<<<<<< Updated upstream
                       <Link to="/auth/signup">
                         <span className=" text-[var(--them-orange-color)] cursor-pointer underline  font-bold">
                           Sign Up
                         </span>
+=======
+                      <Link to={"/auth/sign-up"} className="font-medium text-[var(--them-orange-color)] cursor-pointer">
+                        Sign Up
+>>>>>>> Stashed changes
                       </Link>
                     </p>
                   </div>

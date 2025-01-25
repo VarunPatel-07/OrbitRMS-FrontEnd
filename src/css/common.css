@@ -37,3 +37,20 @@
     visibility: hidden;
   }
 }
+
+
+.fade-in {
+  animation: fadeInNetflix 0.8s ease-in forwards;
+}
+
+@keyframes fadeInNetflix {
+  0% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1); /* Slight zoom-out effect */
+    /* visibility: hidden; */
+  }
+}

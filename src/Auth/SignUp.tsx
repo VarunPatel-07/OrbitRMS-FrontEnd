@@ -94,6 +94,7 @@ function SignIn() {
                       Sign in and unite all your resources in one orbit!"
                     </p>
                   </div>
+<<<<<<< Updated upstream
                   <div className="grid grid-cols-1 gap-y-6  w-full">
                     <div className="w-full">
                       <Input
@@ -145,6 +146,142 @@ function SignIn() {
                       />
                       <div className="absolute flex items-center justify-center left-0 top-8 border-r border-black/[.65] text-black w-1/3 h-[40px] bg-[#7FAB984D] rounded-l-lg text-[14px]">
                         orbitrms.com
+=======
+                  <div className="w-full flex items-center justify-center h-full">
+                    <div className="login-form min-w-[50%] bg-[#e8e2e02f] backdrop-blur-sm relative z-10 rounded-lg border border-[#242c40]">
+                      <div className="py-10 px-12 max-h-[555px] overflow-auto hide-scrollbar scroll-mt-6">
+                        <div className="grid grid-cols-1 w-full gap-5">
+                          <div className="w-full">
+                            <Input
+                              ClassName="border-[1.5px] border-slate-500 text-black rounded-lg bg-slate-50"
+                              placeHolder="Organization Name"
+                              Type="text"
+                              value={organizationName}
+                              setValue={setOrganizationName}
+                              placeholderColor="text-gray-500"
+                              isRequiredField={true}
+                              labelFieldName="Organization Name"
+                              showLabelField={true}
+                              showError={showError} // Pass the showError state
+                              errorMessage={organizationName.length < 1 ? "This field is required" : ""}
+                            />
+                          </div>
+                          <div className="w-full">
+                            <Input
+                              ClassName="border-[1.5px] border-slate-500 text-black rounded-lg bg-slate-50"
+                              placeHolder="Organization Email"
+                              Type="email"
+                              value={email}
+                              setValue={setEmail}
+                              placeholderColor="text-gray-500"
+                              isRequiredField={true}
+                              labelFieldName="Organization Email"
+                              showLabelField={true}
+                              showError={showError} // Pass the showError state
+                              errorMessage={email.length < 1 ? "This field is required" : ""}
+                            />
+                          </div>
+                          <div className="w-full">
+                            <label
+                              htmlFor=""
+                              className="text-sm font-sans font-normal text-[var(--main-blue-color)] pb-2 inline-block">
+                              <span className="flex gap-1">
+                                <span>Portal Url</span>
+                                <FaStarOfLife className="w-1.5 text-red-700" />
+                              </span>
+                            </label>
+                            <div className="flex items-center">
+                              <div className="h-full flex items-end w-fit">
+                                <span className="h-[42px] flex items-center justify-start text-black bg-slate-100 border-[1.5px] border-slate-500 border-r-0 py-2.5 px-4 rounded-l-lg opacity-50">
+                                  http://localhost:5173
+                                </span>
+                              </div>
+                              <div className="w-full">
+                                <Input
+                                  ClassName="border-[1.5px] border-slate-500 !text-blue-700 rounded-lg rounded-l-none bg-slate-50"
+                                  placeHolder="Url Slug"
+                                  Type="text"
+                                  value={portalUrl.toLocaleLowerCase()}
+                                  setValue={setPortalUrl}
+                                  placeholderColor="text-gray-500"
+                                  showError={showError} // Pass the showError state
+                                  errorMessage={userName.length < 1 ? "This field is required" : ""}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="w-full">
+                            <Input
+                              ClassName="border-[1.5px] border-slate-500 text-black rounded-lg bg-slate-50"
+                              placeHolder="Email"
+                              Type="email"
+                              value={email}
+                              setValue={setEmail}
+                              placeholderColor="text-gray-500"
+                              isRequiredField={true}
+                              labelFieldName="Website Url"
+                              showLabelField={true}
+                              showError={showError} // Pass the showError state
+                              errorMessage={
+                                email.length < 1
+                                  ? "This field is required"
+                                  : !isValidEmail(email)
+                                  ? "Invalid email address"
+                                  : ""
+                              }
+                            />
+                          </div>
+                          <div className="w-full">
+                            <Input
+                              ClassName="border-[1.5px] border-slate-500 text-black rounded-lg rounded-l-none bg-slate-50"
+                              placeHolder="Password"
+                              Type="number"
+                              value={password}
+                              setValue={setPassword}
+                              placeholderColor="text-gray-500"
+                              isRequiredField={true}
+                              labelFieldName="Contact Number"
+                              showLabelField={true}
+                              viewPasswordBtn={true}
+                              showError={showError} // Pass the showError state
+                              errorMessage={password.length < 4 ? "password is required" : ""}
+                              showCountryCodeSlug={true}
+                            />
+                          </div>
+                          <div className="w-full pt-3">
+                            <button
+                              className="login bg-[var(--main-blue-color)] w-full px-4 py-2.5 rounded-full disabled:opacity-70 disabled:cursor-not-allowed"
+                              onClick={handelLoginSubmit}
+                              disabled={buttonLoader}>
+                              {buttonLoader ? (
+                                <span
+                                  className="flex items-center justify-center gap-3"
+                                  role="status"
+                                  aria-live="polite">
+                                  <span>
+                                    <AiOutlineLoading3Quarters className="animate-spin text-base font-extrabold text-primary" />
+                                  </span>
+                                  <span>Signing in...</span>
+                                </span>
+                              ) : (
+                                "SignUp"
+                              )}
+                            </button>
+                          </div>
+
+                          <div className="w-full">
+                            <p className="text-center text-sm text-slate-800 capitalize">
+                              all ready have an account?{" "}
+                              <Link
+                                to={"/auth/sign-in"}
+                                className="hover:underline hover:text-rose-600 cursor-pointer inline-block">
+                                login
+                              </Link>
+                            </p>
+                          </div>
+                        </div>
+>>>>>>> Stashed changes
                       </div>
                     </div>
                   </div>
