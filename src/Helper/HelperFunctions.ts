@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import validator from "validator";
-import * as CryptoJS from "crypto-js";
+import CryptoJS from "crypto-js";
 
 const encryptionKey = import.meta.env.VITE_ENCRYPTION_KEY;
 const current_environment = import.meta.env.VITE_ENVIRONMENT;

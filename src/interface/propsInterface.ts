@@ -53,3 +53,23 @@ export interface clientInquiryFiltersInterFace {
   options?: Array<operatorObject>;
   type: string;
 }
+
+export interface ModalInfoType {
+  success: boolean;
+  alertModalTitle: string;
+  alertModelInfo: string;
+  optionsButtonArray: Array<{
+    buttonTitle: string;
+    showButton: boolean;
+    link?: string;
+    classNames: string;
+    icon?: React.ReactElement | null;
+    onclickFunction?: () => void;
+  }>;
+}
+
+// Define the props interface
+export interface AlertModalProps {
+  ModalInfo: ModalInfoType;
+  showAlertModal: boolean;
+}

@@ -4,13 +4,14 @@ import HelmetSeo from "../Helper/HelmetSeo";
 import React, { useEffect, useRef, useState } from "react";
 import { verifyUsersLoginStatus } from "../Helper/api/api";
 import signInGradientBgImage from "../assets/Images/gradient-bg.png";
-import signIn3dImage from "../assets/Images/sign-in-page-3d-image.png";
+import signIn3dImage from "../assets/Images/sign-in-page-3d-image.webp";
 import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
 import { isValidEmail } from "../Helper/HelperFunctions";
 import { Link } from "react-router-dom";
+import Loader from "../common/Loader";
 
 function SignIn() {
   const defaultInputRef = useRef<HTMLInputElement>(null);
@@ -23,19 +24,11 @@ function SignIn() {
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (
-      email.trim().length === 0 ||
-      password.length < 5 ||
-      !isValidEmail(email)
-    ) {
+    if (email.trim().length === 0 || password.length < 5 || !isValidEmail(email)) {
       setShowError(true);
       return;
     }
-    if (
-      email.trim().length != 0 &&
-      password.length >= 6 &&
-      isValidEmail(email)
-    ) {
+    if (email.trim().length != 0 && password.length >= 6 && isValidEmail(email)) {
       setLoading(true);
     }
   };
@@ -55,10 +48,7 @@ function SignIn() {
       {!showGlobalLoader && (
         <div className="h-screen w-screen bg-[var(--them-pink-color)]">
           <div className="w-full h-full flex items-stretch justify-start relative">
-            <img
-              src={signInGradientBgImage}
-              className="w-2/3 h-full absolute top-0 left-0"
-            />
+            <img src={signInGradientBgImage} className="w-2/3 h-full absolute top-0 left-0" />
             <img
               src={signIn3dImage}
               className="w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block"
@@ -67,11 +57,7 @@ function SignIn() {
             <div className="w-1/3 relative hidden md:block">
               <div className="w-full h-full p-7">
                 <div>
-                  <img
-                    src={orbitLogo}
-                    className="max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]"
-                    alt=""
-                  />
+                  <img src={orbitLogo} className="max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]" alt="" />
                 </div>
                 <div className="pt-7 ">
                   <h1 className="font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5">
@@ -84,14 +70,10 @@ function SignIn() {
               <div className="login-form w-full h-full relative z-20 flex items-center justify-center">
                 <form
                   className="flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0"
-                  onSubmit={handleFormSubmit}
-                >
+                  onSubmit={handleFormSubmit}>
                   <div className="flex flex-col items-start justify-start gap-2">
                     <h1 className="font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black">
-                      Sign Into{" "}
-                      <span className="text-[var(--them-orange-color)]">
-                        OrbitRMS!
-                      </span>
+                      Sign Into <span className="text-[var(--them-orange-color)]">OrbitRMS!</span>
                     </h1>
                     <p className="text-black text-sm font-light font-inter">
                       Sign in and unite all your resources in one orbit!"
@@ -145,9 +127,7 @@ function SignIn() {
                       <div className="w-full flex items-center justify-between">
                         <div className="flex items-center justify-start gap-1.5">
                           <Input Type="checkbox" />
-                          <span className="text-black font-light text-sm font-inter">
-                            Remember Me
-                          </span>
+                          <span className="text-black font-light text-sm font-inter">Remember Me</span>
                         </div>
                         <span className="text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer">
                           Forgot Password?
@@ -159,35 +139,8 @@ function SignIn() {
                     <Button
                       Type="submit"
                       className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <svg
-                            className="mr-3 -ml-1 size-5 animate-spin text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              stroke-width="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
-                          <span>Signing In...</span>
-                        </span>
-                      ) : (
-                        <span>Sign In</span>
-                      )}
+                      disabled={loading}>
+                      {loading ? <Loader loaderText="Signing In..." /> : <span>Sign In</span>}
                     </Button>
                     <p className="text-center font-inter w-full text-sm text-black">
                       Don’t have an account?{" "}

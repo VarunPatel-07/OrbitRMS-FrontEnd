@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
-import { FaCloudUploadAlt, FaEye, FaEyeSlash, FaStarOfLife } from "react-icons/fa";
+import { FaCheck, FaCloudUploadAlt, FaEye, FaEyeSlash, FaStarOfLife } from "react-icons/fa";
 import { useDropzone } from "react-dropzone";
 import { URLSafetyCheckerFunction } from "../Helper/URLSafetyCheckerFunction";
 import { InputProps } from "../interface/propsInterface";
-import { FetchCountryData } from "../Helper/countryDataHelper";
+import { countryObject, FetchCountryData, fetchUsersPosition } from "../Helper/countryDataHelper";
 import DropDown from "./DropDown";
+import { classNames } from "../Helper/HelperFunctions";
 
 function Input(props: InputProps) {
   const {
@@ -29,8 +30,9 @@ function Input(props: InputProps) {
   } = props;
 
   const [isToggled, setIsToggled] = useState<boolean>(false);
-  const [countryData, setCountryData] = useState<Array<string>>([]);
+  const [countryData, setCountryData] = useState<Array<countryObject>>([]);
   const [dropDownSelectedValue, setDropDownSelectedValue] = useState<string | number>("");
+  const [checkBoxToggled, setCheckBoxToggled] = useState<boolean>(false);
 
   const updateValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -81,9 +83,20 @@ function Input(props: InputProps) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   useEffect(() => {
-    if (showCountryCodeSlug && Type == "number") {
-      FetchCountryData(setCountryData);
-    }
+    (async () => {
+      if (showCountryCodeSlug && Type == "number") {
+        FetchCountryData(setCountryData);
+        const response = await fetchUsersPosition();
+        if (!response) {
+          setDropDownSelectedValue("+91");
+          return;
+        }
+        const data = countryData.find((item) => item?.country_name === response);
+        if (!data) return;
+
+        setDropDownSelectedValue(data?.country_code);
+      }
+    })();
   }, []);
 
   const handelInputFileUpload = () => {
@@ -119,7 +132,7 @@ function Input(props: InputProps) {
 
   const renderInputField = () => {
     return (
-      <div className="flex">
+      <div className="flex w-full items-stretch justify-start">
         {Type == "number" && showCountryCodeSlug && (
           <DropDown
             dropdownMenuArray={countryData}
@@ -159,10 +172,22 @@ function Input(props: InputProps) {
 
   const renderCheckBox = () => {
     return (
-      <span className="relative inline-block min-w-4 min-h-4 border border-black/[.65] rounded-sm">
-        <span className="inline-block bg-white absolute top-0 left-0"></span>
-        <span className="inline-block bg-white absolute top-0 left-0"></span>
-      </span>
+      <button
+        type="button"
+        className={classNames(
+          "relative inline-block min-w-4 min-h-4 rounded-sm cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)]",
+          {
+            "border border-black/[.65] bg-white": !checkBoxToggled,
+            "border border-[var(--them-pink-color)] bg-[rgba(215,139,159,0.2)]": checkBoxToggled,
+          }
+        )}
+        onClick={() => setCheckBoxToggled(!checkBoxToggled)}>
+        {checkBoxToggled && (
+          <span className="flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all">
+            <FaCheck className="w-3 h-3" />
+          </span>
+        )}
+      </button>
     );
   };
 
