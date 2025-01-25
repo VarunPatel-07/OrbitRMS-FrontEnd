@@ -132,7 +132,7 @@ function Input(props: InputProps) {
 
   const renderInputField = () => {
     return (
-      <div className="flex">
+      <div className="flex w-full items-stretch justify-start">
         {Type == "number" && showCountryCodeSlug && (
           <DropDown
             dropdownMenuArray={countryData}
