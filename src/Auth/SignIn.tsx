@@ -129,9 +129,9 @@ function SignIn() {
                           <Input Type="checkbox" />
                           <span className="text-black font-light text-sm font-inter">Remember Me</span>
                         </div>
-                        <span className="text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer">
+                        <Link to={'/auth/forgot-password'} className="text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer">
                           Forgot Password?
-                        </span>
+                        </Link>
                       </div>
                     </div>
                   </div>
