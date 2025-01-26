@@ -1,7 +1,6 @@
 import axios, { AxiosRequestHeaders } from "axios";
 import { loginForm, signUpForm } from "../../interface/funcParamInterface";
-import { clearLocalStorage, ErrorHandler, storeDataInLocalStorage } from "../HelperFunctions";
-import { endpointObject, multipleFetchApi } from "./multipleAPI";
+import { ErrorHandler, storeDataInLocalStorage } from "../HelperFunctions";
 import React, { SetStateAction } from "react";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
@@ -96,25 +95,5 @@ export const signUpApiFunction = async (
 };
 
 export const verifyUsersLoginStatus = async (setShowGlobalLoader: React.Dispatch<SetStateAction<boolean>>) => {
-  const endpointArray: Array<endpointObject> = [
-    {
-      endPoint: "auth/verify-user",
-      protected: true,
-      isFormData: true,
-    },
-  ];
-  const responses = await multipleFetchApi(endpointArray);
-  const res = responses?.[0];
-  if (res?.success) {
-    setShowGlobalLoader(false);
-    const user = res?.user_info;
-    if (user?.default_organization_id || user?.organizations.length >= 1) {
-      console.log("hello");
-    } else {
-      window.location.href = "/pages/organizations";
-    }
-  } else {
-    setShowGlobalLoader(false);
-    clearLocalStorage();
-  }
+  setShowGlobalLoader(false);
 };

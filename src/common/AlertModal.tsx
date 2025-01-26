@@ -27,15 +27,18 @@ function AlertModal(props: AlertModalProps) {
 
   return (
     <div
+      role="dialog"
+      aria-labelledby="alert-modal-title"
+      aria-describedby="alert-modal-description"
       className={classNames(
-        "w-screen h-screen absolute top-0 left-0 z-20 bg-black/[0.6] backdrop-blur-[1px] transition-all",
+        "w-screen h-screen absolute top-0 left-0 z-20 bg-black/[0.6] backdrop-blur-[1px] transition-all duration-75",
         {
-          "scale-50 opacity-0 invisible origin-center": !showAlertModal,
+          "scale-95 opacity-0 invisible origin-center": !showAlertModal,
           "scale-100 opacity-100 visible origin-center": showAlertModal,
         }
       )}>
       <div className="w-full h-full flex items-center justify-center">
-        <div className="min-w-[480px] max-w-[550px] rounded-lg bg-white px-9 py-9" ref={boxRef}>
+        <div className="min-w-[480px] max-w-[550px] rounded-lg bg-white px-9 py-9" ref={boxRef} tabIndex={-1}>
           <div className="grid grid-cols-1 gap-9">
             {/* It Is used To Show Case The Icon Related To The Action Modal */}
             <div className="w-full flex items-center justify-center">
@@ -91,23 +94,29 @@ function AlertModal(props: AlertModalProps) {
             </div>
             <div className="w-full">
               <div className="grid grid-cols-1 gap-6">
-                {ModalInfo?.optionsButtonArray?.map((item) =>
-                  item?.link?.trim().length == 0 ? (
-                    <Button Type="button" className={item?.classNames} onClick={item?.onclickFunction}>
-                      <span className="flex items-center justify-center gap-2">
-                        {item?.icon}
-                        <span>{item?.buttonTitle}</span>
-                      </span>
+                {ModalInfo?.optionsButtonArray?.map((item, index) => {
+                  const isButton = !item?.link;
+                  const commonContent = (
+                    <span className="flex items-center justify-center gap-2">
+                      {item?.icon}
+                      <span>{item?.buttonTitle || "Default Title"}</span>
+                    </span>
+                  );
+
+                  return isButton ? (
+                    <Button
+                      Type="button"
+                      className={item?.classNames || "default-class"}
+                      onClick={item?.onclickFunction}
+                      key={index}>
+                      {commonContent}
                     </Button>
                   ) : (
-                    <Link to={item?.link || ""} className={item?.classNames}>
-                      <span className="flex items-center justify-center gap-2">
-                        {item?.icon}
-                        <span>{item?.buttonTitle}</span>
-                      </span>
+                    <Link to={item?.link || "#"} className={item?.classNames || "default-class"} key={index}>
+                      {commonContent}
                     </Link>
-                  )
-                )}
+                  );
+                })}
               </div>
             </div>
           </div>

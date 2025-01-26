@@ -13,6 +13,7 @@ import ProtectedRoute from "./Helper/ProtectedRoute";
 import RegisterOrganizationForm from "./Organization/RegisterOrganizationForm";
 import "./css/font.css";
 import ForgotPassword from "./Auth/ForgotPassword";
+import CreateResetPassword from "./Auth/createResetPassword";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -21,6 +22,9 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/auth/sign-in" element={<SignIn />} />
         <Route path="/auth/sign-up" element={<SignUp />} />
         <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+        <Route path="/auth/create-password" element={<CreateResetPassword />} />
+        <Route path="/auth/reset-password" element={<CreateResetPassword />} />
+
         <Route path="/pages/organizations" element={<ProtectedRoute element={<Organizations />} />} />
         <Route
           path="/pages/register-organization"
