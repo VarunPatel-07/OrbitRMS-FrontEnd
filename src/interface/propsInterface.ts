@@ -1,4 +1,4 @@
-import React from "react";
+import React, { SetStateAction } from "react";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface BreadcrumbsProps {
@@ -56,6 +56,7 @@ export interface clientInquiryFiltersInterFace {
 
 export interface ModalInfoType {
   success: boolean;
+  protected: boolean;
   alertModalTitle: string;
   alertModelInfo: string;
   optionsButtonArray: Array<{
@@ -72,4 +73,5 @@ export interface ModalInfoType {
 export interface AlertModalProps {
   ModalInfo: ModalInfoType;
   showAlertModal: boolean;
+  setShowAlertModal: React.Dispatch<SetStateAction<boolean>>;
 }

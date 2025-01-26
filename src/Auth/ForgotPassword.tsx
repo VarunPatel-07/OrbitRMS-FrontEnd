@@ -20,6 +20,7 @@ import { IoMdRefresh } from "react-icons/io";
 
 const initialModalInfo = {
   success: false,
+  protected: false,
   alertModalTitle: "",
   alertModelInfo: "",
   optionsButtonArray: [],
@@ -73,6 +74,7 @@ function ForgotPassword() {
     if (!success) {
       setModalInfo({
         success: false,
+        protected: true,
         alertModalTitle: "Oops! We Couldn’t Find Your Email",
         alertModelInfo: `We couldn’t find an account associated with the email <a href="mailto:${email}" class="text-blue-600 font-medium underline cursor-pointer">${email}</a>. Double-check for typos or try another email.`,
         optionsButtonArray: errorAlertModalButtonArray,
@@ -81,6 +83,7 @@ function ForgotPassword() {
     }
     setModalInfo({
       success: true,
+      protected: true,
       alertModalTitle: "You’re One Step Away from Resetting Your Password!",
       alertModelInfo: `We’ve just sent a password reset email to <a href="mailto:${email}" class="text-blue-600 font-medium underline cursor-pointer">${email}</a>. Follow the easy steps inside to regain access to your account. 🚀 Make sure to check your spam folder if it doesn’t show up in your inbox. 🔍`,
       optionsButtonArray: successAlertModalButtonArray,
@@ -193,7 +196,7 @@ function ForgotPassword() {
         </div>
       )}
 
-      <AlertModal ModalInfo={modalInfo} showAlertModal={showAlertModal} />
+      <AlertModal ModalInfo={modalInfo} showAlertModal={showAlertModal} setShowAlertModal={setShowAlertModal} />
     </>
   );
 }

@@ -4,9 +4,26 @@ import { MdOutlineDoNotDisturbOn } from "react-icons/md";
 import { BsCheckCircle } from "react-icons/bs";
 import Button from "./Button";
 import { Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
 
 function AlertModal(props: AlertModalProps) {
-  const { ModalInfo, showAlertModal } = props;
+  const { ModalInfo, showAlertModal, setShowAlertModal } = props;
+
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handelClickOutSideTheBox = (event: MouseEvent) => {
+      if (!ModalInfo?.protected) {
+        if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+          setShowAlertModal(false);
+        }
+      }
+    };
+    document.addEventListener("mousedown", handelClickOutSideTheBox);
+    return () => {
+      document.removeEventListener("mousedown", handelClickOutSideTheBox);
+    };
+  }, [ModalInfo?.protected, setShowAlertModal]);
 
   return (
     <div
@@ -18,7 +35,7 @@ function AlertModal(props: AlertModalProps) {
         }
       )}>
       <div className="w-full h-full flex items-center justify-center">
-        <div className="min-w-[480px] max-w-[550px] rounded-lg bg-white px-9 py-9">
+        <div className="min-w-[480px] max-w-[550px] rounded-lg bg-white px-9 py-9" ref={boxRef}>
           <div className="grid grid-cols-1 gap-9">
             {/* It Is used To Show Case The Icon Related To The Action Modal */}
             <div className="w-full flex items-center justify-center">
