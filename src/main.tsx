@@ -13,26 +13,30 @@ import ProtectedRoute from "./Helper/ProtectedRoute";
 import RegisterOrganizationForm from "./Organization/RegisterOrganizationForm";
 import "./css/font.css";
 import ForgotPassword from "./Auth/ForgotPassword";
-import CreateResetPassword from "./Auth/createResetPassword";
+import CreateResetPassword from "./Auth/CreateResetPassword";
+import Notification from "./common/Notification/Notification";
+import { NotificationContextApiProvider } from "./common/Notification/context/NotificationContextApi";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/auth/sign-in" element={<SignIn />} />
-        <Route path="/auth/sign-up" element={<SignUp />} />
-        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-        <Route path="/auth/create-password" element={<CreateResetPassword />} />
-        <Route path="/auth/reset-password" element={<CreateResetPassword />} />
-
-        <Route path="/pages/organizations" element={<ProtectedRoute element={<Organizations />} />} />
-        <Route
-          path="/pages/register-organization"
-          element={<ProtectedRoute element={<RegisterOrganizationForm />} />}
-        />
-        <Route path="/*" element={<ProtectedRoute element={<App />} />} />
-        <Route path="*" element={<ErrorFallBack />} />
-      </Routes>
-    </BrowserRouter>
+    <NotificationContextApiProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/auth/sign-in" element={<SignIn />} />
+          <Route path="/auth/sign-up" element={<SignUp />} />
+          <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/create-password" element={<CreateResetPassword />} />
+          <Route path="/auth/reset-password" element={<CreateResetPassword />} />
+          <Route path="/pages/organizations" element={<ProtectedRoute element={<Organizations />} />} />
+          <Route
+            path="/pages/register-organization"
+            element={<ProtectedRoute element={<RegisterOrganizationForm />} />}
+          />
+          <Route path="/*" element={<ProtectedRoute element={<App />} />} />
+          <Route path="*" element={<ErrorFallBack />} />
+        </Routes>
+      </BrowserRouter>
+      <Notification />
+    </NotificationContextApiProvider>
   </StrictMode>
 );

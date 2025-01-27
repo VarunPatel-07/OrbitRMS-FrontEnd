@@ -23,22 +23,20 @@ function CreateResetPassword() {
   const [conformPassword, setConformPassword] = useState<string>("");
   const [showError, setShowError] = useState<boolean>(false);
 
-  const submitForgotPasswordHandler = async () => {
+  useEffect(() => {
+    verifyUsersLoginStatus(setShowGlobalLoader);
+  }, []);
+
+  const submitForgotPasswordHandler = () => {
+    setLoading(true);
     // todo we will not hard cord the value it will totally depend to the api response
-    if (password.trim().length < 5 && conformPassword.trim().length < 5) {
-      setShowError(true);
-      return;
-    }
-    if (password != conformPassword) {
+    if (password.trim().length < 5 || conformPassword.trim().length < 5 || password != conformPassword) {
       setShowError(true);
       return;
     }
     setLoading(true);
     setShowError(false);
   };
-  useEffect(() => {
-    verifyUsersLoginStatus(setShowGlobalLoader);
-  }, []);
 
   return (
     <>
