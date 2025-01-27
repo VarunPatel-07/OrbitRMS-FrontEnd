@@ -49,9 +49,10 @@ function SignIn() {
   return (
     <>
       <HelmetSeo
-        Title="Login | OrbitRMS"
-        Content="logIn To OrbitRMS to simplify your work, manage everything in one place, and stay ahead with ease!"
+        Title="Sign Up | OrbitRMS"
+        Content="Create an account on OrbitRMS to streamline your work, access all features, and manage everything effortlessly!"
       />
+
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
         <div className="h-screen w-screen bg-[var(--them-pink-color)]">

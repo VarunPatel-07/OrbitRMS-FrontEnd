@@ -41,9 +41,10 @@ function SignIn() {
   return (
     <>
       <HelmetSeo
-        Title="Login | OrbitRMS"
-        Content="logIn To OrbitRMS to simplify your work, manage everything in one place, and stay ahead with ease!"
+        Title="Sign In | OrbitRMS"
+        Content="Log in to OrbitRMS and start managing everything in one place with ease and efficiency!"
       />
+
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
         <div className="h-screen w-screen bg-[var(--them-pink-color)]">
@@ -129,7 +130,9 @@ function SignIn() {
                           <Input Type="checkbox" />
                           <span className="text-black font-light text-sm font-inter">Remember Me</span>
                         </div>
-                        <Link to={'/auth/forgot-password'} className="text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer">
+                        <Link
+                          to={"/auth/forgot-password"}
+                          className="text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer">
                           Forgot Password?
                         </Link>
                       </div>

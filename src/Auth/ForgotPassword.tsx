@@ -9,7 +9,6 @@ import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
-import { isValidEmail } from "../Helper/HelperFunctions";
 import { Link } from "react-router-dom";
 import { LiaKeySolid } from "react-icons/lia";
 import { BsArrowLeft } from "react-icons/bs";
@@ -17,6 +16,7 @@ import Loader from "../common/Loader";
 import AlertModal from "../common/AlertModal";
 import { ModalInfoType } from "../interface/propsInterface";
 import { IoMdRefresh } from "react-icons/io";
+import { isValidEmail } from "../Helper/HelperFunctions";
 
 const initialModalInfo = {
   success: false,
@@ -29,14 +29,15 @@ const initialModalInfo = {
 function ForgotPassword() {
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
   const [loading, setLoading] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>("varunspatel@gmail.com");
-  const [showError, setShowError] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
   const [showAlertModal, setShowAlertModal] = useState<boolean>(false);
   const [modalInfo, setModalInfo] = useState<ModalInfoType>(initialModalInfo);
+  const [showError, setShowError] = useState<boolean>(false);
 
   const tryAgainFunction = () => {
     setShowAlertModal(false);
     setTimeout(() => setModalInfo(initialModalInfo), 350);
+    setEmail("");
   };
 
   const errorAlertModalButtonArray = [
@@ -51,9 +52,10 @@ function ForgotPassword() {
       showButton: true,
       classNames: "font-medium font-inter cursor-pointer text-sm text-black/[0.65]",
       icon: <IoMdRefresh className="w-5 h-5" />,
-      onclickFunction: tryAgainFunction,
+      onclickFunction: () => tryAgainFunction(),
     },
   ];
+
   const successAlertModalButtonArray = [
     {
       buttonTitle: "Contact Support",
@@ -66,7 +68,6 @@ function ForgotPassword() {
       link: "/auth/sign-in",
       classNames: "font-medium font-inter cursor-pointer text-sm text-black/[0.65]",
       icon: <BsArrowLeft className="w-5 h-5" />,
-      onclickFunction: tryAgainFunction,
     },
   ];
 
@@ -79,39 +80,45 @@ function ForgotPassword() {
         alertModelInfo: `We couldn’t find an account associated with the email <a href="mailto:${email}" class="text-blue-600 font-medium underline cursor-pointer">${email}</a>. Double-check for typos or try another email.`,
         optionsButtonArray: errorAlertModalButtonArray,
       });
+      setShowAlertModal(true);
       return;
     }
     setModalInfo({
       success: true,
       protected: true,
       alertModalTitle: "You’re One Step Away from Resetting Your Password!",
-      alertModelInfo: `We’ve just sent a password reset email to <a href="mailto:${email}" class="text-blue-600 font-medium underline cursor-pointer">${email}</a>. Follow the easy steps inside to regain access to your account. 🚀 Make sure to check your spam folder if it doesn’t show up in your inbox. 🔍`,
+      alertModelInfo: `We’ve just sent a password reset email to <a href="mailto:${email}" class="text-blue-600 font-medium underline cursor-pointer">${email}</a>. Follow the steps inside to regain access. 🚀 Check your spam folder if it doesn’t show up. 🔍`,
       optionsButtonArray: successAlertModalButtonArray,
     });
+    setShowAlertModal(true);
   };
 
-  const handleFormSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setShowAlertModal(true);
-    alertModalStateHandlerFunction(true);
-    if (email.trim().length === 0 || !isValidEmail(email)) {
+  const submitForgotPasswordHandler = async () => {
+    // todo we will not hard cord the value it will totally depend to the api response
+    if (email.trim().length < 1 && !isValidEmail(email)) {
       setShowError(true);
       return;
     }
-    if (email.trim().length != 0 && isValidEmail(email)) {
-      setLoading(true);
+    setLoading(true);
+    setShowError(false);
+    try {
+      alertModalStateHandlerFunction(false);
+    } catch {
+      alertModalStateHandlerFunction(false);
+    } finally {
+      setLoading(false);
     }
   };
-
   useEffect(() => {
     verifyUsersLoginStatus(setShowGlobalLoader);
   }, []);
   return (
     <>
       <HelmetSeo
-        Title="Login | OrbitRMS"
-        Content="logIn To OrbitRMS to simplify your work, manage everything in one place, and stay ahead with ease!"
+        Title="Forgot Password | OrbitRMS"
+        Content="Reset your password for OrbitRMS. Simplify your work and regain access to manage everything in one place effortlessly!"
       />
+
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
         <div className="h-screen w-screen bg-[var(--them-pink-color)]">
@@ -158,16 +165,13 @@ function ForgotPassword() {
                       isRequiredField={true}
                       value={email}
                       Type="email"
-                      showCountryCodeSlug={true}
                       setValue={setEmail}
                       showError={showError}
                       errorMessage={
-                        showError
-                          ? email.trim() === ""
-                            ? "This field is required."
-                            : !isValidEmail(email)
-                            ? "Please enter a valid email address."
-                            : ""
+                        showError && email.trim().length < 1
+                          ? "this is a required field"
+                          : !isValidEmail(email)
+                          ? "please enter a valid email address."
                           : ""
                       }
                     />
@@ -177,7 +181,7 @@ function ForgotPassword() {
                       Type="button"
                       className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all"
                       disabled={loading}
-                      onClick={(e) => handleFormSubmit(e)}>
+                      onClick={submitForgotPasswordHandler}>
                       {loading ? <Loader loaderText="Submitting..." /> : <span>Submit</span>}
                     </Button>
                     <Link
