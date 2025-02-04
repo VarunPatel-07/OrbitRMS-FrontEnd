@@ -7,7 +7,6 @@ import signInGradientBgImage from "../assets/Images/gradient-bg.png";
 import signIn3dImage from "../assets/Images/sign-in-page-3d-image.webp";
 import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
 import Input from "../common/Input";
-import Button from "../common/Button";
 import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
 import { isValidEmail } from "../Helper/HelperFunctions";
 import { Link } from "react-router-dom";
@@ -83,6 +82,7 @@ function SignIn() {
                   <div className="grid grid-cols-1 gap-y-6  w-full">
                     <div className="w-full">
                       <Input
+                        name="email"
                         ClassName="border border-black/[.65] text-black"
                         showLabelField={true}
                         labelFieldName="Email"
@@ -105,6 +105,7 @@ function SignIn() {
                     <div className="w-full grid grid-cols-1 gap-y-3">
                       <div className="w-full">
                         <Input
+                          name="password"
                           ClassName="border border-black/[.65]"
                           showLabelField={true}
                           labelFieldName="Password"
@@ -127,7 +128,7 @@ function SignIn() {
                       </div>
                       <div className="w-full flex items-center justify-between">
                         <div className="flex items-center justify-start gap-1.5">
-                          <Input Type="checkbox" />
+                          <Input Type="checkbox" name="checkbox"  />
                           <span className="text-black font-light text-sm font-inter">Remember Me</span>
                         </div>
                         <Link
@@ -139,12 +140,12 @@ function SignIn() {
                     </div>
                   </div>
                   <div className="w-full grid grid-cols-1 gap-y-8">
-                    <Button
-                      Type="submit"
+                    <button
+                      type="submit"
                       className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all"
                       disabled={loading}>
                       {loading ? <Loader loaderText="Signing In..." /> : <span>Sign In</span>}
-                    </Button>
+                    </button>
                     <p className="text-center font-inter w-full text-sm text-black">
                       Don’t have an account?{" "}
                       <Link to="/auth/signup">

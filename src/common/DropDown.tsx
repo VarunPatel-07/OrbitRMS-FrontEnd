@@ -113,7 +113,7 @@ function DropDown({
     <div className="relative" ref={refBox}>
       <div
         className={classNames(
-          "absolute text-black bg-[#fdfcfa] shadow-lg min-w-16 transition-all rounded-md overflow-auto max-h-[200px]",
+          "absolute text-black bg-[#fdfcfa] shadow-lg min-w-16 transition-all rounded-md overflow-auto max-h-[150px]",
           {
             "scale-y-100 opacity-100": showDropDownMenu,
             "scale-y-0 opacity-0": !showDropDownMenu,

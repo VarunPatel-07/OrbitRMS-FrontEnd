@@ -10,6 +10,7 @@ import { classNames } from "../Helper/HelperFunctions";
 
 function Input(props: InputProps) {
   const {
+    name,
     Type,
     value,
     setValue,
@@ -27,12 +28,12 @@ function Input(props: InputProps) {
     showDropFileScreenInFullScreen = true,
     ref,
     showCountryCodeSlug = false,
+    onChange,
   } = props;
 
   const [isToggled, setIsToggled] = useState<boolean>(false);
   const [countryData, setCountryData] = useState<Array<countryObject>>([]);
   const [dropDownSelectedValue, setDropDownSelectedValue] = useState<string | number>("");
-  const [checkBoxToggled, setCheckBoxToggled] = useState<boolean>(false);
 
   const updateValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -91,7 +92,9 @@ function Input(props: InputProps) {
           setDropDownSelectedValue("+91");
           return;
         }
-        const data = countryData.find((item) => item?.country_name === response);
+        const data = countryData.find(
+          (item) => item?.country_name?.toLocaleLowerCase() == response?.toLocaleLowerCase()
+        );
         if (!data) return;
 
         setDropDownSelectedValue(data?.country_code);
@@ -139,6 +142,7 @@ function Input(props: InputProps) {
             dropDownSelectedValue={dropDownSelectedValue}
             setDropDownSelectedValue={setDropDownSelectedValue}
             styleDropdownButton="h-full bg-slate-100/[50] rounded-l-lg rounded-r-none border-[1.5px] border-slate-500 border-r-0"
+            dropdownPosition="top"
           />
         )}
         <div
@@ -148,9 +152,10 @@ function Input(props: InputProps) {
           )}
           style={{ border: showError && errorMessage ? "1px solid red" : "" }}>
           <input
+            name={name}
             type={isToggled ? "text" : Type}
-            value={value}
-            onChange={updateValue}
+            value={typeof value == "string" ? value : ""}
+            onChange={setValue ? updateValue : onChange}
             placeholder={placeHolder}
             className={`bg-transparent caret-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter ${
               viewPasswordBtn ? "pl-4 pr-10" : "px-4"
@@ -171,24 +176,26 @@ function Input(props: InputProps) {
   };
 
   const renderCheckBox = () => {
-    return (
-      <button
-        type="button"
-        className={classNames(
-          "relative inline-block min-w-4 min-h-4 rounded-sm cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)]",
-          {
-            "border border-black/[.65] bg-white": !checkBoxToggled,
-            "border border-[var(--them-pink-color)] bg-[rgba(215,139,159,0.2)]": checkBoxToggled,
-          }
-        )}
-        onClick={() => setCheckBoxToggled(!checkBoxToggled)}>
-        {checkBoxToggled && (
-          <span className="flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all">
-            <FaCheck className="w-3 h-3" />
-          </span>
-        )}
-      </button>
-    );
+    if (setValue) {
+      return (
+        <button
+          type="button"
+          className={classNames(
+            "relative inline-block min-w-4 min-h-4 rounded-sm cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)]",
+            {
+              "border border-black/[.65] bg-white": value != "true",
+              "border border-[var(--them-pink-color)] bg-[rgba(215,139,159,0.2)]": value == "true",
+            }
+          )}
+          onClick={() => setValue(value == "true" ? "false" : "true")}>
+          {value == "true" && (
+            <span className="flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all">
+              <FaCheck className="w-3 h-3" />
+            </span>
+          )}
+        </button>
+      );
+    }
   };
 
   return (
