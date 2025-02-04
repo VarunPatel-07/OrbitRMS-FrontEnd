@@ -10,6 +10,7 @@ export interface BreadcrumbsProps {
 }
 
 export interface InputProps {
+  name: string;
   Type?: "text" | "password" | "email" | "number" | "file" | "url" | "checkbox"; // More specific input types
   value?: string;
   setValue?: (value: string) => void; // Function that updates the value
@@ -27,6 +28,7 @@ export interface InputProps {
   showDropFileScreenInFullScreen?: boolean;
   ref?: React.Ref<HTMLInputElement>;
   showCountryCodeSlug?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export interface Column {
