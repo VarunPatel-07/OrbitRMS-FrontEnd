@@ -2,7 +2,7 @@
 import "./auth.css";
 import HelmetSeo from "../Helper/HelmetSeo";
 import React, { useEffect, useRef, useState } from "react";
-import { verifyUsersLoginStatus } from "../Helper/api/api";
+import { signUpApiFunction, verifyUsersLoginStatus } from "../Helper/api/api";
 import signInGradientBgImage from "../assets/Images/gradient-bg.png";
 import signIn3dImage from "../assets/Images/sign-in-page-3d-image.webp";
 import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { FaStarOfLife } from "react-icons/fa";
 import { BsArrowLeft } from "react-icons/bs";
 import Loader from "../common/Loader";
+import { signUpForm } from "../interface/funcParamInterface";
 
 const initialOrganizationFormInfo = {
   organizationName: "",
@@ -49,6 +50,17 @@ function SignIn() {
     e.preventDefault();
     if (formData.contactNumber?.trim() != "" && termsAccepted == "true") {
       setLoading(true);
+      const data: signUpForm = {
+        organizationName: formData.organizationName,
+        contactNumber: formData.contactNumber,
+        countryInfo: dropDownSelectedValue as string,
+        defaultPortalUrlSlug: formData.defaultPortalUrlSlug,
+        portalUrl: portalUrl,
+        primaryEmail: formData.primaryEmail,
+        termsAccepted: termsAccepted == "true" ? true : false,
+        websiteUrl: formData.websiteUrl,
+      };
+      signUpApiFunction("organization/sign-up", data, "POST", setLoading);
     } else {
       setShowErrorPageTwo(true);
     }

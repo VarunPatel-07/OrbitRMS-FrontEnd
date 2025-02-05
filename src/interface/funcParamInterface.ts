@@ -11,7 +11,7 @@ export interface signUpForm {
   contactNumber: string;
   portalUrl: string;
   termsAccepted: boolean;
-  countryInfo: object;
+  countryInfo: string;
 }
 
 // const initialOrganizationFormInfo = {
