@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, forwardRef, ForwardedRef } from "react";
 import clsx from "clsx";
 import { FaCheck, FaCloudUploadAlt, FaEye, FaEyeSlash, FaStarOfLife } from "react-icons/fa";
 import { useDropzone } from "react-dropzone";
@@ -8,38 +8,37 @@ import { countryObject, FetchCountryData, fetchUsersPosition } from "../Helper/c
 import DropDown from "./DropDown";
 import { classNames } from "../Helper/HelperFunctions";
 
-function Input(props: InputProps) {
+const Input = forwardRef<HTMLInputElement, InputProps>((props, ref: ForwardedRef<HTMLInputElement>) => {
   const {
     name,
-    Type,
+    type,
     value,
     setValue,
     placeHolder,
-    ClassName,
+    className,
     placeholderColor,
     viewPasswordBtn = false,
     showError = false,
     errorMessage = "",
-    showLabelField = false,
     labelFieldName,
     isRequiredField = false,
     RequiredFileTypeArray,
     setUrlErrorType,
     showDropFileScreenInFullScreen = true,
-    ref,
-    showCountryCodeSlug = false,
     onChange,
+    countryDropDownPosition,
+    dropDownSelectedValue,
+    setDropDownSelectedValue,
   } = props;
 
   const [isToggled, setIsToggled] = useState<boolean>(false);
   const [countryData, setCountryData] = useState<Array<countryObject>>([]);
-  const [dropDownSelectedValue, setDropDownSelectedValue] = useState<string | number>("");
 
   const updateValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     const basicRegex = /^[^|+=:;?]*$/;
     if (!setValue) return;
-    switch (Type) {
+    switch (type) {
       case "url":
         if (val.length >= 0) {
           setValue(val);
@@ -85,22 +84,25 @@ function Input(props: InputProps) {
 
   useEffect(() => {
     (async () => {
-      if (showCountryCodeSlug && Type == "number") {
-        FetchCountryData(setCountryData);
-        const response = await fetchUsersPosition();
-        if (!response) {
-          setDropDownSelectedValue("+91");
-          return;
-        }
-        const data = countryData.find(
-          (item) => item?.country_name?.toLocaleLowerCase() == response?.toLocaleLowerCase()
-        );
-        if (!data) return;
+      if (setDropDownSelectedValue && type == "number" && countryData.length == 0) {
+        const country_Data = await FetchCountryData();
 
-        setDropDownSelectedValue(data?.country_code);
+        if (country_Data) {
+          const response = await fetchUsersPosition();
+
+          const data = country_Data.find(
+            (item: countryObject) => item?.country_name?.toLocaleLowerCase() == response?.toLocaleLowerCase()
+          );
+
+          if (!data) return;
+
+          setDropDownSelectedValue(JSON.stringify(data));
+
+          setCountryData(country_Data);
+        }
       }
     })();
-  }, []);
+  }, [setDropDownSelectedValue, type]);
 
   const handelInputFileUpload = () => {
     return (
@@ -136,34 +138,34 @@ function Input(props: InputProps) {
   const renderInputField = () => {
     return (
       <div className="flex w-full items-stretch justify-start">
-        {Type == "number" && showCountryCodeSlug && (
+        {type == "number" && dropDownSelectedValue && setDropDownSelectedValue && (
           <DropDown
             dropdownMenuArray={countryData}
             dropDownSelectedValue={dropDownSelectedValue}
             setDropDownSelectedValue={setDropDownSelectedValue}
             styleDropdownButton="h-full bg-slate-100/[50] rounded-l-lg rounded-r-none border-[1.5px] border-slate-500 border-r-0"
-            dropdownPosition="top"
+            dropdownPosition={countryDropDownPosition}
           />
         )}
         <div
           className={clsx(
             "bg-transparent rounded-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter",
-            ClassName
+            className
           )}
           style={{ border: showError && errorMessage ? "1px solid red" : "" }}>
           <input
             name={name}
-            type={isToggled ? "text" : Type}
+            type={isToggled ? "text" : type == "number" ? "text" : type}
             value={typeof value == "string" ? value : ""}
             onChange={setValue ? updateValue : onChange}
             placeholder={placeHolder}
-            className={`bg-transparent caret-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter ${
+            className={`bg-transparent caret-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter resize-none ${
               viewPasswordBtn ? "pl-4 pr-10" : "px-4"
             } autofill:!bg-black autofill:text-black placeholder:${placeholderColor}`}
             style={{ border: 0, color: "black" }}
             ref={ref}
           />
-          {Type === "password" && viewPasswordBtn ? (
+          {type === "password" && viewPasswordBtn ? (
             <span
               className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 inline-block text-lg z-10 text-black"
               onClick={() => setIsToggled(!isToggled)}>
@@ -200,7 +202,7 @@ function Input(props: InputProps) {
 
   return (
     <>
-      {showLabelField && (
+      {labelFieldName?.trim() != "" && (
         <label htmlFor="" className="text-sm font-inter font-normal text-black/[.65] pb-2 inline-block">
           <span className="flex gap-1">
             <span>{labelFieldName}</span>
@@ -208,12 +210,12 @@ function Input(props: InputProps) {
           </span>
         </label>
       )}
-      {Type === "file" ? handelInputFileUpload() : Type == "checkbox" ? renderCheckBox() : renderInputField()}
+      {type === "file" ? handelInputFileUpload() : type == "checkbox" ? renderCheckBox() : renderInputField()}
       {showError && errorMessage && (
         <span className="text-rose-600  text-xs  mt-1 block px-1.5 font-inter">{errorMessage}</span>
       )}
     </>
   );
-}
+});
 
 export default Input;

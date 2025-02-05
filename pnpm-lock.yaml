@@ -20,6 +20,9 @@ importers:
       axios:
         specifier: ^1.7.9
         version: 1.7.9
+      cleave.js:
+        specifier: ^1.6.0
+        version: 1.6.0
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -69,6 +72,9 @@ importers:
       '@eslint/js':
         specifier: ^9.13.0
         version: 9.14.0
+      '@types/cleave.js':
+        specifier: ^1.4.12
+        version: 1.4.12
       '@types/crypto-js':
         specifier: ^4.2.2
         version: 4.2.2
@@ -97,7 +103,7 @@ importers:
         specifier: ^15.11.0
         version: 15.12.0
       husky:
-        specifier: ^8.0.3
+        specifier: ^8.0.0
         version: 8.0.3
       postcss:
         specifier: ^8.4.47
@@ -614,6 +620,9 @@ packages:
   '@types/babel__traverse@7.20.6':
     resolution: {integrity: sha512-r1bzfrm0tomOI8g1SzvCaQHo6Lcv6zu0EA+W2kHrt8dyrHQxGzBBL4kdkzIS+jBMV+EYcMAEAqXqYaLJq5rOZg==}
 
+  '@types/cleave.js@1.4.12':
+    resolution: {integrity: sha512-d+TDoy5wsWfG/lTLNV4CCziGzJovbX5RCrYzrfG2iB5F6yvrzeTtGEgoXW3/7oRj0H6gAzLxuvwmgNEx4Og4QA==}
+
   '@types/conventional-commits-parser@5.0.1':
     resolution: {integrity: sha512-7uz5EHdzz2TqoMfV7ee61Egf5y6NkcO4FB/1iCCQnbeiI1F3xzv3vK5dBCXUCLQgGYS+mUeigK1iKQzvED+QnQ==}
 
@@ -829,6 +838,9 @@ packages:
 
   classnames@2.5.1:
     resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
+
+  cleave.js@1.6.0:
+    resolution: {integrity: sha512-ivqesy3j5hQVG3gywPfwKPbi/7ZSftY/UNp5uphnqjr25yI2CP8FS2ODQPzuLXXnNLi29e2+PgPkkiKUXLs/Nw==}
 
   cliui@8.0.1:
     resolution: {integrity: sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ==}
@@ -2334,6 +2346,10 @@ snapshots:
     dependencies:
       '@babel/types': 7.26.0
 
+  '@types/cleave.js@1.4.12':
+    dependencies:
+      '@types/react': 18.3.12
+
   '@types/conventional-commits-parser@5.0.1':
     dependencies:
       '@types/node': 22.13.1
@@ -2581,6 +2597,8 @@ snapshots:
       fsevents: 2.3.3
 
   classnames@2.5.1: {}
+
+  cleave.js@1.6.0: {}
 
   cliui@8.0.1:
     dependencies:

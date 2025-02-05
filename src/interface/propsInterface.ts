@@ -11,24 +11,24 @@ export interface BreadcrumbsProps {
 
 export interface InputProps {
   name: string;
-  Type?: "text" | "password" | "email" | "number" | "file" | "url" | "checkbox"; // More specific input types
+  type?: "text" | "password" | "email" | "number" | "file" | "url" | "checkbox"; // More specific input types
   value?: string;
   setValue?: (value: string) => void; // Function that updates the value
   placeHolder?: string; // Optional placeholder
-  ClassName?: string;
+  className?: string;
   placeholderColor?: string;
   viewPasswordBtn?: boolean;
   showError?: boolean;
   errorMessage?: string;
-  showLabelField?: boolean;
   labelFieldName?: string;
   isRequiredField?: boolean;
   RequiredFileTypeArray?: Array<string>;
   setUrlErrorType?: (value: string) => void;
   showDropFileScreenInFullScreen?: boolean;
-  ref?: React.Ref<HTMLInputElement>;
-  showCountryCodeSlug?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  countryDropDownPosition?: "top" | "bottom";
+  dropDownSelectedValue?: string | number;
+  setDropDownSelectedValue?: React.Dispatch<SetStateAction<string | number>>;
 }
 
 export interface Column {

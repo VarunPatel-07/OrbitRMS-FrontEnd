@@ -83,12 +83,11 @@ function SignIn() {
                     <div className="w-full">
                       <Input
                         name="email"
-                        ClassName="border border-black/[.65] text-black"
-                        showLabelField={true}
+                        className="border border-black/[.65] text-black"
                         labelFieldName="Email"
                         isRequiredField={true}
                         value={email}
-                        Type="email"
+                        type="email"
                         setValue={setEmail}
                         showError={showError}
                         errorMessage={
@@ -106,11 +105,10 @@ function SignIn() {
                       <div className="w-full">
                         <Input
                           name="password"
-                          ClassName="border border-black/[.65]"
-                          showLabelField={true}
+                          className="border border-black/[.65]"
                           labelFieldName="Password"
                           isRequiredField={true}
-                          Type="password"
+                          type="password"
                           viewPasswordBtn={true}
                           value={password}
                           setValue={setPassword}
@@ -128,7 +126,7 @@ function SignIn() {
                       </div>
                       <div className="w-full flex items-center justify-between">
                         <div className="flex items-center justify-start gap-1.5">
-                          <Input Type="checkbox" name="checkbox"  />
+                          <Input type="checkbox" name="checkbox" />
                           <span className="text-black font-light text-sm font-inter">Remember Me</span>
                         </div>
                         <Link
@@ -148,7 +146,7 @@ function SignIn() {
                     </button>
                     <p className="text-center font-inter w-full text-sm text-black">
                       Don’t have an account?{" "}
-                      <Link to="/auth/signup">
+                      <Link to="/auth/sign-up">
                         <span className=" text-[var(--them-orange-color)] cursor-pointer underline  font-bold">
                           Sign Up
                         </span>

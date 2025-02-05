@@ -1,5 +1,5 @@
 import axios, { AxiosRequestHeaders } from "axios";
-import { loginForm, signUpForm } from "../../interface/funcParamInterface";
+import { loginForm } from "../../interface/funcParamInterface";
 import { ErrorHandler, storeDataInLocalStorage } from "../HelperFunctions";
 import React, { SetStateAction } from "react";
 
@@ -53,46 +53,13 @@ export const loginApiFunction = async (
   }
 };
 
-export const signUpApiFunction = async (
-  endPoint: string,
-  data: signUpForm,
-  request_type: "GET" | "POST",
-  setLoader: React.Dispatch<SetStateAction<boolean>>,
-  headers?: AxiosRequestHeaders
-) => {
-  try {
-    const url = `${BASE_URL}/${endPoint}`;
-    const config = {
-      method: request_type,
-      url,
-      headers: headers || defaultHeader,
-    };
-    if (request_type == "POST") {
-      const formData = new FormData();
-      formData.append("email", data.email);
-      formData.append("password", data.password);
-      formData.append("first_name", data.organizationName);
-      formData.append("last_name", data.portalUrl);
-      formData.append("username", data.userName);
-      Object.assign(config, { data: formData });
-    } else {
-      Object.assign(config, { params: data });
-    }
-    const response = await axios(config);
-    if (response?.data?.success) {
-      setLoader(false);
-      storeDataInLocalStorage(response?.data.user_info, "user-info");
-      storeDataInLocalStorage(response?.data?.token, "authenticationToken");
-      window.location.href = "/pages/organizations";
-    } else {
-      setLoader(false);
-      throw new Error("Request Was Unsuccessful");
-    }
-  } catch (error) {
-    setLoader(false);
-    ErrorHandler("Error from the login API", error as Error);
-  }
-};
+// export const signUpApiFunction = async (
+//   endPoint: string,
+//   data: signUpForm,
+//   request_type: "GET" | "POST",
+//   setLoader: React.Dispatch<SetStateAction<boolean>>,
+//   headers?: AxiosRequestHeaders
+// ) => {};
 
 export const verifyUsersLoginStatus = async (setShowGlobalLoader: React.Dispatch<SetStateAction<boolean>>) => {
   setShowGlobalLoader(false);

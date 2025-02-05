@@ -96,12 +96,11 @@ function CreateResetPassword() {
                   <div className="w-full">
                     <Input
                       name="password"
-                      ClassName="border border-black/[.65] text-black"
-                      showLabelField={true}
+                      className="border border-black/[.65] text-black"
                       labelFieldName="Password"
                       isRequiredField={true}
                       value={password}
-                      Type="password"
+                      type="password"
                       viewPasswordBtn={true}
                       setValue={setPassword}
                       showError={showError}
@@ -117,12 +116,11 @@ function CreateResetPassword() {
                   <div className="w-full">
                     <Input
                       name="conformPassword"
-                      ClassName="border border-black/[.65] text-black"
-                      showLabelField={true}
+                      className="border border-black/[.65] text-black"
                       labelFieldName="Conform Password"
                       isRequiredField={true}
                       value={conformPassword}
-                      Type="password"
+                      type="password"
                       viewPasswordBtn={true}
                       setValue={setConformPassword}
                       showError={showError}

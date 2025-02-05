@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { getEnterAnimationClass, getExitAnimationClass } from "../../../Helper/constant";
+import { getEnterAnimationClass, getExitAnimationClass } from "../../../constant/constant";
 
 export interface NotificationObject {
   id: string;
