@@ -160,12 +160,11 @@ function ForgotPassword() {
                   <div className="w-full">
                     <Input
                       name="organizationEmail"
-                      ClassName="border border-black/[.65] text-black"
-                      showLabelField={true}
+                      className="border border-black/[.65] text-black"
                       labelFieldName="Organization Email"
                       isRequiredField={true}
                       value={email}
-                      Type="email"
+                      type="email"
                       setValue={setEmail}
                       showError={showError}
                       errorMessage={

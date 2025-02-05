@@ -3,7 +3,7 @@ import { NotificationContext, NotificationContextApiProps, NotificationObject } 
 import { classNames } from "../../Helper/HelperFunctions";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { IoCloseCircleOutline } from "react-icons/io5";
-import { getEnterAnimationClass } from "../../Helper/constant";
+import { getEnterAnimationClass } from "../../constant/constant";
 
 function Notification() {
   // getting the value from the context api

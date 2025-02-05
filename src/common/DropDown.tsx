@@ -27,10 +27,13 @@ function DropDown({
   const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
 
   const handelDropdownValueChange = (
-    value: string | number | { country_flag: string; country_name: string; country_code: string | number }
+    value:
+      | string
+      | number
+      | { country_flag: string; country_name: string; country_number_code: string; country_code: string | number }
   ) => {
-    if (typeof value === "object" && "country_code" in value) {
-      setDropDownSelectedValue(value.country_code); // Set the selected country code or you can store the entire object
+    if (typeof value === "object") {
+      setDropDownSelectedValue(JSON.stringify(value)); // Set the selected country code or you can store the entire object
     } else {
       setDropDownSelectedValue(value);
     }
@@ -75,7 +78,10 @@ function DropDown({
   };
 
   const renderMenuItem = (
-    value: string | number | { country_flag: string; country_name: string; country_code: string | number },
+    value:
+      | string
+      | number
+      | { country_flag: string; country_name: string; country_number_code: string; country_code: string | number },
     index: number
   ) => {
     if (typeof value === "object" && "country_code" in value) {
@@ -113,7 +119,7 @@ function DropDown({
     <div className="relative" ref={refBox}>
       <div
         className={classNames(
-          "absolute text-black bg-[#fdfcfa] shadow-lg min-w-16 transition-all rounded-md overflow-auto max-h-[150px]",
+          "absolute text-black bg-[#f5f3f3] min-w-16 transition-all rounded-md overflow-auto max-h-[200px] hide-scrollbar z-50 shadow-lg",
           {
             "scale-y-100 opacity-100": showDropDownMenu,
             "scale-y-0 opacity-0": !showDropDownMenu,
