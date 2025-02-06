@@ -37,9 +37,9 @@ function AlertModal(props: AlertModalProps) {
           "scale-100 opacity-100 visible origin-center": showAlertModal,
         }
       )}>
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="min-w-[480px] max-w-[550px] rounded-lg bg-white px-9 py-9" ref={boxRef} tabIndex={-1}>
-          <div className="grid grid-cols-1 gap-9">
+      <div className="w-full h-full flex items-center justify-center p-4">
+        <div className="min-w-1/2 max-w-[500px] rounded-lg bg-white px-8 py-10" ref={boxRef} tabIndex={-1}>
+          <div className="grid grid-cols-1 gap-8">
             {/* It Is used To Show Case The Icon Related To The Action Modal */}
             <div className="w-full flex items-center justify-center">
               <div className="w-[110px] h-[110px] relative">
@@ -83,17 +83,17 @@ function AlertModal(props: AlertModalProps) {
               </div>
             </div>
             <div className="w-full">
-              <h3 className="text-black text-[28px] font-semibold font-inter text-pretty">
+              <h3 className="text-black text-2xl font-semibold font-inter text-pretty text-center">
                 {ModalInfo?.alertModalTitle}
               </h3>
             </div>
             <div className="w-full">
               <p
-                className="text-black font-inter text-base text-pretty"
+                className="text-black font-inter text-sm text-pretty"
                 dangerouslySetInnerHTML={{ __html: ModalInfo?.alertModelInfo }}></p>
             </div>
             <div className="w-full">
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 gap-5 items-center justify-center">
                 {ModalInfo?.optionsButtonArray?.map((item, index) => {
                   const isButton = !item?.link;
                   const commonContent = (

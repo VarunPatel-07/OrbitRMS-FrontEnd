@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosRequestHeaders } from "axios";
 import { loginForm, signUpForm } from "../../interface/funcParamInterface";
 import { ErrorHandler, storeDataInLocalStorage } from "../HelperFunctions";
@@ -7,6 +8,17 @@ const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 const defaultHeader = {
   "Content-Type": "application/json",
 };
+
+// ? We Are Defining The InterFace For The API Response
+
+interface SignUpApiResponse {
+  message: string;
+  success: boolean;
+  showModal: boolean;
+  title: string;
+}
+
+// * The Function That Are HelpFull For Sign-IN And Sign-UP
 
 export const loginApiFunction = async (
   endpoint: string,
@@ -59,7 +71,7 @@ export const signUpApiFunction = async (
   request_type: "POST",
   setLoader: React.Dispatch<SetStateAction<boolean>>,
   headers?: AxiosRequestHeaders
-) => {
+): Promise<SignUpApiResponse | undefined> => {
   try {
     const url = `${BASE_URL}/${endpoint}`;
 
@@ -89,20 +101,28 @@ export const signUpApiFunction = async (
     if (response?.data?.success) {
       setLoader(false);
       return {
-        message: `Organization Has Been Created SuccessFully We Have Send You A Verification Mail To ${response.data?.organization?.primary_email}`,
+        message: `We've sent a verification email to **${response.data?.organization?.primary_email}**.  
+        Please check your inbox and verify your email to activate your account.`,
         success: true,
         showModal: true,
+        title: "Organization Created Successfully!",
       };
     }
     setLoader(false);
-    return {
-      message: `There Is An Error While Creating An Organization`,
-      success: false,
-      showModal: true,
-    };
-  } catch (error) {
+  } catch (error: any) {
     setLoader(false);
-    ErrorHandler("Error from the login API", error as Error);
+    const statusCode = error?.response?.status;
+    const response = error?.response?.data?.detail;
+
+    if (statusCode === 409) {
+      return {
+        message: `An organization with this email domain is already registered.  
+    Please contact the owner at **${response?.owner_email}**, or reach out to our support team for further assistance.`,
+        success: false,
+        showModal: true,
+        title: "Organization Already Exists!",
+      };
+    }
   }
 };
 

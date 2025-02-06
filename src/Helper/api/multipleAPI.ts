@@ -4,7 +4,6 @@ import { getDataFromLocalStorage } from "../HelperFunctions";
 export interface endpointObject {
   endPoint: string;
   protected: boolean;
-  isFormData?: boolean;
   data?: FormData;
 }
 
@@ -19,7 +18,7 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
 
       const authToken = `Bearer ${_token}`;
       const headers = {
-        "Content-Type": eachEndPoint.isFormData ? "multipart/form-data" : "application/json",
+        "Content-Type": "application/json",
         Authorization: authToken,
       };
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
@@ -39,7 +38,7 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
         return null;
       }
     } else {
-      const url = eachEndPoint.endPoint;
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
       const config = {
         method: "GET",
         url,
@@ -69,7 +68,7 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
       const authToken = `Bearer ${_token}`;
 
       const headers = {
-        "Content-Type": eachEndPoint.isFormData ? "multipart/form-data" : "application/json",
+        "Content-Type": "application/json",
         Authorization: authToken,
       };
 
