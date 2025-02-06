@@ -11,7 +11,7 @@ function MainSuspenseLoader({ loading }: { loading: boolean }) {
   useEffect(() => {
     let timer = null;
     if (!loading) {
-      timer = setTimeout(() => setFadeOut(true), 150);
+      timer = setTimeout(() => setFadeOut(true), 200);
     }
     return () => {
       if (timer) clearTimeout(timer);
@@ -57,10 +57,3 @@ function MainSuspenseLoader({ loading }: { loading: boolean }) {
 }
 
 export default MainSuspenseLoader;
-
-
-
-
-
-
-

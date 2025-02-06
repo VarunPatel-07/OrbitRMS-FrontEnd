@@ -2,7 +2,7 @@
 import "./auth.css";
 import HelmetSeo from "../Helper/HelmetSeo";
 import React, { useEffect, useRef, useState } from "react";
-import { verifyUsersLoginStatus } from "../Helper/api/api";
+import { signUpApiFunction, verifyUsersLoginStatus } from "../Helper/api/api";
 import signInGradientBgImage from "../assets/Images/gradient-bg.png";
 import signIn3dImage from "../assets/Images/sign-in-page-3d-image.webp";
 import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
@@ -13,6 +13,11 @@ import { Link } from "react-router-dom";
 import { FaStarOfLife } from "react-icons/fa";
 import { BsArrowLeft } from "react-icons/bs";
 import Loader from "../common/Loader";
+import { signUpForm } from "../interface/funcParamInterface";
+import AlertModal from "../common/AlertModal";
+import { BiSupport } from "react-icons/bi";
+import { HiOutlineArrowLeft } from "react-icons/hi2";
+import { GrPowerReset } from "react-icons/gr";
 
 const initialOrganizationFormInfo = {
   organizationName: "",
@@ -20,6 +25,46 @@ const initialOrganizationFormInfo = {
   defaultPortalUrlSlug: "https://orbitrms.com/",
   websiteUrl: "",
   contactNumber: "",
+};
+
+const alertModalErrorButtonArray = [
+  {
+    buttonTitle: "Contact Support",
+    showButton: true,
+    classNames: "bg-blue-600 text-white text-base w-fit px-16 py-2 font-semibold rounded-lg mx-auto",
+    icon: <BiSupport className="text-lg" />,
+  },
+  {
+    buttonTitle: "Back To Sign In",
+    showButton: true,
+    classNames: "text-black text-base w-fit px-16 py-2 font-medium rounded-lg mx-auto",
+    icon: <HiOutlineArrowLeft className="text-lg" />,
+    link: "/auth/sign-in",
+  },
+];
+
+const alertModalSuccessButtonArray = [
+  {
+    buttonTitle: "Resend Mail",
+    showButton: true,
+    classNames: "bg-blue-600 text-white text-base w-fit px-16 py-2 font-semibold rounded-lg mx-auto",
+    icon: <GrPowerReset />,
+  },
+  {
+    buttonTitle: "Back To Sign In",
+    showButton: true,
+    classNames: "text-black text-base w-fit px-16 py-2 font-medium rounded-lg mx-auto",
+    icon: <HiOutlineArrowLeft className="text-lg" />,
+    link: "/auth/sign-in",
+  },
+];
+
+const initialAlertModalPropsInfo = {
+  success: false,
+  protected: true,
+  alertModalTitle: "string",
+  alertModelInfo: "string",
+  optionsButtonArray: alertModalSuccessButtonArray,
 };
 
 function SignIn() {
@@ -34,6 +79,8 @@ function SignIn() {
   const [currentPage, setCurrentPage] = useState(1);
   const [termsAccepted, setTermsAccepted] = useState<string>("");
   const [dropDownSelectedValue, setDropDownSelectedValue] = useState<string | number>("");
+  const [showAlertModal, setShowAlertModal] = useState<boolean>(false);
+  const [alertModalPropsInfo, setAlertModalPropsInfo] = useState(initialAlertModalPropsInfo);
 
   const handleMoveToNextPage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -45,10 +92,32 @@ function SignIn() {
     setCurrentPage(2);
   };
 
-  const handleFormSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (formData.contactNumber?.trim() != "" && termsAccepted == "true") {
       setLoading(true);
+      const data: signUpForm = {
+        organizationName: formData.organizationName,
+        contactNumber: formData.contactNumber,
+        countryInfo: dropDownSelectedValue as string,
+        defaultPortalUrlSlug: formData.defaultPortalUrlSlug,
+        portalUrl: portalUrl,
+        primaryEmail: formData.primaryEmail,
+        termsAccepted: termsAccepted == "true" ? true : false,
+        websiteUrl: formData.websiteUrl,
+      };
+      const response = await signUpApiFunction("organization/sign-up", data, "POST", setLoading);
+      console.log("response", response);
+      if (response) {
+        setShowAlertModal(response?.showModal);
+        setAlertModalPropsInfo({
+          success: response?.success,
+          alertModalTitle: response?.title,
+          protected: true,
+          alertModelInfo: response?.message,
+          optionsButtonArray: response?.success ? alertModalSuccessButtonArray : alertModalErrorButtonArray,
+        });
+      }
     } else {
       setShowErrorPageTwo(true);
     }
@@ -58,16 +127,15 @@ function SignIn() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  const handelBackPage = () => {
+    setCurrentPage(1);
+  };
 
   useEffect(() => {
     defaultInputRef.current?.focus();
 
     verifyUsersLoginStatus(setShowGlobalLoader);
   }, []);
-
-  const handelBackPage = () => {
-    setCurrentPage(1);
-  };
 
   useEffect(() => {
     setPortalUrl(formData.organizationName?.toLocaleLowerCase());
@@ -118,10 +186,10 @@ function SignIn() {
                   <div className={"w-full px-5 transition-all"}>
                     <div className="flex flex-col items-start justify-start gap-2">
                       <h1 className="font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black">
-                        Sign Into <span className="text-[var(--them-orange-color)]">OrbitRMS!</span>
+                        Sign Up for <span className="text-[var(--them-orange-color)]">OrbitRMS!</span>
                       </h1>
-                      <p className="text-black text-sm font-light font-inter">
-                        Sign in and unite all your resources in one orbit!"
+                      <p className="text-black text-sm font-normal font-inter">
+                        Join now and bring all your resources into one orbit!
                       </p>
                     </div>
                   </div>
@@ -306,6 +374,11 @@ function SignIn() {
           </div>
         </div>
       )}
+      <AlertModal
+        ModalInfo={alertModalPropsInfo}
+        showAlertModal={showAlertModal}
+        setShowAlertModal={setShowAlertModal}
+      />
     </>
   );
 }

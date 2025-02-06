@@ -73,10 +73,10 @@ function SignIn() {
                   onSubmit={handleFormSubmit}>
                   <div className="flex flex-col items-start justify-start gap-2">
                     <h1 className="font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black">
-                      Sign Into <span className="text-[var(--them-orange-color)]">OrbitRMS!</span>
+                      Sign In to <span className="text-[var(--them-orange-color)]">OrbitRMS!</span>
                     </h1>
-                    <p className="text-black text-sm font-light font-inter">
-                      Sign in and unite all your resources in one orbit!"
+                    <p className="text-black text-sm font-normal font-inter">
+                      Sign in and Unite all your resources in one orbit!
                     </p>
                   </div>
                   <div className="grid grid-cols-1 gap-y-6  w-full">
