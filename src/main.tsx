@@ -13,7 +13,7 @@ import "./css/font.css";
 import ForgotPassword from "./Auth/ForgotPassword";
 import CreateResetPassword from "./Auth/CreateResetPassword";
 import Notification from "./common/Notification/Notification";
-import { NotificationContextApiProvider } from "./common/Notification/context/NotificationContextApi";
+import { NotificationContextApiProvider } from "./Context/Notification/NotificationContextApi";
 import VerifyEmail from "./Pages/VerifyEmail";
 
 createRoot(document.getElementById("root")!).render(

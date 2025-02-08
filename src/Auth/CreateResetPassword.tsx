@@ -1,21 +1,27 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import HelmetSeo from "../Helper/HelmetSeo";
 import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
 import signInGradientBgImage from "../assets/Images/gradient-bg.png";
 import signIn3dImage from "../assets/Images/sign-in-page-3d-image.webp";
 import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
 import Input from "../common/Input";
-import Button from "../common/Button";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { LiaKeySolid } from "react-icons/lia";
 import { BsArrowLeft } from "react-icons/bs";
 import { verifyUsersLoginStatus } from "../Helper/api/api";
 import Loader from "../common/Loader";
 import { FiLock } from "react-icons/fi";
+import { endpointObject, multiplePostApi } from "../Helper/api/multipleAPI";
+import { NotificationContext, NotificationContextApiProps } from "../Context/Notification/NotificationContextApi";
+import { useDebounce } from "../Hooks/useDebounce";
 
 function CreateResetPassword() {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const currentPath = location.pathname.split("/auth/")[1];
+
+  // getting the context
+  const { handelNotification } = useContext(NotificationContext) as NotificationContextApiProps;
   // declaring the state variable
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
   const [loading, setLoading] = useState<boolean>(false);
@@ -23,21 +29,51 @@ function CreateResetPassword() {
   const [conformPassword, setConformPassword] = useState<string>("");
   const [showError, setShowError] = useState<boolean>(false);
 
-  useEffect(() => {
-    verifyUsersLoginStatus(setShowGlobalLoader);
-  }, []);
+  const createPasswordApiHandler = useDebounce(async () => {
+    const userId = searchParams.get("user-id");
+    if (!userId) {
+      const data = { success: false, message: "user id is require" };
+      handelNotification(data, "top-right");
+      setLoading(false);
+      return;
+    }
+    const data = {
+      password: password,
+    };
 
-  const submitForgotPasswordHandler = () => {
-    setLoading(true);
+    const endPointArray: Array<endpointObject> = [
+      {
+        endPoint: `auth/create-password?user-id=${userId}`,
+        protected: false,
+        data: data,
+      },
+    ];
+    const response = await multiplePostApi(endPointArray);
+    const res = response[0];
+    if (res?.success) {
+      setLoading(false);
+      handelNotification(res, "top-right");
+    } else {
+      setLoading(false);
+      handelNotification(res, "top-right");
+    }
+  });
+
+  const createResetPasswordHandler = async () => {
     // todo we will not hard cord the value it will totally depend to the api response
     if (password.trim().length < 5 || conformPassword.trim().length < 5 || password != conformPassword) {
       setShowError(true);
       return;
     }
     setLoading(true);
-    setShowError(false);
+    if (currentPath == "create-password") {
+      createPasswordApiHandler();
+    }
   };
 
+  useEffect(() => {
+    verifyUsersLoginStatus(setShowGlobalLoader);
+  }, []);
   return (
     <>
       <HelmetSeo
@@ -136,13 +172,24 @@ function CreateResetPassword() {
                     />
                   </div>
                   <div className="w-full grid grid-cols-1 gap-y-8">
-                    <Button
-                      Type="button"
-                      className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all"
-                      disabled={loading}
-                      onClick={submitForgotPasswordHandler}>
-                      {loading ? <Loader loaderText="Submitting..." /> : <span>Submit</span>}
-                    </Button>
+                    {currentPath == "create-password" ? (
+                      <button
+                        type="button"
+                        className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed"
+                        disabled={loading}
+                        onClick={createResetPasswordHandler}>
+                        {loading ? <Loader loaderText="Submitting..." /> : <span>Submit</span>}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed"
+                        disabled={loading}
+                        onClick={createResetPasswordHandler}>
+                        {loading ? <Loader loaderText="Submitting..." /> : <span>Submit</span>}
+                      </button>
+                    )}
+
                     <Link
                       to={"/auth/sign-in"}
                       className="font-medium text-[var(--them-orange-color)] cursor-pointer text-sm">

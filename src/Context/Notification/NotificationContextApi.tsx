@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { getEnterAnimationClass, getExitAnimationClass } from "../../../constant/constant";
+import { getEnterAnimationClass, getExitAnimationClass } from "../../constant/constant";
 
 export interface NotificationObject {
   id: string;
@@ -14,7 +14,7 @@ export interface NotificationContextApiProps {
   handelNotification: (
     data: NotificationFunctionParamsInterface,
     direction: "top-right" | "top-left" | "bottom-right" | "bottom-left" | "center",
-    timeOut: number
+    timeOut?: number
   ) => void;
 }
 export interface NotificationFunctionParamsInterface {
@@ -49,11 +49,14 @@ const NotificationContextApiProvider: React.FC<{ children: ReactNode }> = ({ chi
       if (element) {
         element.classList.remove(getEnterAnimationClass[direction || "top-right"]);
         element.classList.add(getExitAnimationClass[direction || "top-right"]);
-        element.addEventListener("animationend", () => {
-          setNotificationInfoArray((previous) => previous.filter((item) => item?.id == notificationId));
-        });
+        const onAnimationEnd = () => {
+          setNotificationInfoArray((previous) => previous.filter((item) => item.id !== notificationId));
+          element.removeEventListener("animationend", onAnimationEnd);
+        };
+
+        element.addEventListener("animationend", onAnimationEnd);
       }
-    }, timeOut || 500);
+    }, timeOut || 3000);
   };
 
   const NotificationContextValue = { notificationInfoArray, handelNotification };

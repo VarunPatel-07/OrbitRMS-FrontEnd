@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { endpointObject, multipleFetchApi } from "./api/multipleAPI";
+import { multiUrlFetcher, URLObject } from "./api/multipleAPI";
 
 export interface countryObject {
   country_flag: string;
@@ -7,15 +7,15 @@ export interface countryObject {
   country_code: string;
 }
 export const FetchCountryData = async (): Promise<Array<countryObject> | undefined> => {
-  const endpointArr: Array<endpointObject> = [
+  const endpointArr: Array<URLObject> = [
     {
-      endPoint: "https://restcountries.com/v3.1/all",
-      protected: false,
+      url: "https://restcountries.com/v3.1/all",
+      Method: "GET",
     },
   ];
 
   try {
-    const response = await multipleFetchApi(endpointArr);
+    const response = await multiUrlFetcher(endpointArr);
     if (!response || !Array.isArray(response) || response.length === 0) {
       console.error("Invalid or empty response from API:", response);
       return;

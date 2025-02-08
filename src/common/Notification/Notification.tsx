@@ -1,5 +1,9 @@
 import { useContext } from "react";
-import { NotificationContext, NotificationContextApiProps, NotificationObject } from "./context/NotificationContextApi";
+import {
+  NotificationContext,
+  NotificationContextApiProps,
+  NotificationObject,
+} from "../../Context/Notification/NotificationContextApi";
 import { classNames } from "../../Helper/HelperFunctions";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { IoCloseCircleOutline } from "react-icons/io5";

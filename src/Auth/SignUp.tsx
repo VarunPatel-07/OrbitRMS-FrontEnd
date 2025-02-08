@@ -107,7 +107,6 @@ function SignIn() {
         websiteUrl: formData.websiteUrl,
       };
       const response = await signUpApiFunction("organization/sign-up", data, "POST", setLoading);
-      console.log("response", response);
       if (response) {
         setShowAlertModal(response?.showModal);
         setAlertModalPropsInfo({

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "./auth.css";
 import HelmetSeo from "../Helper/HelmetSeo";
-import React, { useEffect, useRef, useState } from "react";
-import { verifyUsersLoginStatus } from "../Helper/api/api";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { signInApiFunction, verifyUsersLoginStatus } from "../Helper/api/api";
 import signInGradientBgImage from "../assets/Images/gradient-bg.png";
 import signIn3dImage from "../assets/Images/sign-in-page-3d-image.webp";
 import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
@@ -11,24 +11,40 @@ import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
 import { isValidEmail } from "../Helper/HelperFunctions";
 import { Link } from "react-router-dom";
 import Loader from "../common/Loader";
+import { NotificationContext, NotificationContextApiProps } from "../Context/Notification/NotificationContextApi";
 
 function SignIn() {
+  const { handelNotification } = useContext(NotificationContext) as NotificationContextApiProps;
+
   const defaultInputRef = useRef<HTMLInputElement>(null);
 
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
   const [loading, setLoading] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [rememberMe, setRememberMe] = useState<string>("");
   const [showError, setShowError] = useState<boolean>(false);
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (email.trim().length === 0 || password.length < 5 || !isValidEmail(email)) {
-      setShowError(true);
-      return;
-    }
     if (email.trim().length != 0 && password.length >= 6 && isValidEmail(email)) {
       setLoading(true);
+      const data = {
+        email,
+        password,
+        rememberMe: rememberMe == "true" ? true : false,
+      };
+
+      const res = await signInApiFunction("auth/sign-in", data, "POST", setLoading);
+      if (res?.success) {
+        setLoading(false);
+        handelNotification(res, "top-right");
+      } else {
+        setLoading(false);
+        handelNotification(res, "top-right");
+      }
+    } else {
+      setShowError(true);
     }
   };
 
@@ -68,9 +84,7 @@ function SignIn() {
             </div>
             <div className="rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10">
               <div className="login-form w-full h-full relative z-20 flex items-center justify-center">
-                <form
-                  className="flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0"
-                  onSubmit={handleFormSubmit}>
+                <div className="flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0">
                   <div className="flex flex-col items-start justify-start gap-2">
                     <h1 className="font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black">
                       Sign In to <span className="text-[var(--them-orange-color)]">OrbitRMS!</span>
@@ -126,7 +140,7 @@ function SignIn() {
                       </div>
                       <div className="w-full flex items-center justify-between">
                         <div className="flex items-center justify-start gap-1.5">
-                          <Input type="checkbox" name="checkbox" />
+                          <Input type="checkbox" name="termsAccepted" value={rememberMe} setValue={setRememberMe} />
                           <span className="text-black font-light text-sm font-inter">Remember Me</span>
                         </div>
                         <Link
@@ -139,10 +153,11 @@ function SignIn() {
                   </div>
                   <div className="w-full grid grid-cols-1 gap-y-8">
                     <button
-                      type="submit"
-                      className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all"
-                      disabled={loading}>
-                      {loading ? <Loader loaderText="Signing In..." /> : <span>Sign In</span>}
+                      type="button"
+                      className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed"
+                      disabled={loading}
+                      onClick={handleFormSubmit}>
+                      {loading ? <Loader loaderText="Submitting..." /> : <span>Submit</span>}
                     </button>
                     <p className="text-center font-inter w-full text-sm text-black">
                       Don’t have an account?{" "}
@@ -153,7 +168,7 @@ function SignIn() {
                       </Link>
                     </p>
                   </div>
-                </form>
+                </div>
               </div>
             </div>
           </div>
