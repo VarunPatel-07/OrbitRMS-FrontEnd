@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosRequestHeaders } from "axios";
 import { loginForm, signUpForm } from "../../interface/funcParamInterface";
-import { ErrorHandler, storeDataInLocalStorage } from "../HelperFunctions";
 import React, { SetStateAction } from "react";
+import { ErrorHandler, storeDataInLocalStorage, storeDataInSessionStorage } from "../HelperFunctions";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 const defaultHeader = {
@@ -20,48 +20,37 @@ interface SignUpApiResponse {
 
 // * The Function That Are HelpFull For Sign-IN And Sign-UP
 
-export const loginApiFunction = async (
+export const signInApiFunction = async (
   endpoint: string,
   data: loginForm,
-  request_type: "GET" | "POST",
+  request_type: "POST",
   setLoader: React.Dispatch<SetStateAction<boolean>>,
   headers?: AxiosRequestHeaders
 ) => {
   try {
     const url = `${BASE_URL}/${endpoint}`;
 
+    const payload = {
+      email: data?.email,
+      password: data?.password,
+    };
+
     const config = {
       method: request_type,
       url,
       headers: headers || defaultHeader,
+      data: payload,
     };
-
-    if (request_type == "POST") {
-      const formData = new FormData();
-      formData.append("email", data.email);
-      formData.append("password", data.password);
-      Object.assign(config, { data: formData });
-    } else {
-      Object.assign(config, { params: data });
-    }
-
     const response = await axios(config);
-    if (response.data.success) {
-      setLoader(false);
-      storeDataInLocalStorage(response?.data.user_info, "user-info");
-      storeDataInLocalStorage(response?.data?.token, "authenticationToken");
-      if (response?.data?.user_info?.default_organization_id || response?.data?.user_info?.organizations.length >= 1) {
-        console.log("hello");
-      } else {
-        window.location.href = "/pages/organizations";
-      }
+    setLoader(true);
+    if (data?.rememberMe) {
+      storeDataInLocalStorage(response?.data?.authenticationToken, "authenticationToken");
     } else {
-      setLoader(false);
-      throw new Error("Request Was Unsuccessful");
+      storeDataInSessionStorage(response?.data?.authenticationToken, "authenticationToken");
     }
-  } catch (error) {
-    setLoader(false);
-    ErrorHandler("Error from the login API", error as Error);
+    return response?.data;
+  } catch (error: any) {
+    return ErrorHandler(error);
   }
 };
 
