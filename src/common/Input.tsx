@@ -70,7 +70,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref: ForwardedRef
   };
 
   const onDrop = useCallback((acceptedFiles: Array<File>) => {
-    console.log(acceptedFiles);
     acceptedFiles.map((eachFile: File) => {
       if (uploadingFilesTypeCheckingFunction(eachFile)) {
         console.log("allowed for", eachFile.name);

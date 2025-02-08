@@ -39,7 +39,6 @@ export const classNames = (defaultClass: string, conditionBasedClass: { [keys: s
 //  * To Handel The Error From The One Place.
 
 export const ErrorHandler = (error: Error | AxiosError) => {
-  console.log("apiii", error);
   if (error instanceof AxiosError) {
     const errorData = {
       success: error?.response?.data?.detail?.success ?? false,

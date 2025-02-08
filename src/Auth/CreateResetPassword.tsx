@@ -50,7 +50,6 @@ function CreateResetPassword() {
     ];
     const response = await multiplePostApi(endPointArray);
     const res = response[0];
-    console.log(res);
     if (res?.success) {
       setLoading(false);
       handelNotification(res, "top-right");
