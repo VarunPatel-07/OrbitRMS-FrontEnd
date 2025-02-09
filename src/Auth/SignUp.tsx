@@ -1,157 +1,385 @@
-import Illustration from "../assets/Images/a-minimalistic-illustration-of-a-professional-woma-qB-EvpaUTCW_7VPIzQCwAA-liCsDCsyRx6jUnjJ69VBsw.jpeg";
-import OrbitRMS from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
-import Input from "../Components/common/Input";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "./auth.css";
 import HelmetSeo from "../Helper/HelmetSeo";
-import { useState } from "react";
-import { isValidEmail } from "../Helper/HelperFunctions";
+import React, { useEffect, useRef, useState } from "react";
+import { signUpApiFunction, verifyUsersLoginStatus } from "../Helper/api/api";
+import signInGradientBgImage from "../assets/Images/gradient-bg.png";
+import signIn3dImage from "../assets/Images/sign-in-page-3d-image.webp";
+import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
+import Input from "../common/Input";
+import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
+import { classNames, formateAndVerifyPhoneNumber, isValidEmail } from "../Helper/HelperFunctions";
 import { Link } from "react-router-dom";
+import { FaStarOfLife } from "react-icons/fa";
+import { BsArrowLeft } from "react-icons/bs";
+import Loader from "../common/Loader";
+import { signUpForm } from "../interface/funcParamInterface";
+import AlertModal from "../common/AlertModal";
+import { BiSupport } from "react-icons/bi";
+import { HiOutlineArrowLeft } from "react-icons/hi2";
+import { GrPowerReset } from "react-icons/gr";
 
-function SignUp() {
-  const [email, setEmail] = useState("" as string);
-  const [password, setPassword] = useState("" as string);
-  const [fullName, setFullName] = useState("" as string);
-  const [userName, setUserName] = useState("" as string);
-  const [showError, setShowError] = useState(false as boolean);
+const initialOrganizationFormInfo = {
+  organizationName: "",
+  primaryEmail: "",
+  defaultPortalUrlSlug: "https://orbitrms.com/",
+  websiteUrl: "",
+  contactNumber: "",
+};
 
-  const handelLoginSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+const alertModalErrorButtonArray = [
+  {
+    buttonTitle: "Contact Support",
+    showButton: true,
+    classNames: "bg-blue-600 text-white text-base w-fit px-16 py-2 font-semibold rounded-lg mx-auto",
+    icon: <BiSupport className="text-lg" />,
+  },
+  {
+    buttonTitle: "Back To Sign In",
+    showButton: true,
+    classNames: "text-black text-base w-fit px-16 py-2 font-medium rounded-lg mx-auto",
+    icon: <HiOutlineArrowLeft className="text-lg" />,
+    link: "/auth/sign-in",
+  },
+];
+
+const alertModalSuccessButtonArray = [
+  {
+    buttonTitle: "Resend Mail",
+    showButton: true,
+    classNames: "bg-blue-600 text-white text-base w-fit px-16 py-2 font-semibold rounded-lg mx-auto",
+    icon: <GrPowerReset />,
+  },
+  {
+    buttonTitle: "Back To Sign In",
+    showButton: true,
+    classNames: "text-black text-base w-fit px-16 py-2 font-medium rounded-lg mx-auto",
+    icon: <HiOutlineArrowLeft className="text-lg" />,
+    link: "/auth/sign-in",
+  },
+];
+
+const initialAlertModalPropsInfo = {
+  success: false,
+  protected: true,
+  alertModalTitle: "string",
+  alertModelInfo: "string",
+  optionsButtonArray: alertModalSuccessButtonArray,
+};
+
+function SignIn() {
+  const defaultInputRef = useRef<HTMLInputElement>(null);
+
+  const [showGlobalLoader, setShowGlobalLoader] = useState(true);
+  const [showError, setShowError] = useState<boolean>(false);
+  const [showErrorPageTwo, setShowErrorPageTwo] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [portalUrl, setPortalUrl] = useState("" as string);
+  const [formData, setFormData] = useState(initialOrganizationFormInfo);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [termsAccepted, setTermsAccepted] = useState<string>("");
+  const [dropDownSelectedValue, setDropDownSelectedValue] = useState<string | number>("");
+  const [showAlertModal, setShowAlertModal] = useState<boolean>(false);
+  const [alertModalPropsInfo, setAlertModalPropsInfo] = useState(initialAlertModalPropsInfo);
+
+  const handleMoveToNextPage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (email.length < 1 || password.length < 4) {
+    if (formData?.organizationName?.trim() === "" || !isValidEmail(formData?.primaryEmail)) {
       setShowError(true);
-    } else {
-      if (!isValidEmail(email)) {
-        setShowError(true);
+      setLoading(false);
+      return;
+    }
+    setCurrentPage(2);
+  };
+
+  const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (formData.contactNumber?.trim() != "" && termsAccepted == "true") {
+      setLoading(true);
+      const data: signUpForm = {
+        organizationName: formData.organizationName,
+        contactNumber: formData.contactNumber,
+        countryInfo: dropDownSelectedValue as string,
+        defaultPortalUrlSlug: formData.defaultPortalUrlSlug,
+        portalUrl: portalUrl,
+        primaryEmail: formData.primaryEmail,
+        termsAccepted: termsAccepted == "true" ? true : false,
+        websiteUrl: formData.websiteUrl,
+      };
+      const response = await signUpApiFunction("organization/sign-up", data, "POST", setLoading);
+      if (response) {
+        setShowAlertModal(response?.showModal);
+        setAlertModalPropsInfo({
+          success: response?.success,
+          alertModalTitle: response?.title,
+          protected: true,
+          alertModelInfo: response?.message,
+          optionsButtonArray: response?.success ? alertModalSuccessButtonArray : alertModalErrorButtonArray,
+        });
       }
+    } else {
+      setShowErrorPageTwo(true);
     }
   };
+
+  const handelInputFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+  const handelBackPage = () => {
+    setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    defaultInputRef.current?.focus();
+
+    verifyUsersLoginStatus(setShowGlobalLoader);
+  }, []);
+
+  useEffect(() => {
+    setPortalUrl(formData.organizationName?.toLocaleLowerCase());
+  }, [formData.organizationName]);
 
   return (
     <>
       <HelmetSeo
-        Title="SignUp | OrbitRMS"
-        Content="SignUp To OrbitRMS to simplify your work, manage everything in one place, and stay ahead with ease!"
+        Title="Sign Up | OrbitRMS"
+        Content="Create an account on OrbitRMS to streamline your work, access all features, and manage everything effortlessly!"
       />
-      <div className="w-full h-screen">
-        <div className="w-full h-full flex items-center justify-center bg-white lg:p-4 xl:p-7 overflow-hidden">
-          <div className="w-full h-full flex items-stretch justify-center rounded-3xl shadow-2xl overflow-hidden">
-            <div className="w-[40%] h-full bg-[var(--main-blue-color)] flex flex-col items-center justify-between">
-              <div className="w-full flex items-center justify-center py-3">
-                <img src={OrbitRMS} alt="" className="w-48" />
-              </div>
-              <img src={Illustration} alt="A Woman Setting On The Computer" className="w-full h-fit object-cover" />
-            </div>
-            <div className="w-[60%] bg-[#e8e2e0] relative">
-              <div className="w-full h-full px-4 pt-4 pb-8 flex flex-col justify-between">
-                <div className="w-full px-3 py-3  max-w-[400px] me-auto">
-                  <h1 className="text-[#242c40] text-4xl font-serif text-nowrap text-start">
-                    SignUp To <span className="font-semibold">Orbit</span>RMS
-                  </h1>
-                  <p className="font-serif text-[#242c40] font-normal text-base capitalize pt-2">
-                    to simplify your work, manage everything in one place, and stay ahead with ease!
-                  </p>
+
+      <MainSuspenseLoader loading={showGlobalLoader} />
+      {!showGlobalLoader && (
+        <div className="h-screen w-screen bg-[var(--them-pink-color)]">
+          <div className="w-full h-full flex items-stretch justify-start relative">
+            <img src={signInGradientBgImage} className="w-2/3 h-full absolute top-0 left-0" />
+            <img
+              src={signIn3dImage}
+              className="w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block"
+              alt=""
+            />
+            <div className="w-1/3 relative hidden md:block">
+              <div className="w-full h-full p-7">
+                <div>
+                  <img src={orbitLogo} className="max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]" alt="" />
                 </div>
-                <div className="w-full flex items-center justify-center">
-                  <div className="login-form min-w-[60%] bg-[#e8e2e02f] backdrop-blur-sm py-10 px-10 relative z-10 flex items-center justify-center rounded-lg border border-[#242c40]">
-                    <div className="grid grid-cols-1 w-full gap-4 ">
-                      <div className="w-full grid grid-cols-2 gap-2">
-                        <div className="w-full">
-                          <Input
-                            ClassName="border-[1.5px] border-slate-500 text-black rounded-2xl bg-slate-50"
-                            placeHolder="FullName"
-                            Type="text"
-                            value={fullName}
-                            setValue={setFullName}
-                            placeholderColor="text-gray-500"
-                            showError={showError} // Pass the showError state
-                            errorMessage={fullName.length < 1 ? "This field is required" : ""}
-                          />
-                        </div>
-                        <div className="w-full">
-                          <Input
-                            ClassName="border-[1.5px] border-slate-500 text-black rounded-2xl bg-slate-50"
-                            placeHolder="UserName"
-                            Type="text"
-                            value={userName}
-                            setValue={setUserName}
-                            placeholderColor="text-gray-500"
-                            showError={showError} // Pass the showError state
-                            errorMessage={userName.length < 1 ? "This field is required" : ""}
-                          />
-                        </div>
-                      </div>
-                      <div className="w-full">
-                        <Input
-                          ClassName="border-[1.5px] border-slate-500 text-black rounded-2xl bg-slate-50"
-                          placeHolder="Email"
-                          Type="email"
-                          value={email}
-                          setValue={setEmail}
-                          placeholderColor="text-gray-500"
-                          showError={showError} // Pass the showError state
-                          errorMessage={
-                            email.length < 1
-                              ? "This field is required"
-                              : !isValidEmail(email)
-                              ? "Invalid email address"
-                              : ""
+                <div className="pt-7 ">
+                  <h1 className="font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5">
+                    OrbitRMS: Simplify, Streamline, Succeed.
+                  </h1>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px]  z-10 overflow-hidden">
+              <div className="login-form w-full h-full  z-20 flex items-center justify-center">
+                <div className="flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[480px] py-8 relative">
+                  {currentPage == 2 && (
+                    <button
+                      className="font-medium text-[var(--them-orange-color)] cursor-pointer text-sm transition-all absolute top-0 left-5"
+                      onClick={handelBackPage}>
+                      <span className="flex items-center text-black/[0.65] justify-center gap-2">
+                        <BsArrowLeft className="w-5 h-5" />
+                        <span>Back</span>
+                      </span>
+                    </button>
+                  )}
+                  <div className={"w-full px-5 transition-all"}>
+                    <div className="flex flex-col items-start justify-start gap-2">
+                      <h1 className="font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black">
+                        Sign Up for <span className="text-[var(--them-orange-color)]">OrbitRMS!</span>
+                      </h1>
+                      <p className="text-black text-sm font-normal font-inter">
+                        Join now and bring all your resources into one orbit!
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-full">
+                    <div
+                      className={classNames("w-full flex transition-all", {
+                        "translate-x-0": currentPage == 1,
+                        "-translate-x-full": currentPage == 2,
+                      })}>
+                      <div
+                        className={classNames(
+                          "grid grid-cols-1 gap-y-5  w-full min-w-full px-5 transition-all duration-100",
+                          {
+                            "invisible , opacity-0": currentPage == 2,
                           }
-                        />
+                        )}>
+                        <div className="w-full">
+                          <Input
+                            name="organizationName"
+                            ref={defaultInputRef}
+                            className="border border-black/[.65] text-black"
+                            labelFieldName="Organization Name"
+                            isRequiredField={true}
+                            type="text"
+                            value={formData?.organizationName}
+                            onChange={(e) => handelInputFieldChange(e)}
+                            showError={showError && formData?.organizationName?.trim() === ""}
+                            errorMessage="This field is required."
+                          />
+                        </div>
+                        <div className="w-full">
+                          <Input
+                            name="primaryEmail"
+                            className="border border-black/[.65] text-black"
+                            labelFieldName="Primary Email"
+                            isRequiredField={true}
+                            value={formData.primaryEmail}
+                            type="email"
+                            onChange={(e) => handelInputFieldChange(e)}
+                            showError={showError}
+                            errorMessage={
+                              showError
+                                ? formData.primaryEmail?.trim() === ""
+                                  ? "This field is required."
+                                  : !isValidEmail(formData?.primaryEmail)
+                                  ? "Please enter a valid email address."
+                                  : ""
+                                : ""
+                            }
+                          />
+                        </div>
+                        <div className="w-full">
+                          <label
+                            htmlFor=""
+                            className="text-sm font-inter font-normal text-black/[.65] pb-2 inline-block">
+                            <span className="flex gap-1">
+                              <span>Portal Url</span>
+                              <FaStarOfLife className="w-1.5 text-red-700" />
+                            </span>
+                          </label>
+                          <div className="relative w-full flex items-stretch justify-start">
+                            <div className="flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-l-lg text-[14px] px-5">
+                              {formData.defaultPortalUrlSlug}
+                            </div>
+                            <Input
+                              name="portalUrl"
+                              className="border border-black/[.65] border-l-0 rounded-l-none text-black w-full"
+                              type="text"
+                              value={portalUrl?.toLocaleLowerCase()}
+                              setValue={setPortalUrl}
+                            />
+                          </div>
+                          {showError && portalUrl.trim() === "" && (
+                            <span className="text-rose-600  text-xs  mt-1 block px-1.5 font-inter">
+                              This field is required.
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="w-full">
-                        <Input
-                          ClassName="border-[1.5px] border-slate-500 text-black rounded-2xl bg-slate-50"
-                          placeHolder="Password"
-                          Type="password"
-                          value={password}
-                          setValue={setPassword}
-                          placeholderColor="text-gray-500"
-                          viewPasswordBtn={true}
-                          showError={showError} // Pass the showError state
-                          errorMessage={password.length < 4 ? "password is required" : ""}
-                        />
-                      </div>
-                      <div className="w-full pt-3">
-                        <button
-                          className="login bg-[var(--main-blue-color)] w-full px-4 py-2.5 rounded-full"
-                          onClick={handelLoginSubmit}>
-                          SignUp
-                        </button>
-                      </div>
-                      <div className="w-full grid grid-cols-3 items-center justify-center py-2.5">
-                        <span className="w-full h-[1px] bg-black inline-block rounded"></span>
-                        <span className="text-slate-700 capitalize text-xs text-center">or SignUp with </span>
-                        <span className="w-full h-[1px] bg-black inline-block rounded"></span>
-                      </div>
-                      <div className="w-full grid grid-cols-1 items-center gap-3.5">
-                        <button className="w-full capitalize bg-white text-black rounded-full px-5 py-3 flex items-center justify-center gap-2">
-                          <FcGoogle className="text-2xl" />
-                          <span className="inline-block">SignUp with google</span>
-                        </button>
-                        <button className="w-full capitalize bg-slate-950 text-white rounded-full px-5 py-3 flex items-center justify-center gap-2">
-                          <FaApple className="text-2xl" />
-                          <span className="inline-block">SignUp with apple</span>
-                        </button>
-                      </div>
-                      <div className="w-full">
-                        <p className="text-center text-sm text-slate-800 capitalize">
-                          all ready have an account?{" "}
-                          <Link to={'/auth/login'} className="hover:underline hover:text-rose-600 cursor-pointer inline-block">login</Link>
-                        </p>
+                      <div
+                        className={classNames(
+                          "flex flex-col gap-y-5 justify-between w-full min-w-full px-5 transition-all duration-100",
+                          {
+                            "invisible opacity-0": currentPage == 1,
+                          }
+                        )}>
+                        <div className="w-full">
+                          <Input
+                            name="websiteUrl"
+                            className="border border-black/[.65] text-black"
+                            labelFieldName="Website URL"
+                            type="text"
+                            value={formData?.websiteUrl}
+                            onChange={(e) => handelInputFieldChange(e)}
+                          />
+                        </div>
+                        <div className="w-full">
+                          <Input
+                            type="number"
+                            name="contactNumber"
+                            className="border border-black/[.65] text-black rounded-lg rounded-l-none"
+                            labelFieldName="Contact Number"
+                            isRequiredField={true}
+                            value={formateAndVerifyPhoneNumber(
+                              formData?.contactNumber,
+                              dropDownSelectedValue ? JSON.parse(dropDownSelectedValue as string)?.country_code : "IN"
+                            )}
+                            onChange={(e) => handelInputFieldChange(e)}
+                            showError={showErrorPageTwo && formData.contactNumber?.trim() == ""}
+                            countryDropDownPosition="bottom"
+                            dropDownSelectedValue={
+                              dropDownSelectedValue
+                                ? JSON.parse(dropDownSelectedValue as string)?.country_number_code
+                                : ""
+                            }
+                            setDropDownSelectedValue={setDropDownSelectedValue}
+                            errorMessage={
+                              showErrorPageTwo
+                                ? formData?.contactNumber?.trim() === ""
+                                  ? "This field is required."
+                                  : ""
+                                : ""
+                            }
+                          />
+                        </div>
+                        <div className="w-full">
+                          <div className="w-full flex items-center justify-start gap-3.5 relative z-[25]">
+                            <Input
+                              type="checkbox"
+                              name="termsAccepted"
+                              value={termsAccepted}
+                              setValue={setTermsAccepted}
+                            />
+                            <div>
+                              <p className="font-inter font-semibold text-sm text-black">
+                                I agree to the terms and conditions
+                              </p>
+                              <p className="font-inter font-normal text-xs text-black">
+                                Please read the Terms and Conditions before proceeding.
+                              </p>
+                            </div>
+                          </div>
+                          {showErrorPageTwo && termsAccepted != "true" && (
+                            <span className="text-rose-600  text-xs  mt-1.5 block px-1.5 font-inter">
+                              This field is required.
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
+                  <div className="w-full grid grid-cols-1 gap-y-8 px-5">
+                    {currentPage == 1 ? (
+                      <button
+                        type="button"
+                        className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all"
+                        disabled={loading}
+                        onClick={handleMoveToNextPage}>
+                        <span>Next</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed"
+                        disabled={loading}
+                        onClick={handleFormSubmit}>
+                        {loading ? <Loader loaderText="Submitting..." /> : <span>Submit</span>}
+                      </button>
+                    )}
+                    <p className="text-center font-inter w-full text-sm text-black">
+                      Already have an account?{" "}
+                      <Link to="/auth/sign-in">
+                        <span className=" text-[var(--them-orange-color)] cursor-pointer underline  font-bold">
+                          Sign In
+                        </span>
+                      </Link>
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="bg-[#b79c6f] w-60 h-60 rounded-full absolute -right-32 -bottom-32 circle-box-shadow"></div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+      <AlertModal
+        ModalInfo={alertModalPropsInfo}
+        showAlertModal={showAlertModal}
+        setShowAlertModal={setShowAlertModal}
+      />
     </>
   );
 }
 
-export default SignUp;
+export default SignIn;

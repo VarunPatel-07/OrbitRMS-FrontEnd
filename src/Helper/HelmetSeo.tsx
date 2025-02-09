@@ -1,5 +1,4 @@
 import { Helmet } from "react-helmet";
-
 interface SeoPropsInterface {
   Title?: string;
   Content?: string;

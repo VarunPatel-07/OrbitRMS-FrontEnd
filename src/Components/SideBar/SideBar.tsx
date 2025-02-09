@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SidebarMenuItemInterface, SidebarMenuItems } from "./SidebarMenuItems";
 import { RiArrowLeftDoubleFill } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
+import { Tooltip } from "react-tooltip";
 
 function SideBar() {
   const navigation = useLocation();
@@ -13,7 +14,7 @@ function SideBar() {
 
   return (
     <div
-      className={`h-full bg-[var(--main-blue-color)] text-white flex flex-col  transition-all duration-300 ${
+      className={`h-full bg-[#3538CD] text-white flex flex-col  transition-all duration-300  ${
         collapsed ? "max-w-[57px] min-w-[57px]" : "min-w-[240px] max-w-[250px]"
       }`}>
       <div className="w-full h-full flex flex-col justify-between">
@@ -23,13 +24,15 @@ function SideBar() {
               <li
                 key={item.id}
                 className={`w-full group relative rounded-md ${
-                  item.link == navigation.pathname ? "bg-blue-600" : "hover:bg-[#3b4a66]"
+                  item.link == navigation.pathname ? "bg-[#444CE7]" : "hover:bg-[#444CE7]"
                 }`}>
                 <Link
                   to={item.link}
-                  className={`w-full overflow-hidden flex gap-3 py-2.5 transition-all ${
+                  className={`w-full overflow-hidden flex gap-3 py-2.5 transition-all font-inter ${
                     collapsed ? "px-[12px]" : "px-4"
-                  }`}>
+                  }`}
+                  data-tooltip-id={item.label}
+                  data-tooltip-content={item.ToolTipValue}>
                   <span className="font-medium">{item.icon}</span>
                   <span
                     className={`transition-all inline-block text-nowrap ${
@@ -39,11 +42,7 @@ function SideBar() {
                   </span>
                 </Link>
                 {/* Tooltip */}
-                {item.showToolTip && (
-                  <span className="absolute top-1/2 -translate-y-2/4 left-full ml-1 whitespace-nowrap bg-white text-sm text-black px-2 py-2.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shadow-xl tooltiptext">
-                    {item.ToolTipValue}
-                  </span>
-                )}
+                {item.showToolTip && <Tooltip id={item.label} opacity={"100"} className="z-[15] bg-white" />}
               </li>
             ))}
           </ul>

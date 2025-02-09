@@ -1,5 +1,5 @@
 import { PiDotsNineBold } from "react-icons/pi";
-import OrbitRMSLogo from "../assets/Images/OrbitRMS-Final-Logo-transperent.png";
+import OrbitRMSLogo from "../../assets/Images/OrbitRMS-Final-Logo-transperent.png";
 
 function Navbar() {
   return (
