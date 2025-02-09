@@ -2,31 +2,44 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "./Auth/Login";
-import ErrorFallBack from "./Components/common/ErrorFallBack";
+import SignIn from "./Auth/SignIn";
+import ErrorFallBack from "./common/ErrorFallBack";
 import SignUp from "./Auth/SignUp";
 import App from "./App";
-import "./rootColors.css";
-import Organizations from "./Organization/Organizations";
+import "./css/rootColors.css";
 import "react-tooltip/dist/react-tooltip.css";
 import ProtectedRoute from "./Helper/ProtectedRoute";
-import RegisterOrganizationForm from "./Organization/RegisterOrganizationForm";
+import "./css/font.css";
+import ForgotPassword from "./Auth/ForgotPassword";
+import CreateResetPassword from "./Auth/CreateResetPassword";
+import Notification from "./common/Notification/Notification";
+import { NotificationContextApiProvider } from "./Context/Notification/NotificationContextApi";
+import VerifyEmail from "./Pages/VerifyEmail";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/auth/login" element={<Login />} />
-        <Route path="/auth/signup" element={<SignUp />} />
-        <Route path="/pages/organizations" element={<ProtectedRoute element={<Organizations />} />} />
-        <Route
-          path="/pages/register-organization"
-          element={<ProtectedRoute element={<RegisterOrganizationForm />} />}
-        />
-        <Route path="/*" element={<ProtectedRoute element={<App />} />} />
+    <NotificationContextApiProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* All The Routes That Are Not Protected */}
 
-        <Route path="*" element={<ErrorFallBack />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="/auth/sign-in" element={<SignIn />} />
+          <Route path="/auth/sign-up" element={<SignUp />} />
+          <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/create-password" element={<CreateResetPassword />} />
+          <Route path="/auth/reset-password" element={<CreateResetPassword />} />
+          <Route path="/verification/verify-email" element={<VerifyEmail />} />
+
+          {/* all The Protected Routes are Defined Blow */}
+
+          <Route path="/*" element={<ProtectedRoute element={<App />} />} />
+
+          {/* Error FallBack Rout */}
+
+          <Route path="*" element={<ErrorFallBack />} />
+        </Routes>
+      </BrowserRouter>
+      <Notification />
+    </NotificationContextApiProvider>
   </StrictMode>
 );

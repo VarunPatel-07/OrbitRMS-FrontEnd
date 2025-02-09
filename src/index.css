@@ -26,12 +26,24 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  border: 1px solid #253341;
+  border: 0;
   -webkit-text-fill-color: black;
   -webkit-box-shadow: 0 0 0px 1000px transparent inset;
   box-shadow: 0 0 0px 1000px transparent inset;
   transition: background-color 5000s ease-in-out 0s;
   color: black;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .tooltiptext::after {
@@ -44,15 +56,19 @@ select:-webkit-autofill:focus {
   border-style: solid;
   border-color: transparent rgb(255, 255, 255) transparent transparent;
 }
-/*  @keyframes rotateGradient {
-  0% {
-    background: linear-gradient(90deg, #fb923c, #f87171); 
-  }
-  100% {
-    background: linear-gradient(270deg, #fb923c, #f87171); 
-  }
-} 
 
-.animate-rotateGradient {
-  animation: 5s rotateGradient linear alternate-reverse infinite;
-} */
+.form-shadow {
+  -webkit-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.3);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* For Firefox */
+.hide-scrollbar {
+  scrollbar-width: none; /* Hides the scrollbar */
+  -ms-overflow-style: none; /* For Internet Explorer 10+ */
+}
