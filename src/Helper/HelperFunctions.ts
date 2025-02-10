@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import validator from "validator";
-import CryptoJS from "crypto-js";
-import Cleave from "cleave.js";
-import { phoneFormats } from "../constant/NumberFormate";
-import { AxiosError } from "axios";
+import { AxiosError } from 'axios';
+import Cleave from 'cleave.js';
+import CryptoJS from 'crypto-js';
+import validator from 'validator';
+
+import { phoneFormats } from '../constant/NumberFormate';
 
 const encryptionKey = import.meta.env.VITE_ENCRYPTION_KEY;
 const current_environment = import.meta.env.VITE_ENVIRONMENT;
@@ -18,11 +19,14 @@ export const isValidEmail = (email: string): boolean => {
 //  * This function will generate an unique meta tag.
 
 export const UniqueMetaTagGeneratingFunction = (lengthOfString: number) => {
-  const character = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const character =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const characterLength = character.length;
-  let uniqueString = "";
+  let uniqueString = '';
   for (let i = 0; i < lengthOfString; i++) {
-    uniqueString += character.charAt(Math.floor(Math.random() * characterLength));
+    uniqueString += character.charAt(
+      Math.floor(Math.random() * characterLength)
+    );
   }
   const timeStamp = Date.now().toString(36);
   return `${uniqueString}-${timeStamp}`;
@@ -30,10 +34,13 @@ export const UniqueMetaTagGeneratingFunction = (lengthOfString: number) => {
 
 //  * This Is The ClassName Function That Will Use To Simplify The ClassName With The Condition.
 
-export const classNames = (defaultClass: string, conditionBasedClass: { [keys: string]: boolean }) => {
+export const classNames = (
+  defaultClass: string,
+  conditionBasedClass: { [keys: string]: boolean }
+) => {
   return `${defaultClass} ${Object.keys(conditionBasedClass)
     .filter((key) => conditionBasedClass[key])
-    .join(" ")}`;
+    .join(' ')}`;
 };
 
 //  * To Handel The Error From The One Place.
@@ -42,13 +49,13 @@ export const ErrorHandler = (error: Error | AxiosError) => {
   if (error instanceof AxiosError) {
     const errorData = {
       success: error?.response?.data?.detail?.success ?? false,
-      message: error?.response?.data?.detail?.message ?? "something went wrong",
+      message: error?.response?.data?.detail?.message ?? 'something went wrong',
     };
     return errorData;
   } else {
     const errorData = {
       success: false,
-      message: "An unknown error occurred",
+      message: 'An unknown error occurred',
     };
     return errorData;
   }
@@ -59,15 +66,15 @@ export const ErrorHandler = (error: Error | AxiosError) => {
 export const storeDataInLocalStorage = (
   _data: any,
   key: string,
-  encrypted: boolean = current_environment == "PRODUCTION" ? true : false
+  encrypted: boolean = current_environment == 'PRODUCTION' ? true : false
 ) => {
   if (!key) {
-    console.error("the key is required to store the data");
+    console.error('the key is required to store the data');
     return;
   }
   let dataToStore: string;
   if (encrypted) {
-    _data = typeof _data == "object" ? JSON.stringify(_data) : _data;
+    _data = typeof _data == 'object' ? JSON.stringify(_data) : _data;
     dataToStore = CryptoJS.AES.encrypt(_data, encryptionKey).toString();
   } else {
     dataToStore = JSON.stringify(_data);
@@ -79,16 +86,20 @@ export const storeDataInLocalStorage = (
 
 export const getDataFromLocalStorage = (
   key: string,
-  encrypted: boolean = current_environment == "PRODUCTION" ? true : false
+  encrypted: boolean = current_environment == 'PRODUCTION' ? true : false
 ): any | null => {
   try {
     const localStorageData = localStorage.getItem(key);
     if (!localStorageData) return null;
 
     if (encrypted) {
-      if (!encryptionKey) throw new Error("Encryption key is required for decryption");
-      const decryptedData = CryptoJS.AES.decrypt(localStorageData, encryptionKey).toString();
-      if (key != "authenticationToken") {
+      if (!encryptionKey)
+        throw new Error('Encryption key is required for decryption');
+      const decryptedData = CryptoJS.AES.decrypt(
+        localStorageData,
+        encryptionKey
+      ).toString();
+      if (key != 'authenticationToken') {
         return JSON.parse(decryptedData);
       } else {
         return decryptedData;
@@ -111,15 +122,15 @@ export const clearLocalSessionStorage = () => {
 export const storeDataInSessionStorage = (
   _data: any,
   key: string,
-  encrypted: boolean = current_environment == "PRODUCTION" ? true : false
+  encrypted: boolean = current_environment == 'PRODUCTION' ? true : false
 ) => {
   if (!key) {
-    console.error("the key is required to store the data");
+    console.error('the key is required to store the data');
     return;
   }
   let dataToStore: string;
   if (encrypted) {
-    _data = typeof _data == "object" ? JSON.stringify(_data) : _data;
+    _data = typeof _data == 'object' ? JSON.stringify(_data) : _data;
     dataToStore = CryptoJS.AES.encrypt(_data, encryptionKey).toString();
   } else {
     dataToStore = JSON.stringify(_data);
@@ -129,14 +140,18 @@ export const storeDataInSessionStorage = (
 
 export const getDataFromTheSessionStorage = (
   key: string,
-  encrypted: boolean = current_environment == "PRODUCTION" ? true : false
+  encrypted: boolean = current_environment == 'PRODUCTION' ? true : false
 ) => {
   const sessionStorageData = sessionStorage.getItem(key);
   if (!sessionStorageData) return null;
   if (encrypted) {
-    if (!encryptionKey) throw new Error("Encryption key is required for decryption");
-    const decryptedData = CryptoJS.AES.decrypt(sessionStorageData, encryptionKey).toString();
-    if (key != "authenticationToken") {
+    if (!encryptionKey)
+      throw new Error('Encryption key is required for decryption');
+    const decryptedData = CryptoJS.AES.decrypt(
+      sessionStorageData,
+      encryptionKey
+    ).toString();
+    if (key != 'authenticationToken') {
       return JSON.parse(decryptedData);
     } else {
       return decryptedData;
@@ -146,7 +161,10 @@ export const getDataFromTheSessionStorage = (
 };
 
 // *
-export const formateAndVerifyPhoneNumber = (number: string, countryCode: string) => {
+export const formateAndVerifyPhoneNumber = (
+  number: string,
+  countryCode: string
+) => {
   if (!countryCode) return number;
 
   const upperCountryCode = countryCode.toUpperCase();
@@ -154,11 +172,11 @@ export const formateAndVerifyPhoneNumber = (number: string, countryCode: string)
 
   if (!format) return number;
   // Create a dummy input element for Cleave
-  const dummyInput = document.createElement("input");
+  const dummyInput = document.createElement('input');
 
   const cleave = new Cleave(dummyInput, {
-    delimiter: "-",
-    blocks: format.split("-").map((x) => x.length),
+    delimiter: '-',
+    blocks: format.split('-').map((x) => x.length),
     numericOnly: true, // Ensures only numbers are processed
     rawValueTrimPrefix: true,
     delimiterLazyShow: true,
