@@ -1,31 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { multiUrlFetcher, URLObject } from "./api/multipleAPI";
+import { multiUrlFetcher, URLObject } from './api/multipleAPI';
 
 export interface countryObject {
   country_flag: string;
   country_name: string;
   country_code: string;
 }
-export const FetchCountryData = async (): Promise<Array<countryObject> | undefined> => {
+export const FetchCountryData = async (): Promise<
+  Array<countryObject> | undefined
+> => {
   const endpointArr: Array<URLObject> = [
     {
-      url: "https://restcountries.com/v3.1/all",
-      Method: "GET",
+      url: 'https://restcountries.com/v3.1/all',
+      Method: 'GET',
     },
   ];
 
   try {
     const response = await multiUrlFetcher(endpointArr);
     if (!response || !Array.isArray(response) || response.length === 0) {
-      console.error("Invalid or empty response from API:", response);
+      console.error('Invalid or empty response from API:', response);
       return;
     }
 
     const country_Data = response[0].map((item: any) => {
-      const country_flag = item?.flag || "";
-      const country_name = item?.name?.common || "";
+      const country_flag = item?.flag || '';
+      const country_name = item?.name?.common || '';
       const country_code = item?.cca2;
-      let country_number_code = item?.idd?.root || "";
+      let country_number_code = item?.idd?.root || '';
 
       if (item?.idd?.suffixes?.[0]) {
         country_number_code += item?.idd?.suffixes[0];
@@ -36,19 +38,19 @@ export const FetchCountryData = async (): Promise<Array<countryObject> | undefin
 
     return country_Data;
   } catch (error) {
-    console.error("Error fetching country data:", error);
+    console.error('Error fetching country data:', error);
   }
 };
 
 export const fetchUsersPosition = async (): Promise<string> => {
   try {
-    const response = await fetch("https://ipapi.co/json/");
+    const response = await fetch('https://ipapi.co/json/');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return data.country_name || "India"; // Return country name after the fetch completes
+    return data.country_name || 'India'; // Return country name after the fetch completes
   } catch {
-    return "India"; // Return undefined in case of an error
+    return 'India'; // Return undefined in case of an error
   }
 };

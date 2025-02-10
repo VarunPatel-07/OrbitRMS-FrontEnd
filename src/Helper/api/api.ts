@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios, { AxiosRequestHeaders } from "axios";
-import { loginForm, signUpForm } from "../../interface/funcParamInterface";
-import React, { SetStateAction } from "react";
-import { ErrorHandler, storeDataInLocalStorage, storeDataInSessionStorage } from "../HelperFunctions";
+import React, { SetStateAction } from 'react';
+import axios, { AxiosRequestHeaders } from 'axios';
+
+import { loginForm, signUpForm } from '../../interface/funcParamInterface';
+import {
+  ErrorHandler,
+  storeDataInLocalStorage,
+  storeDataInSessionStorage,
+} from '../HelperFunctions';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 const defaultHeader = {
-  "Content-Type": "application/json",
+  'Content-Type': 'application/json',
 };
 
 // ? We Are Defining The InterFace For The API Response
@@ -23,7 +28,7 @@ interface SignUpApiResponse {
 export const signInApiFunction = async (
   endpoint: string,
   data: loginForm,
-  request_type: "POST",
+  request_type: 'POST',
   setLoader: React.Dispatch<SetStateAction<boolean>>,
   headers?: AxiosRequestHeaders
 ) => {
@@ -44,9 +49,15 @@ export const signInApiFunction = async (
     const response = await axios(config);
     setLoader(true);
     if (data?.rememberMe) {
-      storeDataInLocalStorage(response?.data?.authenticationToken, "authenticationToken");
+      storeDataInLocalStorage(
+        response?.data?.authenticationToken,
+        'authenticationToken'
+      );
     } else {
-      storeDataInSessionStorage(response?.data?.authenticationToken, "authenticationToken");
+      storeDataInSessionStorage(
+        response?.data?.authenticationToken,
+        'authenticationToken'
+      );
     }
     return response?.data;
   } catch (error: any) {
@@ -57,7 +68,7 @@ export const signInApiFunction = async (
 export const signUpApiFunction = async (
   endpoint: string,
   data: signUpForm,
-  request_type: "POST",
+  request_type: 'POST',
   setLoader: React.Dispatch<SetStateAction<boolean>>,
   headers?: AxiosRequestHeaders
 ): Promise<SignUpApiResponse | undefined> => {
@@ -70,13 +81,13 @@ export const signUpApiFunction = async (
       primary_number: data.contactNumber,
       country_info: JSON.parse(data.countryInfo as string),
       portal_url: `${data.defaultPortalUrlSlug}${data.portalUrl}`,
-      website_url: data.websiteUrl || "",
+      website_url: data.websiteUrl || '',
       is_meta_verified: false,
-      meta_key: "",
-      meta_value: "",
+      meta_key: '',
+      meta_value: '',
       terms_accepted: data.termsAccepted,
       email_verified: false,
-      organization_profile_picture: "",
+      organization_profile_picture: '',
     };
 
     const config = {
@@ -94,7 +105,7 @@ export const signUpApiFunction = async (
         Please check your inbox and verify your email to activate your account.`,
         success: true,
         showModal: true,
-        title: "Organization Created Successfully!",
+        title: 'Organization Created Successfully!',
       };
     }
     setLoader(false);
@@ -109,12 +120,14 @@ export const signUpApiFunction = async (
     Please contact the owner at **${response?.owner_email}**, or reach out to our support team for further assistance.`,
         success: false,
         showModal: true,
-        title: "Organization Already Exists!",
+        title: 'Organization Already Exists!',
       };
     }
   }
 };
 
-export const verifyUsersLoginStatus = async (setShowGlobalLoader: React.Dispatch<SetStateAction<boolean>>) => {
+export const verifyUsersLoginStatus = async (
+  setShowGlobalLoader: React.Dispatch<SetStateAction<boolean>>
+) => {
   setShowGlobalLoader(false);
 };

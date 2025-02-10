@@ -1,4 +1,4 @@
-import React, { SetStateAction } from "react";
+import React, { SetStateAction } from 'react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface BreadcrumbsProps {
@@ -11,7 +11,7 @@ export interface BreadcrumbsProps {
 
 export interface InputProps {
   name: string;
-  type?: "text" | "password" | "email" | "number" | "file" | "url" | "checkbox"; // More specific input types
+  type?: 'text' | 'password' | 'email' | 'number' | 'file' | 'url' | 'checkbox'; // More specific input types
   value?: string;
   setValue?: (value: string) => void; // Function that updates the value
   placeHolder?: string; // Optional placeholder
@@ -26,9 +26,15 @@ export interface InputProps {
   setUrlErrorType?: (value: string) => void;
   showDropFileScreenInFullScreen?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  countryDropDownPosition?: "top" | "bottom";
+  countryDropDownPosition?: 'top' | 'bottom';
   dropDownSelectedValue?: string | number;
   setDropDownSelectedValue?: React.Dispatch<SetStateAction<string | number>>;
+  disabled?: boolean;
+}
+
+export interface TextAreaProps {
+  name: string;
+  className?: string;
 }
 
 export interface Column {
@@ -37,7 +43,7 @@ export interface Column {
   isSortable: boolean;
   isSticky: boolean;
   canToggleVisibility: boolean;
-  align?: "left" | "center" | "right";
+  align?: 'left' | 'center' | 'right';
   filterable?: boolean;
   renderContent: (data: any) => React.ReactElement;
   // onSortColumn: () => void;
