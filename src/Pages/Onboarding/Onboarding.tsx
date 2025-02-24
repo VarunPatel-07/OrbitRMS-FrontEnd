@@ -1,12 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useRef, useState } from 'react';
-import { FaStarOfLife } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { FaCheck, FaStarOfLife } from 'react-icons/fa';
+import { FaArrowLeftLong, FaArrowRightLong } from 'react-icons/fa6';
+import { MdModeEdit } from 'react-icons/md';
 
-import orbitLogo from '../../assets/Images/OrbitRMS-Final-Logo-transperent.png';
+import signInGradientBgImage from '../../assets/Images/gradient-bg.png';
+import orbitLogo from '../../assets/Images/OrbitRMS-White-Transperent-Logo.png';
 import Input from '../../common/Input';
+import SearchDrop from '../../common/SearchDrop';
 import TextArea from '../../common/TextArea';
+import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
 import { classNames } from '../../Helper/HelperFunctions';
 import { OnboardingFormInterface } from '../../interface/interface';
+import VerifyWebsiteUrlModal from './VerifyWebsiteUrlModal';
 
 const initialState = {
   general_info: {
@@ -46,18 +52,47 @@ const initialState = {
   },
 };
 
+const SideBarArray = [
+  {
+    id: 0,
+    label: 'General Info',
+  },
+  {
+    id: 1,
+    label: 'Address',
+  },
+  {
+    id: 2,
+    label: 'Contact Info',
+  },
+  {
+    id: 3,
+    label: 'About Info',
+  },
+  {
+    id: 4,
+    label: 'Organization Settings',
+  },
+];
+
 function Onboarding() {
   const [formData, setFormData] =
     useState<OnboardingFormInterface>(initialState);
-  const [currentVisibleSection, setCurrentVisibleSection] = useState<number>(0);
 
-  const generalInfoSectionRef = useRef<HTMLDivElement>(null);
-  const addressSectionRef = useRef<HTMLDivElement>(null);
-  const contactInfoSectionRef = useRef<HTMLDivElement>(null);
-  const aboutInfoSectionRef = useRef<HTMLDivElement>(null);
-  const organizationSettingRef = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(0);
+  const [showVerifyWebsiteUrlModal, setShowVerifyWebsiteUrlModal] =
+    useState<boolean>(false);
+  const [stateOptionArray, setStateOptionArray] = useState<
+    Array<string | object>
+  >([]);
+  const [citiesOptionsArray, setCitiesOptionsArray] = useState<Array<string>>(
+    []
+  );
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOnChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     const keys = name.split('.');
 
@@ -76,500 +111,656 @@ function Onboarding() {
 
       return { ...updatedData };
     });
-
     console.log(formData);
   };
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry?.isIntersecting) {
-            setCurrentVisibleSection(Number(entry?.target?.id));
-          }
-        });
+  const addWebsiteUrlFunction = (
+    url: string,
+    meta_name: string,
+    meta_value: string,
+    meta_verified: boolean
+  ) => {
+    setFormData((previousData) => ({
+      ...previousData,
+      general_info: {
+        ...previousData.general_info,
+        website_url: url,
+        meta_key: meta_name,
+        meta_value,
+        is_meta_verified: meta_verified,
       },
-      { threshold: 0.5 }
-    );
+    }));
+  };
 
-    const referenceArray = [
-      generalInfoSectionRef.current,
-      addressSectionRef.current,
-      contactInfoSectionRef.current,
-      aboutInfoSectionRef.current,
-      organizationSettingRef.current,
-    ].filter(Boolean);
-    referenceArray.forEach((ref) => observer.observe(ref as HTMLDivElement));
-    return () => {
-      referenceArray.forEach((ref) =>
-        observer.unobserve(ref as HTMLDivElement)
-      );
-    };
+  const handelIncrementPage = () => {
+    if (page < SideBarArray.length - 1) {
+      setPage((pervPage) => pervPage + 1);
+    }
+  };
+  const handelDecreesPage = () => {
+    if (page >= 1) {
+      setPage((pervPage) => pervPage - 1);
+    }
+  };
+  const getTheCitiesOfState = async (stateCode: string) => {
+    const endPointArr: Array<endpointObject> = [
+      {
+        endPoint: `country-info/getStateInfo?country=IN&state_code=${stateCode}`,
+        protected: false,
+      },
+    ];
+
+    const response = await multipleFetchApi(endPointArr);
+    if (response[0].success) {
+      setCitiesOptionsArray(response[0].cities_array);
+    }
+    setLoading(false);
+  };
+  const handleClickOnStateValue = (data: string | object) => {
+    const stateName =
+      typeof data === 'object'
+        ? (data as Record<string, string>)['state_name']
+        : data;
+    const stateCode =
+      typeof data === 'object'
+        ? (data as Record<string, string>)['state_code']
+        : data;
+
+    setFormData((pervValue) => ({
+      ...pervValue,
+      address: {
+        ...pervValue.address,
+        state: stateName,
+      },
+    }));
+
+    if (stateCode) {
+      setLoading(true);
+      getTheCitiesOfState(stateCode);
+    }
+  };
+
+  const handleClickOnCityVal = (data: string | object) => {
+    const cityName =
+      typeof data === 'object'
+        ? (data as Record<string, string>)['city_name']
+        : data;
+
+    setFormData((pervValue) => ({
+      ...pervValue,
+      address: {
+        ...pervValue.address,
+        city: cityName,
+      },
+    }));
+  };
+
+  useEffect(() => {
+    (async () => {
+      const endpointArray: Array<endpointObject> = [
+        {
+          endPoint: 'country-info/getCountryInfo?country=IN',
+          protected: false,
+        },
+      ];
+      const response = await multipleFetchApi(endpointArray);
+      if (response[0].success) {
+        setStateOptionArray(response[0].states);
+      }
+    })();
   }, []);
 
   return (
-    <div className='h-screen w-full bg-[var(--main-white-color)] overflow-hidden relative'>
-      <div className='navbar w-full bg-white px-5 py-2 fixed top-0 left-0 z-20'>
-        <img
-          src={orbitLogo}
-          alt='OrbitRMS Logo'
-          className='max-w-[200px] h-fit max-h-[40px]'
-        />
-      </div>
-      <div className='w-full px-5 py-6 pt-[76px] h-full flex items-stretch gap-5'>
-        {/* main form */}
-        <div className='w-[80%] h-full mx-auto p-6 pb-0 rounded-lg'>
-          <div className='w-full h-full flex flex-col gap-10 overflow-auto hide-scrollbar'>
-            {/* general Info */}
-            <div
-              id='1'
-              ref={generalInfoSectionRef}
-              className='w-full flex items-start justify-start gap-5'
-            >
-              <div className='w-[20%] flex flex-col items-start justify-start gap-1.5 pt-3'>
-                <h3 className='text-xl font-inter font-semibold text-black'>
-                  General Info
-                </h3>
-                <p className='font-inter text-sm text-black/60'>
-                  Essential details about the organization for registration.
-                </p>
+    <>
+      <div className='h-screen w-screen bg-[var(--them-pink-color)]'>
+        <div className='w-full h-full flex items-stretch justify-start relative'>
+          <img
+            src={signInGradientBgImage}
+            className='w-2/3 h-full absolute top-0 left-0'
+          />
+          <div className='w-1/3 relative hidden md:block'>
+            <div className='w-full h-full p-7'>
+              <div>
+                <img
+                  src={orbitLogo}
+                  className='max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]'
+                  alt='OrbitRMS Logo'
+                />
               </div>
-              <div className='w-[80%] bg-white rounded-lg p-5 grid grid-cols-1 gap-5'>
-                <div className='w-full'>
-                  <Input
-                    name='general_info.organization_profile_picture'
-                    type='file'
-                    RequiredFileTypeArray={[
-                      'image/png',
-                      'image/jpeg',
-                      'image/webp',
-                    ]}
-                    labelFieldName='Organization Profile Picture'
-                  />
-                </div>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='general_info.organization_name'
-                    labelFieldName='Organization Name'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.general_info.organization_name}
-                    onChange={handleOnChange}
-                    disabled={true}
-                  />
-                </div>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='general_info.portal_url'
-                    labelFieldName='Portal Url'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.general_info.portal_url}
-                    onChange={handleOnChange}
-                    disabled={true}
-                  />
-                </div>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='w-full'>
-                    <Input
-                      type='text'
-                      name='general_info.primary_email'
-                      labelFieldName='Primary Email'
-                      className='border border-black/45'
-                      isRequiredField={true}
-                      value={formData.general_info.primary_email}
-                      onChange={handleOnChange}
-                      disabled={true}
-                    />
-                  </div>
-                  <div className='w-full h-full'>
-                    <label
-                      htmlFor=''
-                      className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
-                    >
-                      <span className='flex gap-1'>
-                        <span>Primary Number</span>
-                        <FaStarOfLife className='w-1.5 text-red-700' />
-                      </span>
-                    </label>
+              <div className='pt-7 '>
+                <h1 className='font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5'>
+                  Welcome to <span className=''>OrbitRMS </span>– Let’s Get You
+                  Onboard!
+                </h1>
+              </div>
 
-                    <div className='w-full flex items-stretch justify-start h-[42px]'>
-                      <div
-                        className='rounded-l-lg font-inter overflow-hidden h-full border border-[#7fab98] border-r-0 bg-[#7fab98]/15 flex items-center justify-center px-3.5'
-                        aria-disabled='true'
+              <div className='flex flex-col items-start justify-center py-12'>
+                {SideBarArray?.map((item) => (
+                  <div
+                    className={classNames('flex flex-col items-start', {
+                      'opacity-50': page < item?.id,
+                    })}
+                    key={item?.id}
+                  >
+                    <div className='flex items-center gap-2'>
+                      <span
+                        className={classNames(
+                          'w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all',
+                          {
+                            'bg-white text-black': page <= item?.id,
+                            'bg-green-600 text-white': page > item?.id,
+                          }
+                        )}
                       >
-                        <span className='font-inter text-sm text-black'>
-                          +91
-                        </span>
-                      </div>
-                      <input
-                        type='text'
-                        className='rounded-r-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden h-full disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15'
-                        disabled
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              id='2'
-              ref={addressSectionRef}
-              className='w-full flex items-start justify-start gap-5'
-            >
-              <div className='w-[20%] flex flex-col items-start justify-start gap-1.5 pt-3'>
-                <h3 className='text-xl font-inter font-semibold text-black'>
-                  Address
-                </h3>
-                <p className='font-inter text-sm text-black/60'>
-                  Enter Your Organization Address
-                </p>
-              </div>
-              <div className='w-[80%] bg-white rounded-lg p-5 grid grid-cols-1 gap-5'>
-                <div className='w-full'>
-                  <TextArea name='address.address' />
-                </div>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='general_info.portal_url'
-                    labelFieldName='Portal Url'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.general_info.portal_url}
-                    onChange={handleOnChange}
-                    disabled={true}
-                  />
-                </div>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='w-full'>
-                    <Input
-                      type='text'
-                      name='general_info.primary_email'
-                      labelFieldName='Primary Email'
-                      className='border border-black/45'
-                      isRequiredField={true}
-                      value={formData.general_info.primary_email}
-                      onChange={handleOnChange}
-                      disabled={true}
-                    />
-                  </div>
-                  <div className='w-full h-full'>
-                    <div className='flex gap-1'>
-                      <span className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'>
-                        Primary Number
+                        {page > item?.id ? (
+                          <FaCheck className='w-4 h-4 transition-all' />
+                        ) : (
+                          item?.id + 1
+                        )}
                       </span>
-                      <FaStarOfLife className='w-1.5 text-red-700' />
-                    </div>
-                    <div className='w-full flex items-stretch justify-start h-[42px]'>
-                      <div
-                        className='rounded-l-lg font-inter overflow-hidden h-full border border-[#7fab98] border-r-0 bg-[#7fab98]/15 flex items-center justify-center px-3.5'
-                        aria-disabled='true'
-                      >
-                        <span className='font-inter text-sm text-black'>
-                          +91
-                        </span>
-                      </div>
-                      <input
-                        type='text'
-                        className='rounded-r-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden h-full disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15'
-                        disabled
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              id='3'
-              ref={contactInfoSectionRef}
-              className='w-full flex items-start justify-start gap-5'
-            >
-              <div className='w-[20%] flex flex-col items-start justify-start gap-1.5 pt-3'>
-                <h3 className='text-xl font-inter font-semibold text-black'>
-                  General Info
-                </h3>
-                <p className='font-inter text-sm text-black/60'>
-                  Essential details about the organization for registration.
-                </p>
-              </div>
-              <div className='w-[80%] bg-white rounded-lg p-5 grid grid-cols-1 gap-5'>
-                <div className='w-full'>
-                  <Input
-                    name='general_info.organization_profile_picture'
-                    type='file'
-                    RequiredFileTypeArray={[
-                      'image/png',
-                      'image/jpeg',
-                      'image/webp',
-                    ]}
-                    labelFieldName='Organization Profile Picture'
-                  />
-                </div>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='general_info.organization_name'
-                    labelFieldName='Organization Name'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.general_info.organization_name}
-                    onChange={handleOnChange}
-                    disabled={true}
-                  />
-                </div>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='general_info.portal_url'
-                    labelFieldName='Portal Url'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.general_info.portal_url}
-                    onChange={handleOnChange}
-                    disabled={true}
-                  />
-                </div>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='w-full'>
-                    <Input
-                      type='text'
-                      name='general_info.primary_email'
-                      labelFieldName='Primary Email'
-                      className='border border-black/45'
-                      isRequiredField={true}
-                      value={formData.general_info.primary_email}
-                      onChange={handleOnChange}
-                      disabled={true}
-                    />
-                  </div>
-                  <div className='w-full h-full'>
-                    <div className='flex gap-1'>
-                      <span className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'>
-                        Primary Number
+                      <span className='text-sm lg:text-base xl:text-xl font-bold text-white'>
+                        {item?.label}
                       </span>
-                      <FaStarOfLife className='w-1.5 text-red-700' />
                     </div>
-                    <div className='w-full flex items-stretch justify-start h-[42px]'>
-                      <div
-                        className='rounded-l-lg font-inter overflow-hidden h-full border border-[#7fab98] border-r-0 bg-[#7fab98]/15 flex items-center justify-center px-3.5'
-                        aria-disabled='true'
-                      >
-                        <span className='font-inter text-sm text-black'>
-                          +91
-                        </span>
+                    {item?.id + 1 != SideBarArray.length ? (
+                      <div className='w-10 flex items-center justify-center relative'>
+                        <span
+                          className={classNames(
+                            'w-1.5 h-14 bg-green-100/30 inline-block',
+                            {}
+                          )}
+                        ></span>
+                        <span
+                          className={classNames(
+                            'w-1.5 h-14 bg-green-600 inline-block absolute top-0 left-1/2 -translate-x-1/2 transition-all duration-200 origin-top',
+                            {
+                              'scale-y-0': page <= item?.id,
+                              'scale-y-100': page > item?.id,
+                            }
+                          )}
+                        ></span>
                       </div>
-                      <input
-                        type='text'
-                        className='rounded-r-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden h-full disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15'
-                        disabled
-                      />
-                    </div>
+                    ) : (
+                      ''
+                    )}
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
-        </div>
-        {/* sidebar navigation */}
-        <div className='w-[20%] pt-6'>
-          <div className='w-full'>
-            <div className='flex items-start justify-start gap-2'>
-              <div className='w-fit flex items-center flex-col justify-center'>
-                <span
-                  className={classNames(
-                    'w-8 h-8 flex items-center justify-center rounded-full text-base font-bold transition-all',
-                    {
-                      'bg-white text-black': currentVisibleSection <= 1,
-                      'bg-indigo-500 text-white': currentVisibleSection > 1,
-                    }
-                  )}
+          <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10 p-6'>
+            <div className='max-w-[800px] mx-auto h-full pb-10 flex items-center justify-center relative'>
+              <div className='w-full flex flex-col items-start justify-start gap-5 overflow-hidden'>
+                <div className='w-full flex flex-col items-start justify-start gap-1.5 pb-8 border-b border-black/20'>
+                  <h3 className='text-xl font-inter font-semibold text-black'>
+                    General Info
+                  </h3>
+                  <p className='font-inter text-sm text-black/60'>
+                    Essential details about the organization for registration.
+                  </p>
+                </div>
+                <div
+                  className={`flex items-start justify-start transition-all`}
+                  style={{ transform: `translateX(-${page * 100}%)` }}
                 >
-                  1
-                </span>
-                <div className='h-12 w-1.5 relative overflow-hidden'>
-                  <span
-                    className={classNames(
-                      'inline-block w-1.5 h-full bg-indigo-500 origin-top transition-all duration-300 absolute top-0 left-0',
-                      {
-                        'scale-y-0': currentVisibleSection <= 1,
-                        'scale-y-100': currentVisibleSection > 1,
-                      }
-                    )}
-                  ></span>
-                  <span className='w-1.5 h-full bg-indigo-200 inline-block'></span>
+                  {/* general Info */}
+                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4 px-1'>
+                    <div className='w-full'>
+                      <Input
+                        name='general_info.organization_profile_picture'
+                        type='file'
+                        RequiredFileTypeArray={[
+                          'image/png',
+                          'image/jpeg',
+                          'image/webp',
+                        ]}
+                        labelFieldName='Organization Profile Picture'
+                      />
+                    </div>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.organization_name'
+                          labelFieldName='Organization Name'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.organization_name}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.portal_url'
+                          labelFieldName='Portal Url'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.portal_url}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                    </div>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.primary_email'
+                          labelFieldName='Primary Email'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.primary_email}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                      <div className='w-full h-full'>
+                        <label
+                          htmlFor=''
+                          className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
+                        >
+                          <span className='flex gap-1'>
+                            <span>Primary Number</span>
+                            <FaStarOfLife className='w-1.5 text-red-700' />
+                          </span>
+                        </label>
+
+                        <div className='w-full flex items-stretch justify-start h-[42px]'>
+                          <div
+                            className='rounded-l-lg font-inter overflow-hidden h-full border border-[#7fab98] border-r-0 bg-[#7fab98]/15 flex items-center justify-center px-3.5'
+                            aria-disabled='true'
+                          >
+                            <span className='font-inter text-sm text-black'>
+                              +91
+                            </span>
+                          </div>
+                          <input
+                            type='text'
+                            className='rounded-r-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden h-full disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15'
+                            disabled
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className='w-full'>
+                      <label
+                        htmlFor=''
+                        className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
+                      >
+                        <span className='flex gap-1'>
+                          <span>Website URL</span>
+                          <FaStarOfLife className='w-1.5 text-red-700' />
+                        </span>
+                      </label>
+                      <div className='flex items-stretch gap-2'>
+                        <div className='w-full'>
+                          <Input
+                            type='text'
+                            name='general_info.website_url'
+                            className='border border-black/45'
+                            isRequiredField={true}
+                            value={formData.general_info.website_url}
+                            onChange={handleOnChange}
+                            disabled={true}
+                          />
+                        </div>
+                        <div className=''>
+                          <button
+                            className='text-black flex items-center justify-center h-full border border-black/65 w-[40px] rounded-lg'
+                            onClick={() => setShowVerifyWebsiteUrlModal(true)}
+                          >
+                            <MdModeEdit />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* address */}
+                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4 px-1'>
+                    <div className='w-full'>
+                      <TextArea
+                        name='address.address'
+                        rows={5}
+                        value={formData.address.address}
+                        onChange={handleOnChange}
+                        isRequiredField={true}
+                        labelFieldName='Address'
+                      />
+                    </div>
+                    <div className='w-full'>
+                      <SearchDrop
+                        options={stateOptionArray}
+                        searchKey='state_name'
+                        isRequiredField={true}
+                        labelFieldName='State'
+                        selectedValue={formData.address.state}
+                        onSelectValBtn={handleClickOnStateValue}
+                        position='bottom'
+                        emptyDataMessage={'No Option'}
+                      />
+                    </div>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div className='w-full'>
+                        <SearchDrop
+                          options={citiesOptionsArray}
+                          searchKey='city_name'
+                          isRequiredField={true}
+                          labelFieldName='City'
+                          selectedValue={formData.address.city}
+                          onSelectValBtn={handleClickOnCityVal}
+                          position='top'
+                          emptyDataMessage={
+                            formData.address.state.trim() == ''
+                              ? 'Please Select A State First'
+                              : 'No Option'
+                          }
+                          loading={loading}
+                        />
+                      </div>
+                      <div className='w-full h-full'>
+                        <Input
+                          type='text'
+                          name='address.zip_code'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          labelFieldName='Zip Code'
+                          value={formData.address.zip_code}
+                          onChange={handleOnChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4'>
+                    <div className='w-full'>
+                      <Input
+                        name='general_info.organization_profile_picture'
+                        type='file'
+                        RequiredFileTypeArray={[
+                          'image/png',
+                          'image/jpeg',
+                          'image/webp',
+                        ]}
+                        labelFieldName='Organization Profile Picture'
+                      />
+                    </div>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.organization_name'
+                          labelFieldName='Organization Name'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.organization_name}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.portal_url'
+                          labelFieldName='Portal Url'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.portal_url}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                    </div>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.primary_email'
+                          labelFieldName='Primary Email'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.primary_email}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                      <div className='w-full h-full'>
+                        <label
+                          htmlFor=''
+                          className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
+                        >
+                          <span className='flex gap-1'>
+                            <span>Primary Number</span>
+                            <FaStarOfLife className='w-1.5 text-red-700' />
+                          </span>
+                        </label>
+
+                        <div className='w-full flex items-stretch justify-start h-[42px]'>
+                          <div
+                            className='rounded-l-lg font-inter overflow-hidden h-full border border-[#7fab98] border-r-0 bg-[#7fab98]/15 flex items-center justify-center px-3.5'
+                            aria-disabled='true'
+                          >
+                            <span className='font-inter text-sm text-black'>
+                              +91
+                            </span>
+                          </div>
+                          <input
+                            type='text'
+                            className='rounded-r-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden h-full disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15'
+                            disabled
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4'>
+                    <div className='w-full'>
+                      <Input
+                        name='general_info.organization_profile_picture'
+                        type='file'
+                        RequiredFileTypeArray={[
+                          'image/png',
+                          'image/jpeg',
+                          'image/webp',
+                        ]}
+                        labelFieldName='Organization Profile Picture'
+                      />
+                    </div>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.organization_name'
+                          labelFieldName='Organization Name'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.organization_name}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.portal_url'
+                          labelFieldName='Portal Url'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.portal_url}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                    </div>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.primary_email'
+                          labelFieldName='Primary Email'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.primary_email}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                      <div className='w-full h-full'>
+                        <label
+                          htmlFor=''
+                          className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
+                        >
+                          <span className='flex gap-1'>
+                            <span>Primary Number</span>
+                            <FaStarOfLife className='w-1.5 text-red-700' />
+                          </span>
+                        </label>
+
+                        <div className='w-full flex items-stretch justify-start h-[42px]'>
+                          <div
+                            className='rounded-l-lg font-inter overflow-hidden h-full border border-[#7fab98] border-r-0 bg-[#7fab98]/15 flex items-center justify-center px-3.5'
+                            aria-disabled='true'
+                          >
+                            <span className='font-inter text-sm text-black'>
+                              +91
+                            </span>
+                          </div>
+                          <input
+                            type='text'
+                            className='rounded-r-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden h-full disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15'
+                            disabled
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4'>
+                    <div className='w-full'>
+                      <Input
+                        name='general_info.organization_profile_picture'
+                        type='file'
+                        RequiredFileTypeArray={[
+                          'image/png',
+                          'image/jpeg',
+                          'image/webp',
+                        ]}
+                        labelFieldName='Organization Profile Picture'
+                      />
+                    </div>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.organization_name'
+                          labelFieldName='Organization Name'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.organization_name}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.portal_url'
+                          labelFieldName='Portal Url'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.portal_url}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                    </div>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='general_info.primary_email'
+                          labelFieldName='Primary Email'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={formData.general_info.primary_email}
+                          onChange={handleOnChange}
+                          disabled={true}
+                        />
+                      </div>
+                      <div className='w-full h-full'>
+                        <label
+                          htmlFor=''
+                          className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
+                        >
+                          <span className='flex gap-1'>
+                            <span>Primary Number</span>
+                            <FaStarOfLife className='w-1.5 text-red-700' />
+                          </span>
+                        </label>
+
+                        <div className='w-full flex items-stretch justify-start h-[42px]'>
+                          <div
+                            className='rounded-l-lg font-inter overflow-hidden h-full border border-[#7fab98] border-r-0 bg-[#7fab98]/15 flex items-center justify-center px-3.5'
+                            aria-disabled='true'
+                          >
+                            <span className='font-inter text-sm text-black'>
+                              +91
+                            </span>
+                          </div>
+                          <input
+                            type='text'
+                            className='rounded-r-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden h-full disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15'
+                            disabled
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <span
-                className={classNames(
-                  'w-full h-8 flex items-center justify-start font-medium',
-                  {
-                    'text-black': currentVisibleSection <= 1,
-                    'text-indigo-700': currentVisibleSection > 1,
-                  }
-                )}
-              >
-                General Info{' '}
-              </span>
-            </div>
-            <div className='flex items-start justify-start gap-2'>
-              <div className='w-fit flex items-center flex-col justify-center'>
-                <span
+              <div className='absolute bottom-0 w-full flex items-center justify-between px-1'>
+                <button
                   className={classNames(
-                    'w-8 h-8 flex items-center justify-center rounded-full text-base font-bold transition-all',
-                    {
-                      'bg-white text-black opacity-50':
-                        currentVisibleSection < 2,
-                      'bg-white text-black': currentVisibleSection == 2,
-                      'bg-indigo-500 text-white': currentVisibleSection > 2,
-                    }
+                    'bg-transparent text-base py-2 px-6 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 capitalize w-fit text-black border border-black/45 hover:bg-black/5',
+                    { invisible: page <= 0 }
                   )}
+                  onClick={handelDecreesPage}
                 >
-                  2
-                </span>
-                <div className='h-12 w-1.5 relative overflow-hidden'>
-                  <span
-                    className={classNames(
-                      'inline-block w-1.5 h-full bg-indigo-500 origin-top transition-all duration-300 absolute top-0 left-0',
-                      {
-                        'scale-y-0': currentVisibleSection <= 2,
-                        'scale-y-100': currentVisibleSection > 2,
-                      }
-                    )}
-                  ></span>
-                  <span className='w-1.5 h-full bg-indigo-200 inline-block'></span>
-                </div>
-              </div>
-              <span
-                className={classNames(
-                  'w-full h-8 flex items-center justify-start font-medium',
-                  {
-                    'text-black opacity-50': currentVisibleSection < 3,
-                    'text-black': currentVisibleSection == 3,
-                    'text-indigo-700': currentVisibleSection > 3,
-                  }
-                )}
-              >
-                Address
-              </span>
-            </div>
-            <div className='flex items-start justify-start gap-2'>
-              <div className='w-fit flex items-center flex-col justify-center'>
-                <span
+                  <FaArrowLeftLong />
+                  <span>Back</span>
+                </button>
+                <button
                   className={classNames(
-                    'w-8 h-8 flex items-center justify-center rounded-full text-base font-bold transition-all',
-                    {
-                      'bg-white text-black opacity-50':
-                        currentVisibleSection < 3,
-                      'bg-white text-black': currentVisibleSection == 3,
-                      'bg-indigo-500 text-white': currentVisibleSection > 3,
-                    }
+                    'bg-[var(--them-green-color)] text-base py-2 px-6 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 capitalize w-fit',
+                    { hidden: page >= SideBarArray.length - 1 }
                   )}
+                  onClick={handelIncrementPage}
                 >
-                  3
-                </span>
-                <div className='h-12 w-1.5 relative overflow-hidden'>
-                  <span
-                    className={classNames(
-                      'inline-block w-1.5 h-full bg-indigo-500 origin-top transition-all duration-300 absolute top-0 left-0',
-                      {
-                        'scale-y-0': currentVisibleSection <= 3,
-                        'scale-y-100': currentVisibleSection > 3,
-                      }
-                    )}
-                  ></span>
-                  <span className='w-1.5 h-full bg-indigo-200 inline-block'></span>
-                </div>
-              </div>
-              <span
-                className={classNames(
-                  'w-full h-8 flex items-center justify-start font-medium',
-                  {
-                    'text-black opacity-50': currentVisibleSection < 3,
-                    'text-black': currentVisibleSection == 3,
-                    'text-indigo-700': currentVisibleSection > 3,
-                  }
-                )}
-              >
-                Contact Info
-              </span>
-            </div>
-            <div className='flex items-start justify-start gap-2'>
-              <div className='w-fit flex items-center flex-col justify-center'>
-                <span
+                  <span>next</span>
+                  <FaArrowRightLong />
+                </button>
+                <button
                   className={classNames(
-                    'w-8 h-8 flex items-center justify-center rounded-full text-base font-bold transition-all',
-                    {
-                      'bg-white text-black opacity-50':
-                        currentVisibleSection < 4,
-                      'bg-white text-black': currentVisibleSection == 4,
-                      'bg-indigo-500 text-white': currentVisibleSection > 4,
-                    }
+                    'bg-[var(--them-green-color)] text-base py-2 px-6 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 capitalize w-fit',
+                    { hidden: page != SideBarArray.length - 1 }
                   )}
+                  onClick={handelIncrementPage}
                 >
-                  4
-                </span>
-                <div className='h-12 w-1.5 relative overflow-hidden'>
-                  <span
-                    className={classNames(
-                      'inline-block w-1.5 h-full bg-indigo-500 origin-top transition-all duration-300 absolute top-0 left-0',
-                      {
-                        'scale-y-0': currentVisibleSection <= 4,
-                        'scale-y-100': currentVisibleSection > 4,
-                      }
-                    )}
-                  ></span>
-                  <span className='w-1.5 h-full bg-indigo-200 inline-block'></span>
-                </div>
+                  <span>Submit</span>
+                </button>
               </div>
-              <span
-                className={classNames(
-                  'w-full h-8 flex items-center justify-start font-medium',
-                  {
-                    'text-black opacity-50': currentVisibleSection < 4,
-                    'text-black': currentVisibleSection == 4,
-                    'text-indigo-700': currentVisibleSection > 4,
-                  }
-                )}
-              >
-                About Info
-              </span>
-            </div>
-            <div className='flex items-start justify-start gap-2'>
-              <div className='w-fit flex items-center flex-col justify-center'>
-                <span
-                  className={classNames(
-                    'w-8 h-8 flex items-center justify-center rounded-full text-base font-bold transition-all',
-                    {
-                      'bg-white text-black opacity-50':
-                        currentVisibleSection < 4,
-                      'bg-white text-black': currentVisibleSection == 4,
-                      'bg-indigo-500 text-white': currentVisibleSection > 4,
-                    }
-                  )}
-                >
-                  5
-                </span>
-              </div>
-              <span
-                className={classNames(
-                  'w-full h-8 flex items-center justify-start font-medium',
-                  {
-                    'text-black opacity-50': currentVisibleSection < 4,
-                    'text-black': currentVisibleSection == 4,
-                    'text-indigo-700': currentVisibleSection > 4,
-                  }
-                )}
-              >
-                About Info
-              </span>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      {showVerifyWebsiteUrlModal && (
+        <VerifyWebsiteUrlModal
+          showModal={showVerifyWebsiteUrlModal}
+          setShowModal={setShowVerifyWebsiteUrlModal}
+          addWebsiteUrlFunction={addWebsiteUrlFunction}
+          default_website_url={formData.general_info.website_url}
+        />
+      )}
+    </>
   );
 }
 
