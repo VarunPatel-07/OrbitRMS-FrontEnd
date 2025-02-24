@@ -35,6 +35,29 @@ export interface InputProps {
 export interface TextAreaProps {
   name: string;
   className?: string;
+  cols?: number;
+  rows?: number;
+  value?: string;
+  setValue?: React.Dispatch<SetStateAction<string>>;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  labelFieldName?: string;
+  isRequiredField?: boolean;
+}
+
+export interface SearchDropProps {
+  name?: string;
+  className?: string;
+  labelFieldName?: string;
+  isRequiredField?: boolean;
+  selectedValue?: string;
+  setSelectedValue?: React.Dispatch<SetStateAction<string>>;
+  onSelectValBtn?: (data: string | object) => void;
+  placeHolderName?: string;
+  options: Array<string | object>;
+  searchKey: string;
+  position: 'bottom' | 'top';
+  emptyDataMessage: string;
+  loading?: boolean;
 }
 
 export interface Column {

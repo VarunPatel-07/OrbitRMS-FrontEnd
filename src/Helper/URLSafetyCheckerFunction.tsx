@@ -1,9 +1,17 @@
 import axios from 'axios';
 
+interface functionReturnObj {
+  urlStatus: '' | 'invalid' | 'unsafe' | 'safe' | 'error';
+  isError: boolean;
+  isEmptyString: boolean;
+}
+
 const Google_API_Key = import.meta.env
   .VITE_GOOGLE_SAFE_BROWSING_CHECKER_API_KEY;
 
-export const URLSafetyCheckerFunction = async (url: string) => {
+export const URLSafetyCheckerFunction = async (
+  url: string
+): Promise<functionReturnObj> => {
   if (url.length == 0)
     return {
       urlStatus: '',

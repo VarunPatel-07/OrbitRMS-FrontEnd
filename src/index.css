@@ -4,9 +4,6 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -26,12 +23,12 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  border: 0;
-  -webkit-text-fill-color: black;
-  -webkit-box-shadow: 0 0 0px 1000px transparent inset;
-  box-shadow: 0 0 0px 1000px transparent inset;
-  transition: background-color 5000s ease-in-out 0s;
-  color: black;
+  -webkit-text-fill-color: black !important;
+  color: black !important;
+  background-color: transparent !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
+  background-clip: content-box !important;
+  transition: background-color 9999999s ease-in-out 0s !important;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -42,12 +39,12 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
 .tooltiptext::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   right: 100%;

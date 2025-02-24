@@ -190,7 +190,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             )}
           <div
             className={clsx(
-              'bg-transparent rounded-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden',
+              'bg-transparent rounded-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden !text-black',
               className
             )}
             style={{ border: showError && errorMessage ? '1px solid red' : '' }}
@@ -201,10 +201,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               value={typeof value == 'string' ? value : ''}
               onChange={setValue ? updateValue : onChange}
               placeholder={placeHolder}
-              className={`bg-transparent caret-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter resize-none disabled:bg-[#7fab98]/15 disabled:border disabled:border-[#7fab98] ${
+              className={`bg-transparent caret-black  autofill:!text-black
+              !text-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter resize-none disabled:bg-[#7fab98]/15 disabled:border disabled:border-[#7fab98] ${
                 viewPasswordBtn ? 'pl-4 pr-10' : 'px-4'
-              } autofill:!bg-black autofill:text-black placeholder:${placeholderColor}`}
-              style={{ border: 0, color: 'black' }}
+              } placeholder:${placeholderColor}`}
+              style={{
+                border: 0,
+                color: 'black',
+                WebkitTextFillColor: 'black',
+              }}
               ref={ref}
               disabled={disabled}
             />

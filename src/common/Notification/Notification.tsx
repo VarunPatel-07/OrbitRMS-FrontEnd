@@ -54,7 +54,7 @@ function Notification() {
                 <div
                   key={notification.id}
                   id={notification.id}
-                  className={`bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.3)] rounded-md pl-3 pr-5 py-3 ${
+                  className={`bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.3)] rounded-md pl-3 pr-5 py-2 ${
                     getEnterAnimationClass[notification.notificationDirection]
                   }`}
                 >
@@ -64,7 +64,7 @@ function Notification() {
                     ) : (
                       <IoCloseCircleOutline className='text-rose-600 w-6 h-6' />
                     )}
-                    <p className='text-black'>
+                    <p className='text-black text-sm'>
                       {notification.message || 'This Is A Test Notification'}
                     </p>
                   </div>
