@@ -23,11 +23,12 @@ export interface Address {
 export interface ContactInfo {
   phone_number: string;
   company_email: string;
+  country_info: string;
 }
 
 export interface AboutInfo {
   about: string;
-  established_science: string;
+  established_science: Date | null;
   registration_number: string;
 }
 
@@ -41,7 +42,7 @@ export interface OrganizationSettings {
 export interface OnboardingFormInterface {
   general_info: GeneralInfo;
   address: Address;
-  contact_info: ContactInfo;
+  contact_info: Array<ContactInfo>;
   about_info: AboutInfo;
   organization_settings: OrganizationSettings;
 }

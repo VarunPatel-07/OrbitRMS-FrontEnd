@@ -7,8 +7,8 @@ import { countryObject } from '../Helper/countryDataHelper';
 import { classNames } from '../Helper/HelperFunctions';
 
 interface DropDownProps {
-  dropDownSelectedValue: string | number;
-  setDropDownSelectedValue: React.Dispatch<SetStateAction<string | number>>;
+  dropDownSelectedValue?: string | number;
+  setDropDownSelectedValue?: React.Dispatch<SetStateAction<string | number>>;
   dropdownMenuArray: Array<string | number | countryObject>;
   styleDropdownButton?: string;
   children?: React.ReactNode;
@@ -39,9 +39,10 @@ function DropDown({
         }
   ) => {
     if (typeof value === 'object') {
-      setDropDownSelectedValue(JSON.stringify(value)); // Set the selected country code or you can store the entire object
+      if (setDropDownSelectedValue)
+        setDropDownSelectedValue(JSON.stringify(value));
     } else {
-      setDropDownSelectedValue(value);
+      if (setDropDownSelectedValue) setDropDownSelectedValue(value);
     }
     setShowDropDownMenu(false); // Hide the dropdown after selection
   };

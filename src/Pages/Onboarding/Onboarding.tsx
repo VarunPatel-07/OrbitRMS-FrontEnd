@@ -2,15 +2,19 @@
 import React, { useEffect, useState } from 'react';
 import { FaCheck, FaStarOfLife } from 'react-icons/fa';
 import { FaArrowLeftLong, FaArrowRightLong } from 'react-icons/fa6';
-import { MdModeEdit } from 'react-icons/md';
+import { MdDelete, MdModeEdit, MdModeEditOutline } from 'react-icons/md';
 
 import signInGradientBgImage from '../../assets/Images/gradient-bg.png';
 import orbitLogo from '../../assets/Images/OrbitRMS-White-Transperent-Logo.png';
+import CommonDatePicker from '../../common/CommonDatePicker';
 import Input from '../../common/Input';
 import SearchDrop from '../../common/SearchDrop';
 import TextArea from '../../common/TextArea';
 import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
-import { classNames } from '../../Helper/HelperFunctions';
+import {
+  classNames,
+  formateAndVerifyPhoneNumber,
+} from '../../Helper/HelperFunctions';
 import { OnboardingFormInterface } from '../../interface/interface';
 import VerifyWebsiteUrlModal from './VerifyWebsiteUrlModal';
 
@@ -35,13 +39,16 @@ const initialState = {
     state: '',
     zip_code: '',
   },
-  contact_info: {
-    phone_number: '',
-    company_email: '',
-  },
+  contact_info: [
+    {
+      phone_number: '',
+      company_email: '',
+      country_info: '',
+    },
+  ],
   about_info: {
     about: '',
-    established_science: '',
+    established_science: new Date(),
     registration_number: '',
   },
   organization_settings: {
@@ -63,14 +70,10 @@ const SideBarArray = [
   },
   {
     id: 2,
-    label: 'Contact Info',
+    label: 'Contact & About Information',
   },
   {
     id: 3,
-    label: 'About Info',
-  },
-  {
-    id: 4,
     label: 'Organization Settings',
   },
 ];
@@ -192,6 +195,85 @@ function Onboarding() {
         ...pervValue.address,
         city: cityName,
       },
+    }));
+  };
+
+  const handelAddNewContact = () => {
+    setFormData((pervData) => ({
+      ...pervData,
+      contact_info: [
+        ...pervData.contact_info,
+        {
+          phone_number: '',
+          company_email: '',
+          country_info: '',
+        },
+      ],
+    }));
+  };
+  const removeContactInfo = (index: number) => {
+    setFormData((pervValue) => ({
+      ...pervValue,
+      contact_info: pervValue.contact_info.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handelContactNumberOnChangeFunction = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const { name, value } = e.target;
+
+    setFormData((pervValue) => ({
+      ...pervValue,
+      contact_info: pervValue.contact_info.map((contact, i) =>
+        i === index
+          ? {
+              ...contact,
+              [name]:
+                name == 'phone_number'
+                  ? formateAndVerifyPhoneNumber(
+                      value,
+                      formData.contact_info[index].country_info
+                        ? JSON.parse(
+                            formData.contact_info[index]?.country_info as string
+                          )?.country_code
+                        : 'IN'
+                    )
+                  : value,
+            }
+          : contact
+      ),
+    }));
+
+    console.log(formData);
+  };
+
+  const handleDatePickerOnChangeFunction = (date: Date | null) => {
+    setFormData((pervValue) => ({
+      ...pervValue,
+      about_info: {
+        ...pervValue?.about_info,
+        established_science: date,
+      },
+    }));
+  };
+
+  const handleDropDownSelectValue = (val: string, index: number) => {
+    setFormData((pervValue) => ({
+      ...pervValue,
+      contact_info: pervValue.contact_info.map((contact, i) =>
+        i === index
+          ? {
+              ...contact,
+              country_info: val as string,
+              phone_number: formateAndVerifyPhoneNumber(
+                formData?.contact_info[index].phone_number,
+                val ? JSON.parse(val as string)?.country_code : 'IN'
+              ),
+            }
+          : contact
+      ),
     }));
   };
 
@@ -472,30 +554,30 @@ function Onboarding() {
                       </div>
                     </div>
                   </div>
+                  {/* Array Of Contact */}
+
+                  {/* About Info */}
                   <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4'>
                     <div className='w-full'>
-                      <Input
-                        name='general_info.organization_profile_picture'
-                        type='file'
-                        RequiredFileTypeArray={[
-                          'image/png',
-                          'image/jpeg',
-                          'image/webp',
-                        ]}
-                        labelFieldName='Organization Profile Picture'
+                      <TextArea
+                        name='about_info.about'
+                        rows={4}
+                        value={formData.about_info.about}
+                        onChange={handleOnChange}
+                        isRequiredField={true}
+                        labelFieldName='About'
                       />
                     </div>
                     <div className='grid grid-cols-2 gap-4'>
-                      <div className='w-full'>
-                        <Input
-                          type='text'
-                          name='general_info.organization_name'
-                          labelFieldName='Organization Name'
-                          className='border border-black/45'
+                      <div>
+                        <CommonDatePicker
+                          onChange={handleDatePickerOnChangeFunction}
+                          selectedValue={
+                            formData?.about_info?.established_science as Date
+                          }
+                          name='established_science'
+                          labelFieldName='Established Science'
                           isRequiredField={true}
-                          value={formData.general_info.organization_name}
-                          onChange={handleOnChange}
-                          disabled={true}
                         />
                       </div>
                       <div className='w-full'>
@@ -511,126 +593,93 @@ function Onboarding() {
                         />
                       </div>
                     </div>
-                    <div className='grid grid-cols-2 gap-4'>
-                      <div className='w-full'>
-                        <Input
-                          type='text'
-                          name='general_info.primary_email'
-                          labelFieldName='Primary Email'
-                          className='border border-black/45'
-                          isRequiredField={true}
-                          value={formData.general_info.primary_email}
-                          onChange={handleOnChange}
-                          disabled={true}
-                        />
-                      </div>
-                      <div className='w-full h-full'>
-                        <label
-                          htmlFor=''
-                          className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
-                        >
-                          <span className='flex gap-1'>
-                            <span>Primary Number</span>
-                            <FaStarOfLife className='w-1.5 text-red-700' />
-                          </span>
-                        </label>
-
-                        <div className='w-full flex items-stretch justify-start h-[42px]'>
-                          <div
-                            className='rounded-l-lg font-inter overflow-hidden h-full border border-[#7fab98] border-r-0 bg-[#7fab98]/15 flex items-center justify-center px-3.5'
-                            aria-disabled='true'
-                          >
-                            <span className='font-inter text-sm text-black'>
-                              +91
-                            </span>
-                          </div>
-                          <input
-                            type='text'
-                            className='rounded-r-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden h-full disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15'
-                            disabled
-                          />
+                    <div className='w-full min-w-full h-full px-1'>
+                      <div className='flex w-full gap-2 items-center pt-4 pb-2'>
+                        <div className='grid grid-cols-2 w-full gap-2.5'>
+                          <p className='text-sm font-inter font-normal text-black/65 inline-block'>
+                            Phone Number
+                          </p>
+                          <p className='text-sm font-inter font-normal text-black/65 inline-block'>
+                            Company Email
+                          </p>
                         </div>
+                        <div className='min-w-[100px]'></div>
                       </div>
-                    </div>
-                  </div>
-                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4'>
-                    <div className='w-full'>
-                      <Input
-                        name='general_info.organization_profile_picture'
-                        type='file'
-                        RequiredFileTypeArray={[
-                          'image/png',
-                          'image/jpeg',
-                          'image/webp',
-                        ]}
-                        labelFieldName='Organization Profile Picture'
-                      />
-                    </div>
-                    <div className='grid grid-cols-2 gap-4'>
-                      <div className='w-full'>
-                        <Input
-                          type='text'
-                          name='general_info.organization_name'
-                          labelFieldName='Organization Name'
-                          className='border border-black/45'
-                          isRequiredField={true}
-                          value={formData.general_info.organization_name}
-                          onChange={handleOnChange}
-                          disabled={true}
-                        />
-                      </div>
-                      <div className='w-full'>
-                        <Input
-                          type='text'
-                          name='general_info.portal_url'
-                          labelFieldName='Portal Url'
-                          className='border border-black/45'
-                          isRequiredField={true}
-                          value={formData.general_info.portal_url}
-                          onChange={handleOnChange}
-                          disabled={true}
-                        />
-                      </div>
-                    </div>
-                    <div className='grid grid-cols-2 gap-4'>
-                      <div className='w-full'>
-                        <Input
-                          type='text'
-                          name='general_info.primary_email'
-                          labelFieldName='Primary Email'
-                          className='border border-black/45'
-                          isRequiredField={true}
-                          value={formData.general_info.primary_email}
-                          onChange={handleOnChange}
-                          disabled={true}
-                        />
-                      </div>
-                      <div className='w-full h-full'>
-                        <label
-                          htmlFor=''
-                          className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
-                        >
-                          <span className='flex gap-1'>
-                            <span>Primary Number</span>
-                            <FaStarOfLife className='w-1.5 text-red-700' />
-                          </span>
-                        </label>
-
-                        <div className='w-full flex items-stretch justify-start h-[42px]'>
+                      <div className='w-full min-h-[180px] max-h-[180px] overflow-auto'>
+                        {formData.contact_info.map((_, index) => (
                           <div
-                            className='rounded-l-lg font-inter overflow-hidden h-full border border-[#7fab98] border-r-0 bg-[#7fab98]/15 flex items-center justify-center px-3.5'
-                            aria-disabled='true'
+                            className='flex w-full gap-2 items-stretch pb-2'
+                            key={index}
                           >
-                            <span className='font-inter text-sm text-black'>
-                              +91
-                            </span>
+                            <div className='grid grid-cols-2 gap-2.5 w-full'>
+                              <div className='w-full'>
+                                <Input
+                                  type='number'
+                                  countryDropDownPosition='bottom'
+                                  name='phone_number'
+                                  className='border border-black/45 rounded-l-none'
+                                  value={
+                                    formData.contact_info[index].phone_number
+                                  }
+                                  onChange={(e) =>
+                                    handelContactNumberOnChangeFunction(
+                                      e,
+                                      index
+                                    )
+                                  }
+                                  dropDownSelectedValue={
+                                    formData.contact_info[index].country_info
+                                      ? JSON.parse(
+                                          formData.contact_info[index]
+                                            ?.country_info as string
+                                        )?.country_number_code
+                                      : ''
+                                  }
+                                  setDropDownSelectedValue={(val) =>
+                                    handleDropDownSelectValue(
+                                      val as string,
+                                      index
+                                    )
+                                  }
+                                />
+                              </div>
+                              <div className='w-full'>
+                                <Input
+                                  type='text'
+                                  name='company_email'
+                                  className='border border-black/45'
+                                  value={
+                                    formData.contact_info[index].company_email
+                                  }
+                                  onChange={(e) =>
+                                    handelContactNumberOnChangeFunction(
+                                      e,
+                                      index
+                                    )
+                                  }
+                                />
+                              </div>
+                            </div>
+                            <div className='min-w-[100px] grid grid-cols-2 gap-2.5'>
+                              {index == formData.contact_info.length - 1 && (
+                                <button
+                                  className='bg-green-100 h-full w-full rounded-[4px] flex items-center justify-center border border-green-600 text-black text-xl'
+                                  onClick={handelAddNewContact}
+                                >
+                                  <MdModeEditOutline />
+                                </button>
+                              )}
+                              {formData.contact_info.length > 1 && (
+                                <button
+                                  className='bg-rose-100 h-full w-full rounded-[4px] flex items-center justify-center border border-rose-500 text-black text-xl'
+                                  onClick={() => removeContactInfo(index)}
+                                >
+                                  <MdDelete />
+                                </button>
+                              )}
+                            </div>
                           </div>
-                          <input
-                            type='text'
-                            className='rounded-r-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden h-full disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15'
-                            disabled
-                          />
-                        </div>
+                        ))}
                       </div>
                     </div>
                   </div>

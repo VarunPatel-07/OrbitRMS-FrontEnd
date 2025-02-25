@@ -32,6 +32,15 @@ export interface InputProps {
   disabled?: boolean;
 }
 
+export interface commonDatePickerProps {
+  selectedValue: Date;
+  onChange: (date: Date | null) => void;
+  labelFieldName?: string;
+  isRequiredField?: boolean;
+  name: string;
+  className?: string;
+}
+
 export interface TextAreaProps {
   name: string;
   className?: string;
