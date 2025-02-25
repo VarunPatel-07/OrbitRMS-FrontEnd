@@ -177,17 +177,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const renderInputField = () => {
       return (
         <div className='flex w-full items-stretch justify-start'>
-          {type == 'number' &&
-            dropDownSelectedValue &&
-            setDropDownSelectedValue && (
-              <DropDown
-                dropdownMenuArray={countryData}
-                dropDownSelectedValue={dropDownSelectedValue}
-                setDropDownSelectedValue={setDropDownSelectedValue}
-                styleDropdownButton='h-full bg-slate-100/[50] rounded-l-lg rounded-r-none border-[1.5px] border-slate-500 border-r-0'
-                dropdownPosition={countryDropDownPosition}
-              />
-            )}
+          {type == 'number' && (
+            <DropDown
+              dropdownMenuArray={countryData}
+              dropDownSelectedValue={dropDownSelectedValue}
+              setDropDownSelectedValue={setDropDownSelectedValue}
+              styleDropdownButton='h-full bg-slate-100/[50] rounded-l-lg rounded-r-none border border-black/45  border-r-0'
+              dropdownPosition={countryDropDownPosition}
+            />
+          )}
           <div
             className={clsx(
               'bg-transparent rounded-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden !text-black',
