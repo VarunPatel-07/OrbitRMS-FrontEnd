@@ -2,6 +2,7 @@ import DatePicker from 'react-datepicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
+import { forwardRef } from 'react';
 import { FaCalendarAlt, FaStarOfLife } from 'react-icons/fa';
 import clsx from 'clsx';
 
@@ -16,29 +17,30 @@ function CommonDatePicker(props: commonDatePickerProps) {
     isRequiredField,
   } = props;
 
-  const CustomInput = ({
-    value,
-    onClick,
-  }: {
-    value?: string;
-    onClick?: () => void;
-  }) => (
-    <div
-      className='relative w-full cursor-pointer border border-black/45 rounded-lg py-2 px-4 bg-transparent flex items-center max-h-[41.5px]'
-      onClick={onClick}
-    >
-      <input
-        type='text'
-        value={value}
-        readOnly
+  const CustomInput = forwardRef(
+    (
+      { value, onClick }: { value?: string; onClick?: () => void },
+      ref: React.Ref<HTMLDivElement>
+    ) => (
+      <div
+        ref={ref} // Attach the ref here
         className={clsx(
-          'w-full bg-transparent text-black focus:ring-0 focus:shadow-none focus:outline-none',
+          'relative w-full cursor-pointer border border-black/45 rounded-lg py-2 px-4 bg-transparent flex items-center max-h-[41.5px]',
           className
         )}
-      />
-      <FaCalendarAlt className='absolute right-3 text-black/60' />
-    </div>
+        onClick={onClick}
+      >
+        <input
+          type='text'
+          value={value}
+          readOnly
+          className='w-full bg-transparent text-black focus:ring-0 focus:shadow-none focus:outline-none'
+        />
+        <FaCalendarAlt className='absolute right-3 text-black/60' />
+      </div>
+    )
   );
+
   return (
     <div className='w-full'>
       {labelFieldName?.trim() != '' && (

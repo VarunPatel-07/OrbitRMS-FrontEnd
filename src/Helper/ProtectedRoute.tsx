@@ -17,7 +17,7 @@ function ProtectedRoute({ element }: { element: React.ReactElement }) {
     }
   }, []);
 
-  return isAuthenticated ? element : <Navigate to='/auth/login' />;
+  return isAuthenticated ? element : <Navigate to='/auth/sign-in' />;
 }
 
 export default ProtectedRoute;

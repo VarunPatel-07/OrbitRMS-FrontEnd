@@ -35,9 +35,11 @@ const initialState = {
   },
   address: {
     address: '',
+    country: '',
     city: '',
     state: '',
     zip_code: '',
+    country_code: '',
   },
   contact_info: [
     {
@@ -54,9 +56,11 @@ const initialState = {
   organization_settings: {
     email_domain_slug: '',
     employee_code_prefix: '',
-    inter_code_prefix: '',
+    intern_code_prefix: '',
     default_timezone: '',
+    default_dateformat: '',
   },
+  status: true,
 };
 
 const SideBarArray = [
@@ -78,20 +82,49 @@ const SideBarArray = [
   },
 ];
 
+const initialCountryInfo = {
+  country_code: '',
+  country_name: '',
+  country_flag: '',
+  country_number_code: '',
+  postal_code: {
+    format: '',
+    regex: new RegExp(''),
+  },
+};
+
+interface countryInfoInterFace {
+  country_code: string;
+  country_name: string;
+  country_flag: string;
+  country_number_code: string;
+  postal_code: {
+    format: string;
+    regex: RegExp;
+  };
+}
+
 function Onboarding() {
   const [formData, setFormData] =
     useState<OnboardingFormInterface>(initialState);
 
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(3);
   const [showVerifyWebsiteUrlModal, setShowVerifyWebsiteUrlModal] =
     useState<boolean>(false);
   const [stateOptionArray, setStateOptionArray] = useState<
     Array<string | object>
   >([]);
+  const [countryData, setCountryData] = useState<Array<object>>([]);
+  const [isFetchingCountryData, setIsFetchingCountryData] =
+    useState<boolean>(false);
   const [citiesOptionsArray, setCitiesOptionsArray] = useState<Array<string>>(
     []
   );
   const [loading, setLoading] = useState<boolean>(false);
+  const [fetchingStateInfo, setFetchingStateInfo] = useState<boolean>(false);
+
+  const [selectedCountryInfo, setSelectedCountryInfo] =
+    useState<countryInfoInterFace>(initialCountryInfo);
 
   const handleOnChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -114,7 +147,6 @@ function Onboarding() {
 
       return { ...updatedData };
     });
-    console.log(formData);
   };
 
   const addWebsiteUrlFunction = (
@@ -159,6 +191,76 @@ function Onboarding() {
     }
     setLoading(false);
   };
+
+  const fetchAllTheStateAccToCountry = async (country_code: string) => {
+    setFetchingStateInfo(true);
+    const endpointArray: Array<endpointObject> = [
+      {
+        endPoint: `country-info/getCountryInfo?country=${country_code}`,
+        protected: false,
+      },
+      {
+        endPoint: `country-info/getFormats?country_code=${country_code}`,
+        protected: false,
+      },
+    ];
+    const response = await multipleFetchApi(endpointArray);
+    if (response) {
+      if (response[0]?.success) {
+        setStateOptionArray(response[0].states);
+      }
+      if (response[1]?.success) {
+        setFormData((prevValue) => ({
+          ...prevValue,
+
+          organization_settings: {
+            ...prevValue.organization_settings,
+            default_dateformat: response[1]?.country_date_formate,
+            default_timezone: response[1]?.timeZones[0],
+          },
+        }));
+      }
+    }
+
+    setFetchingStateInfo(false);
+  };
+
+  const handleClickOnCountryValue = async (data: string | object) => {
+    if (typeof data != 'object') return;
+    const country_name = (data as Record<string, string>)['country_name'];
+    const country_code = (data as Record<string, string>)['country_code'];
+    const country_flag = (data as Record<string, string>)['country_flag'];
+    const country_number_code = (data as Record<string, string>)[
+      'country_number_code'
+    ];
+
+    const infoObj = {
+      country_name,
+      country_code,
+      country_flag,
+      country_number_code,
+    };
+    setFormData((prevValue) => ({
+      ...prevValue,
+      address: {
+        ...prevValue.address,
+        country: country_name,
+        country_code: country_code,
+        state: '',
+        city: '',
+        zip_code: '',
+      },
+      contact_info: prevValue.contact_info.map((item) => ({
+        ...item,
+        country_info: JSON.stringify(infoObj),
+      })),
+    }));
+
+    setSelectedCountryInfo(data as countryInfoInterFace);
+
+    fetchAllTheStateAccToCountry(country_code);
+  };
+
   const handleClickOnStateValue = (data: string | object) => {
     const stateName =
       typeof data === 'object'
@@ -174,6 +276,8 @@ function Onboarding() {
       address: {
         ...pervValue.address,
         state: stateName,
+        city: '',
+        zip_code: '',
       },
     }));
 
@@ -194,11 +298,18 @@ function Onboarding() {
       address: {
         ...pervValue.address,
         city: cityName,
+        zip_code: '',
       },
     }));
   };
 
   const handelAddNewContact = () => {
+    const infoObj = {
+      country_name: selectedCountryInfo?.country_name,
+      country_code: selectedCountryInfo?.country_code,
+      country_flag: selectedCountryInfo?.country_flag,
+      country_number_code: selectedCountryInfo?.country_number_code,
+    };
     setFormData((pervData) => ({
       ...pervData,
       contact_info: [
@@ -206,7 +317,7 @@ function Onboarding() {
         {
           phone_number: '',
           company_email: '',
-          country_info: '',
+          country_info: JSON.stringify(infoObj),
         },
       ],
     }));
@@ -245,8 +356,6 @@ function Onboarding() {
           : contact
       ),
     }));
-
-    console.log(formData);
   };
 
   const handleDatePickerOnChangeFunction = (date: Date | null) => {
@@ -277,18 +386,56 @@ function Onboarding() {
     }));
   };
 
+  const handelZipCodeOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let { value } = e.target;
+
+    // Remove any non-numeric characters
+    value = value.replace(/\D/g, '');
+
+    if (selectedCountryInfo.postal_code) {
+      const maxLength = selectedCountryInfo.postal_code.format.length;
+
+      // Restrict input length
+      if (value.length > maxLength) {
+        value = value.slice(0, maxLength);
+      }
+
+      // Update form data in real-time
+      setFormData((prevValue) => ({
+        ...prevValue,
+        address: {
+          ...prevValue.address,
+          zip_code: value,
+        },
+      }));
+    }
+  };
+
+  const handelClickOnOrganizationToggleButton = () => {
+    setFormData((pervValue) => ({
+      ...pervValue,
+      status: pervValue.status ? false : true,
+    }));
+  };
+
   useEffect(() => {
     (async () => {
+      setIsFetchingCountryData(true);
       const endpointArray: Array<endpointObject> = [
         {
-          endPoint: 'country-info/getCountryInfo?country=IN',
+          endPoint: 'country-info/fetchAllCountry',
           protected: false,
         },
       ];
+
       const response = await multipleFetchApi(endpointArray);
-      if (response[0].success) {
-        setStateOptionArray(response[0].states);
+      const res = response[0];
+
+      if (res?.success) {
+        setCountryData(res.data);
       }
+
+      setIsFetchingCountryData(false);
     })();
   }, []);
 
@@ -386,7 +533,7 @@ function Onboarding() {
                   style={{ transform: `translateX(-${page * 100}%)` }}
                 >
                   {/* general Info */}
-                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4 px-1'>
+                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4 px-1.5'>
                     <div className='w-full'>
                       <Input
                         name='general_info.organization_profile_picture'
@@ -500,7 +647,7 @@ function Onboarding() {
                     </div>
                   </div>
                   {/* address */}
-                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4 px-1'>
+                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4 px-1.5'>
                     <div className='w-full'>
                       <TextArea
                         name='address.address'
@@ -513,14 +660,32 @@ function Onboarding() {
                     </div>
                     <div className='w-full'>
                       <SearchDrop
+                        options={countryData}
+                        searchKey='country_name'
+                        isRequiredField={true}
+                        labelFieldName='Country'
+                        selectedValue={formData.address.country}
+                        onSelectValBtn={handleClickOnCountryValue}
+                        position='bottom'
+                        emptyDataMessage={'No Option'}
+                        loading={isFetchingCountryData}
+                      />
+                    </div>
+                    <div className='w-full'>
+                      <SearchDrop
                         options={stateOptionArray}
                         searchKey='state_name'
                         isRequiredField={true}
                         labelFieldName='State'
                         selectedValue={formData.address.state}
                         onSelectValBtn={handleClickOnStateValue}
-                        position='bottom'
-                        emptyDataMessage={'No Option'}
+                        position='top'
+                        emptyDataMessage={
+                          formData.address.country.trim() == ''
+                            ? 'Please Select A Country First'
+                            : 'No Option'
+                        }
+                        loading={fetchingStateInfo}
                       />
                     </div>
                     <div className='grid grid-cols-2 gap-4'>
@@ -549,15 +714,13 @@ function Onboarding() {
                           isRequiredField={true}
                           labelFieldName='Zip Code'
                           value={formData.address.zip_code}
-                          onChange={handleOnChange}
+                          onChange={handelZipCodeOnChange}
                         />
                       </div>
                     </div>
                   </div>
-                  {/* Array Of Contact */}
-
-                  {/* About Info */}
-                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4'>
+                  {/*Contact & About Info */}
+                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4 px-1.5'>
                     <div className='w-full'>
                       <TextArea
                         name='about_info.about'
@@ -583,17 +746,16 @@ function Onboarding() {
                       <div className='w-full'>
                         <Input
                           type='text'
-                          name='general_info.portal_url'
-                          labelFieldName='Portal Url'
+                          name='about_info.registration_number'
+                          labelFieldName='Registration Number'
                           className='border border-black/45'
                           isRequiredField={true}
-                          value={formData.general_info.portal_url}
+                          value={formData.about_info.registration_number}
                           onChange={handleOnChange}
-                          disabled={true}
                         />
                       </div>
                     </div>
-                    <div className='w-full min-w-full h-full px-1'>
+                    <div className='w-full min-w-full h-full'>
                       <div className='flex w-full gap-2 items-center pt-4 pb-2'>
                         <div className='grid grid-cols-2 w-full gap-2.5'>
                           <p className='text-sm font-inter font-normal text-black/65 inline-block'>
@@ -605,7 +767,7 @@ function Onboarding() {
                         </div>
                         <div className='min-w-[100px]'></div>
                       </div>
-                      <div className='w-full min-h-[180px] max-h-[180px] overflow-auto'>
+                      <div className='w-full min-h-[180px] max-h-[180px] overflow-auto pt-1'>
                         {formData.contact_info.map((_, index) => (
                           <div
                             className='flex w-full gap-2 items-stretch pb-2'
@@ -618,6 +780,7 @@ function Onboarding() {
                                   countryDropDownPosition='bottom'
                                   name='phone_number'
                                   className='border border-black/45 rounded-l-none'
+                                  countryDropDownMaxHeight={100}
                                   value={
                                     formData.contact_info[index].phone_number
                                   }
@@ -640,6 +803,9 @@ function Onboarding() {
                                       val as string,
                                       index
                                     )
+                                  }
+                                  selectedCountryName={
+                                    selectedCountryInfo?.country_name
                                   }
                                 />
                               </div>
@@ -683,28 +849,31 @@ function Onboarding() {
                       </div>
                     </div>
                   </div>
-                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4'>
+                  {/* Organization Settings */}
+                  <div className='w-full min-w-full grid grid-cols-1 gap-4 pt-4 px-1.5'>
                     <div className='w-full'>
                       <Input
-                        name='general_info.organization_profile_picture'
-                        type='file'
-                        RequiredFileTypeArray={[
-                          'image/png',
-                          'image/jpeg',
-                          'image/webp',
-                        ]}
-                        labelFieldName='Organization Profile Picture'
+                        type='text'
+                        name='organization_settings.email_domain_slug'
+                        labelFieldName='Email Domain Slug'
+                        className='border border-black/45'
+                        isRequiredField={true}
+                        value={formData.organization_settings.email_domain_slug}
+                        onChange={handleOnChange}
+                        disabled={true}
                       />
                     </div>
                     <div className='grid grid-cols-2 gap-4'>
                       <div className='w-full'>
                         <Input
                           type='text'
-                          name='general_info.organization_name'
-                          labelFieldName='Organization Name'
+                          name='organization_settings.default_dateformat'
+                          labelFieldName='Default Date Formate'
                           className='border border-black/45'
                           isRequiredField={true}
-                          value={formData.general_info.organization_name}
+                          value={
+                            formData.organization_settings.default_dateformat
+                          }
                           onChange={handleOnChange}
                           disabled={true}
                         />
@@ -712,11 +881,13 @@ function Onboarding() {
                       <div className='w-full'>
                         <Input
                           type='text'
-                          name='general_info.portal_url'
-                          labelFieldName='Portal Url'
+                          name='organization_settings.default_timezone'
+                          labelFieldName='Default Timezone'
                           className='border border-black/45'
                           isRequiredField={true}
-                          value={formData.general_info.portal_url}
+                          value={
+                            formData.organization_settings.default_timezone
+                          }
                           onChange={handleOnChange}
                           disabled={true}
                         />
@@ -726,47 +897,60 @@ function Onboarding() {
                       <div className='w-full'>
                         <Input
                           type='text'
-                          name='general_info.primary_email'
-                          labelFieldName='Primary Email'
+                          name='organization_settings.employee_code_prefix'
+                          labelFieldName='Employee Code Prefix'
                           className='border border-black/45'
                           isRequiredField={true}
-                          value={formData.general_info.primary_email}
+                          value={
+                            formData.organization_settings.employee_code_prefix
+                          }
                           onChange={handleOnChange}
-                          disabled={true}
                         />
                       </div>
-                      <div className='w-full h-full'>
-                        <label
-                          htmlFor=''
-                          className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
-                        >
-                          <span className='flex gap-1'>
-                            <span>Primary Number</span>
-                            <FaStarOfLife className='w-1.5 text-red-700' />
-                          </span>
-                        </label>
-
-                        <div className='w-full flex items-stretch justify-start h-[42px]'>
-                          <div
-                            className='rounded-l-lg font-inter overflow-hidden h-full border border-[#7fab98] border-r-0 bg-[#7fab98]/15 flex items-center justify-center px-3.5'
-                            aria-disabled='true'
-                          >
-                            <span className='font-inter text-sm text-black'>
-                              +91
+                      <div className='w-full'>
+                        <Input
+                          type='text'
+                          name='organization_settings.intern_code_prefix'
+                          labelFieldName='Intern Code Prefix'
+                          className='border border-black/45'
+                          isRequiredField={true}
+                          value={
+                            formData.organization_settings.intern_code_prefix
+                          }
+                          onChange={handleOnChange}
+                        />
+                      </div>
+                    </div>
+                    <div className='w-full'>
+                      <span className='w-full inline-block h-[1px] bg-black/45 my-8'></span>
+                      <p className='text-sm font-inter font-normal text-black/65 pb-4 inline-block'>
+                        Organization Status
+                      </p>
+                      <div className='bg-slate-100 w-full py-4 px-4 rounded-lg border border-black/15'>
+                        <div className='flex items-center justify-between'>
+                          <p className='text-black text-base font-normal'>
+                            Your Organization Is: 
+                            <span
+                              className={`font-bold transition-all duration-100 ${formData.status ? 'text-green-500' : 'text-red-500'}`}
+                            >
+                              {formData.status ? ' Active' : ' Inactive'}
                             </span>
-                          </div>
-                          <input
-                            type='text'
-                            className='rounded-r-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden h-full disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15'
-                            disabled
-                          />
+                          </p>
+                          <button
+                            className={`w-14 h-[26px] rounded-full relative transition-all duration-200 ${formData.status ? 'bg-green-500' : 'bg-red-500'}`}
+                            onClick={handelClickOnOrganizationToggleButton}
+                          >
+                            <span
+                              className={`w-5 h-5 bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${formData.status ? 'left-8' : 'left-1'}`}
+                            ></span>
+                          </button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className='absolute bottom-0 w-full flex items-center justify-between px-1'>
+              <div className='absolute bottom-0 w-full flex items-center justify-between px-1.5'>
                 <button
                   className={classNames(
                     'bg-transparent text-base py-2 px-6 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 capitalize w-fit text-black border border-black/45 hover:bg-black/5',

@@ -30,6 +30,8 @@ export interface InputProps {
   dropDownSelectedValue?: string | number;
   setDropDownSelectedValue?: React.Dispatch<SetStateAction<string | number>>;
   disabled?: boolean;
+  countryDropDownMaxHeight?: number;
+  selectedCountryName?: string;
 }
 
 export interface commonDatePickerProps {
