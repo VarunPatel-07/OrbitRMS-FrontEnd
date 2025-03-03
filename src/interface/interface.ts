@@ -18,6 +18,8 @@ export interface Address {
   city: string;
   state: string;
   zip_code: string;
+  country: string;
+  country_code: string;
 }
 
 export interface ContactInfo {
@@ -35,8 +37,9 @@ export interface AboutInfo {
 export interface OrganizationSettings {
   email_domain_slug: string;
   employee_code_prefix: string;
-  inter_code_prefix: string;
+  intern_code_prefix: string;
   default_timezone: string;
+  default_dateformat: string;
 }
 
 export interface OnboardingFormInterface {
@@ -45,4 +48,5 @@ export interface OnboardingFormInterface {
   contact_info: Array<ContactInfo>;
   about_info: AboutInfo;
   organization_settings: OrganizationSettings;
+  status: boolean;
 }

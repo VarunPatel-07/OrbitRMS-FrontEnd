@@ -13,6 +13,7 @@ interface DropDownProps {
   styleDropdownButton?: string;
   children?: React.ReactNode;
   dropdownPosition?: 'top' | 'bottom'; // New prop for dropdown position
+  maxHeight: number;
 }
 
 function DropDown({
@@ -22,6 +23,7 @@ function DropDown({
   styleDropdownButton,
   children,
   dropdownPosition = 'bottom',
+  maxHeight,
 }: DropDownProps) {
   const refBox = useRef<HTMLDivElement>(null);
   const [showDropDownMenu, setShowDropDownMenu] = useState(false);
@@ -147,7 +149,7 @@ function DropDown({
     <div className='relative' ref={refBox}>
       <div
         className={classNames(
-          'absolute text-black bg-[#f5f3f3] min-w-16 transition-all rounded-md overflow-auto max-h-[200px] hide-scrollbar z-50 shadow-lg',
+          `absolute text-black bg-[#f5f3f3] min-w-16 transition-all rounded-md overflow-auto hide-scrollbar z-50 shadow-md`,
           {
             'scale-y-100 opacity-100': showDropDownMenu,
             'scale-y-0 opacity-0': !showDropDownMenu,
@@ -155,6 +157,7 @@ function DropDown({
             'top-full mt-1 origin-top': dropdownPosition === 'bottom', // Position on bottom
           }
         )}
+        style={{ maxHeight: `${maxHeight}px` }}
       >
         <ul className='w-full flex flex-col py-1'>
           {dropdownMenuArray.map((value: any, index) =>

@@ -48,6 +48,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       dropDownSelectedValue,
       setDropDownSelectedValue,
       disabled,
+      countryDropDownMaxHeight,
+      selectedCountryName,
     } = props;
 
     const [isToggled, setIsToggled] = useState<boolean>(false);
@@ -123,21 +125,38 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           if (country_Data) {
             const response = await fetchUsersPosition();
 
-            const data = country_Data.find(
-              (item: countryObject) =>
-                item?.country_name?.toLocaleLowerCase() ==
-                response?.toLocaleLowerCase()
-            );
+            if (selectedCountryName) {
+              const data = country_Data.find(
+                (item: countryObject) =>
+                  item?.country_name?.toLocaleLowerCase() ===
+                  selectedCountryName?.toLocaleLowerCase()
+              );
 
-            if (!data) return;
+              if (!data) return;
 
-            setDropDownSelectedValue(JSON.stringify(data));
+              setDropDownSelectedValue(JSON.stringify(data));
+            } else {
+              const data = country_Data.find(
+                (item: countryObject) =>
+                  item?.country_name?.toLocaleLowerCase() ===
+                  response?.toLocaleLowerCase()
+              );
+
+              if (!data) return;
+
+              setDropDownSelectedValue(JSON.stringify(data));
+            }
 
             setCountryData(country_Data);
           }
         }
       })();
-    }, [countryData.length, setDropDownSelectedValue, type]);
+    }, [
+      countryData.length,
+      selectedCountryName,
+      setDropDownSelectedValue,
+      type,
+    ]);
 
     const handelInputFileUpload = () => {
       return (
@@ -184,6 +203,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               setDropDownSelectedValue={setDropDownSelectedValue}
               styleDropdownButton='h-full bg-slate-100/[50] rounded-l-lg rounded-r-none border border-black/45  border-r-0'
               dropdownPosition={countryDropDownPosition}
+              maxHeight={countryDropDownMaxHeight || 100}
             />
           )}
           <div
