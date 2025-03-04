@@ -2,7 +2,6 @@ import React, {
   ForwardedRef,
   forwardRef,
   useCallback,
-  useEffect,
   useState,
 } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -15,11 +14,7 @@ import {
 } from 'react-icons/fa';
 import clsx from 'clsx';
 
-import {
-  countryObject,
-  FetchCountryData,
-  fetchUsersPosition,
-} from '../Helper/countryDataHelper';
+
 import { classNames } from '../Helper/HelperFunctions';
 import { URLSafetyCheckerFunction } from '../Helper/URLSafetyCheckerFunction';
 import { InputProps } from '../interface/propsInterface';
@@ -49,11 +44,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       setDropDownSelectedValue,
       disabled,
       countryDropDownMaxHeight,
-      selectedCountryName,
+      countryOptionsData,
     } = props;
 
     const [isToggled, setIsToggled] = useState<boolean>(false);
-    const [countryData, setCountryData] = useState<Array<countryObject>>([]);
 
     const updateValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = e.target.value;
@@ -113,51 +107,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       onDrop,
     });
 
-    useEffect(() => {
-      (async () => {
-        if (
-          setDropDownSelectedValue &&
-          type == 'number' &&
-          countryData.length == 0
-        ) {
-          const country_Data = await FetchCountryData();
-
-          if (country_Data) {
-            const response = await fetchUsersPosition();
-
-            if (selectedCountryName) {
-              const data = country_Data.find(
-                (item: countryObject) =>
-                  item?.country_name?.toLocaleLowerCase() ===
-                  selectedCountryName?.toLocaleLowerCase()
-              );
-
-              if (!data) return;
-
-              setDropDownSelectedValue(JSON.stringify(data));
-            } else {
-              const data = country_Data.find(
-                (item: countryObject) =>
-                  item?.country_name?.toLocaleLowerCase() ===
-                  response?.toLocaleLowerCase()
-              );
-
-              if (!data) return;
-
-              setDropDownSelectedValue(JSON.stringify(data));
-            }
-
-            setCountryData(country_Data);
-          }
-        }
-      })();
-    }, [
-      countryData.length,
-      selectedCountryName,
-      setDropDownSelectedValue,
-      type,
-    ]);
-
     const handelInputFileUpload = () => {
       return (
         <div {...getRootProps()}>
@@ -196,9 +145,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const renderInputField = () => {
       return (
         <div className='flex w-full items-stretch justify-start'>
-          {type == 'number' && (
+          {type == 'number' && countryOptionsData && (
             <DropDown
-              dropdownMenuArray={countryData}
+              dropdownMenuArray={countryOptionsData}
               dropDownSelectedValue={dropDownSelectedValue}
               setDropDownSelectedValue={setDropDownSelectedValue}
               styleDropdownButton='h-full bg-slate-100/[50] rounded-l-lg rounded-r-none border border-black/45  border-r-0'
