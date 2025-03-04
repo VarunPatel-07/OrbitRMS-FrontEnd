@@ -1,5 +1,7 @@
 import React, { SetStateAction } from 'react';
 
+import { countryObject } from '../Helper/countryDataHelper';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface BreadcrumbsProps {
   label: string;
@@ -31,7 +33,7 @@ export interface InputProps {
   setDropDownSelectedValue?: React.Dispatch<SetStateAction<string | number>>;
   disabled?: boolean;
   countryDropDownMaxHeight?: number;
-  selectedCountryName?: string;
+  countryOptionsData?: Array<countryObject>;
 }
 
 export interface commonDatePickerProps {

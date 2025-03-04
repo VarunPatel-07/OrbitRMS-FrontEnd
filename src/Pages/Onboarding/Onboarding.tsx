@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaCheck, FaStarOfLife } from 'react-icons/fa';
 import { FaArrowLeftLong, FaArrowRightLong } from 'react-icons/fa6';
 import { MdDelete, MdModeEdit, MdModeEditOutline } from 'react-icons/md';
@@ -11,6 +11,10 @@ import Input from '../../common/Input';
 import SearchDrop from '../../common/SearchDrop';
 import TextArea from '../../common/TextArea';
 import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
+import {
+  countryObject,
+  fetchFormattedCountryData,
+} from '../../Helper/countryDataHelper';
 import {
   classNames,
   formateAndVerifyPhoneNumber,
@@ -105,6 +109,8 @@ interface countryInfoInterFace {
 }
 
 function Onboarding() {
+  const countryUseEffectRef = useRef(false);
+
   const [formData, setFormData] =
     useState<OnboardingFormInterface>(initialState);
 
@@ -125,6 +131,9 @@ function Onboarding() {
 
   const [selectedCountryInfo, setSelectedCountryInfo] =
     useState<countryInfoInterFace>(initialCountryInfo);
+  const [countryOptionsDataArray, setCountryOptionsDataArray] = useState<
+    Array<countryObject>
+  >([]);
 
   const handleOnChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -419,7 +428,21 @@ function Onboarding() {
   };
 
   useEffect(() => {
+    if (countryUseEffectRef.current) return;
+    countryUseEffectRef.current = true;
     (async () => {
+      if (countryOptionsDataArray.length == 0) {
+        const response = await fetchFormattedCountryData(
+          selectedCountryInfo?.country_code
+        );
+        if (response?.success && response?.countryOptionsData) {
+          setCountryOptionsDataArray(response?.countryOptionsData);
+          handleDropDownSelectValue(
+            JSON.stringify(response?.filteredCountry),
+            0
+          );
+        }
+      }
       setIsFetchingCountryData(true);
       const endpointArray: Array<endpointObject> = [
         {
@@ -437,7 +460,7 @@ function Onboarding() {
 
       setIsFetchingCountryData(false);
     })();
-  }, []);
+  }, [countryOptionsDataArray, selectedCountryInfo?.country_code]);
 
   return (
     <>
@@ -804,9 +827,7 @@ function Onboarding() {
                                       index
                                     )
                                   }
-                                  selectedCountryName={
-                                    selectedCountryInfo?.country_name
-                                  }
+                                  countryOptionsData={countryOptionsDataArray}
                                 />
                               </div>
                               <div className='w-full'>
@@ -929,7 +950,7 @@ function Onboarding() {
                       <div className='bg-slate-100 w-full py-4 px-4 rounded-lg border border-black/15'>
                         <div className='flex items-center justify-between'>
                           <p className='text-black text-base font-normal'>
-                            Your Organization Is: 
+                            Your Organization Is:
                             <span
                               className={`font-bold transition-all duration-100 ${formData.status ? 'text-green-500' : 'text-red-500'}`}
                             >
