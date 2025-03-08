@@ -43,6 +43,21 @@ export interface commonDatePickerProps {
   isRequiredField?: boolean;
   name: string;
   className?: string;
+  datePickerPosition?:
+    | 'bottom'
+    | 'bottom-end'
+    | 'bottom-start'
+    | 'left'
+    | 'left-end'
+    | 'left-start'
+    | 'right'
+    | 'right-end'
+    | 'right-start'
+    | 'top'
+    | 'top-end'
+    | 'top-start';
+  showError?: boolean;
+  errorMessage?: string;
 }
 
 export interface TextAreaProps {
@@ -55,6 +70,8 @@ export interface TextAreaProps {
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   labelFieldName?: string;
   isRequiredField?: boolean;
+  showError?: boolean;
+  errorMessage?: string;
 }
 
 export interface SearchDropProps {
@@ -71,6 +88,9 @@ export interface SearchDropProps {
   position: 'bottom' | 'top';
   emptyDataMessage: string;
   loading?: boolean;
+  showSearchBar?: boolean;
+  showError?: boolean;
+  errorMessage?: string;
 }
 
 export interface Column {

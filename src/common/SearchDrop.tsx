@@ -21,14 +21,23 @@ export default function SearchDrop(props: SearchDropProps) {
     position,
     emptyDataMessage,
     loading,
+    showSearchBar = true,
+    showError,
+    errorMessage,
   } = props;
 
   const boxRef = useRef<HTMLDivElement>(null);
+  const inputFieldRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
 
-  const handleToggle = () => setIsOpen(!isOpen);
+  const handleToggle = () => {
+    setIsOpen((prev) => !prev);
+    if (!isOpen) {
+      setTimeout(() => inputFieldRef.current?.focus(), 0); // Auto-focus input when opening
+    }
+  };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -99,6 +108,7 @@ export default function SearchDrop(props: SearchDropProps) {
             'px-2.5 py-2.5 bg-white border border-black/45 rounded-lg w-full flex justify-between items-center',
             className
           )}
+          style={{ border: showError && errorMessage ? '1px solid red' : '' }}
         >
           <span className='text-black font-inter text-sm capitalize'>
             {selectedValue
@@ -128,13 +138,17 @@ export default function SearchDrop(props: SearchDropProps) {
                 }
               )}
             >
-              <input
-                type='text'
-                className='w-full py-2 px-3 border-b border-gray-200 focus:outline-none bg-white rounded-lg border border-black/45 text-black'
-                placeholder='Search...'
-                value={searchTerm}
-                onChange={handleSearch}
-              />
+              {showSearchBar && (
+                <input
+                  ref={inputFieldRef}
+                  type='text'
+                  className='w-full py-2 px-3 border-b border-gray-200 focus:outline-none bg-white rounded-lg border border-black/45 text-black focus:border-black/45'
+                  placeholder='Search...'
+                  value={searchTerm}
+                  onChange={handleSearch}
+                />
+              )}
+
               <ul className='max-h-[150px] h-full overflow-auto py-1 w-full bg-gray-100 shadow-md rounded-lg'>
                 {!loading ? (
                   filteredOptions.length > 0 ? (
@@ -189,6 +203,11 @@ export default function SearchDrop(props: SearchDropProps) {
           </div>
         )}
       </div>
+      {showError && errorMessage && (
+        <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
+          {errorMessage}
+        </span>
+      )}
     </div>
   );
 }

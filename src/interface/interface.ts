@@ -1,3 +1,6 @@
+//? -------------------------- This Is The Start Of The Onboarding Form InterFace -------------------------
+
+//? -------------------------- Start Of The Onboarding Form InterFace Utility -------------------------
 export interface GeneralInfo {
   organization_name: string;
   primary_email: string;
@@ -42,11 +45,28 @@ export interface OrganizationSettings {
   default_dateformat: string;
 }
 
+export interface EmployeeProfileInfo {
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  full_name: string; // auto generated based on the first,middle, last name
+  profile_picture: string; // we will send it empty
+  profile_picture_bg: string; // we will send it empty
+  gender: string;
+  date_of_birth: Date | null;
+  blood_group: string;
+}
+
+//? --------------------------  End Of The Onboarding Form InterFace Utility -------------------------
+
 export interface OnboardingFormInterface {
   general_info: GeneralInfo;
   address: Address;
   contact_info: Array<ContactInfo>;
   about_info: AboutInfo;
   organization_settings: OrganizationSettings;
+  employee_profile_info: EmployeeProfileInfo;
   status: boolean;
 }
+
+//? -------------------------- This Is The End Of The Onboarding Form InterFace -------------------------

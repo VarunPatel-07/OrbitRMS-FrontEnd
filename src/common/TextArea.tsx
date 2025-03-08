@@ -14,6 +14,8 @@ function TextArea(props: TextAreaProps) {
     onChange,
     isRequiredField,
     labelFieldName,
+    showError,
+    errorMessage,
   } = props;
 
   const handelOnChangeFunction = (
@@ -46,7 +48,13 @@ function TextArea(props: TextAreaProps) {
         rows={rows || 5}
         value={value}
         onChange={setValue ? handelOnChangeFunction : onChange}
+        style={{ border: showError && errorMessage ? '1px solid red' : '' }}
       ></textarea>
+      {showError && errorMessage && (
+        <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
+          {errorMessage}
+        </span>
+      )}
     </div>
   );
 }

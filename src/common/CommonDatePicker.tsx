@@ -15,6 +15,9 @@ function CommonDatePicker(props: commonDatePickerProps) {
     className,
     labelFieldName,
     isRequiredField,
+    datePickerPosition = 'left-start',
+    showError,
+    errorMessage,
   } = props;
 
   const CustomInput = forwardRef(
@@ -29,12 +32,13 @@ function CommonDatePicker(props: commonDatePickerProps) {
           className
         )}
         onClick={onClick}
+        style={{ border: showError && errorMessage ? '1px solid red' : '' }}
       >
         <input
           type='text'
           value={value}
           readOnly
-          className='w-full bg-transparent text-black focus:ring-0 focus:shadow-none focus:outline-none'
+          className='w-full bg-transparent text-black focus:ring-0 focus:shadow-none focus:outline-none cursor-pointer'
         />
         <FaCalendarAlt className='absolute right-3 text-black/60' />
       </div>
@@ -57,15 +61,20 @@ function CommonDatePicker(props: commonDatePickerProps) {
       <DatePicker
         selected={selectedValue}
         onChange={onChange}
-        className='w-full bg-transparent text-black focus-within:ring-0 focus:shadow-none ring-0 focus:outline-none focus:ring-0 border border-black/45 rounded-lg py-2 px-4'
+        className='w-full bg-transparent text-black focus-within:ring-0 focus:shadow-none ring-0 focus:outline-none focus:ring-0 border border-black/45 rounded-lg py-2 px-4 cursor-pointer'
         wrapperClassName='w-full bg-transparent text-black focus-within:ring-0 focus:shadow-none ring-0 focus:outline-none focus:ring-0'
-        popperPlacement='left-start'
+        popperPlacement={datePickerPosition}
         showYearDropdown
         scrollableYearDropdown={true}
         yearDropdownItemNumber={50}
         dateFormat='dd/MM/yyyy'
         customInput={<CustomInput />}
       />
+      {showError && errorMessage && (
+        <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
+          {errorMessage}
+        </span>
+      )}
     </div>
   );
 }

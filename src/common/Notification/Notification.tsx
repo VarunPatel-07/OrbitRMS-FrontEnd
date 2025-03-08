@@ -34,7 +34,7 @@ function Notification() {
         <div
           key={direction}
           className={classNames(
-            'w-fit h-auto max-h-screen overflow-auto absolute z-30 bg-transparent',
+            'w-fit h-auto max-h-screen overflow-auto absolute z-50 bg-transparent',
             {
               'top-0 left-1/2 -translate-x-1/2': direction === 'center',
               'top-0 right-0': direction === 'top-right',
