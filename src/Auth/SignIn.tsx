@@ -1,7 +1,7 @@
 import './auth.css';
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import signInGradientBgImage from '../assets/Images/gradient-bg.png';
 import orbitLogo from '../assets/Images/OrbitRMS-White-Transperent-Logo.png';
@@ -23,6 +23,7 @@ function SignIn() {
   ) as NotificationContextApiProps;
 
   const defaultInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
   const [loading, setLoading] = useState<boolean>(false);
@@ -54,6 +55,9 @@ function SignIn() {
       if (res?.success) {
         setLoading(false);
         handelNotification(res, 'top-right');
+        if (!res?.organization_created) {
+          navigate(`/onboarding?organization_id=${res?.organization_id}`);
+        }
       } else {
         setLoading(false);
         handelNotification(res, 'top-right');

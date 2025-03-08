@@ -44,13 +44,13 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error) {
+      } catch (error: any) {
         // Handle error (e.g., return an error object or log it)
-        console.error(
-          `Error fetching data from ${eachEndPoint.endPoint}`,
-          error
-        );
-        return null;
+        // console.error(
+        //   `Error fetching data from ${eachEndPoint.endPoint}`,
+        //   error
+        // );
+        return ErrorHandler(error);
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
@@ -61,13 +61,13 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error) {
+      } catch (error: any) {
         // Handle error (e.g., return an error object or log it)
-        console.error(
-          `Error fetching data from ${eachEndPoint.endPoint}`,
-          error
-        );
-        return null;
+        // console.error(
+        //   `Error fetching data from ${eachEndPoint.endPoint}`,
+        //   error
+        // );
+        return ErrorHandler(error);
       }
     }
   });
@@ -101,13 +101,13 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error) {
+      } catch (error: any) {
         // Handle error (e.g., return an error object or log it)
         console.error(
           `Error fetching data from ${eachEndPoint.endPoint}`,
           error
         );
-        return null;
+        return ErrorHandler(error);
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
@@ -143,9 +143,9 @@ export const multiUrlFetcher = async (urlArray: Array<URLObject>) => {
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error) {
+      } catch (error:any) {
         console.error(`Error fetching data from ${eachURL.url}`, error);
-        return null;
+        return ErrorHandler(error);
       }
     } else if (eachURL.Method == 'POST') {
       const config = {
@@ -157,9 +157,9 @@ export const multiUrlFetcher = async (urlArray: Array<URLObject>) => {
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error) {
+      } catch (error: any) {
         console.error(`Error fetching data from ${eachURL.url}`, error);
-        return null;
+        return ErrorHandler(error);
       }
     }
   });
