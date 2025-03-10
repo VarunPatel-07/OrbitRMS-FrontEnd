@@ -166,7 +166,7 @@ export const formateAndVerifyPhoneNumber = (
   countryCode: string
 ) => {
   if (!countryCode) return number;
-  console.log(countryCode);
+
   const upperCountryCode = countryCode.toUpperCase();
   const format = phoneFormats[upperCountryCode];
 

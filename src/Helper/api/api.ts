@@ -110,6 +110,7 @@ export const signUpApiFunction = async (
     }
     setLoader(false);
   } catch (error: any) {
+    console.log(error, data);
     setLoader(false);
     const statusCode = error?.response?.status;
     const response = error?.response?.data?.detail;

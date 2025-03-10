@@ -16,6 +16,10 @@ import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import { signUpApiFunction, verifyUsersLoginStatus } from '../Helper/api/api';
+import {
+  countryObject,
+  fetchFormattedCountryData,
+} from '../Helper/countryDataHelper';
 import HelmetSeo from '../Helper/HelmetSeo';
 import {
   classNames,
@@ -94,13 +98,13 @@ function SignIn() {
   const [alertModalPropsInfo, setAlertModalPropsInfo] = useState(
     initialAlertModalPropsInfo
   );
+  const [countryOptionsDataArray, setCountryOptionsDataArray] = useState<
+    Array<countryObject>
+  >([]);
 
   const handleMoveToNextPage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (
-      formData?.organizationName?.trim() === '' ||
-      !isValidEmail(formData?.primaryEmail)
-    ) {
+    if (formData?.organizationName?.trim() === '') {
       setShowError(true);
       setLoading(false);
       return;
@@ -109,6 +113,7 @@ function SignIn() {
   };
 
   const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log('click');
     e.preventDefault();
     if (formData.contactNumber?.trim() != '' && termsAccepted == 'true') {
       setLoading(true);
@@ -122,12 +127,15 @@ function SignIn() {
         termsAccepted: termsAccepted == 'true' ? true : false,
         websiteUrl: formData.websiteUrl,
       };
+
+      console.log('in the if');
       const response = await signUpApiFunction(
         'organization/sign-up',
         data,
         'POST',
         setLoading
       );
+      console.log(response);
       if (response) {
         setShowAlertModal(response?.showModal);
         setAlertModalPropsInfo({
@@ -162,6 +170,18 @@ function SignIn() {
   useEffect(() => {
     setPortalUrl(formData.organizationName?.toLocaleLowerCase());
   }, [formData.organizationName]);
+
+  useEffect(() => {
+    (async () => {
+      if (countryOptionsDataArray.length == 0) {
+        const response = await fetchFormattedCountryData();
+        if (response?.success && response?.countryOptionsData) {
+          setCountryOptionsDataArray(response?.countryOptionsData);
+          setDropDownSelectedValue(JSON.stringify(response?.filteredCountry));
+        }
+      }
+    })();
+  }, []);
 
   return (
     <>
@@ -350,7 +370,7 @@ function SignIn() {
                               dropDownSelectedValue
                                 ? JSON.parse(dropDownSelectedValue as string)
                                     ?.country_number_code
-                                : ''
+                                : '+91'
                             }
                             setDropDownSelectedValue={setDropDownSelectedValue}
                             errorMessage={
@@ -360,6 +380,7 @@ function SignIn() {
                                   : ''
                                 : ''
                             }
+                            countryOptionsData={countryOptionsDataArray}
                           />
                         </div>
                         <div className='w-full'>

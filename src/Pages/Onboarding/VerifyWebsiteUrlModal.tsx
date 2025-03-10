@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { MdContentCopy } from 'react-icons/md';
 
 import Input from '../../common/Input';
 import Loader from '../../common/Loader';
@@ -51,6 +52,7 @@ export default function VerifyWebsiteUrlModal({
   const [metaTag, setMetaTag] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [showError, setShowError] = useState<boolean>(false);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   const errorMessages: { [key: string]: string } = {
     invalid: 'The URL format is invalid. Please enter a valid website URL.',
@@ -128,6 +130,21 @@ export default function VerifyWebsiteUrlModal({
     }
   }, [websiteUrl]);
 
+  const handelCopyButton = () => {
+    const metaString = `<meta name="orbitrms" content=${metaTag}>`;
+    window.navigator.clipboard
+      .writeText(metaString)
+      .then(() => {
+        setIsCopied(true);
+        setTimeout(() => {
+          setIsCopied(false);
+        }, 300);
+      })
+      .catch((err) => {
+        console.error('Failed to copy:', err);
+      });
+  };
+
   useEffect(() => {
     const handleClickOutSideTheBox = (event: MouseEvent) => {
       if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
@@ -177,7 +194,7 @@ export default function VerifyWebsiteUrlModal({
               </div>
             </div>
             <div className='w-full'>
-              <div className='w-full h-[200px] bg-black/10 rounded-lg flex items-center justify-center p-6 flex-wrap text-wrap'>
+              <div className='w-full h-[200px] bg-black/10 rounded-lg flex items-center justify-center p-6 flex-wrap text-wrap relative'>
                 {websiteUrl ? (
                   metaTag ? (
                     <p className='w-full text-wrap break-words whitespace-pre-wrap text-lg text-black font-semibold break-all'>
@@ -199,6 +216,12 @@ export default function VerifyWebsiteUrlModal({
                     confirm ownership.
                   </p>
                 )}
+                <button
+                  className='flex items-center justify-start text-white text-sm capitalize font-medium gap-1 bg-gray-500 px-2 py-1 rounded-md absolute top-1 right-1'
+                  onClick={isCopied ? () => {} : handelCopyButton}
+                >
+                  <span>{isCopied ? 'copied' : 'copy'}</span> <MdContentCopy />
+                </button>
               </div>
               <p className='text-black/60 text-sm font-medium text-start pt-2.5'>
                 <span className='text-black font-bold'>Note: </span>Place your
@@ -211,7 +234,7 @@ export default function VerifyWebsiteUrlModal({
               <button
                 className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed'
                 onClick={metaTag ? handleVerifyMetaTag : handleGenerateMetaTag}
-                disabled={loading}
+                disabled={loading || urlSafetyStatus.urlStatus != 'safe'}
               >
                 {metaTag ? (
                   loading ? (
