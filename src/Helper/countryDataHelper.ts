@@ -56,7 +56,7 @@ export const fetchUsersPosition = async (): Promise<string> => {
 };
 
 export const fetchFormattedCountryData = async (
-  selectedCountryName: string
+  selectedCountryName?: string
 ) => {
   try {
     const country_Data = await countryDataApiHelper();

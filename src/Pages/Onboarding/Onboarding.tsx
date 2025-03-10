@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import { BsExclamationCircleFill } from 'react-icons/bs';
 import { FaCheck, FaStarOfLife } from 'react-icons/fa';
 import { FaArrowLeftLong, FaArrowRightLong } from 'react-icons/fa6';
 import { MdDelete, MdModeEdit, MdModeEditOutline } from 'react-icons/md';
@@ -210,7 +211,10 @@ function Onboarding() {
     validated: () => boolean;
     errorModule: ErrorModuleType;
   }[] = [
-    { validated: () => true, errorModule: '' },
+    {
+      validated: () => formData?.general_info?.is_meta_verified,
+      errorModule: 'general_info',
+    },
     {
       validated: () =>
         !!(
@@ -252,7 +256,6 @@ function Onboarding() {
       validated: () =>
         !!(
           formData?.employee_profile_info?.first_name &&
-          formData?.employee_profile_info?.middle_name &&
           formData?.employee_profile_info?.last_name &&
           formData?.employee_profile_info?.gender &&
           formData?.employee_profile_info?.date_of_birth &&
@@ -315,6 +318,27 @@ function Onboarding() {
       }
     }
   };
+
+  const handelSubmitButton = () => {
+    const { validated } = onboardingFormValidation[SideBarArray.length - 1];
+
+    if (validated()) {
+      setFormData((pervValue) => ({
+        ...pervValue,
+        employee_profile_info: {
+          ...pervValue.employee_profile_info,
+          full_name:
+            pervValue.employee_profile_info.first_name +
+            ' ' +
+            pervValue.employee_profile_info.middle_name +
+            ' ' +
+            pervValue.employee_profile_info.last_name,
+        },
+      }));
+      console.log(formData);
+    }
+  };
+
   const handelDecreesPage = () => {
     if (page >= 1) {
       setPage((pervPage) => pervPage - 1);
@@ -481,22 +505,23 @@ function Onboarding() {
   ) => {
     const { name, value } = e.target;
 
-    console.log(name, value, formData.contact_info[index].country_info);
-
     setFormData((pervValue) => ({
       ...pervValue,
       contact_info: pervValue.contact_info.map((contact, i) =>
         i === index
           ? {
               ...contact,
-              [name]: formateAndVerifyPhoneNumber(
-                value,
-                formData.contact_info[index].country_info
-                  ? JSON.parse(
-                      formData.contact_info[index]?.country_info as string
-                    )?.country_code
-                  : 'IN'
-              ),
+              [name]:
+                name == 'phone_number'
+                  ? formateAndVerifyPhoneNumber(
+                      value,
+                      formData.contact_info[index].country_info
+                        ? JSON.parse(
+                            formData.contact_info[index]?.country_info as string
+                          )?.country_code
+                        : 'IN'
+                    )
+                  : value,
             }
           : contact
       ),
@@ -509,6 +534,16 @@ function Onboarding() {
       about_info: {
         ...pervValue?.about_info,
         established_science: date,
+      },
+    }));
+  };
+
+  const handelDateOfBirthPickUpChangeFunction = (date: Date | null) => {
+    setFormData((pervValue) => ({
+      ...pervValue,
+      employee_profile_info: {
+        ...pervValue.employee_profile_info,
+        date_of_birth: date,
       },
     }));
   };
@@ -635,8 +670,6 @@ function Onboarding() {
       const response = await multipleFetchApi(endPointArr);
 
       const res = response[0];
-
-      console.log(res);
 
       if (res?.success) {
         setFormData((perData) => ({
@@ -855,8 +888,8 @@ function Onboarding() {
                                 aria-disabled='true'
                               >
                                 <span className='font-inter text-sm text-black'>
-                                  {/* {formData?.general_info?.country_info
-                                    ?.country_number_code ?? ''} */}
+                                  {formData?.general_info?.country_info
+                                    ?.country_number_code ?? ''}
                                 </span>
                               </div>
                               <input
@@ -888,16 +921,42 @@ function Onboarding() {
                                 value={formData.general_info.website_url}
                                 onChange={handleOnChange}
                                 disabled={true}
+                                showError={
+                                  showErrorObj.showError &&
+                                  showErrorObj.errorModule == 'general_info'
+                                }
+                                errorMessage={
+                                  formData?.general_info?.website_url
+                                    ? formData?.general_info?.is_meta_verified
+                                      ? ''
+                                      : 'verify your website to access all features.'
+                                    : 'website URL is required to link with Orbit.'
+                                }
                               />
                             </div>
                             <div className=''>
                               <button
-                                className='text-black flex items-center justify-center h-full border border-black/65 w-[40px] rounded-lg'
+                                className={classNames(
+                                  'text-black flex items-center justify-center h-full border border-black/65 w-[40px] rounded-lg max-h-[41px]',
+                                  {
+                                    'bg-yellow-100 border-yellow-300':
+                                      !formData?.general_info
+                                        ?.is_meta_verified &&
+                                      formData?.general_info?.website_url
+                                        .length != 0,
+                                  }
+                                )}
                                 onClick={() =>
                                   setShowVerifyWebsiteUrlModal(true)
                                 }
                               >
-                                <MdModeEdit />
+                                {!formData?.general_info?.is_meta_verified &&
+                                formData?.general_info?.website_url.length !=
+                                  0 ? (
+                                  <BsExclamationCircleFill className='text-yellow-800' />
+                                ) : (
+                                  <MdModeEdit />
+                                )}
                               </button>
                             </div>
                           </div>
@@ -1369,21 +1428,10 @@ function Onboarding() {
                               name='employee_profile_info.middle_name'
                               labelFieldName='Middle Name'
                               className='border border-black/45'
-                              isRequiredField={true}
                               value={
                                 formData?.employee_profile_info?.middle_name
                               }
                               onChange={handleOnChange}
-                              showError={
-                                showErrorObj?.errorModule ==
-                                  'employee_profile_info' &&
-                                showErrorObj?.showError
-                              }
-                              errorMessage={
-                                formData?.employee_profile_info?.middle_name
-                                  ? ''
-                                  : 'this field is required'
-                              }
                             />
                           </div>
                           <div className='w-full'>
@@ -1438,7 +1486,7 @@ function Onboarding() {
                           </div>
                           <div className='w-full'>
                             <CommonDatePicker
-                              onChange={handleDatePickerOnChangeFunction}
+                              onChange={handelDateOfBirthPickUpChangeFunction}
                               selectedValue={
                                 formData?.employee_profile_info
                                   ?.date_of_birth as Date
@@ -1545,7 +1593,7 @@ function Onboarding() {
                       'bg-[var(--them-green-color)] text-base py-2 px-6 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 capitalize w-fit',
                       { hidden: page != SideBarArray.length - 1 }
                     )}
-                    onClick={handelIncrementPage}
+                    onClick={handelSubmitButton}
                   >
                     <span>Submit</span>
                   </button>
