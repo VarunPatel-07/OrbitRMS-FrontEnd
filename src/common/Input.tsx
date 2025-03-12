@@ -1,19 +1,6 @@
-import React, {
-  ForwardedRef,
-  forwardRef,
-  useCallback,
-  useState,
-} from 'react';
-import { useDropzone } from 'react-dropzone';
-import {
-  FaCheck,
-  FaCloudUploadAlt,
-  FaEye,
-  FaEyeSlash,
-  FaStarOfLife,
-} from 'react-icons/fa';
+import React, { ForwardedRef, forwardRef, useState } from 'react';
+import { FaCheck, FaEye, FaEyeSlash, FaStarOfLife } from 'react-icons/fa';
 import clsx from 'clsx';
-
 
 import { classNames } from '../Helper/HelperFunctions';
 import { URLSafetyCheckerFunction } from '../Helper/URLSafetyCheckerFunction';
@@ -35,9 +22,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       errorMessage = '',
       labelFieldName = '',
       isRequiredField = false,
-      RequiredFileTypeArray,
       setUrlErrorType,
-      showDropFileScreenInFullScreen = true,
       onChange,
       countryDropDownPosition,
       dropDownSelectedValue,
@@ -77,69 +62,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           }
           break;
       }
-    };
-
-    const uploadingFilesTypeCheckingFunction = useCallback(
-      (file: File) => {
-        if (RequiredFileTypeArray?.includes(file.type)) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      [RequiredFileTypeArray]
-    );
-
-    const onDrop = useCallback(
-      (acceptedFiles: Array<File>) => {
-        acceptedFiles.map((eachFile: File) => {
-          if (uploadingFilesTypeCheckingFunction(eachFile)) {
-            console.log('allowed for', eachFile.name);
-          } else {
-            console.log('wrong formate for ', eachFile.name);
-          }
-        });
-      },
-      [uploadingFilesTypeCheckingFunction]
-    );
-
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-      onDrop,
-    });
-
-    const handelInputFileUpload = () => {
-      return (
-        <div {...getRootProps()}>
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            showDropFileScreenInFullScreen ? (
-              <div className='fixed top-0 left-0 w-full h-full bg-[rgba(0,0,0,0.5)] backdrop-blur-sm z-50 flex items-center justify-center'>
-                <h6 className='text-5xl font-sans font-semibold'>
-                  Drop the files here ...
-                </h6>
-              </div>
-            ) : (
-              <>
-                <div className='py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]'>
-                  <FaCloudUploadAlt className='w-20 h-20 text-indigo-600' />
-                  <p className='text-base font-semibold text-indigo-700'>
-                    Drop Files to Upload
-                  </p>
-                </div>
-              </>
-            )
-          ) : (
-            <>
-              <div className='py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]'>
-                <FaCloudUploadAlt className='w-20 h-20 text-indigo-600' />
-                <p className='text-base text-black'>
-                  Drag & Drop Files or <span>Browse</span>
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      );
     };
 
     const renderInputField = () => {
@@ -237,11 +159,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             </span>
           </label>
         )}
-        {type === 'file'
-          ? handelInputFileUpload()
-          : type == 'checkbox'
-            ? renderCheckBox()
-            : renderInputField()}
+        {type == 'checkbox' ? renderCheckBox() : renderInputField()}
         {showError && errorMessage && (
           <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
             {errorMessage}

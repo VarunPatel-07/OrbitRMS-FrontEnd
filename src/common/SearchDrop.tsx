@@ -28,9 +28,11 @@ export default function SearchDrop(props: SearchDropProps) {
 
   const boxRef = useRef<HTMLDivElement>(null);
   const inputFieldRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
+  const [highlightIndex, setHighlightIndex] = useState<number>(-1);
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
@@ -88,6 +90,36 @@ export default function SearchDrop(props: SearchDropProps) {
       setFilteredOptions(options);
     }
   }, [options, searchTerm]);
+
+  const handelKeyPress = (e: React.KeyboardEvent) => {
+    if (!isOpen) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightIndex((perv) =>
+        Math.min(perv + 1, filteredOptions.length - 1)
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightIndex((perv) => Math.max(perv - 1, 0));
+    } else if (e.key === 'Enter' && highlightIndex !== -1) {
+      handleOnClick(filteredOptions[highlightIndex]);
+    } else if (e.key === 'Escape') {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (listRef.current && highlightIndex !== -1) {
+      const highlightItem = listRef.current.children[
+        highlightIndex
+      ] as HTMLElement;
+      if (highlightItem) {
+        highlightItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [highlightIndex]);
+
   return (
     <div className='w-full' ref={boxRef}>
       {labelFieldName && (
@@ -104,6 +136,7 @@ export default function SearchDrop(props: SearchDropProps) {
       <div className='w-full relative'>
         <button
           onClick={handleToggle}
+          onKeyDown={handelKeyPress}
           className={clsx(
             'px-2.5 py-2.5 bg-white border border-black/45 rounded-lg w-full flex justify-between items-center',
             className
@@ -146,10 +179,14 @@ export default function SearchDrop(props: SearchDropProps) {
                   placeholder='Search...'
                   value={searchTerm}
                   onChange={handleSearch}
+                  onKeyDown={handelKeyPress}
                 />
               )}
 
-              <ul className='max-h-[150px] h-full overflow-auto py-1 w-full bg-gray-100 shadow-md rounded-lg'>
+              <ul
+                ref={listRef}
+                className='max-h-[150px] h-full overflow-auto py-1 w-full bg-gray-100 shadow-md rounded-lg'
+              >
                 {!loading ? (
                   filteredOptions.length > 0 ? (
                     filteredOptions.map((option, index) => {
@@ -164,7 +201,9 @@ export default function SearchDrop(props: SearchDropProps) {
                             'px-3 py-2 cursor-pointer w-full text-black',
                             {
                               'bg-gray-300/70': selectedValue == val,
-                              'hover:bg-gray-200/70': selectedValue != val,
+                              'hover:bg-gray-200/70':
+                                selectedValue != val || highlightIndex != index,
+                              'bg-gray-200/70': highlightIndex == index,
                             }
                           )}
                           onClick={() => handleOnClick(option)}

@@ -9,7 +9,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import signInGradientBgImage from '../../assets/Images/gradient-bg.png';
 import orbitLogo from '../../assets/Images/OrbitRMS-White-Transperent-Logo.png';
 import CommonDatePicker from '../../common/CommonDatePicker';
+import DragAndDropFileUploader from '../../common/DragDropUploader/DragAndDropFileUploader';
 import Input from '../../common/Input';
+import Loader from '../../common/Loader';
 import SearchDrop from '../../common/SearchDrop';
 import TextArea from '../../common/TextArea';
 import MainSuspenseLoader from '../../Components/Loader/MainSuspenseLoader';
@@ -17,7 +19,11 @@ import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../Context/Notification/NotificationContextApi';
-import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
+import {
+  endpointObject,
+  multipleFetchApi,
+  multiplePostApi,
+} from '../../Helper/api/multipleAPI';
 import {
   countryObject,
   fetchFormattedCountryData,
@@ -200,19 +206,22 @@ function Onboarding() {
     Array<countryObject>
   >([]);
 
-  const [showGlobalLoader, setShowGlobalLoader] = useState<boolean>(true);
+  const [showGlobalLoader, setShowGlobalLoader] = useState<boolean>(false);
 
   const [showErrorObj, setShowErrorObj] = useState<{
     errorModule: ErrorModuleType;
     showError: boolean;
   }>({ errorModule: '', showError: false });
 
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
   const onboardingFormValidation: {
     validated: () => boolean;
     errorModule: ErrorModuleType;
   }[] = [
     {
-      validated: () => formData?.general_info?.is_meta_verified,
+      // validated: () => formData?.general_info?.is_meta_verified,
+      validated: () => true,
       errorModule: 'general_info',
     },
     {
@@ -319,23 +328,42 @@ function Onboarding() {
     }
   };
 
-  const handelSubmitButton = () => {
+  const handelSubmitButton = async () => {
     const { validated } = onboardingFormValidation[SideBarArray.length - 1];
 
-    if (validated()) {
-      setFormData((pervValue) => ({
-        ...pervValue,
-        employee_profile_info: {
-          ...pervValue.employee_profile_info,
-          full_name:
-            pervValue.employee_profile_info.first_name +
-            ' ' +
-            pervValue.employee_profile_info.middle_name +
-            ' ' +
-            pervValue.employee_profile_info.last_name,
-        },
-      }));
-      console.log(formData);
+    if (!validated()) {
+      console.log('not validated');
+      return;
+    }
+    setIsSubmitting(true);
+    setFormData((pervValue) => ({
+      ...pervValue,
+      employee_profile_info: {
+        ...pervValue.employee_profile_info,
+        full_name:
+          pervValue.employee_profile_info.first_name +
+          ' ' +
+          pervValue.employee_profile_info.middle_name +
+          ' ' +
+          pervValue.employee_profile_info.last_name,
+      },
+    }));
+
+    const EndPointArray: Array<endpointObject> = [
+      {
+        endPoint: `organization/onboard-organization?organization-id=${searchParams.get('organization_id')}`,
+        protected: false,
+        data: formData,
+      },
+    ];
+
+    const response = await multiplePostApi(EndPointArray);
+    const res = response[0];
+    if (res) {
+      if (res?.success) {
+        handelNotification(res, 'top-right');
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -712,7 +740,7 @@ function Onboarding() {
 
   return (
     <>
-      <MainSuspenseLoader loading={showGlobalLoader} />
+      {/* <MainSuspenseLoader loading={showGlobalLoader} /> */}
       {!showGlobalLoader && (
         <div className='h-screen w-screen bg-[var(--them-pink-color)]'>
           <div className='w-full h-full flex items-stretch justify-start relative'>
@@ -821,7 +849,7 @@ function Onboarding() {
                       {/* general Info */}
                       <div className='w-full min-w-full grid grid-cols-1 gap-3.5 pt-3 px-1.5'>
                         <div className='w-full'>
-                          <Input
+                          <DragAndDropFileUploader
                             name='general_info.organization_profile_picture'
                             type='file'
                             RequiredFileTypeArray={[
@@ -829,7 +857,7 @@ function Onboarding() {
                               'image/jpeg',
                               'image/webp',
                             ]}
-                            labelFieldName='Organization Profile Picture'
+                            showDropFileScreenInFullScreen={true}
                           />
                         </div>
                         <div className='grid grid-cols-2 gap-4'>
@@ -1595,7 +1623,11 @@ function Onboarding() {
                     )}
                     onClick={handelSubmitButton}
                   >
-                    <span>Submit</span>
+                    {isSubmitting ? (
+                      <Loader loaderText='Submitting...' />
+                    ) : (
+                      <span>Submit</span>
+                    )}
                   </button>
                 </div>
               </div>

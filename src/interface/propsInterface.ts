@@ -13,7 +13,7 @@ export interface BreadcrumbsProps {
 
 export interface InputProps {
   name: string;
-  type?: 'text' | 'password' | 'email' | 'number' | 'file' | 'url' | 'checkbox'; // More specific input types
+  type?: 'text' | 'password' | 'email' | 'number' | 'url' | 'checkbox'; // More specific input types
   value?: string;
   setValue?: (value: string) => void; // Function that updates the value
   placeHolder?: string; // Optional placeholder
@@ -24,9 +24,7 @@ export interface InputProps {
   errorMessage?: string;
   labelFieldName?: string;
   isRequiredField?: boolean;
-  RequiredFileTypeArray?: Array<string>;
   setUrlErrorType?: (value: string) => void;
-  showDropFileScreenInFullScreen?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   countryDropDownPosition?: 'top' | 'bottom';
   dropDownSelectedValue?: string | number;
@@ -34,6 +32,13 @@ export interface InputProps {
   disabled?: boolean;
   countryDropDownMaxHeight?: number;
   countryOptionsData?: Array<countryObject>;
+}
+
+export interface DragDropUploaderProps {
+  name: string;
+  type: 'file' | 'image';
+  RequiredFileTypeArray: Array<string>;
+  showDropFileScreenInFullScreen: boolean;
 }
 
 export interface commonDatePickerProps {

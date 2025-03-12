@@ -16,6 +16,7 @@ import {
 import { signInApiFunction, verifyUsersLoginStatus } from '../Helper/api/api';
 import HelmetSeo from '../Helper/HelmetSeo';
 import { isValidEmail } from '../Helper/HelperFunctions';
+import { useDebounce } from '../Hooks/useDebounce';
 
 function SignIn() {
   const { handelNotification } = useContext(
@@ -32,36 +33,42 @@ function SignIn() {
   const [rememberMe, setRememberMe] = useState<string>('');
   const [showError, setShowError] = useState<boolean>(false);
 
+  const signInApiHandlerFunction = useDebounce(async () => {
+    const data = {
+      email,
+      password,
+      rememberMe: rememberMe == 'true' ? true : false,
+    };
+
+    const res = await signInApiFunction(
+      'auth/sign-in',
+      data,
+      'POST',
+      setLoading
+    );
+    if (res?.success) {
+      setLoading(false);
+      handelNotification(res, 'top-right');
+      // if (!res?.organization_created) {
+      //   navigate(`/onboarding?organization_id=${res?.organization_id}`);
+      // }
+      navigate(`/onboarding?organization_id=${res?.organization_id}`);
+    } else {
+      setLoading(false);
+      handelNotification(res, 'top-right');
+    }
+  }, 300);
+
   const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
     if (
-      email.trim().length != 0 &&
+      email.trim().length !== 0 &&
       password.length >= 6 &&
       isValidEmail(email)
     ) {
-      setLoading(true);
-      const data = {
-        email,
-        password,
-        rememberMe: rememberMe == 'true' ? true : false,
-      };
-
-      const res = await signInApiFunction(
-        'auth/sign-in',
-        data,
-        'POST',
-        setLoading
-      );
-      if (res?.success) {
-        setLoading(false);
-        handelNotification(res, 'top-right');
-        if (!res?.organization_created) {
-          navigate(`/onboarding?organization_id=${res?.organization_id}`);
-        }
-      } else {
-        setLoading(false);
-        handelNotification(res, 'top-right');
-      }
+      setLoading(true); // Set loading state immediately
+      signInApiHandlerFunction(); // Await the API call
     } else {
       setShowError(true);
     }
