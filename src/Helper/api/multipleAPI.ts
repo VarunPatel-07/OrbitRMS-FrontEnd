@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
-import { ErrorHandler, getDataFromLocalStorage } from '../HelperFunctions';
+import {
+  ErrorHandler,
+  getDataFromLocalStorage,
+  getDataFromTheSessionStorage,
+} from '../HelperFunctions';
 
 export interface endpointObject {
   endPoint: string;
   protected: boolean;
   data?: object;
+  header?: object;
 }
 export interface URLObject {
   url: string;
@@ -24,15 +29,21 @@ const defaultHeader = {
 export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
-      const _token = getDataFromLocalStorage('authenticationToken');
+      const _localToken = getDataFromLocalStorage('authenticationToken');
+      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
       //   todo we will show the error in the form of the notification
-      if (!_token) return null; // return null or an error message if there's no token
 
-      const authToken = `Bearer ${_token}`;
-      const headers = {
-        'Content-Type': 'application/json',
-        Authorization: authToken,
-      };
+      const authToken = `Bearer ${_localToken || _sessionToken}`;
+      const headers: Record<string, string> = eachEndPoint?.header
+        ? (eachEndPoint.header as Record<string, string>)
+        : {
+            'Content-Type': 'application/json',
+            Authorization: authToken,
+          };
+
+      if (!headers?.Authorization) {
+        headers.Authorization = authToken;
+      }
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
 
       const config = {
@@ -79,23 +90,29 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
 export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
-      const _token = getDataFromLocalStorage('authenticationToken');
+      const _localToken = getDataFromLocalStorage('authenticationToken');
+      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
+      //   todo we will show the error in the form of the notification
 
-      if (!_token) return;
+      const authToken = `Bearer ${_localToken || _sessionToken}`;
 
-      const authToken = `Bearer ${_token}`;
+      const headers: Record<string, string> = eachEndPoint?.header
+        ? (eachEndPoint.header as Record<string, string>)
+        : {
+            'Content-Type': 'application/json',
+            Authorization: authToken,
+          };
 
-      const headers = {
-        'Content-Type': 'application/json',
-        Authorization: authToken,
-      };
+      if (!headers?.Authorization) {
+        headers.Authorization = authToken;
+      }
 
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
 
       const config = {
         method: 'POST',
         url,
-        headers,
+        headers: headers,
         data: eachEndPoint.data,
       };
       try {
@@ -115,7 +132,7 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
       const config = {
         method: 'POST',
         url,
-        headers: defaultHeader,
+        headers: eachEndPoint?.header ? eachEndPoint.header : defaultHeader,
         data: eachEndPoint.data,
       };
       try {
@@ -143,7 +160,7 @@ export const multiUrlFetcher = async (urlArray: Array<URLObject>) => {
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error:any) {
+      } catch (error: any) {
         console.error(`Error fetching data from ${eachURL.url}`, error);
         return ErrorHandler(error);
       }

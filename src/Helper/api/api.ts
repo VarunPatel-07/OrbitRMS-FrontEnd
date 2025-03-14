@@ -5,6 +5,8 @@ import axios, { AxiosRequestHeaders } from 'axios';
 import { loginForm, signUpForm } from '../../interface/funcParamInterface';
 import {
   ErrorHandler,
+  getDataFromLocalStorage,
+  getDataFromTheSessionStorage,
   storeDataInLocalStorage,
   storeDataInSessionStorage,
 } from '../HelperFunctions';
@@ -127,8 +129,30 @@ export const signUpApiFunction = async (
   }
 };
 
-export const verifyUsersLoginStatus = async (
-  setShowGlobalLoader: React.Dispatch<SetStateAction<boolean>>
-) => {
-  setShowGlobalLoader(false);
+export const verifyUsersLoginStatus = async () => {
+  try {
+    const url = `${BASE_URL}/auth/verify-user`;
+
+    const _localToken = getDataFromLocalStorage('authenticationToken');
+    const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
+    //   todo we will show the error in the form of the notification
+
+    const authToken = `Bearer ${_localToken || _sessionToken}`;
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: authToken,
+    };
+
+    const config = {
+      method: 'GET',
+      url,
+      headers: headers,
+    };
+
+    const response = await axios(config);
+
+    return response?.data;
+  } catch (error) {
+    return ErrorHandler(error as Error);
+  }
 };

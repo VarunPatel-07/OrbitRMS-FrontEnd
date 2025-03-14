@@ -5,14 +5,29 @@ import Cropper, { Area } from 'react-easy-crop';
 import { BiSolidZoomIn, BiSolidZoomOut } from 'react-icons/bi';
 import { FaRotateLeft, FaRotateRight } from 'react-icons/fa6';
 
+import HamsterLoader from '../../Components/Loader/HamsterLoader';
+import Loader from '../Loader';
+
 function ImageCropper({
   file,
   onCropDone,
   onCropCancel,
+  loading,
+  croppedImagePreview,
+  cropShape,
+  maxCropHeight,
+  maxCropWidth,
+  handelImageUploadation,
 }: {
   file: File;
-  onCropDone: (imageCroppedArea: any) => void;
+  onCropDone: (imageCroppedArea: any, rotation: number) => void;
   onCropCancel: () => void;
+  loading: boolean;
+  croppedImagePreview: string;
+  cropShape: 'round' | 'rect';
+  maxCropHeight: number;
+  maxCropWidth: number;
+  handelImageUploadation: (imageUrl: string) => void;
 }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -45,27 +60,44 @@ function ImageCropper({
   const imageUrl = URL.createObjectURL(file);
 
   return (
-    <div className='fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/25 z-[999]'>
+    <div className='fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/25 z-[999] transition-all duration-200'>
       <div className='flex flex-col bg-white py-5 px-6  rounded-lg gap-5'>
         <h2 className='text-black capitalize font-inter font-bold text-xl'>
           crop the photos
         </h2>
         <div className='w-[550px] h-[450px] bg-white rounded-lg p-4 overflow-hidden relative'>
-          <Cropper
-            image={imageUrl}
-            crop={crop}
-            zoom={zoom}
-            rotation={rotation}
-            onCropChange={setCrop}
-            onCropComplete={onCropComplete}
-            onZoomChange={setZoom}
-            onRotationChange={setRotation}
-            cropSize={{ width: 300, height: 300 }}
-            restrictPosition={false}
-            cropShape='round'
-            objectFit='contain'
-            style={{ containerStyle: { backgroundColor: 'transparent' } }}
-          />
+          {loading && (
+            <div className='w-full h-full flex items-center justify-center bg-black/20 backdrop-blur-md absolute top-0 left-0 z-20 transition-all duration-200'>
+              <HamsterLoader theme='light' />
+            </div>
+          )}
+          {croppedImagePreview ? (
+            <div className='w-full h-full flex items-center justify-center bg-black/10 rounded-md'>
+              <img
+                src={croppedImagePreview}
+                className={`w-full h-full m-auto ${cropShape === 'round' ? 'rounded-full' : ''}`}
+                alt='cropped Image Preview'
+                loading='lazy'
+                style={{ maxWidth: maxCropWidth, maxHeight: maxCropHeight }}
+              />
+            </div>
+          ) : (
+            <Cropper
+              image={imageUrl}
+              crop={crop}
+              zoom={zoom}
+              rotation={rotation}
+              onCropChange={setCrop}
+              onCropComplete={onCropComplete}
+              onZoomChange={setZoom}
+              onRotationChange={setRotation}
+              cropSize={{ width: maxCropWidth, height: maxCropHeight }}
+              restrictPosition={false}
+              cropShape={cropShape}
+              objectFit='contain'
+              style={{ containerStyle: { backgroundColor: 'transparent' } }}
+            />
+          )}
         </div>
         <div className='flex items-stretch justify-between'>
           <div className='flex items-center gap-2 justify-end'>
@@ -107,12 +139,26 @@ function ImageCropper({
             >
               cancel
             </button>
-            <button
-              className='bg-[var(--them-green-color)] text-white px-4 py-1.5 capitalize font-inter text-base font-semibold rounded-lg h-full'
-              onClick={() => onCropDone(croppedArea)}
-            >
-              crop & upload
-            </button>
+            {croppedImagePreview ? (
+              <button
+                className='bg-[var(--them-green-color)] text-white px-4 py-1.5 capitalize font-inter text-base font-semibold rounded-lg h-full disabled:opacity-70 disabled:cursor-not-allowed'
+                onClick={() => handelImageUploadation(croppedImagePreview)}
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader loaderText='Uploading...' />
+                ) : (
+                  <span>Upload Image</span>
+                )}
+              </button>
+            ) : (
+              <button
+                className='bg-[var(--them-green-color)] text-white px-4 py-1.5 capitalize font-inter text-base font-semibold rounded-lg h-full'
+                onClick={() => onCropDone(croppedArea, rotation)}
+              >
+                Crop & Continue
+              </button>
+            )}
           </div>
         </div>
       </div>
