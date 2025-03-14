@@ -1,17 +1,40 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDropzone } from 'react-dropzone';
 import { Area } from 'react-easy-crop';
 import { FaCloudUploadAlt } from 'react-icons/fa';
 
+import {
+  NotificationContext,
+  NotificationContextApiProps,
+} from '../../Context/Notification/NotificationContextApi';
+import { endpointObject, multiplePostApi } from '../../Helper/api/multipleAPI';
+import {
+  createImageUtilFunction,
+  dataUrlToFileConvertor,
+  getBoundingBox,
+  getRadianAngle,
+} from '../../Helper/HelperFunctions';
+import { useDebounce } from '../../Hooks/useDebounce';
 import { DragDropUploaderProps } from '../../interface/propsInterface';
 import ImageCropper from './ImageCropper';
 
 function DragAndDropFileUploader(props: DragDropUploaderProps) {
-  const { RequiredFileTypeArray, showDropFileScreenInFullScreen } =
-    props as DragDropUploaderProps;
+  const {
+    RequiredFileTypeArray,
+    showDropFileScreenInFullScreen,
+    cropShape,
+    maxCropHeight,
+    maxCropWidth,
+    setImageUrl,
+  } = props as DragDropUploaderProps;
 
-  const [selectedFile, setSelectedFile] = useState<File>();
+  const { handelNotification } = useContext(
+    NotificationContext
+  ) as NotificationContextApiProps;
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [croppedImagePreview, setCroppedImagePreview] = useState<string>('');
 
   const uploadingFilesTypeCheckingFunction = useCallback(
     (file: File) => {
@@ -27,10 +50,15 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
     (acceptedFiles: Array<File>) => {
       acceptedFiles.map((eachFile: File) => {
         if (uploadingFilesTypeCheckingFunction(eachFile)) {
-          console.log('allowed for', eachFile.name);
+          // console.log('allowed for', eachFile.name);
           setSelectedFile(eachFile);
         } else {
-          console.log('wrong formate for ', eachFile.name);
+          // console.log('wrong formate for ', eachFile.name);
+          const res = {
+            success: false,
+            message: `The Formate Is Not Allowed`,
+          };
+          handelNotification(res, 'top-right');
         }
       });
     },
@@ -40,20 +68,61 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
     onDrop,
   });
 
-  const onCropDone = (croppedArea: Area) => {
-    const canvasElement = document.createElement('canvas');
-    canvasElement.width = croppedArea.width;
-    canvasElement.height = croppedArea.height;
+  const onCropDone = (croppedArea: Area, rotation: number) => {
+    setLoading(true);
+    handelCropDoneDebounce(croppedArea, rotation);
+  };
 
-    const canvasContext = canvasElement.getContext('2d');
+  const onCropCancel = () => {
+    setLoading(false);
+    setCroppedImagePreview('');
+    setSelectedFile(null);
+  };
 
-    const imageUrl = selectedFile ? URL.createObjectURL(selectedFile) : '';
+  const handelCropDoneDebounce = useDebounce(
+    async (croppedArea: Area, rotation: number) => {
+      if (!selectedFile) return;
 
-    const imageObjectOne = new Image();
-    imageObjectOne.src = imageUrl;
-    imageObjectOne.onload = function () {
-      canvasContext?.drawImage(
-        imageObjectOne,
+      const imageUrl = URL.createObjectURL(selectedFile);
+      const imageObject = await createImageUtilFunction(imageUrl);
+      URL.revokeObjectURL(imageUrl);
+
+      const canvasElement = document.createElement('canvas');
+      const canvasContext = canvasElement.getContext('2d');
+
+      if (!canvasContext) return;
+
+      const rotatedRadius = getRadianAngle(rotation);
+      const { width: imgWidth, height: imgHeight } = imageObject;
+
+      // Get bounding box size to fit rotated image
+      const { width: boundingBoxWidth, height: boundingBoxHeight } =
+        getBoundingBox(imgWidth, imgHeight, rotatedRadius);
+
+      // Set canvas size to fit the rotated image
+      canvasElement.width = boundingBoxWidth;
+      canvasElement.height = boundingBoxHeight;
+
+      // Translate & Rotate
+      canvasContext.translate(boundingBoxWidth / 2, boundingBoxHeight / 2);
+      canvasContext.rotate(rotatedRadius);
+      canvasContext.translate(-imgWidth / 2, -imgHeight / 2);
+
+      // Draw the rotated image
+      canvasContext.drawImage(imageObject, 0, 0);
+
+      // Create a new canvas for cropping
+      const croppedImageCanvas = document.createElement('canvas');
+      const croppedImageContext = croppedImageCanvas.getContext('2d');
+
+      if (!croppedImageContext) return;
+
+      croppedImageCanvas.width = croppedArea.width;
+      croppedImageCanvas.height = croppedArea.height;
+
+      // Draw cropped section
+      croppedImageContext.drawImage(
+        canvasElement,
         croppedArea.x,
         croppedArea.y,
         croppedArea.width,
@@ -63,10 +132,72 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
         croppedArea.width,
         croppedArea.height
       );
-      const dataUrl = canvasElement.toDataURL('image/jpeg');
 
-      console.log(dataUrl);
-    };
+      const dataUrl = croppedImageCanvas.toDataURL('image/jpeg');
+
+      setLoading(false);
+      setCroppedImagePreview(dataUrl);
+    },
+    100
+  );
+
+  const uploadImageToCloudWithDebounce = useDebounce(
+    async (imageUrl: string) => {
+      const file = dataUrlToFileConvertor(
+        imageUrl,
+        'organization-profile-picture.png'
+      );
+
+      const multipartHeader = {
+        'Content-Type': 'multipart/form-data',
+      };
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const endpointArray: Array<endpointObject> = [
+        {
+          endPoint: 'uploadation/single-upload',
+          data: formData,
+          protected: true,
+          header: multipartHeader,
+        },
+      ];
+
+      const response = await multiplePostApi(endpointArray);
+      const res = response[0];
+      if (!res?.success) {
+        const successData = {
+          success: false,
+          message: 'Unable To Upload Image Try Again Letter',
+        };
+        handelNotification(successData, 'top-right');
+
+        setLoading(false);
+        setSelectedFile(null);
+        setCroppedImagePreview('');
+        return;
+      }
+      setImageUrl(res?.url);
+
+      const successData = {
+        success: true,
+        message: 'Image Uploaded Successfully',
+      };
+      handelNotification(successData, 'top-right');
+
+      setLoading(false);
+      setSelectedFile(null);
+      setCroppedImagePreview('');
+      // we will do something here
+    },
+    100
+  );
+
+  const handelImageUploadation = async (imageUrl: string) => {
+    if (!imageUrl) return;
+    setLoading(true);
+    uploadImageToCloudWithDebounce(imageUrl);
   };
 
   return (
@@ -104,7 +235,17 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
 
       {selectedFile &&
         createPortal(
-          <ImageCropper file={selectedFile} onCropDone={onCropDone} />,
+          <ImageCropper
+            file={selectedFile}
+            onCropDone={onCropDone}
+            onCropCancel={onCropCancel}
+            handelImageUploadation={handelImageUploadation}
+            loading={loading}
+            croppedImagePreview={croppedImagePreview}
+            cropShape={cropShape}
+            maxCropHeight={maxCropHeight}
+            maxCropWidth={maxCropWidth}
+          />,
           document.body
         )}
     </>

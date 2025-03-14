@@ -23,7 +23,7 @@ function SignIn() {
     NotificationContext
   ) as NotificationContextApiProps;
 
-  const defaultInputRef = useRef<HTMLInputElement>(null);
+  const useEffectRef = useRef(false);
   const navigate = useNavigate();
 
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
@@ -75,8 +75,17 @@ function SignIn() {
   };
 
   useEffect(() => {
-    verifyUsersLoginStatus(setShowGlobalLoader);
-    defaultInputRef.current?.focus();
+    if (useEffectRef.current) return;
+    useEffectRef.current = true;
+    (async () => {
+      const response = await verifyUsersLoginStatus();
+      if (!response?.success) {
+        handelNotification(response, 'top-right');
+        setShowGlobalLoader(false);
+      } else {
+        setShowGlobalLoader(false);
+      }
+    })();
   }, []);
 
   return (

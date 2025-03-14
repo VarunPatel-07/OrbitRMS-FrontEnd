@@ -39,6 +39,10 @@ export interface DragDropUploaderProps {
   type: 'file' | 'image';
   RequiredFileTypeArray: Array<string>;
   showDropFileScreenInFullScreen: boolean;
+  cropShape: 'round' | 'rect';
+  maxCropHeight: number;
+  maxCropWidth: number;
+  setImageUrl: (url: string) => void;
 }
 
 export interface commonDatePickerProps {

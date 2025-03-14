@@ -3,7 +3,13 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { BsExclamationCircleFill } from 'react-icons/bs';
 import { FaCheck, FaStarOfLife } from 'react-icons/fa';
 import { FaArrowLeftLong, FaArrowRightLong } from 'react-icons/fa6';
-import { MdDelete, MdModeEdit, MdModeEditOutline } from 'react-icons/md';
+import { IoCloseSharp } from 'react-icons/io5';
+import {
+  MdDelete,
+  MdModeEdit,
+  MdModeEditOutline,
+  MdOutlineFileUpload,
+} from 'react-icons/md';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import signInGradientBgImage from '../../assets/Images/gradient-bg.png';
@@ -586,6 +592,17 @@ function Onboarding() {
     }));
   };
 
+  const handelProfileUploadation = (url: string) => {
+    console.log('url', url);
+    setFormData((pervValue) => ({
+      ...pervValue,
+      general_info: {
+        ...pervValue.general_info,
+        organization_profile_picture: url,
+      },
+    }));
+  };
+
   const handleDropDownSelectValue = (val: string, index: number) => {
     setFormData((pervValue) => ({
       ...pervValue,
@@ -740,7 +757,7 @@ function Onboarding() {
 
   return (
     <>
-      {/* <MainSuspenseLoader loading={showGlobalLoader} /> */}
+      <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
         <div className='h-screen w-screen bg-[var(--them-pink-color)]'>
           <div className='w-full h-full flex items-stretch justify-start relative'>
@@ -848,18 +865,60 @@ function Onboarding() {
                     >
                       {/* general Info */}
                       <div className='w-full min-w-full grid grid-cols-1 gap-3.5 pt-3 px-1.5'>
-                        <div className='w-full'>
-                          <DragAndDropFileUploader
-                            name='general_info.organization_profile_picture'
-                            type='file'
-                            RequiredFileTypeArray={[
-                              'image/png',
-                              'image/jpeg',
-                              'image/webp',
-                            ]}
-                            showDropFileScreenInFullScreen={true}
-                          />
-                        </div>
+                        {formData?.general_info?.organization_profile_picture?.trim() ==
+                        '' ? (
+                          <div className='w-full'>
+                            <DragAndDropFileUploader
+                              name='general_info.organization_profile_picture'
+                              type='file'
+                              RequiredFileTypeArray={[
+                                'image/png',
+                                'image/jpeg',
+                                'image/webp',
+                              ]}
+                              showDropFileScreenInFullScreen={true}
+                              cropShape='round'
+                              maxCropHeight={400}
+                              maxCropWidth={400}
+                              setImageUrl={handelProfileUploadation}
+                            />
+                          </div>
+                        ) : (
+                          <div className='w-full pb-2'>
+                            <div className='flex items-center justify-start gap-10'>
+                              <div
+                                className='image w-[180px] h-[180px] aspect-square rounded-full overflow-hidden border
+                            border-black/20'
+                              >
+                                <img
+                                  src={
+                                    formData?.general_info
+                                      ?.organization_profile_picture
+                                  }
+                                  alt='organization profile picture'
+                                  width={150}
+                                  height={150}
+                                  loading='lazy'
+                                  className='w-full h-full object-center rounded-full bg-cover'
+                                />
+                              </div>
+                              <div className='flex items-center justify-start gap-4'>
+                                <button
+                                  className='text-black bg-black/10 hover:bg-black/15 transition-all p-2.5 rounded-lg'
+                                  onClick={() => handelProfileUploadation('')}
+                                >
+                                  <MdOutlineFileUpload className='w-6 h-6' />
+                                </button>
+                                <button
+                                  className='text-black bg-black/10 hover:bg-black/15 transition-all p-2.5 rounded-lg'
+                                  onClick={() => handelProfileUploadation('')}
+                                >
+                                  <IoCloseSharp className='w-6 h-6' />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                         <div className='grid grid-cols-2 gap-4'>
                           <div className='w-full'>
                             <Input
