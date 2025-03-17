@@ -38,6 +38,7 @@ import {
   classNames,
   formateAndVerifyPhoneNumber,
 } from '../../Helper/HelperFunctions';
+import { useDebounce } from '../../Hooks/useDebounce';
 import { OnboardingFormInterface } from '../../interface/interface';
 import VerifyWebsiteUrlModal from './VerifyWebsiteUrlModal';
 
@@ -334,14 +335,7 @@ function Onboarding() {
     }
   };
 
-  const handelSubmitButton = async () => {
-    const { validated } = onboardingFormValidation[SideBarArray.length - 1];
-
-    if (!validated()) {
-      console.log('not validated');
-      return;
-    }
-    setIsSubmitting(true);
+  const handelSubmitFormWithDebounce = useDebounce(async () => {
     setFormData((pervValue) => ({
       ...pervValue,
       employee_profile_info: {
@@ -369,8 +363,20 @@ function Onboarding() {
       if (res?.success) {
         handelNotification(res, 'top-right');
         setIsSubmitting(false);
+        navigate('/config');
       }
     }
+  }, 300);
+
+  const handelSubmitButton = async () => {
+    const { validated } = onboardingFormValidation[SideBarArray.length - 1];
+
+    if (!validated()) {
+      console.log('not validated');
+      return;
+    }
+    setIsSubmitting(true);
+    handelSubmitFormWithDebounce();
   };
 
   const handelDecreesPage = () => {
@@ -1681,6 +1687,7 @@ function Onboarding() {
                       { hidden: page != SideBarArray.length - 1 }
                     )}
                     onClick={handelSubmitButton}
+                    disabled={isSubmitting}
                   >
                     {isSubmitting ? (
                       <Loader loaderText='Submitting...' />

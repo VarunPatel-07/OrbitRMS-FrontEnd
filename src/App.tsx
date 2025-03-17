@@ -5,6 +5,7 @@ import Navbar from './Components/Navbar/Navbar';
 import SideBar from './Components/SideBar/SideBar';
 import ProtectedRoute from './Helper/ProtectedRoute';
 import ClientInquiry from './Pages/ClientInquiry/ClientInquiry';
+import Config from './Pages/config/Config';
 
 function App() {
   return (
@@ -20,6 +21,10 @@ function App() {
               <Route
                 path='/client-inquiry'
                 element={<ProtectedRoute element={<ClientInquiry />} />}
+              />
+              <Route
+                path='/config/*'
+                element={<ProtectedRoute element={<Config />} />}
               />
               <Route path='*' element={<ErrorFallBack />} />
             </Routes>

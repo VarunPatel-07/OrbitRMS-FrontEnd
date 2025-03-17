@@ -12,6 +12,7 @@ function TableSkeletonLoader({
   tableHeaderCount,
   tableValueCount,
   showPaginationLoader = true,
+  maxHeight,
 }: {
   showHeaderLoader?: boolean;
   showFilterLoader?: boolean;
@@ -19,9 +20,10 @@ function TableSkeletonLoader({
   tableHeaderCount: number;
   tableValueCount: number;
   showPaginationLoader?: boolean;
+  maxHeight?: string;
 }) {
   return (
-    <SkeletonTheme baseColor='#d4d4d8' highlightColor='#e4e4e7'>
+    <SkeletonTheme baseColor='#f7f7f7' highlightColor='#e7e7ee'>
       {showHeaderLoader && (
         <div className='w-full p-6 bg-white rounded-t-lg' aria-hidden='true'>
           <div className='w-full flex items-center justify-between'>
@@ -59,14 +61,15 @@ function TableSkeletonLoader({
       )}
       <div
         aria-hidden='true'
-        className='w-full max-h-[calc(100vh-345px)] overflow-auto relative hide-scrollbar'
+        className='w-full overflow-auto overflow-x-hidden relative hide-scrollbar'
+        style={{ maxHeight: maxHeight || 'calc(100vh - 345px)' }}
       >
         {showTableHeader && (
           <div className='bg-[#eef0f4] flex items-center justify-start sticky top-0 z-10'>
             {Array.from({ length: tableHeaderCount }).map((_, index) => (
               <div
                 className={classNames(
-                  'px-3 py-3 flex-grow flex items-center justify-center',
+                  'px-3 py-3 flex-grow flex items-start justify-start',
                   {
                     'border-r border-r-[#d8d9dc]':
                       tableHeaderCount != index + 1,
@@ -75,7 +78,7 @@ function TableSkeletonLoader({
                 key={index}
                 aria-hidden='true'
               >
-                <Skeleton width={200} height={22} className='inline-block' />
+                <Skeleton width={180} height={22} className='inline-block' />
               </div>
             ))}
           </div>
@@ -88,7 +91,7 @@ function TableSkeletonLoader({
             {Array.from({ length: tableHeaderCount }).map((_, index) => (
               <div
                 className={classNames(
-                  'px-3 py-3 flex-grow flex items-center justify-center',
+                  'px-3 py-3 flex-grow flex items-start justify-start',
                   {
                     'border-r border-r-[#d8d9dc]':
                       tableHeaderCount != index + 1,

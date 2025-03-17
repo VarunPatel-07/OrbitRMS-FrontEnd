@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { BsArrowLeft } from 'react-icons/bs';
 import { FiLock } from 'react-icons/fi';
 import { LiaKeySolid } from 'react-icons/lia';
@@ -20,6 +20,7 @@ import HelmetSeo from '../Helper/HelmetSeo';
 import { useDebounce } from '../Hooks/useDebounce';
 
 function CreateResetPassword() {
+  const useEffectRef = useRef(false);
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const currentPath = location.pathname.split('/auth/')[1];
@@ -82,7 +83,16 @@ function CreateResetPassword() {
   };
 
   useEffect(() => {
-    verifyUsersLoginStatus(setShowGlobalLoader);
+    if (useEffectRef.current) return;
+    useEffectRef.current = true;
+    (async () => {
+      const response = await verifyUsersLoginStatus();
+      if (!response?.success) {
+        setShowGlobalLoader(false);
+      } else {
+        setShowGlobalLoader(false);
+      }
+    })();
   }, []);
   return (
     <>

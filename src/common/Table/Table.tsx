@@ -68,7 +68,9 @@ function Table({
                     }
                   )}
                 >
-                  {column.renderContent(row[column.key])}
+                  {column?.key == 'action'
+                    ? column.renderContent(row)
+                    : column.renderContent(row[column.key])}
                 </td>
               ))}
             </tr>

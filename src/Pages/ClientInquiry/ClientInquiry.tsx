@@ -91,7 +91,10 @@ function ClientInquiry() {
               <TableSkeletonLoader tableHeaderCount={5} tableValueCount={10} />
             ) : (
               <div className='w-full h-full'>
-                <TableInfoHeader />
+                <TableInfoHeader
+                  moduleName='Client Inquiry'
+                  badgeValue='1-10 of 14 Inquiries'
+                />
                 <TableFilterSearchBar />
                 <Table
                   columns={columns}

@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 
 import { classNames } from '../Helper/HelperFunctions';
 import { AlertModalProps } from '../interface/propsInterface';
-import Button from './Button';
 
 function AlertModal(props: AlertModalProps) {
   const { ModalInfo, showAlertModal, setShowAlertModal } = props;
@@ -115,14 +114,14 @@ function AlertModal(props: AlertModalProps) {
                   );
 
                   return isButton ? (
-                    <Button
-                      Type='button'
+                    <button
+                      type='button'
                       className={item?.classNames || 'default-class'}
                       onClick={item?.onclickFunction}
                       key={index}
                     >
                       {commonContent}
-                    </Button>
+                    </button>
                   ) : (
                     <Link
                       to={item?.link || '#'}
