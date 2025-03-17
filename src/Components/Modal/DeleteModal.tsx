@@ -1,14 +1,19 @@
 import React, { SetStateAction, useEffect, useRef } from 'react';
 import { MdDeleteOutline } from 'react-icons/md';
 
+import Loader from '../../common/Loader';
 import { classNames } from '../../Helper/HelperFunctions';
 
 function DeleteModal({
   showDeleteModal,
   setShowDeleteModal,
+  loading,
+  handelDelete,
 }: {
   showDeleteModal: boolean;
   setShowDeleteModal: React.Dispatch<SetStateAction<boolean>>;
+  loading: boolean;
+  handelDelete: () => void;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
 
@@ -66,8 +71,16 @@ function DeleteModal({
               >
                 Cancel
               </button>
-              <button className='text-white bg-rose-600 hover:bg-rose-700/90 w-full py-2.5 rounded-lg font-inter text-base font-semibold transition-all'>
-                Delete
+              <button
+                className='text-white bg-rose-600 hover:bg-rose-700/90 w-full py-2.5 rounded-lg font-inter text-base font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed'
+                disabled={loading}
+                onClick={handelDelete}
+              >
+                {loading ? (
+                  <Loader loaderText='Deleting...' />
+                ) : (
+                  <span>Delete</span>
+                )}
               </button>
             </div>
           </div>

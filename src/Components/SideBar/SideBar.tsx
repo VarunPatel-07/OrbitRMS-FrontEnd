@@ -26,7 +26,7 @@ function SideBar() {
               <li
                 key={item.id}
                 className={`w-full group relative rounded-md ${
-                  item.link == navigation.pathname
+                  navigation.pathname.includes(item?.link)
                     ? 'bg-[#444CE7]'
                     : 'hover:bg-[#444CE7]'
                 }`}

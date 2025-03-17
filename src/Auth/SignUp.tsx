@@ -81,7 +81,7 @@ const initialAlertModalPropsInfo = {
 };
 
 function SignIn() {
-  const defaultInputRef = useRef<HTMLInputElement>(null);
+  const useEffectRef = useRef(false);
 
   const [showGlobalLoader, setShowGlobalLoader] = useState(true);
   const [showError, setShowError] = useState<boolean>(false);
@@ -162,9 +162,16 @@ function SignIn() {
   };
 
   useEffect(() => {
-    defaultInputRef.current?.focus();
-
-    verifyUsersLoginStatus(setShowGlobalLoader);
+    if (useEffectRef.current) return;
+    useEffectRef.current = true;
+    (async () => {
+      const response = await verifyUsersLoginStatus();
+      if (!response?.success) {
+        setShowGlobalLoader(false);
+      } else {
+        setShowGlobalLoader(false);
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -264,7 +271,6 @@ function SignIn() {
                         <div className='w-full'>
                           <Input
                             name='organizationName'
-                            ref={defaultInputRef}
                             className='border border-black/[.65] text-black'
                             labelFieldName='Organization Name'
                             isRequiredField={true}

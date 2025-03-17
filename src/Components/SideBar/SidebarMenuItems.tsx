@@ -48,12 +48,12 @@ export const SidebarMenuItems: SidebarMenuItemInterface[] = [
   },
   {
     id: 4,
-    name: 'Settings',
+    name: 'Config',
     icon: <IoSettings className='w-6 h-6' />,
     label: 'data-tooltip-settings',
-    link: '/settings',
+    link: '/config',
     protected: true,
     showToolTip: true,
-    ToolTipValue: 'Settings',
+    ToolTipValue: 'Config',
   },
 ];

@@ -138,6 +138,12 @@ export const verifyUsersLoginStatus = async () => {
     //   todo we will show the error in the form of the notification
 
     const authToken = `Bearer ${_localToken || _sessionToken}`;
+    const tokenValue = authToken.split('Bearer')[1]?.trim();
+
+    if (!tokenValue || tokenValue === 'null' || tokenValue === 'undefined') {
+      return { success: false };
+    }
+
     const headers = {
       'Content-Type': 'application/json',
       Authorization: authToken,

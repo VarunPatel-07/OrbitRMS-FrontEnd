@@ -36,6 +36,7 @@ function Notification() {
           className={classNames(
             'w-fit h-auto max-h-screen overflow-auto absolute z-50 bg-transparent',
             {
+              'invisible hidden': notificationInfoArray?.length === 0,
               'top-0 left-1/2 -translate-x-1/2': direction === 'center',
               'top-0 right-0': direction === 'top-right',
               'top-0 left-0': direction === 'top-left',
@@ -50,26 +51,29 @@ function Notification() {
                 (notification) =>
                   notification.notificationDirection === direction
               )
-              .map((notification: NotificationObject) => (
-                <div
-                  key={notification.id}
-                  id={notification.id}
-                  className={`bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.3)] rounded-md pl-3 pr-5 py-2 ${
-                    getEnterAnimationClass[notification.notificationDirection]
-                  }`}
-                >
-                  <div className='flex items-center gap-2'>
-                    {notification.success ? (
-                      <FaRegCircleCheck className='text-green-600 w-5 h-5' />
-                    ) : (
-                      <IoCloseCircleOutline className='text-rose-600 w-6 h-6' />
-                    )}
-                    <p className='text-black text-sm'>
-                      {notification.message || 'This Is A Test Notification'}
-                    </p>
+              .map((notification: NotificationObject) => {
+                if (!notification.message?.trim()) return;
+                return (
+                  <div
+                    key={notification.id}
+                    id={notification.id}
+                    className={`bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.3)] rounded-md pl-3 pr-5 py-2 ${
+                      getEnterAnimationClass[notification.notificationDirection]
+                    }`}
+                  >
+                    <div className='flex items-center gap-2'>
+                      {notification.success ? (
+                        <FaRegCircleCheck className='text-green-600 w-5 h-5' />
+                      ) : (
+                        <IoCloseCircleOutline className='text-rose-600 w-6 h-6' />
+                      )}
+                      <p className='text-black text-sm'>
+                        {notification.message}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
           </div>
         </div>
       ))}

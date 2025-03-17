@@ -148,3 +148,15 @@ export interface AlertModalProps {
   showAlertModal: boolean;
   setShowAlertModal: React.Dispatch<SetStateAction<boolean>>;
 }
+
+export interface TableInfoHeaderInterfaceButtonArrayObject {
+  buttonTitle: string;
+  classNames: string;
+  icon?: React.ReactElement | null;
+  onclickFunction?: () => void;
+}
+export interface TableInfoHeaderInterface {
+  moduleName: string;
+  badgeValue: string;
+  buttonsArray?: Array<TableInfoHeaderInterfaceButtonArrayObject>;
+}

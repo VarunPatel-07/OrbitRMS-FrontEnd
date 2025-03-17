@@ -131,7 +131,7 @@ export default function VerifyWebsiteUrlModal({
   }, [websiteUrl]);
 
   const handelCopyButton = () => {
-    const metaString = `<meta name="orbitrms" content="${metaTag}">`;
+    const metaString = `<meta name="orbitrms" content="${metaTag}"/>`;
     window.navigator.clipboard
       .writeText(metaString)
       .then(() => {
@@ -198,7 +198,7 @@ export default function VerifyWebsiteUrlModal({
                 {websiteUrl ? (
                   metaTag ? (
                     <p className='w-full text-wrap break-words whitespace-pre-wrap text-lg text-black font-semibold break-all'>
-                      &lt;meta name="orbitrms" content="{metaTag}"&gt;
+                      &lt;meta name="orbitrms" content="{metaTag}"/&gt;
                     </p>
                   ) : urlSafetyStatus.urlStatus == 'safe' ? (
                     <p className='text-black text-base font-semibold text-center'>
