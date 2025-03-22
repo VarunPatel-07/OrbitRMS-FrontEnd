@@ -57,6 +57,12 @@ function AddModal(props: AddModalProps) {
     }
   };
 
+  const handelCancelButton = () => {
+    setColor('#ff0000');
+    setShowModal(false);
+    setValue('');
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -64,6 +70,7 @@ function AddModal(props: AddModalProps) {
         !modalBoxRef.current.contains(event.target as Node)
       ) {
         setShowModal(false);
+        setColor('#ff0000');
       }
     };
 
@@ -100,7 +107,7 @@ function AddModal(props: AddModalProps) {
               <span className='text-xl text-black font-inter font-semibold'>
                 {modalTitle}
               </span>
-              <button onClick={() => setShowModal(!showModal)}>
+              <button onClick={handelCancelButton}>
                 <IoCloseOutline className='text-2xl text-black' />
               </button>
             </div>
@@ -154,7 +161,7 @@ function AddModal(props: AddModalProps) {
             <div className='px-3.5 pb-4 w-full grid grid-cols-2 gap-2.5'>
               <button
                 className='text-black bg-transparent py-2 rounded-lg border border-black/45'
-                onClick={() => setShowModal(false)}
+                onClick={handelCancelButton}
               >
                 Cancel
               </button>

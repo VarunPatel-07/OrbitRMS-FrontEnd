@@ -49,7 +49,7 @@ function TableLocalSearchBar({
     setData([]);
   };
   return (
-    <div className='w-ful p-2.5 bg-gray-200'>
+    <div className='w-ful p-2 bg-gray-200'>
       <div className='flex items-stretch justify-between gap-2'>
         <div className='w-full'>
           <SearchInput

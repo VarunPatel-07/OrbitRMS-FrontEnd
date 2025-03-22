@@ -14,7 +14,7 @@ function SearchInput({
 }) {
   return (
     <div
-      className='w-full h-full bg-white rounded-lg overflow-hidden border border-black/20 relative focus-within:outline-[3px] focus-within:outline-[rgba(215,139,159,0.2)] focus-within:border-[rgba(215,139,159,0.5)] focus-within:outline'
+      className='w-full h-full bg-white rounded-lg overflow-hidden border border-black/20 relative focus-within:outline-2 focus-within:outline-[rgba(215,139,159,0.2)] focus-within:border-[rgba(215,139,159,0.2)] focus-within:outline'
       onKeyDown={handelKeyDown}
     >
       <span className='inline-block absolute top-1/2 -translate-y-1/2 left-2.5'>
