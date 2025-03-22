@@ -149,6 +149,68 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
   return await Promise.all(promises);
 };
 
+export const multipleDeleteApi = async (endPointArr: Array<endpointObject>) => {
+  const promises = endPointArr.map(async (eachEndPoint) => {
+    if (eachEndPoint.protected) {
+      const _localToken = getDataFromLocalStorage('authenticationToken');
+      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
+      //   todo we will show the error in the form of the notification
+
+      const authToken = `Bearer ${_localToken || _sessionToken}`;
+
+      const headers: Record<string, string> = eachEndPoint?.header
+        ? (eachEndPoint.header as Record<string, string>)
+        : {
+            'Content-Type': 'application/json',
+            Authorization: authToken,
+          };
+
+      if (!headers?.Authorization) {
+        headers.Authorization = authToken;
+      }
+
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
+
+      const config = {
+        method: 'DELETE',
+        url,
+        headers: headers,
+        data: eachEndPoint.data,
+      };
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error: any) {
+        // Handle error (e.g., return an error object or log it)
+        console.error(
+          `Error fetching data from ${eachEndPoint.endPoint}`,
+          error
+        );
+        return ErrorHandler(error);
+      }
+    } else {
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
+
+      const config = {
+        method: 'POST',
+        url,
+        headers: eachEndPoint?.header ? eachEndPoint.header : defaultHeader,
+        data: eachEndPoint.data,
+      };
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error: any) {
+        // Handle error (e.g., return an error object or log it)
+
+        return ErrorHandler(error);
+      }
+    }
+  });
+
+  return await Promise.all(promises);
+};
+
 export const multiUrlFetcher = async (urlArray: Array<URLObject>) => {
   const promises = urlArray.map(async (eachURL: URLObject) => {
     if (eachURL.Method == 'GET') {

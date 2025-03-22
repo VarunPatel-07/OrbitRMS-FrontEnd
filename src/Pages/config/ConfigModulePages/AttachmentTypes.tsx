@@ -1,23 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useState } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
-import Table from '../../../common/Table/Table';
 import TableInfoHeader from '../../../common/Table/TableInfoHeader';
-import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
-import TableNoDataFound from '../../../common/Table/TableNoDataFound';
-import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
 import AddModal from '../../../Components/Modal/AddModal';
-import DeleteModal from '../../../Components/Modal/DeleteModal';
 import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../../Context/Notification/NotificationContextApi';
 import {
   endpointObject,
-  multipleDeleteApi,
-  multipleFetchApi,
   multiplePostApi,
 } from '../../../Helper/api/multipleAPI';
 import { formateDate, hexToRgb } from '../../../Helper/HelperFunctions';
@@ -27,29 +20,28 @@ import {
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
 
-function ProjectStatus() {
+export default function AttachmentTypes() {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
-  const useEffectRef = useRef(false);
-
   const [showModal, setShowModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [modalType, setModalType] = useState<'add' | 'edit'>('add');
-  const [data, setData] = useState<Array<any>>([]);
-  const [filterData, setFilterData] = useState<Array<any>>([]);
-  const [value, setValue] = useState<string>('');
+  const [modalType, setModalType] = useState<string>('add');
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
-  const [deleteItemId, setDeleteItemId] = useState<string>('');
-  const [showSearchFilterData, setShowSearchFilterData] =
-    useState<boolean>(false);
+  const [value, setValue] = useState<string>('');
 
   const handelShowModal = () => {
-    setShowModal(!showModal);
+    // setShowModal(!showModal);
   };
+  const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
+    {
+      buttonTitle: 'Attachment Types',
+      classNames:
+        'font-inter text-white font-medium bg-[#3538CD] px-4 py-1.5 text-base rounded-lg',
+      onclickFunction: handelShowModal,
+    },
+  ];
 
   const handelFormSubmitWithDebounce = useDebounce(
     async (value: string, color?: string) => {
@@ -81,7 +73,7 @@ function ProjectStatus() {
         setShowModal(false);
         setIsFetchingData(true);
         handelNotification(res, 'top-right');
-        fetchProjectStatus();
+        // fetchProjectStatus();
         setValue('');
       }
     },
@@ -92,69 +84,6 @@ function ProjectStatus() {
     setLoading(true);
     handelFormSubmitWithDebounce(value, color);
   };
-
-  const handelDeleteItemWithDebounce = useDebounce(async () => {
-    try {
-      const response = await multipleDeleteApi([
-        {
-          endPoint: `config/project_status/delete?id=${deleteItemId}`,
-          protected: true,
-        },
-      ]);
-
-      const res = response[0];
-      if (res?.success) {
-        setShowDeleteModal(false);
-        setIsDeleteLoading(false);
-        setIsFetchingData(true);
-        handelNotification(res, 'top-right');
-        fetchProjectStatus();
-      } else {
-        setShowDeleteModal(false);
-        setIsDeleteLoading(false);
-        handelNotification(res, 'top-right');
-      }
-    } catch (error) {
-      console.error('Error fetching project status:', error);
-    }
-  }, 200);
-
-  const handelDeleteItem = () => {
-    setIsDeleteLoading(true);
-    handelDeleteItemWithDebounce();
-  };
-
-  const fetchProjectStatus = useDebounce(async () => {
-    try {
-      const response = await multipleFetchApi([
-        { endPoint: 'config/project_status/fetch', protected: true },
-      ]);
-
-      const res = response[0];
-      if (res?.success) {
-        setData(res?.data);
-        setIsFetchingData(false);
-      }
-    } catch (error) {
-      console.error('Error fetching project status:', error);
-    }
-  }, 200);
-
-  const handelEditButtonClick = (data: any) => {
-    setShowModal(true);
-    setModalType('edit');
-    setValue(data?.status_name);
-    setEditId(data?.id);
-  };
-
-  const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
-    {
-      buttonTitle: 'Add Project Status',
-      classNames:
-        'font-inter text-white font-medium bg-[#3538CD] px-4 py-1.5 text-base rounded-lg',
-      onclickFunction: handelShowModal,
-    },
-  ];
 
   const columns: Array<Column> = [
     {
@@ -270,65 +199,13 @@ function ProjectStatus() {
     },
   ];
 
-  useEffect(() => {
-    if (useEffectRef.current) return;
-    useEffectRef.current = true;
-    setIsFetchingData(true);
-    fetchProjectStatus();
-  }, []);
-
   return (
-    <>
-      <div className='w-full h-full'>
-        {isFetchingData ? (
-          <div className='w-full h-full overflow-hidden'>
-            <TableSkeletonLoader
-              tableHeaderCount={5}
-              tableValueCount={13}
-              maxHeight='calc(-300px + 100vh)'
-            />
-          </div>
-        ) : (
-          <>
-            <TableInfoHeader
-              moduleName='Project Status'
-              badgeValue={data.length.toString()}
-              buttonsArray={optionsButtonArray}
-            />
-            <TableLocalSearchBar
-              setShowSearchFilterData={setShowSearchFilterData}
-              data={data}
-              search_key='status_name'
-              setData={setFilterData}
-            />
-            {(data?.length > 0 && !showSearchFilterData) ||
-            (showSearchFilterData && filterData.length > 0) ? (
-              <Table
-                columns={columns}
-                data={showSearchFilterData ? filterData : data}
-                tableWrapperClass={
-                  'overflow-auto max-h-[calc(100vh-170px)] rounded-b-lg'
-                }
-                stickyHeaderClass='sticky top-0'
-              />
-            ) : (
-              <TableNoDataFound
-                tableWrapperClass={'max-h-[calc(100%-140px)] rounded-b-lg'}
-                notFoundTitle={
-                  showSearchFilterData
-                    ? 'No Data Found For Related Search'
-                    : 'You haven’t added any Projects Status yet'
-                }
-                notFoundMessage='Add Projects Status manually by clicking Add Projects Status button.'
-                notFoundOptionsButtonsArray={
-                  showSearchFilterData ? [] : optionsButtonArray
-                }
-              />
-            )}
-          </>
-        )}
-      </div>
-
+    <div className='w-full h-full'>
+      <TableInfoHeader
+        moduleName='Attachment Types'
+        badgeValue={`2`}
+        buttonsArray={optionsButtonArray}
+      />
       <AddModal
         modalTitle={
           modalType == 'add' ? 'Add Project Status' : 'Edit Project Status'
@@ -342,16 +219,7 @@ function ProjectStatus() {
         handelFormSubmitFunction={handelFormSubmitFunction}
         value={value}
         setValue={setValue}
-        modalType={modalType}
       />
-      <DeleteModal
-        loading={isDeleteLoading}
-        showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
-        handelDelete={handelDeleteItem}
-      />
-    </>
+    </div>
   );
 }
-
-export default ProjectStatus;

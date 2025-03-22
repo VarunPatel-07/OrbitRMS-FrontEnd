@@ -3,10 +3,8 @@ import { CgClose } from 'react-icons/cg';
 import { FiSearch } from 'react-icons/fi';
 
 import { classNames } from '../../Helper/HelperFunctions';
-import {
-  clientInquiryFiltersArray,
-  clientInquiryFiltersInterFace,
-} from '../../Pages/ClientInquiry/ClientInquiryFilters';
+import { clientInquiryFiltersInterFace } from '../../interface/propsInterface';
+import { clientInquiryFiltersArray } from '../../Pages/ClientInquiry/ClientInquiryFilters';
 
 function FilterInput({
   clientInquiryFilters,

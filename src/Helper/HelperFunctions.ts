@@ -244,3 +244,22 @@ export const hexToRgb = (hex: string) => {
   const b = parseInt(hex.substring(4, 6), 16);
   return `${r}, ${g}, ${b}`;
 };
+
+export const formateDate = (UTCString: string, showTime: boolean = true) => {
+  const date = new Date(UTCString + 'Z');
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const formattedDay = day <= 9 ? `0${day}` : day;
+  const formattedMonth = month <= 9 ? `0${month}` : month;
+
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+
+  if (showTime) {
+    return `${formattedDay}-${formattedMonth}-${year}, ${hours}:${formattedMinutes}`;
+  } else {
+    return `${formattedDay}-${formattedMonth}-${year}`;
+  }
+};

@@ -15,7 +15,10 @@ import {
 } from '../Context/Notification/NotificationContextApi';
 import { signInApiFunction, verifyUsersLoginStatus } from '../Helper/api/api';
 import HelmetSeo from '../Helper/HelmetSeo';
-import { isValidEmail } from '../Helper/HelperFunctions';
+import {
+  clearLocalSessionStorage,
+  isValidEmail,
+} from '../Helper/HelperFunctions';
 import { useDebounce } from '../Hooks/useDebounce';
 
 function SignIn() {
@@ -82,6 +85,7 @@ function SignIn() {
       if (!response?.success) {
         handelNotification(response, 'top-right');
         setShowGlobalLoader(false);
+        clearLocalSessionStorage();
       } else {
         setShowGlobalLoader(false);
       }

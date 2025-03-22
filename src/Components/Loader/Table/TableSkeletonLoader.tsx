@@ -27,10 +27,17 @@ function TableSkeletonLoader({
       {showHeaderLoader && (
         <div className='w-full p-6 bg-white rounded-t-lg' aria-hidden='true'>
           <div className='w-full flex items-center justify-between'>
-            <div className='flex items-center gap-2'>
+            <div className='flex items-center justify-start gap-2'>
               <p className='text-gray-800 font-semibold capitalize text-xl font-inter'>
-                <Skeleton width={250} height={28} className='inline-block' />
+                <Skeleton width={220} height={28} className='inline-block' />
               </p>
+              <span className='text-sm font-inter font-medium'>
+                <Skeleton
+                  width={28}
+                  height={28}
+                  className='inline-block'
+                />{' '}
+              </span>
             </div>
             <div className='flex items-center justify-end gap-3'>
               <Skeleton width={35} height={35} className='inline-block' />{' '}
@@ -70,10 +77,7 @@ function TableSkeletonLoader({
               <div
                 className={classNames(
                   'px-3 py-3 flex-grow flex items-start justify-start',
-                  {
-                    'border-r border-r-[#d8d9dc]':
-                      tableHeaderCount != index + 1,
-                  }
+                  {}
                 )}
                 key={index}
                 aria-hidden='true'
@@ -92,15 +96,12 @@ function TableSkeletonLoader({
               <div
                 className={classNames(
                   'px-3 py-3 flex-grow flex items-start justify-start',
-                  {
-                    'border-r border-r-[#d8d9dc]':
-                      tableHeaderCount != index + 1,
-                  }
+                  {}
                 )}
                 key={index}
                 aria-hidden='true'
               >
-                <Skeleton width={200} height={22} className='inline-block' />
+                <Skeleton width={180} height={22} className='inline-block' />
               </div>
             ))}
           </div>

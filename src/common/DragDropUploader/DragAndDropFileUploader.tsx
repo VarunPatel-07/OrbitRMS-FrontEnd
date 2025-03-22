@@ -245,6 +245,7 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
             cropShape={cropShape}
             maxCropHeight={maxCropHeight}
             maxCropWidth={maxCropWidth}
+            setCroppedImagePreview={setCroppedImagePreview}
           />,
           document.body
         )}

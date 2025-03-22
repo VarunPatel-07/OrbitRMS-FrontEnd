@@ -18,6 +18,7 @@ interface AddModalProps {
   handelFormSubmitFunction: (value: string, bgColor?: string) => void;
   value: string;
   setValue: React.Dispatch<SetStateAction<string>>;
+  modalType: 'add' | 'edit';
 }
 
 function AddModal(props: AddModalProps) {
@@ -32,6 +33,7 @@ function AddModal(props: AddModalProps) {
     handelFormSubmitFunction,
     value,
     setValue,
+    modalType,
   } = props;
 
   const modalBoxRef = useRef<HTMLDivElement>(null);
@@ -44,7 +46,7 @@ function AddModal(props: AddModalProps) {
       setShowError(true);
       return;
     }
-    handelFormSubmitFunction(value);
+    handelFormSubmitFunction(value, color);
   };
 
   const handelKeyPress = (e: React.KeyboardEvent) => {
@@ -77,14 +79,20 @@ function AddModal(props: AddModalProps) {
       className={classNames(
         'w-full h-screen bg-black/30 fixed top-0 left-0 overflow-hidden transition-all duration-100',
         {
-          'opacity-0 scale-0': !showModal,
-          'opacity-100 scale-100': showModal,
+          'opacity-0 invisible': !showModal,
+          'opacity-100 visible': showModal,
         }
       )}
     >
       <div className='w-full h-full p-4 flex items-center justify-center overflow-hidden'>
         <div
-          className='bg-white w-full h-fit max-w-[600px] rounded-lg'
+          className={classNames(
+            'bg-white w-full h-fit max-w-[600px] rounded-lg transition-all',
+            {
+              'opacity-0 scale-50': !showModal,
+              'opacity-100 scale-100': showModal,
+            }
+          )}
           ref={modalBoxRef}
         >
           <div className='w-full'>
@@ -155,7 +163,17 @@ function AddModal(props: AddModalProps) {
                 disabled={loading}
                 onClick={handelSubmitButton}
               >
-                {loading ? <Loader loaderText='Adding...' /> : <span>Add</span>}
+                {loading ? (
+                  <Loader
+                    loaderText={
+                      modalType == 'add' ? 'Adding...' : 'Updating...'
+                    }
+                  />
+                ) : modalType == 'add' ? (
+                  <span>Add</span>
+                ) : (
+                  <span>Update</span>
+                )}
               </button>
             </div>
           </div>

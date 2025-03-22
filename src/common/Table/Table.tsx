@@ -25,14 +25,12 @@ function Table({
       <table className='table-auto border-collapse w-full relative'>
         <thead>
           <tr className={`${stickyHeaderClass} shadow`}>
-            {columns.map((column, index) => (
+            {columns.map((column) => (
               <th
                 key={column.key}
                 className={classNames(
                   'px-6 py-2 text-left bg-[#eef0f4] text-black',
-                  {
-                    'border-r border-r-[#d8d9dc]': columns.length !== index + 1,
-                  }
+                  {}
                 )}
               >
                 <span className='flex items-center justify-start gap-1'>
@@ -53,26 +51,26 @@ function Table({
           </tr>
         </thead>
         <tbody>
-          {data.map((row: any, rowIndex: number) => (
+          {data.map((row: any) => (
             <tr key={row.id} className='group'>
-              {columns.map((column, index) => (
-                <td
-                  key={column.key}
-                  className={classNames(
-                    'bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointer',
-                    {
-                      'border-r border-r-[#d8d9dc]':
-                        columns.length !== index + 1,
-                      'border-b border-b-[#d8d9dc]':
-                        data.length !== rowIndex + 1,
-                    }
-                  )}
-                >
-                  {column?.key == 'action'
-                    ? column.renderContent(row)
-                    : column.renderContent(row[column.key])}
-                </td>
-              ))}
+              {columns.map((column) => {
+                return (
+                  <td
+                    key={column.key}
+                    className={classNames(
+                      'bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointer',
+                      {}
+                    )}
+                  >
+                    {column?.key == 'action'
+                      ? column.renderContent(row)
+                      : column.renderContent(
+                          row[column.key],
+                          column.childKey ? row[column.childKey] : null
+                        )}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>

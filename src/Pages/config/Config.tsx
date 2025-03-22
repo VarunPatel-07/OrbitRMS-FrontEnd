@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 
 import ProtectedRoute from '../../Helper/ProtectedRoute';
+import AttachmentTypes from './ConfigModulePages/AttachmentTypes';
 import ProjectStatus from './ConfigModulePages/ProjectStatus';
 import ConfigSidebar from './ConfigSidebar/ConfigSidebar';
 
@@ -17,6 +18,10 @@ function Config() {
             <Route
               path='/project-status'
               element={<ProtectedRoute element={<ProjectStatus />} />}
+            />
+            <Route
+              path='/attachment-type'
+              element={<ProtectedRoute element={<AttachmentTypes />} />}
             />
           </Routes>
         </div>

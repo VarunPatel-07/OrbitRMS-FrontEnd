@@ -1,13 +1,14 @@
 import { SetStateAction, useEffect, useRef, useState } from 'react';
 import { SketchPicker } from 'react-color';
 
-const ColorPicker = ({
-  color,
-  setColor,
-}: {
+interface propsInterface {
   color: string;
   setColor: React.Dispatch<SetStateAction<string>>;
-}) => {
+}
+
+const ColorPicker = (prop: propsInterface) => {
+  const { color = '#ff0000', setColor } = prop;
+
   const [position, setPosition] = useState<'top' | 'bottom'>('bottom');
   const [showColorPickerModal, setShowColorPickerModal] = useState(false);
 
