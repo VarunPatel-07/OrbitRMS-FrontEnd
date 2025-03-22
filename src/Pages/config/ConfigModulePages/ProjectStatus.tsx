@@ -46,6 +46,7 @@ function ProjectStatus() {
   const [deleteItemId, setDeleteItemId] = useState<string>('');
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
+  const [statusColor, setStatusColor] = useState<string>('#ff0000');
 
   const handelShowModal = () => {
     setShowModal(!showModal);
@@ -77,11 +78,14 @@ function ProjectStatus() {
       const response = await multiplePostApi(endPointArr);
       const res = response[0];
       if (res?.success) {
-        setLoading(false);
+        setEditId('');
+        setModalType('add');
         setShowModal(false);
         setIsFetchingData(true);
+        setLoading(false);
         handelNotification(res, 'top-right');
         fetchProjectStatus();
+        setStatusColor('#ff0000');
         setValue('');
       }
     },
@@ -104,12 +108,14 @@ function ProjectStatus() {
 
       const res = response[0];
       if (res?.success) {
+        setDeleteItemId('');
         setShowDeleteModal(false);
         setIsDeleteLoading(false);
         setIsFetchingData(true);
         handelNotification(res, 'top-right');
         fetchProjectStatus();
       } else {
+        setDeleteItemId('');
         setShowDeleteModal(false);
         setIsDeleteLoading(false);
         handelNotification(res, 'top-right');
@@ -144,6 +150,7 @@ function ProjectStatus() {
     setShowModal(true);
     setModalType('edit');
     setValue(data?.status_name);
+    setStatusColor(data?.status_color);
     setEditId(data?.id);
   };
 
@@ -343,6 +350,8 @@ function ProjectStatus() {
         value={value}
         setValue={setValue}
         modalType={modalType}
+        color={statusColor}
+        setColor={setStatusColor}
       />
       <DeleteModal
         loading={isDeleteLoading}

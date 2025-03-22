@@ -19,6 +19,8 @@ interface AddModalProps {
   value: string;
   setValue: React.Dispatch<SetStateAction<string>>;
   modalType: 'add' | 'edit';
+  color: string;
+  setColor: React.Dispatch<SetStateAction<string>>;
 }
 
 function AddModal(props: AddModalProps) {
@@ -34,10 +36,11 @@ function AddModal(props: AddModalProps) {
     value,
     setValue,
     modalType,
+    color,
+    setColor,
   } = props;
 
   const modalBoxRef = useRef<HTMLDivElement>(null);
-  const [color, setColor] = useState<string>('#ff0000');
 
   const [showError, setShowError] = useState<boolean>(false);
 
