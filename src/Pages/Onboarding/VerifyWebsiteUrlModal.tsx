@@ -122,7 +122,7 @@ export default function VerifyWebsiteUrlModal({
   const handleUrlVerificationWithDebounce = useDebounce(async () => {
     const res = await URLSafetyCheckerFunction(websiteUrl);
     setUrlSafetyStatus(res);
-  }, 300);
+  }, 500);
 
   useEffect(() => {
     if (websiteUrl) {
@@ -216,12 +216,17 @@ export default function VerifyWebsiteUrlModal({
                     confirm ownership.
                   </p>
                 )}
-                <button
-                  className='flex items-center justify-start text-white text-sm capitalize font-medium gap-1 bg-gray-500 px-2 py-1 rounded-md absolute top-1 right-1'
-                  onClick={isCopied ? () => {} : handelCopyButton}
-                >
-                  <span>{isCopied ? 'copied' : 'copy'}</span> <MdContentCopy />
-                </button>
+                {metaTag ? (
+                  <button
+                    className='flex items-center justify-start text-white text-sm capitalize font-medium gap-1 bg-gray-500 px-2 py-1 rounded-md absolute top-1 right-1'
+                    onClick={isCopied ? () => {} : handelCopyButton}
+                  >
+                    <span>{isCopied ? 'copied' : 'copy'}</span>{' '}
+                    <MdContentCopy />
+                  </button>
+                ) : (
+                  ''
+                )}
               </div>
               <p className='text-black/60 text-sm font-medium text-start pt-2.5'>
                 <span className='text-black font-bold'>Note: </span>Place your

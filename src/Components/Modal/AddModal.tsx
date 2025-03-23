@@ -18,6 +18,9 @@ interface AddModalProps {
   handelFormSubmitFunction: (value: string, bgColor?: string) => void;
   value: string;
   setValue: React.Dispatch<SetStateAction<string>>;
+  modalType: 'add' | 'edit';
+  color?: string;
+  setColor?: React.Dispatch<SetStateAction<string>>;
 }
 
 function AddModal(props: AddModalProps) {
@@ -32,10 +35,12 @@ function AddModal(props: AddModalProps) {
     handelFormSubmitFunction,
     value,
     setValue,
+    modalType,
+    color,
+    setColor,
   } = props;
 
   const modalBoxRef = useRef<HTMLDivElement>(null);
-  const [color, setColor] = useState<string>('#ff0000');
 
   const [showError, setShowError] = useState<boolean>(false);
 
@@ -44,7 +49,8 @@ function AddModal(props: AddModalProps) {
       setShowError(true);
       return;
     }
-    handelFormSubmitFunction(value);
+    handelFormSubmitFunction(value, color);
+    setShowError(false);
   };
 
   const handelKeyPress = (e: React.KeyboardEvent) => {
@@ -55,6 +61,15 @@ function AddModal(props: AddModalProps) {
     }
   };
 
+  const handelCancelButton = () => {
+    if (setColor) {
+      setColor('#ff0000');
+    }
+    setShowModal(false);
+    setShowError(false);
+    setValue('');
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -62,6 +77,10 @@ function AddModal(props: AddModalProps) {
         !modalBoxRef.current.contains(event.target as Node)
       ) {
         setShowModal(false);
+        setShowError(false);
+        if (setColor) {
+          setColor('#ff0000');
+        }
       }
     };
 
@@ -77,14 +96,20 @@ function AddModal(props: AddModalProps) {
       className={classNames(
         'w-full h-screen bg-black/30 fixed top-0 left-0 overflow-hidden transition-all duration-100',
         {
-          'opacity-0 scale-0': !showModal,
-          'opacity-100 scale-100': showModal,
+          'opacity-0 invisible': !showModal,
+          'opacity-100 visible': showModal,
         }
       )}
     >
       <div className='w-full h-full p-4 flex items-center justify-center overflow-hidden'>
         <div
-          className='bg-white w-full h-fit max-w-[600px] rounded-lg'
+          className={classNames(
+            'bg-white w-full h-fit max-w-[600px] rounded-lg transition-all',
+            {
+              'opacity-0 scale-50': !showModal,
+              'opacity-100 scale-100': showModal,
+            }
+          )}
           ref={modalBoxRef}
         >
           <div className='w-full'>
@@ -92,7 +117,7 @@ function AddModal(props: AddModalProps) {
               <span className='text-xl text-black font-inter font-semibold'>
                 {modalTitle}
               </span>
-              <button onClick={() => setShowModal(!showModal)}>
+              <button onClick={handelCancelButton}>
                 <IoCloseOutline className='text-2xl text-black' />
               </button>
             </div>
@@ -118,19 +143,19 @@ function AddModal(props: AddModalProps) {
                   value={value}
                   setValue={setValue}
                 />
-                {showColorPicker && (
+                {showColorPicker && color && setColor && (
                   <div className='absolute top-1/2 -translate-y-1/2 right-3.5 mt-[-1.5px]'>
                     <ColorPicker color={color} setColor={setColor} />
                   </div>
                 )}
               </div>
-              {showError && (
+              {showError && value?.trim().length == 0 && (
                 <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
                   this is a required field
                 </span>
               )}
 
-              {showPreview && (
+              {showPreview && color && (
                 <div
                   className='px-2.5 py-0.5 rounded-full inline-block w-fit mt-2.5'
                   style={{
@@ -146,7 +171,7 @@ function AddModal(props: AddModalProps) {
             <div className='px-3.5 pb-4 w-full grid grid-cols-2 gap-2.5'>
               <button
                 className='text-black bg-transparent py-2 rounded-lg border border-black/45'
-                onClick={() => setShowModal(false)}
+                onClick={handelCancelButton}
               >
                 Cancel
               </button>
@@ -155,7 +180,17 @@ function AddModal(props: AddModalProps) {
                 disabled={loading}
                 onClick={handelSubmitButton}
               >
-                {loading ? <Loader loaderText='Adding...' /> : <span>Add</span>}
+                {loading ? (
+                  <Loader
+                    loaderText={
+                      modalType == 'add' ? 'Adding...' : 'Updating...'
+                    }
+                  />
+                ) : modalType == 'add' ? (
+                  <span>Add</span>
+                ) : (
+                  <span>Update</span>
+                )}
               </button>
             </div>
           </div>

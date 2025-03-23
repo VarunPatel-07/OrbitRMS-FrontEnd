@@ -135,7 +135,6 @@ function SignIn() {
         'POST',
         setLoading
       );
-      console.log(response);
       if (response) {
         setShowAlertModal(response?.showModal);
         setAlertModalPropsInfo({

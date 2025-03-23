@@ -34,7 +34,7 @@ function Notification() {
         <div
           key={direction}
           className={classNames(
-            'w-fit h-auto max-h-screen overflow-auto absolute z-50 bg-transparent',
+            'w-fit h-auto max-h-screen overflow-y-auto absolute z-50 bg-transparent',
             {
               'invisible hidden': notificationInfoArray?.length === 0,
               'top-0 left-1/2 -translate-x-1/2': direction === 'center',
@@ -45,7 +45,14 @@ function Notification() {
             }
           )}
         >
-          <div className='w-full h-full flex flex-col-reverse items-end justify-end gap-[10px] px-5 py-5'>
+          <div
+            className={classNames(
+              'w-full h-full flex flex-col-reverse items-end justify-end gap-[10px]',
+              {
+                'px-6 pl-11 py-5': notificationInfoArray.length !== 0,
+              }
+            )}
+          >
             {notificationInfoArray
               .filter(
                 (notification) =>

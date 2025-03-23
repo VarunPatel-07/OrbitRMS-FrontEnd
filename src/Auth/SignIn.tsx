@@ -15,7 +15,10 @@ import {
 } from '../Context/Notification/NotificationContextApi';
 import { signInApiFunction, verifyUsersLoginStatus } from '../Helper/api/api';
 import HelmetSeo from '../Helper/HelmetSeo';
-import { isValidEmail } from '../Helper/HelperFunctions';
+import {
+  clearLocalSessionStorage,
+  isValidEmail,
+} from '../Helper/HelperFunctions';
 import { useDebounce } from '../Hooks/useDebounce';
 
 function SignIn() {
@@ -49,10 +52,11 @@ function SignIn() {
     if (res?.success) {
       setLoading(false);
       handelNotification(res, 'top-right');
-      // if (!res?.organization_created) {
-      //   navigate(`/onboarding?organization_id=${res?.organization_id}`);
-      // }
-      navigate(`/onboarding?organization_id=${res?.organization_id}`);
+      if (!res?.organization_created) {
+        navigate(`/onboarding?organization_id=${res?.organization_id}`);
+      } else {
+        navigate('/config/project-status');
+      }
     } else {
       setLoading(false);
       handelNotification(res, 'top-right');
@@ -82,6 +86,7 @@ function SignIn() {
       if (!response?.success) {
         handelNotification(response, 'top-right');
         setShowGlobalLoader(false);
+        clearLocalSessionStorage();
       } else {
         setShowGlobalLoader(false);
       }

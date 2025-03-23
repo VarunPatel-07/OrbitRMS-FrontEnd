@@ -104,13 +104,14 @@ export interface SearchDropProps {
 
 export interface Column {
   key: string;
+  childKey?: string;
   title: string | React.ReactElement;
   isSortable: boolean;
   isSticky: boolean;
   canToggleVisibility: boolean;
   align?: 'left' | 'center' | 'right';
   filterable?: boolean;
-  renderContent: (data: any) => React.ReactElement;
+  renderContent: (data: any, childKeyData?: any) => React.ReactElement;
   // onSortColumn: () => void;
 }
 

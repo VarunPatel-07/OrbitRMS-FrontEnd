@@ -33,14 +33,20 @@ function DeleteModal({
       className={classNames(
         'w-full h-full absolute top-0 left-0 bg-[rgba(0,0,0,0.4)] z-10 transition-all',
         {
-          'scale-0 opacity-0': !showDeleteModal,
-          'scale-100 opacity-100': showDeleteModal,
+          'invisible opacity-0': !showDeleteModal,
+          'visible opacity-100': showDeleteModal,
         }
       )}
     >
       <div className='w-full h-full flex items-center justify-center'>
         <div
-          className='delete-modal bg-white min-h-[300px] min-w-[600px] px-8 rounded-lg relative overflow-hidden flex flex-col items-start justify-end'
+          className={classNames(
+            'delete-modal bg-white min-h-[300px] min-w-[600px] transition-all px-8 rounded-lg relative overflow-hidden flex flex-col items-start justify-end',
+            {
+              'scale-50 opacity-0': !showDeleteModal,
+              'scale-100 opacity-100': showDeleteModal,
+            }
+          )}
           ref={boxRef}
         >
           <div className='delete absolute -top-[15%]  -left-[10%]'>
