@@ -1,11 +1,31 @@
 //? -------------------------- This Is The Start Of The Onboarding Form InterFace -------------------------
 
 //? -------------------------- Start Of The Onboarding Form InterFace Utility -------------------------
+// country_code
+// :
+// "IN"
+// country_flag
+// :
+// "🇮🇳"
+// country_name
+// :
+// "India"
+// country_number_code
+// :
+// "+91"
+
+export interface CountryInfo {
+  country_code: string;
+  country_flag: string;
+  country_name: string;
+  country_number_code: string;
+}
+
 export interface GeneralInfo {
   organization_name: string;
   primary_email: string;
   primary_number: string;
-  country_info: object | null;
+  country_info: CountryInfo | null;
   portal_url: string;
   website_url: string;
   is_meta_verified: boolean;
