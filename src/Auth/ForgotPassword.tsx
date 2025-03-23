@@ -1,6 +1,6 @@
 import './auth.css';
 
-import React, { useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { BsArrowLeft } from 'react-icons/bs';
 import { IoMdRefresh } from 'react-icons/io';
 import { LiaKeySolid } from 'react-icons/lia';
@@ -14,9 +14,16 @@ import Button from '../common/Button';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
+import {
+  NotificationContext,
+  NotificationContextApiProps,
+} from '../Context/Notification/NotificationContextApi';
 import { verifyUsersLoginStatus } from '../Helper/api/api';
 import HelmetSeo from '../Helper/HelmetSeo';
-import { isValidEmail } from '../Helper/HelperFunctions';
+import {
+  clearLocalSessionStorage,
+  isValidEmail,
+} from '../Helper/HelperFunctions';
 import { ModalInfoType } from '../interface/propsInterface';
 
 const initialModalInfo = {
@@ -28,6 +35,12 @@ const initialModalInfo = {
 };
 
 function ForgotPassword() {
+  const { handelNotification } = useContext(
+    NotificationContext
+  ) as NotificationContextApiProps;
+
+  const useEffectRef = useRef(false);
+
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
   const [loading, setLoading] = useState<boolean>(false);
   const [email, setEmail] = useState<string>('');
@@ -114,9 +127,22 @@ function ForgotPassword() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    verifyUsersLoginStatus(setShowGlobalLoader);
+    if (useEffectRef.current) return;
+    useEffectRef.current = true;
+    (async () => {
+      const response = await verifyUsersLoginStatus();
+      if (!response?.success) {
+        handelNotification(response, 'top-right');
+        setShowGlobalLoader(false);
+        clearLocalSessionStorage();
+      } else {
+        setShowGlobalLoader(false);
+      }
+    })();
   }, []);
+
   return (
     <>
       <HelmetSeo
