@@ -50,6 +50,7 @@ function TablePagination({
             dropDownSelectedValue={recordsPerPage}
             setDropDownSelectedValue={setRecordsPerPage}
             dropdownMenuArray={paginationDropDownArray}
+            maxHeight={100}
           />
         </div>
         <div className='w-fit'>

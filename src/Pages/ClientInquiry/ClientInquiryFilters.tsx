@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { clientInquiryFiltersInterFace } from '../../interface/propsInterface';
 
 export const clientInquiryFiltersArray: clientInquiryFiltersInterFace[] = [
