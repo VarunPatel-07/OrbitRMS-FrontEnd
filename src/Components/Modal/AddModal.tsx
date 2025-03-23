@@ -19,8 +19,8 @@ interface AddModalProps {
   value: string;
   setValue: React.Dispatch<SetStateAction<string>>;
   modalType: 'add' | 'edit';
-  color: string;
-  setColor: React.Dispatch<SetStateAction<string>>;
+  color?: string;
+  setColor?: React.Dispatch<SetStateAction<string>>;
 }
 
 function AddModal(props: AddModalProps) {
@@ -50,6 +50,7 @@ function AddModal(props: AddModalProps) {
       return;
     }
     handelFormSubmitFunction(value, color);
+    setShowError(false);
   };
 
   const handelKeyPress = (e: React.KeyboardEvent) => {
@@ -61,8 +62,11 @@ function AddModal(props: AddModalProps) {
   };
 
   const handelCancelButton = () => {
-    setColor('#ff0000');
+    if (setColor) {
+      setColor('#ff0000');
+    }
     setShowModal(false);
+    setShowError(false);
     setValue('');
   };
 
@@ -73,7 +77,10 @@ function AddModal(props: AddModalProps) {
         !modalBoxRef.current.contains(event.target as Node)
       ) {
         setShowModal(false);
-        setColor('#ff0000');
+        setShowError(false);
+        if (setColor) {
+          setColor('#ff0000');
+        }
       }
     };
 
@@ -136,19 +143,19 @@ function AddModal(props: AddModalProps) {
                   value={value}
                   setValue={setValue}
                 />
-                {showColorPicker && (
+                {showColorPicker && color && setColor && (
                   <div className='absolute top-1/2 -translate-y-1/2 right-3.5 mt-[-1.5px]'>
                     <ColorPicker color={color} setColor={setColor} />
                   </div>
                 )}
               </div>
-              {showError && (
+              {showError && value?.trim().length == 0 && (
                 <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
                   this is a required field
                 </span>
               )}
 
-              {showPreview && (
+              {showPreview && color && (
                 <div
                   className='px-2.5 py-0.5 rounded-full inline-block w-fit mt-2.5'
                   style={{

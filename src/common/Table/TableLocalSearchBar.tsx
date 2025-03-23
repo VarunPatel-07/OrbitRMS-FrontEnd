@@ -34,6 +34,7 @@ function TableLocalSearchBar({
   };
 
   const handelSearchButtonClick = () => {
+    if (searchValue?.trim().length <= 0) return;
     setShowSearchFilterData(true);
     const filterData = data.filter((item) =>
       item[search_key]

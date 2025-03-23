@@ -1,19 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
+import Table from '../../../common/Table/Table';
 import TableInfoHeader from '../../../common/Table/TableInfoHeader';
+import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
+import TableNoDataFound from '../../../common/Table/TableNoDataFound';
+import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
 import AddModal from '../../../Components/Modal/AddModal';
+import DeleteModal from '../../../Components/Modal/DeleteModal';
 import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../../Context/Notification/NotificationContextApi';
 import {
   endpointObject,
+  multipleDeleteApi,
+  multipleFetchApi,
   multiplePostApi,
 } from '../../../Helper/api/multipleAPI';
-import { formateDate, hexToRgb } from '../../../Helper/HelperFunctions';
+import { formateDate } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
 import {
   Column,
@@ -24,84 +31,154 @@ export default function AttachmentTypes() {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
+
+  const useEffectRef = useRef(false);
+
   const [showModal, setShowModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [modalType, setModalType] = useState<string>('add');
+  const [modalType, setModalType] = useState<'add' | 'edit'>('add');
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const [value, setValue] = useState<string>('');
+  const [data, setData] = useState<Array<any>>([]);
+  const [filterData, setFilterData] = useState<Array<any>>([]);
+  const [showSearchFilterData, setShowSearchFilterData] =
+    useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [deleteItemId, setDeleteItemId] = useState<string>('');
+  const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
 
   const handelShowModal = () => {
-    // setShowModal(!showModal);
+    setModalType('add');
+    setEditId('');
+    setShowModal(!showModal);
   };
+
+  const handelEditButtonClick = (data: any) => {
+    setModalType('edit');
+    setShowModal(!showModal);
+    setValue(data?.attachment_name);
+    setEditId(data?.id);
+  };
+
+  const fetchAttachmentTypesWithDebounce = useDebounce(async () => {
+    const endPointArr: Array<endpointObject> = [
+      {
+        endPoint: 'config/attachment_type/fetch',
+        protected: true,
+      },
+    ];
+
+    const response = await multipleFetchApi(endPointArr);
+
+    const res = response[0];
+
+    if (res?.success) {
+      setData(res?.data);
+      setIsFetchingData(false);
+    } else {
+      setIsFetchingData(false);
+      handelNotification(res, 'top-right');
+    }
+  }, 200);
+
+  const fetchAttachmentTypes = () => {
+    setIsFetchingData(true);
+    fetchAttachmentTypesWithDebounce();
+  };
+
   const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
     {
-      buttonTitle: 'Attachment Types',
+      buttonTitle: 'Add Attachment',
       classNames:
         'font-inter text-white font-medium bg-[#3538CD] px-4 py-1.5 text-base rounded-lg',
       onclickFunction: handelShowModal,
     },
   ];
 
-  const handelFormSubmitWithDebounce = useDebounce(
-    async (value: string, color?: string) => {
-      let endPoint = `config/project_status/add-edit`;
+  const handelFormSubmitWithDebounce = useDebounce(async (value: string) => {
+    let endPoint = `config/attachment_type/add-edit`;
 
-      if (modalType === 'edit') {
-        endPoint += `?type=edit&id=${editId}`;
-      } else {
-        endPoint += `?type=add`;
-      }
+    if (modalType === 'edit') {
+      endPoint += `?type=edit&id=${editId}`;
+    } else {
+      endPoint += `?type=add`;
+    }
 
-      const data = {
-        status_name: value,
-        status_color: color,
-      };
+    const data = {
+      attachment_name: value,
+    };
 
-      const endPointArr: Array<endpointObject> = [
+    const endPointArr: Array<endpointObject> = [
+      {
+        endPoint: endPoint,
+        protected: true,
+        data,
+      },
+    ];
+
+    const response = await multiplePostApi(endPointArr);
+    const res = response[0];
+    if (res?.success) {
+      setLoading(false);
+      setShowModal(false);
+      setIsFetchingData(true);
+      handelNotification(res, 'top-right');
+      fetchAttachmentTypes();
+      setValue('');
+    } else {
+      setLoading(false);
+      handelNotification(res, 'top-right');
+    }
+  }, 200);
+
+  const handelFormSubmitFunction = (value: string) => {
+    setLoading(true);
+    handelFormSubmitWithDebounce(value);
+  };
+
+  const handelDeleteItemWithDebounce = useDebounce(async () => {
+    try {
+      const response = await multipleDeleteApi([
         {
-          endPoint: endPoint,
+          endPoint: `config/attachment_type/delete?id=${deleteItemId}`,
           protected: true,
-          data,
         },
-      ];
+      ]);
 
-      const response = await multiplePostApi(endPointArr);
       const res = response[0];
       if (res?.success) {
-        setLoading(false);
-        setShowModal(false);
+        setDeleteItemId('');
+        setShowDeleteModal(false);
+        setIsDeleteLoading(false);
         setIsFetchingData(true);
         handelNotification(res, 'top-right');
-        // fetchProjectStatus();
-        setValue('');
+        fetchAttachmentTypes();
+      } else {
+        setDeleteItemId('');
+        setShowDeleteModal(false);
+        setIsDeleteLoading(false);
+        handelNotification(res, 'top-right');
       }
-    },
-    200
-  );
+    } catch (error) {
+      console.error('Error fetching project status:', error);
+    }
+  }, 200);
 
-  const handelFormSubmitFunction = (value: string, color?: string) => {
-    setLoading(true);
-    handelFormSubmitWithDebounce(value, color);
+  const handelDeleteItem = () => {
+    setIsDeleteLoading(true);
+    handelDeleteItemWithDebounce();
   };
 
   const columns: Array<Column> = [
     {
-      key: 'status_name',
-      childKey: 'status_color',
-      title: 'Project Status',
+      key: 'attachment_name',
+      title: 'Attachment Name',
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any, childKeyData) => (
-        <span
-          className='w-fit font-inter text-sm font-medium inline-block px-2.5 py-0.5 rounded-full'
-          style={{
-            color: childKeyData,
-            border: `1px solid ${childKeyData}`,
-            backgroundColor: `rgba(${hexToRgb(childKeyData)}, 0.15)`,
-          }}
-        >
+      renderContent: (data: any) => (
+        <span className='w-fit font-inter text-sm font-medium inline-block'>
           {data}
         </span>
       ),
@@ -199,27 +276,90 @@ export default function AttachmentTypes() {
     },
   ];
 
+  useEffect(() => {
+    if (useEffectRef.current) return;
+    useEffectRef.current = true;
+    setIsFetchingData(true);
+    fetchAttachmentTypes();
+  }, []);
+
   return (
-    <div className='w-full h-full'>
-      <TableInfoHeader
-        moduleName='Attachment Types'
-        badgeValue={`2`}
-        buttonsArray={optionsButtonArray}
-      />
+    <>
+      <div className='w-full h-full'>
+        {isFetchingData ? (
+          <div className='w-full h-full overflow-hidden'>
+            <TableSkeletonLoader
+              tableHeaderCount={5}
+              tableValueCount={13}
+              maxHeight='calc(-300px + 100vh)'
+            />
+          </div>
+        ) : (
+          <>
+            <TableInfoHeader
+              moduleName='Attachment Types'
+              badgeValue={data?.length.toString()}
+              buttonsArray={optionsButtonArray}
+            />
+            <TableLocalSearchBar
+              setShowSearchFilterData={setShowSearchFilterData}
+              data={data}
+              search_key='status_name'
+              setData={setFilterData}
+            />
+            {(data?.length > 0 && !showSearchFilterData) ||
+            (showSearchFilterData && filterData?.length > 0) ? (
+              <Table
+                columns={columns}
+                data={showSearchFilterData ? filterData : data}
+                tableWrapperClass={
+                  'overflow-auto max-h-[calc(100vh-170px)] rounded-b-lg'
+                }
+                stickyHeaderClass='sticky top-0'
+              />
+            ) : (
+              <TableNoDataFound
+                tableWrapperClass={'max-h-[calc(100%-140px)] rounded-b-lg'}
+                notFoundTitle={
+                  showSearchFilterData
+                    ? 'No Data Found For Related Search'
+                    : 'You haven’t added any Projects Status yet'
+                }
+                notFoundMessage={
+                  showSearchFilterData
+                    ? 'No matching project status found. Try refining your search or adding a new project status.'
+                    : 'Add Projects Status manually by clicking Add Projects Status button.'
+                }
+                notFoundOptionsButtonsArray={
+                  showSearchFilterData ? [] : optionsButtonArray
+                }
+              />
+            )}
+          </>
+        )}
+      </div>
+
       <AddModal
         modalTitle={
-          modalType == 'add' ? 'Add Project Status' : 'Edit Project Status'
+          modalType == 'add' ? 'Add Attachment Type' : 'Edit Attachment Type'
         }
-        labelFieldName='Project Status'
-        showColorPicker={true}
-        showPreview={true}
+        labelFieldName='Attachment Type'
+        showColorPicker={false}
+        showPreview={false}
         showModal={showModal}
         setShowModal={setShowModal}
         loading={loading}
         handelFormSubmitFunction={handelFormSubmitFunction}
         value={value}
         setValue={setValue}
+        modalType={modalType}
       />
-    </div>
+      <DeleteModal
+        loading={isDeleteLoading}
+        showDeleteModal={showDeleteModal}
+        setShowDeleteModal={setShowDeleteModal}
+        handelDelete={handelDeleteItem}
+      />
+    </>
   );
 }

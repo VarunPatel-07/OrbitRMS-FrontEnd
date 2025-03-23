@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
@@ -20,33 +20,33 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../Helper/api/multipleAPI';
-import { formateDate, hexToRgb } from '../../../Helper/HelperFunctions';
+import { formateDate } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
 
-function ProjectStatus() {
+function Designations() {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
+
   const useEffectRef = useRef(false);
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [modalType, setModalType] = useState<'add' | 'edit'>('add');
-  const [data, setData] = useState<Array<any>>([]);
-  const [filterData, setFilterData] = useState<Array<any>>([]);
-  const [value, setValue] = useState<string>('');
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
-  const [deleteItemId, setDeleteItemId] = useState<string>('');
+  const [value, setValue] = useState<string>('');
+  const [data, setData] = useState<Array<any>>([]);
+  const [filterData, setFilterData] = useState<Array<any>>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
-  const [statusColor, setStatusColor] = useState<string>('#ff0000');
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [deleteItemId, setDeleteItemId] = useState<string>('');
+  const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
 
   const handelShowModal = () => {
     setModalType('add');
@@ -54,59 +54,94 @@ function ProjectStatus() {
     setShowModal(!showModal);
   };
 
-  const handelFormSubmitWithDebounce = useDebounce(
-    async (value: string, color?: string) => {
-      let endPoint = `config/project_status/add-edit`;
+  const handelEditButtonClick = (data: any) => {
+    setModalType('edit');
+    setShowModal(!showModal);
+    setValue(data?.designations_name);
+    setEditId(data?.id);
+  };
 
-      if (modalType === 'edit') {
-        endPoint += `?type=edit&id=${editId}`;
-      } else {
-        endPoint += `?type=add`;
-      }
+  const fetchDesignationsTypesWithDebounce = useDebounce(async () => {
+    const endPointArr: Array<endpointObject> = [
+      {
+        endPoint: 'config/designations/fetch',
+        protected: true,
+      },
+    ];
 
-      const data = {
-        status_name: value,
-        status_color: color,
-      };
+    const response = await multipleFetchApi(endPointArr);
 
-      const endPointArr: Array<endpointObject> = [
-        {
-          endPoint: endPoint,
-          protected: true,
-          data,
-        },
-      ];
+    const res = response[0];
 
-      const response = await multiplePostApi(endPointArr);
-      const res = response[0];
-      if (res?.success) {
-        setEditId('');
-        setModalType('add');
-        setShowModal(false);
-        setIsFetchingData(true);
-        setLoading(false);
-        handelNotification(res, 'top-right');
-        fetchProjectStatus();
-        setStatusColor('#ff0000');
-        setValue('');
-      } else {
-        setLoading(false);
-        handelNotification(res, 'top-right');
-      }
+    if (res?.success) {
+      setData(res?.data);
+      setIsFetchingData(false);
+    } else {
+      setIsFetchingData(false);
+      handelNotification(res, 'top-right');
+    }
+  }, 200);
+
+  const fetchDesignationsTypes = () => {
+    setIsFetchingData(true);
+    fetchDesignationsTypesWithDebounce();
+  };
+
+  const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
+    {
+      buttonTitle: 'Add Designations',
+      classNames:
+        'font-inter text-white font-medium bg-[#3538CD] px-4 py-1.5 text-base rounded-lg',
+      onclickFunction: handelShowModal,
     },
-    200
-  );
+  ];
 
-  const handelFormSubmitFunction = (value: string, color?: string) => {
+  const handelFormSubmitWithDebounce = useDebounce(async (value: string) => {
+    let endPoint = `config/designations/add-edit`;
+
+    if (modalType === 'edit') {
+      endPoint += `?type=edit&id=${editId}`;
+    } else {
+      endPoint += `?type=add`;
+    }
+
+    const data = {
+      designations_name: value,
+    };
+
+    const endPointArr: Array<endpointObject> = [
+      {
+        endPoint: endPoint,
+        protected: true,
+        data,
+      },
+    ];
+
+    const response = await multiplePostApi(endPointArr);
+    const res = response[0];
+    if (res?.success) {
+      setLoading(false);
+      setShowModal(false);
+      setIsFetchingData(true);
+      handelNotification(res, 'top-right');
+      fetchDesignationsTypes();
+      setValue('');
+    } else {
+      setLoading(false);
+      handelNotification(res, 'top-right');
+    }
+  }, 200);
+
+  const handelFormSubmitFunction = (value: string) => {
     setLoading(true);
-    handelFormSubmitWithDebounce(value, color);
+    handelFormSubmitWithDebounce(value);
   };
 
   const handelDeleteItemWithDebounce = useDebounce(async () => {
     try {
       const response = await multipleDeleteApi([
         {
-          endPoint: `config/project_status/delete?id=${deleteItemId}`,
+          endPoint: `config/designations/delete?id=${deleteItemId}`,
           protected: true,
         },
       ]);
@@ -118,7 +153,7 @@ function ProjectStatus() {
         setIsDeleteLoading(false);
         setIsFetchingData(true);
         handelNotification(res, 'top-right');
-        fetchProjectStatus();
+        fetchDesignationsTypes();
       } else {
         setDeleteItemId('');
         setShowDeleteModal(false);
@@ -135,56 +170,15 @@ function ProjectStatus() {
     handelDeleteItemWithDebounce();
   };
 
-  const fetchProjectStatus = useDebounce(async () => {
-    try {
-      const response = await multipleFetchApi([
-        { endPoint: 'config/project_status/fetch', protected: true },
-      ]);
-
-      const res = response[0];
-      if (res?.success) {
-        setData(res?.data);
-        setIsFetchingData(false);
-      }
-    } catch (error) {
-      console.error('Error fetching project status:', error);
-    }
-  }, 200);
-
-  const handelEditButtonClick = (data: any) => {
-    setShowModal(true);
-    setModalType('edit');
-    setValue(data?.status_name);
-    setStatusColor(data?.status_color);
-    setEditId(data?.id);
-  };
-
-  const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
-    {
-      buttonTitle: 'Add Project Status',
-      classNames:
-        'font-inter text-white font-medium bg-[#3538CD] px-4 py-1.5 text-base rounded-lg',
-      onclickFunction: handelShowModal,
-    },
-  ];
-
   const columns: Array<Column> = [
     {
-      key: 'status_name',
-      childKey: 'status_color',
-      title: 'Project Status',
+      key: 'designations_name',
+      title: 'Designation Name',
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any, childKeyData) => (
-        <span
-          className='w-fit font-inter text-sm font-medium inline-block px-2.5 py-0.5 rounded-full'
-          style={{
-            color: childKeyData,
-            border: `1px solid ${childKeyData}`,
-            backgroundColor: `rgba(${hexToRgb(childKeyData)}, 0.15)`,
-          }}
-        >
+      renderContent: (data: any) => (
+        <span className='w-fit font-inter text-sm font-medium inline-block'>
           {data}
         </span>
       ),
@@ -286,9 +280,8 @@ function ProjectStatus() {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
     setIsFetchingData(true);
-    fetchProjectStatus();
+    fetchDesignationsTypes();
   }, []);
-
   return (
     <>
       <div className='w-full h-full'>
@@ -303,8 +296,8 @@ function ProjectStatus() {
         ) : (
           <>
             <TableInfoHeader
-              moduleName='Project Status'
-              badgeValue={data.length.toString()}
+              moduleName='Designations'
+              badgeValue={data?.length.toString()}
               buttonsArray={optionsButtonArray}
             />
             <TableLocalSearchBar
@@ -314,7 +307,7 @@ function ProjectStatus() {
               setData={setFilterData}
             />
             {(data?.length > 0 && !showSearchFilterData) ||
-            (showSearchFilterData && filterData.length > 0) ? (
+            (showSearchFilterData && filterData?.length > 0) ? (
               <Table
                 columns={columns}
                 data={showSearchFilterData ? filterData : data}
@@ -347,11 +340,11 @@ function ProjectStatus() {
 
       <AddModal
         modalTitle={
-          modalType == 'add' ? 'Add Project Status' : 'Edit Project Status'
+          modalType == 'add' ? 'Add Designations' : 'Edit Designations'
         }
-        labelFieldName='Project Status'
-        showColorPicker={true}
-        showPreview={true}
+        labelFieldName='Designations Name'
+        showColorPicker={false}
+        showPreview={false}
         showModal={showModal}
         setShowModal={setShowModal}
         loading={loading}
@@ -359,8 +352,6 @@ function ProjectStatus() {
         value={value}
         setValue={setValue}
         modalType={modalType}
-        color={statusColor}
-        setColor={setStatusColor}
       />
       <DeleteModal
         loading={isDeleteLoading}
@@ -372,4 +363,4 @@ function ProjectStatus() {
   );
 }
 
-export default ProjectStatus;
+export default Designations;

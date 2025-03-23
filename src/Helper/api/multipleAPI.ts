@@ -120,10 +120,10 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
         return res?.data;
       } catch (error: any) {
         // Handle error (e.g., return an error object or log it)
-        console.error(
-          `Error fetching data from ${eachEndPoint.endPoint}`,
-          error
-        );
+        // console.error(
+        //   `Error fetching data from ${eachEndPoint.endPoint}`,
+        //   error
+        // );
         return ErrorHandler(error);
       }
     } else {
@@ -182,10 +182,10 @@ export const multipleDeleteApi = async (endPointArr: Array<endpointObject>) => {
         return res?.data;
       } catch (error: any) {
         // Handle error (e.g., return an error object or log it)
-        console.error(
-          `Error fetching data from ${eachEndPoint.endPoint}`,
-          error
-        );
+        // console.error(
+        //   `Error fetching data from ${eachEndPoint.endPoint}`,
+        //   error
+        // );
         return ErrorHandler(error);
       }
     } else {

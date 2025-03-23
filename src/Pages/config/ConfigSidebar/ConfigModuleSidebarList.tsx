@@ -26,18 +26,18 @@ export const ConfigSidebarMenuList: ConfigModuleSidebarInterface[] = [
   },
   {
     id: 3,
-    name: 'Roles & Permission',
-    label: 'config-roles-permission-tooltip',
-    link: '/config/roles-permission',
-    showToolTip: false,
-    ToolTipValue: 'Roles & Permission',
-  },
-  {
-    id: 4,
     name: 'Designations',
     label: 'config-designations-tooltip',
     link: '/config/designations',
     showToolTip: false,
     ToolTipValue: 'Designations',
+  },
+  {
+    id: 4,
+    name: 'Roles & Permission',
+    label: 'config-roles-permission-tooltip',
+    link: '/config/roles-permission',
+    showToolTip: false,
+    ToolTipValue: 'Roles & Permission',
   },
 ];

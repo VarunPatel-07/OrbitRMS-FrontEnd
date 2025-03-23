@@ -2,7 +2,6 @@
 import { useState } from 'react';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
-import Table from '../../common/Table/Table';
 import TableFilterSearchBar from '../../common/Table/TableFilterSearchBar';
 import TableInfoHeader from '../../common/Table/TableInfoHeader';
 import TablePagination from '../../common/Table/TablePagination';
@@ -15,63 +14,6 @@ const BreadcrumbsObjects = [
   { name: 'Client Inquiry', label: 'client-inquiry', link: '/client-inquiry' },
 ];
 
-const columns = [
-  {
-    key: 'name',
-    title: 'Name',
-    isSortable: true,
-    isSticky: false,
-    canToggleVisibility: true,
-    renderContent: (data: any) => <span>{data}</span>,
-  },
-  {
-    key: 'age',
-    title: 'Age',
-    isSortable: true,
-    isSticky: false,
-    canToggleVisibility: true,
-    renderContent: (data: any) => <span>{data}</span>,
-  },
-  {
-    key: 'email',
-    title: 'Email',
-    isSortable: true,
-    isSticky: false,
-    canToggleVisibility: true,
-    renderContent: (data: any) => <span>{data}</span>,
-  },
-  {
-    key: 'action',
-    title: 'Action',
-    isSortable: false,
-    isSticky: false,
-    canToggleVisibility: true,
-    renderContent: (data: any) => <span>{data || 'helooo'}</span>,
-  },
-];
-const data = [
-  { name: 'John Doe', age: 25, email: 'john.doe@example.com' },
-  { name: 'Jane Smith', age: 30, email: 'jane.smith@example.com' },
-  { name: 'Sam Wilson', age: 22, email: 'sam.wilson@example.com' },
-  { name: 'John Doe', age: 25, email: 'john.doe@example.com' },
-  { name: 'Jane Smith', age: 30, email: 'jane.smith@example.com' },
-  { name: 'Sam Wilson', age: 22, email: 'sam.wilson@example.com' },
-  { name: 'John Doe', age: 25, email: 'john.doe@example.com' },
-  { name: 'Jane Smith', age: 30, email: 'jane.smith@example.com' },
-  { name: 'Sam Wilson', age: 22, email: 'sam.wilson@example.com' },
-  { name: 'John Doe', age: 25, email: 'john.doe@example.com' },
-  { name: 'Jane Smith', age: 30, email: 'jane.smith@example.com' },
-  { name: 'Sam Wilson', age: 22, email: 'sam.wilson@example.com' },
-  { name: 'John Doe', age: 25, email: 'john.doe@example.com' },
-  { name: 'Jane Smith', age: 30, email: 'jane.smith@example.com' },
-  { name: 'Sam Wilson', age: 22, email: 'sam.wilson@example.com' },
-  { name: 'John Doe', age: 25, email: 'john.doe@example.com' },
-  { name: 'Jane Smith', age: 30, email: 'jane.smith@example.com' },
-  { name: 'Sam Wilson', age: 22, email: 'sam.wilson@example.com' },
-  { name: 'John Doe', age: 25, email: 'john.doe@example.com' },
-  { name: 'Jane Smith', age: 30, email: 'jane.smith@example.com' },
-  { name: 'Sam Wilson', age: 22, email: 'sam.wilson@example.com' },
-];
 const dropdownMenuArray = [10, 25, 50, 100];
 
 function ClientInquiry() {
@@ -79,6 +21,8 @@ function ClientInquiry() {
   const [selectedPage, setSelectedPage] = useState<number>(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [loadingClientData] = useState(false);
+
+  const handelDelete = () => {};
 
   return (
     <>
@@ -96,12 +40,12 @@ function ClientInquiry() {
                   badgeValue='1-10 of 14 Inquiries'
                 />
                 <TableFilterSearchBar />
-                <Table
+                {/* <Table
                   columns={columns}
                   data={data}
                   tableWrapperClass={'overflow-auto max-h-[calc(100vh-345px)]'}
                   stickyHeaderClass='sticky top-0'
-                />
+                /> */}
                 <TablePagination
                   paginationDropDownArray={dropdownMenuArray}
                   recordsPerPage={recordsPerPage}
@@ -118,6 +62,8 @@ function ClientInquiry() {
       <DeleteModal
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
+        handelDelete={handelDelete}
+        loading={false}
       />
     </>
   );

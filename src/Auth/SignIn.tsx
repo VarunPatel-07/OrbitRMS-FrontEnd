@@ -52,10 +52,11 @@ function SignIn() {
     if (res?.success) {
       setLoading(false);
       handelNotification(res, 'top-right');
-      // if (!res?.organization_created) {
-      //   navigate(`/onboarding?organization_id=${res?.organization_id}`);
-      // }
-      navigate(`/onboarding?organization_id=${res?.organization_id}`);
+      if (!res?.organization_created) {
+        navigate(`/onboarding?organization_id=${res?.organization_id}`);
+      } else {
+        navigate('/config/project-status');
+      }
     } else {
       setLoading(false);
       handelNotification(res, 'top-right');

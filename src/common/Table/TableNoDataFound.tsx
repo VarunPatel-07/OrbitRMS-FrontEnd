@@ -31,7 +31,7 @@ function TableNoDataFound({
   return (
     <div className={`w-full bg-white h-full ${tableWrapperClass}`}>
       <div className='w-full h-full flex items-center justify-center'>
-        <div className='flex flex-col items-center justify-center gap-5'>
+        <div className='flex flex-col items-center justify-center gap-5 max-w-[450px]'>
           <span className='bg-gradient-to-b from-[#f5f7f7] to-[#eaedf0] p-2 flex items-center justify-center max-w-[90px] max-h-[90px] rounded-full'>
             <DotLottieReact
               src='https://lottie.host/b8387a72-e1df-4d93-b58b-6e8b867551df/if9rYDkN1u.lottie'
