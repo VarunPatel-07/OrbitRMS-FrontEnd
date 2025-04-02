@@ -19,7 +19,11 @@ function DeleteModal({
 
   useEffect(() => {
     const handelClickOutSideTheBox = (event: MouseEvent) => {
-      if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+      if (
+        boxRef.current &&
+        !boxRef.current.contains(event.target as Node) &&
+        !loading
+      ) {
         setShowDeleteModal(false);
       }
     };
@@ -27,7 +31,7 @@ function DeleteModal({
     return () => {
       document.addEventListener('mouseup', handelClickOutSideTheBox);
     };
-  }, [setShowDeleteModal]);
+  }, [loading, setShowDeleteModal]);
   return (
     <div
       className={classNames(

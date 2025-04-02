@@ -149,6 +149,61 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
   return await Promise.all(promises);
 };
 
+// todo we need to add put api helper for editing api
+
+export const multiplePutApi = async (endPointArr: Array<endpointObject>) => {
+  const promises = endPointArr.map(async (eachEndPoint) => {
+    if (eachEndPoint.protected) {
+      const _localToken = getDataFromLocalStorage('authenticationToken');
+      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
+      const authToken = `Bearer ${_localToken || _sessionToken}`;
+
+      const headers: Record<string, string> = eachEndPoint.header
+        ? (eachEndPoint.header as Record<string, string>)
+        : {
+            'Content-Type': 'application/json',
+            Authorization: authToken,
+          };
+
+      if (!headers.Authorization) {
+        headers.Authorization = authToken;
+      }
+
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
+
+      const config = {
+        method: 'PUT',
+        url,
+        headers,
+        data: eachEndPoint.data,
+      };
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error: any) {
+        return ErrorHandler(error);
+      }
+    } else {
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
+
+      const config = {
+        method: 'PUT',
+        url,
+        headers: eachEndPoint?.header ? eachEndPoint.header : defaultHeader,
+        data: eachEndPoint.data,
+      };
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error: any) {
+        return ErrorHandler(error);
+      }
+    }
+  });
+
+  return await Promise.all(promises);
+};
+
 export const multipleDeleteApi = async (endPointArr: Array<endpointObject>) => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
@@ -192,7 +247,7 @@ export const multipleDeleteApi = async (endPointArr: Array<endpointObject>) => {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
 
       const config = {
-        method: 'POST',
+        method: 'DELETE',
         url,
         headers: eachEndPoint?.header ? eachEndPoint.header : defaultHeader,
         data: eachEndPoint.data,

@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
-import ComingSoon from '../../Components/ComingSoon';
+import PageNotFound from '../../Components/PageNotFound';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
 import AttachmentTypes from './ConfigModulePages/AttachmentTypes';
 import Designations from './ConfigModulePages/Designations';
 import ProjectStatus from './ConfigModulePages/ProjectStatus';
+import RolesAndPermission from './ConfigModulePages/RolesAndPermission/RolesAndPermission';
 import ConfigSidebar from './ConfigSidebar/ConfigSidebar';
-import PageNotFound from '../../Components/PageNotFound';
 
 function Config() {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ function Config() {
             />
             <Route
               path='/roles-permission'
-              element={<ProtectedRoute element={<ComingSoon />} />}
+              element={<ProtectedRoute element={<RolesAndPermission />} />}
             />
             <Route path='*' element={<PageNotFound />} />
           </Routes>

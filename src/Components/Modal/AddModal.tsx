@@ -74,13 +74,11 @@ function AddModal(props: AddModalProps) {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         modalBoxRef.current &&
-        !modalBoxRef.current.contains(event.target as Node)
+        !modalBoxRef.current.contains(event.target as Node) &&
+        !loading
       ) {
         setShowModal(false);
         setShowError(false);
-        if (setColor) {
-          setColor('#ff0000');
-        }
       }
     };
 
@@ -89,7 +87,7 @@ function AddModal(props: AddModalProps) {
     }
 
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [setShowModal, showModal]);
+  }, [loading, setShowModal, showModal]);
 
   return (
     <div
