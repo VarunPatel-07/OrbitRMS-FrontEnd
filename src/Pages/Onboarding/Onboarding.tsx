@@ -750,14 +750,14 @@ function Onboarding() {
               '@' + res?.data?.general_info?.primary_email.split('@')[1],
           },
         }));
+        setShowGlobalLoader(false);
       } else {
         handelNotification(res, 'top-right');
         setTimeout(() => {
           navigate('/auth/sign-in');
         }, 200);
+        setShowGlobalLoader(false);
       }
-
-      setShowGlobalLoader(false);
     })();
   }, []);
 
