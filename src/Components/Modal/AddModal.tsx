@@ -74,15 +74,15 @@ function AddModal(props: AddModalProps) {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         modalBoxRef.current &&
-        !modalBoxRef.current.contains(event.target as Node) &&
-        !loading
+        !modalBoxRef.current.contains(event.target as Node)
+
       ) {
         setShowModal(false);
         setShowError(false);
       }
     };
 
-    if (showModal) {
+    if (showModal && !loading) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 

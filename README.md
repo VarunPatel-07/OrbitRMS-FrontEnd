@@ -111,7 +111,7 @@ Please ensure your code adheres to the project's coding standards and includes r
 License
 -------
 
-This project is licensed under the [MIT License](https://chatgpt.com/c/LICENSE).
+This project is licensed under the [MIT License](/LICENSE).
 
 Contact
 -------
@@ -119,6 +119,6 @@ Contact
 For any inquiries or support, please contact:
 
 -   **Varun Patel**
--   **Email**: <varun.patel@example.com>
+-   **Email**: <varunspatelo7@gmail.com>
 -   **Website**: [https://varunpatel.vercel.app/](https://varunpatel.vercel.app/)
 -   **GitHub**: [VarunPatel-07](https://github.com/VarunPatel-07)
