@@ -21,13 +21,14 @@ function DeleteModal({
     const handelClickOutSideTheBox = (event: MouseEvent) => {
       if (
         boxRef.current &&
-        !boxRef.current.contains(event.target as Node) &&
-        !loading
+        !boxRef.current.contains(event.target as Node)
       ) {
         setShowDeleteModal(false);
       }
     };
-    document.addEventListener('mousedown', handelClickOutSideTheBox);
+    if (!loading) {
+      document.addEventListener('mousedown', handelClickOutSideTheBox);
+    }
     return () => {
       document.addEventListener('mouseup', handelClickOutSideTheBox);
     };
