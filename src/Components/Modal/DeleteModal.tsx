@@ -36,7 +36,7 @@ function DeleteModal({
   return (
     <div
       className={classNames(
-        'w-full h-full absolute top-0 left-0 bg-[rgba(0,0,0,0.4)] z-10 transition-all',
+        'w-full h-full absolute top-0 left-0 bg-[rgba(0,0,0,0.4)] z-50 transition-all',
         {
           'invisible opacity-0': !showDeleteModal,
           'visible opacity-100': showDeleteModal,

@@ -3,7 +3,7 @@
 import { PiArrowBendDownRightBold } from 'react-icons/pi';
 
 import { classNames } from '../../../../Helper/HelperFunctions';
-import { RolesAndPermissionsModule } from './RolesAndPermission';
+import { RolesAndPermissionsModule } from '../../../../interface/interface';
 
 function RolesAndPermissionTable({
   data,
@@ -12,12 +12,19 @@ function RolesAndPermissionTable({
 }) {
   const handleRenderTableRows = (
     module: RolesAndPermissionsModule,
-    hierarchyLevel: number
+    hierarchyLevel: number,
+    isSubModule: boolean
   ) => {
     return (
       <tr key={module.module_label} className='group back'>
         <td
-          className='bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointe'
+          className={classNames(
+            `bg-white px-6 py-3 text-black cursor-pointe min-w-[300px]  border-b border-b-black/15 text-center`,
+            {
+              'bg-[#E9ECF0]': isSubModule,
+              'group-hover:bg-gray-50': !isSubModule,
+            }
+          )}
           style={{
             paddingLeft:
               hierarchyLevel == 0 ? '20px' : `${hierarchyLevel * 30}px`,
@@ -34,14 +41,37 @@ function RolesAndPermissionTable({
             </span>
           </span>
         </td>
-        <td className='bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointe'>
-          {module.is_active ? 'Active' : 'Inactive'}
+        <td
+          className={classNames(
+            'bg-white px-6 py-3 text-black cursor-pointe border-l border-l-black/15 border-b border-b-black/15 text-center',
+            {
+              'bg-[#E9ECF0]': isSubModule,
+              'group-hover:bg-gray-50': !isSubModule,
+            }
+          )}
+        >
+          <div className='w-full h-full flex items-center justify-center'>
+            <button
+              className={`w-10 h-[18px] rounded-full relative transition-all duration-200 ${module.is_active ? 'bg-green-500' : 'bg-red-500'}`}
+              // onClick={handelClickOnOrganizationToggleButton}
+            >
+              <span
+                className={`w-3.5 h-3.5 bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${module.is_active ? 'left-6' : 'left-1'}`}
+              ></span>
+            </button>
+          </div>
         </td>
         {module.permissions?.map((item, index) => {
           if (item?.show_input) {
             return (
               <td
-                className='bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointe'
+                className={classNames(
+                  'bg-white px-6 py-3 text-black cursor-pointe border-l border-l-black/15 border-b border-b-black/15 text-center',
+                  {
+                    'bg-[#E9ECF0]': isSubModule,
+                    'group-hover:bg-gray-50': !isSubModule,
+                  }
+                )}
                 key={index}
               >
                 <button className='text-blue-500'>{item?.label}</button>
@@ -50,7 +80,13 @@ function RolesAndPermissionTable({
           } else {
             return (
               <td
-                className='bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointe'
+                className={classNames(
+                  'bg-white px-6 py-3 text-black cursor-pointe border-l border-l-black/15 border-b border-b-black/15 text-center',
+                  {
+                    'bg-[#E9ECF0]': isSubModule,
+                    'group-hover:bg-gray-50': !isSubModule,
+                  }
+                )}
                 key={index}
               >
                 <span className='font-inter text-black font-medium text-base'>
@@ -65,7 +101,13 @@ function RolesAndPermissionTable({
   };
   const handleRecursion = (modules: any[], level = 0): JSX.Element[] => {
     return modules.flatMap((module) => {
-      const rows = [handleRenderTableRows(module, level)];
+      const rows = [
+        handleRenderTableRows(
+          module,
+          level,
+          module.sub_modules?.length > 0 ? true : false
+        ),
+      ];
       if (module.sub_modules?.length > 0) {
         rows.push(...handleRecursion(module.sub_modules, level + 1));
       }
@@ -73,7 +115,7 @@ function RolesAndPermissionTable({
     });
   };
   return (
-    <div>
+    <div className='overflow-auto hide-scrollbar'>
       <table className='table-auto border-collapse w-full relative'>
         <thead>
           <tr className={`shadow`}>
@@ -95,8 +137,8 @@ function RolesAndPermissionTable({
                 {}
               )}
             >
-              <span className='flex items-center justify-start gap-1'>
-                <span className='font-inter text-[15px] text-black/80 font-medium'>
+              <span className='flex items-center justify-center gap-1'>
+                <span className='font-inter text-[15px] text-center text-black/80 font-medium'>
                   Status
                 </span>
               </span>
@@ -107,7 +149,7 @@ function RolesAndPermissionTable({
                 {}
               )}
             >
-              <span className='flex items-center justify-start gap-1'>
+              <span className='flex items-center justify-center gap-1'>
                 <span className='font-inter text-[15px] text-black/80 font-medium'>
                   View
                 </span>
@@ -119,7 +161,7 @@ function RolesAndPermissionTable({
                 {}
               )}
             >
-              <span className='flex items-center justify-start gap-1'>
+              <span className='flex items-center justify-center gap-1'>
                 <span className='font-inter text-[15px] text-black/80 font-medium'>
                   Edit
                 </span>
@@ -131,7 +173,7 @@ function RolesAndPermissionTable({
                 {}
               )}
             >
-              <span className='flex items-center justify-start gap-1'>
+              <span className='flex items-center justify-center gap-1'>
                 <span className='font-inter text-[15px] text-black/80 font-medium'>
                   Delete
                 </span>

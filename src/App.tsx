@@ -46,10 +46,10 @@ function App() {
           <div className='w-full flex flex-col h-full'>
             <Navbar />
             <div className='w-full h-full flex justify-stretch'>
-              <div className=''>
+              <div className='w-fit'>
                 <SideBar />
               </div>
-              <div className='w-full bg-[var(--main-white-color)]'>
+              <div className='w-[calc(100%-60px)] ml-auto bg-[var(--main-white-color)]'>
                 <Routes>
                   <Route
                     path='/client-inquiry'

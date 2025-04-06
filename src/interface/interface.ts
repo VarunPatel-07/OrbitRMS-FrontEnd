@@ -90,3 +90,21 @@ export interface OnboardingFormInterface {
 }
 
 //? -------------------------- This Is The End Of The Onboarding Form InterFace -------------------------
+
+//? -------------------------- This Is The Start Of The Roles And Permission InterFace -------------------------
+
+interface Permission {
+  label: string;
+  is_allowed: boolean;
+  show_input: boolean;
+}
+
+export interface RolesAndPermissionsModule {
+  module_label: string;
+  module_title: string;
+  is_active: boolean;
+  permissions: Permission[];
+  sub_modules: RolesAndPermissionsModule[];
+}
+
+//? -------------------------- This Is The End Of The Roles And Permission InterFace -------------------------

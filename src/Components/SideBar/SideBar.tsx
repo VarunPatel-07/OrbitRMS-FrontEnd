@@ -16,7 +16,7 @@ function SideBar() {
   return (
     <div
       className={`h-full bg-[#3538CD] text-white flex flex-col  transition-all duration-300  ${
-        collapsed ? 'max-w-[57px] min-w-[57px]' : 'min-w-[240px] max-w-[250px]'
+        collapsed ? 'max-w-[60px] min-w-[60px]' : 'min-w-[240px] max-w-[250px]'
       }`}
     >
       <div className='w-full h-full flex flex-col justify-between'>
@@ -26,7 +26,11 @@ function SideBar() {
               <li
                 key={item.id}
                 className={`w-full group relative rounded-md ${
-                  navigation.pathname.includes(item?.link)
+                  navigation.pathname.includes(
+                    item?.name.toLocaleLowerCase() == 'config'
+                      ? '/config'
+                      : item?.link
+                  )
                     ? 'bg-[#444CE7]'
                     : 'hover:bg-[#444CE7]'
                 }`}
