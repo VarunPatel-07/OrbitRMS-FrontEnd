@@ -62,9 +62,6 @@ function AddModal(props: AddModalProps) {
   };
 
   const handelCancelButton = () => {
-    if (setColor) {
-      setColor('#ff0000');
-    }
     setShowModal(false);
     setShowError(false);
     setValue('');
@@ -75,7 +72,6 @@ function AddModal(props: AddModalProps) {
       if (
         modalBoxRef.current &&
         !modalBoxRef.current.contains(event.target as Node)
-
       ) {
         setShowModal(false);
         setShowError(false);
@@ -92,7 +88,7 @@ function AddModal(props: AddModalProps) {
   return (
     <div
       className={classNames(
-        'w-full h-screen bg-black/30 fixed top-0 left-0 overflow-hidden transition-all duration-100',
+        'w-full h-screen bg-black/30 fixed z-40 top-0 left-0 overflow-hidden transition-all duration-100',
         {
           'opacity-0 invisible': !showModal,
           'opacity-100 visible': showModal,

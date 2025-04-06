@@ -7,6 +7,7 @@ import AttachmentTypes from './ConfigModulePages/AttachmentTypes';
 import Designations from './ConfigModulePages/Designations';
 import ProjectStatus from './ConfigModulePages/ProjectStatus';
 import RolesAndPermission from './ConfigModulePages/RolesAndPermission/RolesAndPermission';
+import ViewPermissions from './ConfigModulePages/RolesAndPermission/ViewPermissions';
 import ConfigSidebar from './ConfigSidebar/ConfigSidebar';
 
 function Config() {
@@ -17,7 +18,7 @@ function Config() {
     if (location.pathname === '/config') {
       navigate('/config/project-status');
     }
-  }, [location.pathname]);
+  }, [location.pathname, navigate]);
 
   return (
     <div className='w-full h-full'>
@@ -26,7 +27,7 @@ function Config() {
           <ConfigSidebar />
         </div>
 
-        <div className='w-full p-4 2xl:p-5'>
+        <div className='flex-1 overflow-auto'>
           <Routes>
             <Route
               path='/project-status'
@@ -43,6 +44,10 @@ function Config() {
             <Route
               path='/roles-permission'
               element={<ProtectedRoute element={<RolesAndPermission />} />}
+            />
+            <Route
+              path='/roles-permission/:id'
+              element={<ProtectedRoute element={<ViewPermissions />} />}
             />
             <Route path='*' element={<PageNotFound />} />
           </Routes>

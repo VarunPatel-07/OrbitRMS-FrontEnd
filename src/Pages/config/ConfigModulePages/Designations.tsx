@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
+import Breadcrumbs from '../../../common/Breadcrumbs';
 import Table from '../../../common/Table/Table';
 import TableInfoHeader from '../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
@@ -26,6 +27,12 @@ import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
+
+const BreadcrumbsObjects = [
+  { name: 'Home', label: 'home', link: '/home' },
+  { name: 'Config', label: 'config-module', link: '/config/project-status' },
+  { name: 'Designations', label: 'designations', link: '/config/designations' },
+];
 
 function Designations() {
   const { handelNotification } = useContext(
@@ -80,7 +87,7 @@ function Designations() {
       setIsFetchingData(false);
       handelNotification(res, 'top-right');
     }
-  }, 200);
+  }, 50);
 
   const fetchDesignationsTypes = () => {
     setIsFetchingData(true);
@@ -163,7 +170,7 @@ function Designations() {
     } catch (error) {
       console.error('Error fetching project status:', error);
     }
-  }, 200);
+  }, 50);
 
   const handelDeleteItem = () => {
     setIsDeleteLoading(true);
@@ -234,13 +241,13 @@ function Designations() {
       key: 'action',
       title: 'Action',
       isSortable: false,
-      isSticky: false,
+      isSticky: true,
       canToggleVisibility: true,
       renderContent: (data: any) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
             <button
-              className='text-black/85 p-1.5'
+              className='text-black/80 p-1.5'
               data-tooltip-id='project_status_edit_button'
               data-tooltip-content='Edit'
               onClick={() => handelEditButtonClick(data)}
@@ -248,9 +255,10 @@ function Designations() {
               <MdModeEdit className='text-[22px]' />
             </button>
             <button
-              className='text-black/85 p-1.5'
+              className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
               data-tooltip-id='project_status_delete_button'
               data-tooltip-content='Delete'
+              disabled={data?.source_type == 'default'}
               onClick={() => {
                 setShowDeleteModal(true);
                 setDeleteItemId(data?.id);
@@ -264,12 +272,14 @@ function Designations() {
               className='z-[15] bg-white'
               place='left'
             />
-            <Tooltip
-              id='project_status_delete_button'
-              opacity={'100'}
-              className='z-[15] bg-white'
-              place='left'
-            />
+            {data?.source_type != 'default' && (
+              <Tooltip
+                id='project_status_delete_button'
+                opacity={'100'}
+                className='z-[15] bg-white'
+                place='left'
+              />
+            )}
           </div>
         );
       },
@@ -284,58 +294,67 @@ function Designations() {
   }, []);
   return (
     <>
-      <div className='w-full h-full'>
-        {isFetchingData ? (
-          <div className='w-full h-full overflow-hidden'>
-            <TableSkeletonLoader
-              tableHeaderCount={5}
-              tableValueCount={13}
-              maxHeight='calc(-300px + 100vh)'
-            />
-          </div>
-        ) : (
-          <>
-            <TableInfoHeader
-              moduleName='Designations'
-              badgeValue={data?.length.toString()}
-              buttonsArray={optionsButtonArray}
-            />
-            <TableLocalSearchBar
-              setShowSearchFilterData={setShowSearchFilterData}
-              data={data}
-              search_key='status_name'
-              setData={setFilterData}
-            />
-            {(data?.length > 0 && !showSearchFilterData) ||
-            (showSearchFilterData && filterData?.length > 0) ? (
-              <Table
-                columns={columns}
-                data={showSearchFilterData ? filterData : data}
-                tableWrapperClass={
-                  'overflow-auto max-h-[calc(100vh-170px)] rounded-b-lg'
-                }
-                stickyHeaderClass='sticky top-0'
-              />
+      <div className='w-full h-full relative'>
+        <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+        <div className='w-full h-full pt-10'>
+          <div className='w-full h-full p-4 2xl:p-5'>
+            {isFetchingData ? (
+              <div className='w-full h-full overflow-hidden'>
+                <TableSkeletonLoader
+                  tableHeaderCount={5}
+                  tableValueCount={13}
+                  maxHeight='calc(-335px + 100vh)'
+                />
+              </div>
             ) : (
-              <TableNoDataFound
-                tableWrapperClass={'max-h-[calc(100%-140px)] rounded-b-lg'}
-                notFoundTitle={
-                  showSearchFilterData
-                    ? 'No Data Found For Related Search'
-                    : 'You haven’t added any Projects Status yet'
-                }
-                notFoundMessage={
-                  showSearchFilterData
-                    ? 'No matching project status found. Try refining your search or adding a new project status.'
-                    : 'Add Projects Status manually by clicking Add Projects Status button.'
-                }
-                notFoundOptionsButtonsArray={
-                  showSearchFilterData ? [] : optionsButtonArray
-                }
-              />
+              <>
+                <TableInfoHeader
+                  moduleName='Designations'
+                  badgeValue={
+                    showSearchFilterData
+                      ? filterData.length?.toString()
+                      : data.length?.toString()
+                  }
+                  buttonsArray={optionsButtonArray}
+                />
+                <TableLocalSearchBar
+                  setShowSearchFilterData={setShowSearchFilterData}
+                  data={data}
+                  search_key='status_name'
+                  setData={setFilterData}
+                />
+                {(data?.length > 0 && !showSearchFilterData) ||
+                (showSearchFilterData && filterData?.length > 0) ? (
+                  <Table
+                    columns={columns}
+                    data={showSearchFilterData ? filterData : data}
+                    tableWrapperClass={
+                      'overflow-auto max-h-[calc(100vh-270px)] rounded-b-lg'
+                    }
+                    stickyHeaderClass='sticky top-0'
+                  />
+                ) : (
+                  <TableNoDataFound
+                    tableWrapperClass={'max-h-[calc(100%-140px)] rounded-b-lg'}
+                    notFoundTitle={
+                      showSearchFilterData
+                        ? 'No Data Found For Related Search'
+                        : 'You haven’t added any Projects Status yet'
+                    }
+                    notFoundMessage={
+                      showSearchFilterData
+                        ? 'No matching designation found. Try refining your search or adding a new designation.'
+                        : 'Add Designation manually by clicking Add Designation button.'
+                    }
+                    notFoundOptionsButtonsArray={
+                      showSearchFilterData ? [] : optionsButtonArray
+                    }
+                  />
+                )}
+              </>
             )}
-          </>
-        )}
+          </div>
+        </div>
       </div>
 
       <AddModal

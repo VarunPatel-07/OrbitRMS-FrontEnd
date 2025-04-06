@@ -16,7 +16,7 @@ function Breadcrumbs({
         {BreadcrumbsNavigationFlow.map((items, index) => (
           <div
             key={index}
-            className='text-xl flex items-center justify-start gap-2'
+            className='text-base flex items-center justify-start gap-2'
           >
             {items.name.toLocaleLowerCase() == 'home' ? (
               <Link to={items.link} className='text-black'>
@@ -27,9 +27,9 @@ function Breadcrumbs({
                 to={items.link}
                 className={`${
                   navigation.pathname === items.link
-                    ? 'text-blue-700 font-medium'
+                    ? 'text-blue-700 font-medium cursor-default'
                     : 'text-black font-medium'
-                } text-base`}
+                } text-sm`}
               >
                 {items.name}
               </Link>
