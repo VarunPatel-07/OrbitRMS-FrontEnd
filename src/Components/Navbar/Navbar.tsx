@@ -2,7 +2,7 @@ import OrbitRMSLogo from '../../assets/Images/OrbitRMS-Final-Logo-transperent.pn
 
 function Navbar() {
   return (
-    <div className='w-full h-14 flex items-center justify-between border-b border-b-slate-100'>
+    <div className='w-full h-14 flex items-center justify-between border-b border-b-black/10'>
       <div className='h-full flex w-fit gap-3'>
         <div className='w-fit pl-4 flex items-center justify-center'>
           <img src={OrbitRMSLogo} width={150} className='w-36 h-10 object-cover' alt='' />

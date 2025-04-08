@@ -22,7 +22,7 @@ function TableSkeletonLoader({
   maxHeight?: string;
 }) {
   return (
-    <SkeletonTheme baseColor='#f7f7f7' highlightColor='#e7e7ee'>
+    <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       {showHeaderLoader && (
         <div className='w-full p-6 bg-white rounded-t-lg' aria-hidden='true'>
           <div className='w-full flex items-center justify-between'>
