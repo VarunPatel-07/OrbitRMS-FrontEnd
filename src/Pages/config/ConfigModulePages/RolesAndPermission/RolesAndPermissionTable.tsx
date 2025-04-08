@@ -1,19 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import React, { SetStateAction } from 'react';
+import { LuLoaderCircle } from 'react-icons/lu';
 import { PiArrowBendDownRightBold } from 'react-icons/pi';
 
 import { classNames } from '../../../../Helper/HelperFunctions';
-import { RolesAndPermissionsModule } from '../../../../interface/interface';
+import {
+  PermissionModule,
+  RolesAndPermissionsModule,
+} from '../../../../interface/interface';
 
 function RolesAndPermissionTable({
   data,
+  StatusTogglerFunc,
+  updatingModuleLoaderId,
+  setUpdatingModuleLoaderId,
+  PermissionTogglerFunc,
 }: {
   data: RolesAndPermissionsModule[];
+  StatusTogglerFunc: (id: string) => void;
+  PermissionTogglerFunc: (id: string) => void;
+  updatingModuleLoaderId: string;
+  setUpdatingModuleLoaderId: React.Dispatch<SetStateAction<string>>;
 }) {
+  const handelStatusToggler = (info: RolesAndPermissionsModule) => {
+    console.log(info);
+    setUpdatingModuleLoaderId(info?.id);
+    StatusTogglerFunc(info?.id);
+  };
+  const handelPermissionToggler = (permissionInfo: PermissionModule) => {
+    setUpdatingModuleLoaderId(permissionInfo?.id);
+    PermissionTogglerFunc(permissionInfo?.id);
+  };
+
   const handleRenderTableRows = (
     module: RolesAndPermissionsModule,
     hierarchyLevel: number,
-    isSubModule: boolean
+    isSubModule: boolean,
+    isParentModuleActive: boolean
   ) => {
     return (
       <tr key={module.module_label} className='group back'>
@@ -51,14 +75,19 @@ function RolesAndPermissionTable({
           )}
         >
           <div className='w-full h-full flex items-center justify-center'>
-            <button
-              className={`w-10 h-[18px] rounded-full relative transition-all duration-200 ${module.is_active ? 'bg-green-500' : 'bg-red-500'}`}
-              // onClick={handelClickOnOrganizationToggleButton}
-            >
-              <span
-                className={`w-3.5 h-3.5 bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${module.is_active ? 'left-6' : 'left-1'}`}
-              ></span>
-            </button>
+            {updatingModuleLoaderId == module?.id ? (
+              <LuLoaderCircle className='animate-spin' />
+            ) : (
+              <button
+                className={`w-10 h-[18px] rounded-full relative transition-all duration-200 border border-transparent disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:border-black/20 ${module.is_active ? 'bg-green-500' : 'bg-red-500'}`}
+                onClick={() => handelStatusToggler(module)}
+                disabled={!isParentModuleActive && hierarchyLevel > 0}
+              >
+                <span
+                  className={`w-3.5 h-3.5 bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${module.is_active ? 'left-[22px]' : 'left-0.5'}`}
+                ></span>
+              </button>
+            )}
           </div>
         </td>
         {module.permissions?.map((item, index) => {
@@ -73,8 +102,24 @@ function RolesAndPermissionTable({
                   }
                 )}
                 key={index}
+                onClick={() => handelPermissionToggler(item)}
               >
-                <button className='text-blue-500'>{item?.label}</button>
+                {updatingModuleLoaderId == item?.id ? (
+                  <span className='w-full h-6 flex items-center justify-center'>
+                    <LuLoaderCircle className='animate-spin' />
+                  </span>
+                ) : (
+                  <div className='flex items-center justify-center'>
+                    <button
+                      className='w-6 h-6 border border-black/30 disabled:border-black/15 rounded-full relative disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-gray-200'
+                      disabled={!module.is_active || !isParentModuleActive}
+                    >
+                      <span
+                        className={`inline-block w-3 h-3 bg-blue-700 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all ${item?.is_allowed ? 'scale-100' : 'scale-0'}`}
+                      ></span>
+                    </button>
+                  </div>
+                )}
               </td>
             );
           } else {
@@ -99,23 +144,30 @@ function RolesAndPermissionTable({
       </tr>
     );
   };
-  const handleRecursion = (modules: any[], level = 0): JSX.Element[] => {
+  const handleRecursion = (
+    modules: any[],
+    level = 0,
+    is_active: boolean = false
+  ): JSX.Element[] => {
     return modules.flatMap((module) => {
       const rows = [
         handleRenderTableRows(
           module,
           level,
-          module.sub_modules?.length > 0 ? true : false
+          module.sub_modules?.length > 0 ? true : false,
+          is_active
         ),
       ];
       if (module.sub_modules?.length > 0) {
-        rows.push(...handleRecursion(module.sub_modules, level + 1));
+        rows.push(
+          ...handleRecursion(module.sub_modules, level + 1, module.is_active)
+        );
       }
       return rows;
     });
   };
   return (
-    <div className='overflow-auto hide-scrollbar'>
+    <div className='overflow-auto hide-scrollbar max-h-[calc(100vh-210px)] rounded-b-lg'>
       <table className='table-auto border-collapse w-full relative'>
         <thead>
           <tr className={`shadow`}>

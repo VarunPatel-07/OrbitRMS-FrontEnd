@@ -93,18 +93,32 @@ export interface OnboardingFormInterface {
 
 //? -------------------------- This Is The Start Of The Roles And Permission InterFace -------------------------
 
-interface Permission {
+export interface PermissionModule {
+  id: string;
   label: string;
   is_allowed: boolean;
   show_input: boolean;
 }
 
 export interface RolesAndPermissionsModule {
+  id: string;
   module_label: string;
   module_title: string;
   is_active: boolean;
-  permissions: Permission[];
+  permissions: PermissionModule[];
   sub_modules: RolesAndPermissionsModule[];
+}
+
+export interface ConfigRolesAndPermissionModule {
+  id: string;
+  role_name: string;
+  description: string;
+  source_type: string;
+  created_by: null | object;
+  created_at: string;
+  updated_by: null | object;
+  updated_at: null | string;
+  modules: RolesAndPermissionsModule[];
 }
 
 //? -------------------------- This Is The End Of The Roles And Permission InterFace -------------------------
