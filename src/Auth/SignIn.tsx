@@ -1,10 +1,10 @@
 import './auth.css';
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import signInGradientBgImage from '../assets/Images/gradient-bg.png';
-import orbitLogo from '../assets/Images/OrbitRMS-White-Transperent-Logo.png';
+import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
+import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
 import signIn3dImage from '../assets/Images/sign-in-page-3d-image.webp';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
@@ -63,14 +63,16 @@ function SignIn() {
     }
   }, 300);
 
+  const isFormValid = useMemo(() => {
+    return (
+      email.trim().length > 0 && password.length >= 6 && isValidEmail(email)
+    );
+  }, [email, password]);
+
   const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    if (
-      email.trim().length !== 0 &&
-      password.length >= 6 &&
-      isValidEmail(email)
-    ) {
+    if (isFormValid) {
       setLoading(true); // Set loading state immediately
       signInApiHandlerFunction(); // Await the API call
     } else {
@@ -82,12 +84,15 @@ function SignIn() {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
     (async () => {
-      const response = await verifyUsersLoginStatus();
-      if (!response?.success) {
-        handelNotification(response, 'top-right');
-        setShowGlobalLoader(false);
-        clearLocalSessionStorage();
-      } else {
+      try {
+        const response = await verifyUsersLoginStatus();
+        if (!response?.success) {
+          handelNotification(response, 'top-right');
+          clearLocalSessionStorage();
+        } else {
+          navigate('/config/project-status');
+        }
+      } finally {
         setShowGlobalLoader(false);
       }
     })();
@@ -107,11 +112,16 @@ function SignIn() {
             <img
               src={signInGradientBgImage}
               className='w-2/3 h-full absolute top-0 left-0'
+              alt='linear gradient image'
+              loading='lazy'
             />
             <img
               src={signIn3dImage}
               className='w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block'
-              alt=''
+              alt='3D image'
+              width={1200} // add appropriate dimensions
+              height={800}
+              loading='lazy'
             />
             <div className='w-1/3 relative hidden md:block'>
               <div className='w-full h-full p-7'>
@@ -120,6 +130,7 @@ function SignIn() {
                     src={orbitLogo}
                     className='max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]'
                     alt='OrbitRMS Logo'
+                    loading='lazy'
                   />
                 </div>
                 <div className='pt-7 '>

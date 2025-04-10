@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { HiOutlineCheckBadge } from 'react-icons/hi2';
 import { useSearchParams } from 'react-router-dom';
 
-import orbitLogo from '../assets/Images/OrbitRMS-Final-Logo-transperent.png';
+import orbitLogo from '../assets/Images/orbitrms-final-logo-transperent.webp';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import { multipleFetchApi } from '../Helper/api/multipleAPI';
 import { classNames } from '../Helper/HelperFunctions';

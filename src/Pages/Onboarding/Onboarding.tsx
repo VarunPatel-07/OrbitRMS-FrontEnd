@@ -12,8 +12,8 @@ import {
 } from 'react-icons/md';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import signInGradientBgImage from '../../assets/Images/gradient-bg.png';
-import orbitLogo from '../../assets/Images/OrbitRMS-White-Transperent-Logo.png';
+import signInGradientBgImage from '../../assets/Images/gradient-bg.webp';
+import orbitLogo from '../../assets/Images/orbitrms-white-transperent-logo.webp';
 import CommonDatePicker from '../../common/CommonDatePicker';
 import DragAndDropFileUploader from '../../common/DragDropUploader/DragAndDropFileUploader';
 import Input from '../../common/Input';

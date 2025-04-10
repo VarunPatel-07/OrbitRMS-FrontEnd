@@ -57,13 +57,20 @@ export const fetchUsersPosition = async (): Promise<string> => {
 
 export const fetchFormattedCountryData = async (
   selectedCountryName?: string
-) => {
+): Promise<{
+  success: boolean;
+  message: string;
+  filteredCountry: countryObject | undefined;
+  countryOptionsData: countryObject[];
+}> => {
   try {
     const country_Data = await countryDataApiHelper();
     if (!country_Data) {
       return {
         success: false,
         message: 'No Data Available',
+        filteredCountry: undefined,
+        countryOptionsData: [],
       };
     }
     const response = await fetchUsersPosition();
@@ -77,6 +84,7 @@ export const fetchFormattedCountryData = async (
         success: true,
         filteredCountry: data,
         countryOptionsData: country_Data,
+        message: '',
       };
     } else {
       const data = country_Data.find(
@@ -88,54 +96,16 @@ export const fetchFormattedCountryData = async (
         success: true,
         filteredCountry: data,
         countryOptionsData: country_Data,
+        message: '',
       };
     }
   } catch (error) {
     console.error('Error fetching country data:', error);
+    return {
+      success: false,
+      message: 'Failed to fetch country data',
+      filteredCountry: undefined,
+      countryOptionsData: [],
+    };
   }
 };
-
-// useEffect(() => {
-//   (async () => {
-//     if (
-//       setDropDownSelectedValue &&
-//       type == 'number' &&
-//       countryData.length == 0
-//     ) {
-//       const country_Data = await FetchCountryData();
-
-//       if (country_Data) {
-//         const response = await fetchUsersPosition();
-
-//         if (selectedCountryName) {
-//           const data = country_Data.find(
-//             (item: countryObject) =>
-//               item?.country_name?.toLocaleLowerCase() ===
-//               selectedCountryName?.toLocaleLowerCase()
-//           );
-
-//           if (!data) return;
-
-//           setDropDownSelectedValue(JSON.stringify(data));
-//         } else {
-//           const data = country_Data.find(
-//             (item: countryObject) =>
-//               item?.country_name?.toLocaleLowerCase() ===
-//               response?.toLocaleLowerCase()
-//           );
-
-//           if (!data) return;
-
-//           setDropDownSelectedValue(JSON.stringify(data));
-//         }
-
-//         setCountryData(country_Data);
-//       }
-//     }
-//   })();
-// }, [
-//   countryData.length,
-//   selectedCountryName,
-//   setDropDownSelectedValue,
-//   type,
-// ]);
