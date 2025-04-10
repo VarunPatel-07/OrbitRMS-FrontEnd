@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
-import OrbitRMSTransparentLogo from '../../assets/Images/OrbitRMS-Final-Logo-transperent.png';
+import OrbitRMSTransparentLogo from '../../assets/Images/orbitrms-final-logo-transperent.webp';
 import { classNames } from '../../Helper/HelperFunctions';
 
 function MainSuspenseLoader({ loading }: { loading: boolean }) {
@@ -52,7 +52,8 @@ function MainSuspenseLoader({ loading }: { loading: boolean }) {
             <img
               src={OrbitRMSTransparentLogo}
               className='w-80 animate-pulse'
-              alt='Logo'
+              alt='OrbitRMS Logo'
+              loading='lazy'
             />
           </div>
           {loading && (

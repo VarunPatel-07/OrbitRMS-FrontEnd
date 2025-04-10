@@ -4,8 +4,8 @@ import { FiLock } from 'react-icons/fi';
 import { LiaKeySolid } from 'react-icons/lia';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 
-import signInGradientBgImage from '../assets/Images/gradient-bg.png';
-import orbitLogo from '../assets/Images/OrbitRMS-White-Transperent-Logo.png';
+import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
+import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
 import signIn3dImage from '../assets/Images/sign-in-page-3d-image.webp';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
