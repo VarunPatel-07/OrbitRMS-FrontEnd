@@ -12,6 +12,10 @@ import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonL
 import AddModal from '../../../Components/Modal/AddModal';
 import DeleteModal from '../../../Components/Modal/DeleteModal';
 import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../../Context/globalState/GlobalStateContectApi';
+import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../../Context/Notification/NotificationContextApi';
@@ -27,12 +31,6 @@ import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
-
-const BreadcrumbsObjects = [
-  { name: 'Home', label: 'home', link: '/home' },
-  { name: 'Config', label: 'config-module', link: '/config/project-status' },
-  { name: 'Designations', label: 'designations', link: '/config/designations' },
-];
 
 function Designations() {
   const { handelNotification } = useContext(
@@ -67,6 +65,28 @@ function Designations() {
     setValue(data?.designations_name);
     setEditId(data?.id);
   };
+
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_url.split(
+      'https://orbitrms.com/'
+    )[1];
+
+  const BreadcrumbsObjects = [
+    { name: 'Home', label: 'home', link: '/home' },
+    {
+      name: 'Config',
+      label: 'config-module',
+      link: `${organization}/config/project-status`,
+    },
+    {
+      name: 'Designations',
+      label: 'designations',
+      link: `/${organization}/config/designations`,
+    },
+  ];
 
   const fetchDesignationsTypesWithDebounce = useDebounce(async () => {
     const endPointArr: Array<endpointObject> = [

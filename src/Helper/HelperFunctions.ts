@@ -56,6 +56,7 @@ export const ErrorHandler = (error: Error | AxiosError) => {
     const errorData = {
       success: false,
       message: 'An unknown error occurred',
+      data: null,
     };
     return errorData;
   }
@@ -253,12 +254,14 @@ export const formateDate = (UTCString: string, showTime: boolean = true) => {
   const formattedDay = day <= 9 ? `0${day}` : day;
   const formattedMonth = month <= 9 ? `0${month}` : month;
 
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  const creationTime = date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
 
   if (showTime) {
-    return `${formattedDay}-${formattedMonth}-${year}, ${hours}:${formattedMinutes}`;
+    return `${formattedDay}-${formattedMonth}-${year}, ${creationTime.toUpperCase()}`;
   } else {
     return `${formattedDay}-${formattedMonth}-${year}`;
   }

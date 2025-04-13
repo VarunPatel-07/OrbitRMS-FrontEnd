@@ -14,13 +14,15 @@ export interface SidebarMenuItemInterface {
   ToolTipValue: string;
 }
 
-export const SidebarMenuItems: SidebarMenuItemInterface[] = [
+export const SidebarMenuItems = (
+  organization: string
+): SidebarMenuItemInterface[] => [
   {
     id: 1,
     name: 'Dashboard',
     icon: <MdSpaceDashboard className='w-6 h-6' />,
     label: 'data-tooltip-dashboard',
-    link: '/dashboard',
+    link: `/${organization}/dashboard`,
     protected: true,
     showToolTip: true,
     ToolTipValue: 'Dashboard',
@@ -31,7 +33,7 @@ export const SidebarMenuItems: SidebarMenuItemInterface[] = [
     name: 'Client Inquiry',
     icon: <HiUsers className='w-6 h-6' />,
     label: 'data-tooltip-client-inquiry',
-    link: '/client-inquiry',
+    link: `/${organization}/client-inquiry`,
     protected: true,
     showToolTip: true,
     ToolTipValue: 'Client Inquiry',
@@ -41,7 +43,7 @@ export const SidebarMenuItems: SidebarMenuItemInterface[] = [
     name: 'Config',
     icon: <IoSettings className='w-6 h-6' />,
     label: 'data-tooltip-settings',
-    link: '/config/project-status',
+    link: `/${organization}/config/project-status`,
     protected: true,
     showToolTip: true,
     ToolTipValue: 'Config',

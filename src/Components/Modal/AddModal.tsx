@@ -107,7 +107,7 @@ function AddModal(props: AddModalProps) {
           ref={modalBoxRef}
         >
           <div className='w-full'>
-            <div className='w-full flex px-3.5 py-4 border-b border-b-black/20 items-center justify-between'>
+            <div className='w-full flex px-5 py-6 border-b border-b-black/20 items-center justify-between'>
               <span className='text-xl text-black font-inter font-semibold'>
                 {modalTitle}
               </span>
@@ -116,7 +116,7 @@ function AddModal(props: AddModalProps) {
               </button>
             </div>
             <div
-              className='px-4 py-10 max-w-[95%] mx-auto flex flex-col items-start justify-start w-full'
+              className='px-5 py-10 mx-auto flex flex-col items-start justify-start w-full'
               onKeyDown={handelKeyPress}
             >
               <label
@@ -162,7 +162,7 @@ function AddModal(props: AddModalProps) {
                 </div>
               )}
             </div>
-            <div className='px-3.5 pb-4 w-full grid grid-cols-2 gap-2.5'>
+            <div className='px-5 pb-6 w-full grid grid-cols-2 gap-2.5'>
               <button
                 className='text-black bg-transparent py-2 rounded-lg border border-black/45'
                 onClick={handelCancelButton}

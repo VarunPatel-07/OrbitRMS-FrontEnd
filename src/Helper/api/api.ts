@@ -3,6 +3,7 @@ import React, { SetStateAction } from 'react';
 import axios, { AxiosRequestHeaders } from 'axios';
 
 import { loginForm, signUpForm } from '../../interface/funcParamInterface';
+import { GlobalContextStore } from '../../interface/UserProfileInterface';
 import {
   ErrorHandler,
   getDataFromLocalStorage,
@@ -23,6 +24,12 @@ interface SignUpApiResponse {
   success: boolean;
   showModal: boolean;
   title: string;
+}
+
+export interface verifyUsersLoginStatusResponse {
+  success: boolean;
+  message: string;
+  data: GlobalContextStore | null;
 }
 
 // * The Function That Are HelpFull For Sign-IN And Sign-UP
@@ -141,7 +148,11 @@ export const verifyUsersLoginStatus = async () => {
     const tokenValue = authToken.split('Bearer')[1]?.trim();
 
     if (!tokenValue || tokenValue === 'null' || tokenValue === 'undefined') {
-      return { success: false };
+      return {
+        success: false,
+        message: '',
+        data: null,
+      } as verifyUsersLoginStatusResponse;
     }
 
     const headers = {
@@ -157,8 +168,8 @@ export const verifyUsersLoginStatus = async () => {
 
     const response = await axios(config);
 
-    return response?.data;
+    return response?.data as verifyUsersLoginStatusResponse;
   } catch (error) {
-    return ErrorHandler(error as Error);
+    return ErrorHandler(error as Error) as verifyUsersLoginStatusResponse;
   }
 };

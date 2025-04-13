@@ -12,6 +12,10 @@ import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonL
 import AddModal from '../../../Components/Modal/AddModal';
 import DeleteModal from '../../../Components/Modal/DeleteModal';
 import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../../Context/globalState/GlobalStateContectApi';
+import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../../Context/Notification/NotificationContextApi';
@@ -27,16 +31,6 @@ import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
-
-const BreadcrumbsObjects = [
-  { name: 'Home', label: 'home', link: '/home' },
-  { name: 'Config', label: 'config-module', link: '/config' },
-  {
-    name: 'Project Status',
-    label: 'project-status',
-    link: '/config/project-status',
-  },
-];
 
 function ProjectStatus() {
   const { handelNotification } = useContext(
@@ -59,12 +53,30 @@ function ProjectStatus() {
     useState<boolean>(false);
   const [statusColor, setStatusColor] = useState<string>('#ff0000');
 
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_url.split(
+      'https://orbitrms.com/'
+    )[1];
+
   const handelShowModal = () => {
     setModalType('add');
     setEditId('');
     setShowModal(!showModal);
     setStatusColor('#ff0000');
   };
+
+  const BreadcrumbsObjects = [
+    { name: 'Home', label: 'home', link: '/home' },
+    { name: 'Config', label: 'config-module', link: `/${organization}/config` },
+    {
+      name: 'Project Status',
+      label: 'project-status',
+      link: `/${organization}/config/project-status`,
+    },
+  ];
 
   const handelFormSubmitWithDebounce = useDebounce(
     async (value: string, color?: string) => {

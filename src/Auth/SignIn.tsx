@@ -90,7 +90,9 @@ function SignIn() {
           handelNotification(response, 'top-right');
           clearLocalSessionStorage();
         } else {
-          navigate('/config/project-status');
+          navigate(
+            `/${response?.data?.organization?.general_info?.portal_url.split('https://orbitrms.com/')[1]}/config/project-status`
+          );
         }
       } finally {
         setShowGlobalLoader(false);

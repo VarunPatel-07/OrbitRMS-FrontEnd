@@ -98,7 +98,9 @@ export default function VerifyWebsiteUrlModal({
         'top-right'
       );
       addWebsiteUrlFunction(websiteUrl, 'orbitrms', metaTag, res?.match);
-      setShowModal(false);
+      if (res?.match) {
+        setShowModal(false);
+      }
     } else {
       handelNotification(
         {
@@ -138,7 +140,7 @@ export default function VerifyWebsiteUrlModal({
         setIsCopied(true);
         setTimeout(() => {
           setIsCopied(false);
-        }, 300);
+        }, 500);
       })
       .catch((err) => {
         console.error('Failed to copy:', err);

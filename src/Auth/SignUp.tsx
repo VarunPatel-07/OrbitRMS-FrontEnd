@@ -6,7 +6,7 @@ import { BsArrowLeft } from 'react-icons/bs';
 import { FaStarOfLife } from 'react-icons/fa';
 import { GrPowerReset } from 'react-icons/gr';
 import { HiOutlineArrowLeft } from 'react-icons/hi2';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
 import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
@@ -22,6 +22,7 @@ import {
 } from '../Helper/countryDataHelper';
 import HelmetSeo from '../Helper/HelmetSeo';
 import {
+  clearLocalSessionStorage,
   formateAndVerifyPhoneNumber,
   isValidEmail,
 } from '../Helper/HelperFunctions';
@@ -82,6 +83,7 @@ const initialAlertModalPropsInfo = {
 function SignUp() {
   const useEffectRef = useRef(false);
   const CountryDataRef = useRef(false);
+  const navigate = useNavigate();
 
   const [showGlobalLoader, setShowGlobalLoader] = useState(true);
   const [showError, setShowError] = useState<boolean>(false);
@@ -303,10 +305,16 @@ function SignUp() {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
     (async () => {
-      const response = await verifyUsersLoginStatus();
-      if (!response?.success) {
-        setShowGlobalLoader(false);
-      } else {
+      try {
+        const response = await verifyUsersLoginStatus();
+        if (!response?.success) {
+          clearLocalSessionStorage();
+        } else {
+          navigate(
+            `/${response?.data?.organization?.general_info?.portal_url.split('https://orbitrms.com/')[1]}/config/project-status`
+          );
+        }
+      } finally {
         setShowGlobalLoader(false);
       }
     })();

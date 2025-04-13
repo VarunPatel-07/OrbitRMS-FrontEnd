@@ -10,26 +10,41 @@ import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
+import DeleteModal from '../../../../Components/Modal/DeleteModal';
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../../../Context/globalState/GlobalStateContectApi';
 import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../../../Context/Notification/NotificationContextApi';
 import {
   endpointObject,
+  multipleDeleteApi,
   multipleFetchApi,
+  multiplePostApi,
 } from '../../../../Helper/api/multipleAPI';
 import { formateDate } from '../../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../../Hooks/useDebounce';
 import {
+  AddRolesAndPermissionInterFace,
   Column,
+  RolesPermissionInterface,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../../interface/propsInterface';
+import AddEditRolePermission from './AddEditRolePermission';
 
-const BreadcrumbsObjects = [
-  { name: 'Home', label: 'home', link: '/home' },
-  { name: 'Config', label: 'config-module', link: '/config/project-status' },
-  { name: 'Roles', label: 'role-permission', link: '/config/roles-permission' },
-];
+const initialState = {
+  role_name: '',
+  description: '',
+  status: true,
+  clone_role_info: {
+    clone_role_name: '',
+    clone_role_id: '',
+    config_module_id: '',
+  },
+};
 
 function RolesAndPermission() {
   const navigate = useNavigate();
@@ -39,16 +54,36 @@ function RolesAndPermission() {
 
   const useEffectReference = useRef(false);
 
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<RolesPermissionInterface[]>([]);
   const [filterData, setFilterData] = useState<Array<any>>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
+  const [modalType, setModalType] = useState<'add' | 'edit'>('add');
+  const [editId, setEditId] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [value, setValue] =
+    useState<AddRolesAndPermissionInterFace>(initialState);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [deleteItemId, setDeleteItemId] = useState<string>('');
+  const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
 
-  const handelShowModal = () => {};
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_url.split(
+      'https://orbitrms.com/'
+    )[1];
+
+  const handelShowModal = () => {
+    setModalType('add');
+    setEditId('');
+    setShowModal(true);
+  };
 
   const handleRolesPermissionViewButton = (data: any) => {
-    console.log(data);
     navigate(`/config/roles-permission/${data?.id}`);
   };
 
@@ -58,6 +93,20 @@ function RolesAndPermission() {
       classNames:
         'font-inter text-white font-medium bg-[#3538CD] px-4 py-1.5 text-base rounded-lg',
       onclickFunction: handelShowModal,
+    },
+  ];
+
+  const BreadcrumbsObjects = [
+    { name: 'Home', label: 'home', link: '/home' },
+    {
+      name: 'Config',
+      label: 'config-module',
+      link: `/${organization}/config/project-status`,
+    },
+    {
+      name: 'Roles',
+      label: 'role-permission',
+      link: `/${organization}/config/roles-permission`,
     },
   ];
 
@@ -72,6 +121,26 @@ function RolesAndPermission() {
         <span className='w-fit font-inter text-sm font-medium inline-block'>
           {data}
         </span>
+      ),
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      isSortable: true,
+      isSticky: false,
+      canToggleVisibility: true,
+      renderContent: (data: any) => (
+        <>
+          {data ? (
+            <span className='text-green-600 capitalize font-semibold text-sm border border-green-600 px-6 py-1.5 rounded-full bg-green-50 font-inter'>
+              active
+            </span>
+          ) : (
+            <span className='text-red-600 capitalize font-semibold text-sm border border-red-600 px-6 py-1.5 rounded-full bg-red-50 font-inter'>
+              in Active
+            </span>
+          )}
+        </>
       ),
     },
     {
@@ -156,7 +225,7 @@ function RolesAndPermission() {
               className='text-black/80 p-1.5'
               data-tooltip-id='roles_permission_edit_button'
               data-tooltip-content='Edit'
-              //   onClick={() => handelEditButtonClick(data)}
+              onClick={() => handelEditButtonClick(data)}
             >
               <MdModeEdit className='text-[22px]' />
             </button>
@@ -165,10 +234,10 @@ function RolesAndPermission() {
               data-tooltip-id='roles_permission_delete_button'
               data-tooltip-content='Delete'
               disabled={data?.source_type == 'default'}
-              //   onClick={() => {
-              //     setShowDeleteModal(true);
-              //     setDeleteItemId(data?.id);
-              //   }}
+              onClick={() => {
+                setShowDeleteModal(true);
+                setDeleteItemId(data?.id);
+              }}
             >
               <MdDelete className='text-[22px]' />
             </button>
@@ -225,6 +294,95 @@ function RolesAndPermission() {
     fetchRolesAndPermissionWithDebounce();
   };
 
+  const handelFormSubmitWithDebounce = useDebounce(
+    async (data: AddRolesAndPermissionInterFace, edit_id?: string) => {
+      const endpointArr: endpointObject[] = [
+        {
+          endPoint:
+            modalType == 'edit'
+              ? `config/roles_permissions/add-edit?type=edit&edit_role_id=${edit_id}`
+              : 'config/roles_permissions/add-edit?type=add',
+          protected: true,
+          data: data,
+        },
+      ];
+
+      const response = await multiplePostApi(endpointArr);
+
+      const res = response[0];
+      if (res?.success) {
+        setLoading(false);
+        setShowModal(false);
+        setIsFetchingData(true);
+        handelNotification(res, 'top-right');
+        fetchRolesAndPermissionWithDebounce();
+        setValue(initialState);
+      } else {
+        setLoading(false);
+        handelNotification(res, 'top-right');
+      }
+    },
+    50
+  );
+
+  const handelFormSubmitFunction = (data: AddRolesAndPermissionInterFace) => {
+    if (modalType == 'add') {
+      setLoading(true);
+      handelFormSubmitWithDebounce(data);
+    } else {
+      setLoading(true);
+      handelFormSubmitWithDebounce(data, editId);
+    }
+  };
+
+  const handelEditButtonClick = (_data: RolesPermissionInterface) => {
+    setValue({
+      role_name: _data?.role_name,
+      description: _data?.description,
+      status: _data?.status,
+      clone_role_info: {
+        clone_role_name: '',
+        clone_role_id: '',
+        config_module_id: '',
+      },
+    });
+    setEditId(_data?.id);
+    setModalType('edit');
+    setShowModal(true);
+  };
+
+  const handelDeleteFunctionWithDebounce = useDebounce(
+    async (delete_item_id) => {
+      const endpointArr: endpointObject[] = [
+        {
+          endPoint: `config/roles_permissions/delete?id=${delete_item_id}`,
+          protected: true,
+        },
+      ];
+
+      const response = await multipleDeleteApi(endpointArr);
+      const res = response[0];
+
+      if (res?.success) {
+        setDeleteItemId('');
+        setIsDeleteLoading(false);
+        setShowDeleteModal(false);
+        setIsFetchingData(true);
+        handelNotification(res, 'top-right');
+        fetchRolesAndPermissionWithDebounce();
+      } else {
+        setIsDeleteLoading(false);
+        handelNotification(res, 'top-right');
+      }
+    },
+    50
+  );
+
+  const handelDeleteItem = () => {
+    setIsDeleteLoading(true);
+    handelDeleteFunctionWithDebounce(deleteItemId);
+  };
+
   useEffect(() => {
     if (useEffectReference.current) return;
     useEffectReference.current = true;
@@ -233,69 +391,89 @@ function RolesAndPermission() {
   }, []);
 
   return (
-    <div className='relative w-full h-full'>
-      <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
-      <div className='w-full h-full pt-10'>
-        <div className='w-full h-full p-4 2xl:p-5'>
-          {isFetchingData ? (
-            <div className='w-full h-full overflow-hidden'>
-              <TableSkeletonLoader
-                tableHeaderCount={5}
-                tableValueCount={13}
-                maxHeight='calc(-335px + 100vh)'
-              />
-            </div>
-          ) : (
-            <>
-              <TableInfoHeader
-                moduleName='Roles & Permission'
-                badgeValue={
-                  showSearchFilterData
-                    ? filterData.length?.toString()
-                    : data.length?.toString()
-                }
-                buttonsArray={optionsButtonArray}
-              />
-              <TableLocalSearchBar
-                setShowSearchFilterData={setShowSearchFilterData}
-                data={data}
-                search_key='status_name'
-                setData={setFilterData}
-              />
+    <>
+      <div className='relative w-full h-full'>
+        <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+        <div className='w-full h-full pt-10'>
+          <div className='w-full h-full p-4 2xl:p-5'>
+            {isFetchingData ? (
+              <div className='w-full h-full overflow-hidden'>
+                <TableSkeletonLoader
+                  tableHeaderCount={5}
+                  tableValueCount={13}
+                  maxHeight='calc(-335px + 100vh)'
+                />
+              </div>
+            ) : (
+              <>
+                <TableInfoHeader
+                  moduleName='Roles & Permission'
+                  badgeValue={
+                    showSearchFilterData
+                      ? filterData.length?.toString()
+                      : data.length?.toString()
+                  }
+                  buttonsArray={optionsButtonArray}
+                />
+                <TableLocalSearchBar
+                  setShowSearchFilterData={setShowSearchFilterData}
+                  data={data}
+                  search_key='status_name'
+                  setData={setFilterData}
+                />
 
-              {(data?.length > 0 && !showSearchFilterData) ||
-              (showSearchFilterData && filterData?.length > 0) ? (
-                <Table
-                  columns={columns}
-                  data={showSearchFilterData ? filterData : data}
-                  tableWrapperClass={
-                    'overflow-auto max-h-[calc(100vh-270px)] rounded-b-lg'
-                  }
-                  stickyHeaderClass='sticky top-0'
-                />
-              ) : (
-                <TableNoDataFound
-                  tableWrapperClass={'max-h-[calc(100%-140px)] rounded-b-lg'}
-                  notFoundTitle={
-                    showSearchFilterData
-                      ? 'No Data Found For Related Search'
-                      : 'You haven’t added any Projects Status yet'
-                  }
-                  notFoundMessage={
-                    showSearchFilterData
-                      ? 'No matching role & permission found. Try refining your search or adding a new role & permission.'
-                      : 'Add Role manually by clicking Add Role button.'
-                  }
-                  notFoundOptionsButtonsArray={
-                    showSearchFilterData ? [] : optionsButtonArray
-                  }
-                />
-              )}
-            </>
-          )}
+                {(data?.length > 0 && !showSearchFilterData) ||
+                (showSearchFilterData && filterData?.length > 0) ? (
+                  <Table
+                    columns={columns}
+                    data={showSearchFilterData ? filterData : data}
+                    tableWrapperClass={
+                      'overflow-auto max-h-[calc(100vh-270px)] rounded-b-lg'
+                    }
+                    stickyHeaderClass='sticky top-0'
+                  />
+                ) : (
+                  <TableNoDataFound
+                    tableWrapperClass={'max-h-[calc(100%-140px)] rounded-b-lg'}
+                    notFoundTitle={
+                      showSearchFilterData
+                        ? 'No Data Found For Related Search'
+                        : 'You haven’t added any Projects Status yet'
+                    }
+                    notFoundMessage={
+                      showSearchFilterData
+                        ? 'No matching role & permission found. Try refining your search or adding a new role & permission.'
+                        : 'Add Role manually by clicking Add Role button.'
+                    }
+                    notFoundOptionsButtonsArray={
+                      showSearchFilterData ? [] : optionsButtonArray
+                    }
+                  />
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      <AddEditRolePermission
+        modalTitle={modalType == 'add' ? 'Add Role' : 'Edit Role'}
+        loading={loading}
+        value={value}
+        setValue={setValue}
+        modalType={modalType}
+        handelFormSubmitFunction={handelFormSubmitFunction}
+        setShowModal={setShowModal}
+        showModal={showModal}
+        ActiveRolesPermissionArray={data}
+      />
+      <DeleteModal
+        loading={isDeleteLoading}
+        showDeleteModal={showDeleteModal}
+        setShowDeleteModal={setShowDeleteModal}
+        handelDelete={handelDeleteItem}
+      />
+    </>
   );
 }
 

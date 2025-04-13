@@ -1,17 +1,31 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { RiArrowLeftDoubleFill } from 'react-icons/ri';
 import { Link, useLocation } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../Context/globalState/GlobalStateContectApi';
 import { SidebarMenuItemInterface, SidebarMenuItems } from './SidebarMenuItems';
 
 function SideBar() {
   const navigation = useLocation();
   const [collapsed, setCollapsed] = useState(true as boolean);
 
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_url.split(
+      'https://orbitrms.com/'
+    )[1];
+
   const handelSidebarCollapse = () => {
     setCollapsed(!collapsed);
   };
+
+  const SidebarMenuItemsArray = SidebarMenuItems(organization || '');
 
   return (
     <div
@@ -22,7 +36,7 @@ function SideBar() {
       <div className='w-full h-full flex flex-col justify-between'>
         <div className='w-full'>
           <ul className='relative flex flex-col gap-2 px-[5px] pt-3'>
-            {SidebarMenuItems.map((item: SidebarMenuItemInterface) => (
+            {SidebarMenuItemsArray.map((item: SidebarMenuItemInterface) => (
               <li
                 key={item.id}
                 className={`w-full group relative rounded-md ${
@@ -66,7 +80,7 @@ function SideBar() {
             ))}
           </ul>
         </div>
-        <div className='w-full'>
+        <div className='w-full relative z-50'>
           <button
             className={`w-full flex items-center border-t-[1px] border-t-slate-500 backdrop-blur bg-[#00000029] hover:bg-[#00000050] transition-all duration-500  py-3 flex-nowrap overflow-hidden ${
               collapsed ? 'px-4 justify-start' : 'px-6 justify-center'
