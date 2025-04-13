@@ -7,6 +7,10 @@ import Navbar from './Components/Navbar/Navbar';
 import PageNotFound from './Components/PageNotFound';
 import SideBar from './Components/SideBar/SideBar';
 import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from './Context/globalState/GlobalStateContectApi';
+import {
   NotificationContext,
   NotificationContextApiProps,
 } from './Context/Notification/NotificationContextApi';
@@ -15,11 +19,16 @@ import { clearLocalSessionStorage } from './Helper/HelperFunctions';
 import ProtectedRoute from './Helper/ProtectedRoute';
 import ClientInquiry from './Pages/ClientInquiry/ClientInquiry';
 import Config from './Pages/config/Config';
+import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
 
 function App() {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
+
+  const { setGlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
 
   const useEffectRef = useRef(false);
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
@@ -35,6 +44,7 @@ function App() {
         clearLocalSessionStorage();
       } else {
         setShowGlobalLoader(false);
+        if (response?.data) setGlobalStateProvider(response?.data);
       }
     })();
   }, []);
@@ -63,6 +73,10 @@ function App() {
                   <Route
                     path='/config/*'
                     element={<ProtectedRoute element={<Config />} />}
+                  />
+                  <Route
+                    path='/employee-profile/:id'
+                    element={<ProtectedRoute element={<EmployeeProfile />} />}
                   />
                   <Route path='*' element={<PageNotFound />} />
                 </Routes>

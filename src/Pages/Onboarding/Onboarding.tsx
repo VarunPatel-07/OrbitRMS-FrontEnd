@@ -363,7 +363,10 @@ function Onboarding() {
       if (res?.success) {
         handelNotification(res, 'top-right');
         setIsSubmitting(false);
-        navigate('/config');
+        const organization = formData?.general_info?.portal_url.split(
+          'https://orbitrms.com/'
+        )[1];
+        navigate(`/${organization}/config/project-status`);
       }
     }
   }, 300);

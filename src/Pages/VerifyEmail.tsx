@@ -10,7 +10,7 @@ import { classNames } from '../Helper/HelperFunctions';
 export default function VerifyEmail() {
   const hasRun = useRef(false);
   const [searchParams] = useSearchParams();
-  const [showGlobalLoader, setShowGlobalLoader] = useState<boolean>(false);
+  const [showGlobalLoader, setShowGlobalLoader] = useState<boolean>(true);
   const [alreadyVerified, setAlreadyVerified] = useState<boolean>(false);
 
   const verifyEmailFunction = async (organization_id: string | null) => {
@@ -24,8 +24,8 @@ export default function VerifyEmail() {
       const response = await multipleFetchApi(endpointArray);
       const res = response[0];
       if (res.success) {
-        setShowGlobalLoader(false);
         setAlreadyVerified(res?.alreadyVerified);
+        setShowGlobalLoader(false);
       }
     }
   };

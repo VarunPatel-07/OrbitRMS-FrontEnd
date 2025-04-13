@@ -1,18 +1,6 @@
 //? -------------------------- This Is The Start Of The Onboarding Form InterFace -------------------------
 
 //? -------------------------- Start Of The Onboarding Form InterFace Utility -------------------------
-// country_code
-// :
-// "IN"
-// country_flag
-// :
-// "🇮🇳"
-// country_name
-// :
-// "India"
-// country_number_code
-// :
-// "+91"
 
 export interface CountryInfo {
   country_code: string;
@@ -114,6 +102,7 @@ export interface ConfigRolesAndPermissionModule {
   role_name: string;
   description: string;
   source_type: string;
+  status: boolean;
   created_by: null | object;
   created_at: string;
   updated_by: null | object;

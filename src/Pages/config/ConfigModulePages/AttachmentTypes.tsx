@@ -12,6 +12,10 @@ import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonL
 import AddModal from '../../../Components/Modal/AddModal';
 import DeleteModal from '../../../Components/Modal/DeleteModal';
 import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../../Context/globalState/GlobalStateContectApi';
+import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../../Context/Notification/NotificationContextApi';
@@ -27,16 +31,6 @@ import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
-
-const BreadcrumbsObjects = [
-  { name: 'Home', label: 'home', link: '/home' },
-  { name: 'Config', label: 'config-module', link: '/config/project-status' },
-  {
-    name: 'Attachment Types',
-    label: 'attachment-types',
-    link: '/config/attachment-type',
-  },
-];
 
 export default function AttachmentTypes() {
   const { handelNotification } = useContext(
@@ -58,6 +52,24 @@ export default function AttachmentTypes() {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [deleteItemId, setDeleteItemId] = useState<string>('');
   const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
+
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_url.split(
+      'https://orbitrms.com/'
+    )[1];
+
+  const BreadcrumbsObjects = [
+    { name: 'Home', label: 'home', link: '/home' },
+    { name: 'Config', label: 'config-module', link: `/${organization}/config/project-status` },
+    {
+      name: 'Attachment Types',
+      label: 'attachment-types',
+      link: `/${organization}/config/attachment-type`,
+    },
+  ];
 
   const handelShowModal = () => {
     setModalType('add');

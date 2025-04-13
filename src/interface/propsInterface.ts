@@ -161,3 +161,28 @@ export interface TableInfoHeaderInterface {
   badgeValue: string;
   buttonsArray?: Array<TableInfoHeaderInterfaceButtonArrayObject>;
 }
+
+export interface ClonedRolePermissionInterface {
+  clone_role_name: string;
+  clone_role_id: string;
+  config_module_id: string;
+}
+export interface AddRolesAndPermissionInterFace {
+  role_name: string;
+  description: string;
+  status: boolean;
+  clone_role_info: ClonedRolePermissionInterface;
+}
+
+export interface RolesPermissionInterface {
+  config_module_id: string;
+  created_at: string;
+  updated_at: string;
+  created_by: null;
+  updated_by: null;
+  description: string;
+  id: string;
+  role_name: string;
+  source_type: string;
+  status: boolean;
+}

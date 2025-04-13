@@ -20,6 +20,7 @@ import './css/font.css';
 import CreateResetPassword from './Auth/CreateResetPassword';
 import ForgotPassword from './Auth/ForgotPassword';
 import Notification from './common/Notification/Notification';
+import { GlobalStateContentApiProvider } from './Context/globalState/GlobalStateContectApi';
 import { NotificationContextApiProvider } from './Context/Notification/NotificationContextApi';
 import Onboarding from './Pages/Onboarding/Onboarding';
 import VerifyEmail from './Pages/VerifyEmail';
@@ -46,8 +47,18 @@ createRoot(document.getElementById('root')!).render(
           <Route path='/onboarding' element={<Onboarding />} />
 
           {/* all The Protected Routes are Defined Blow */}
-
-          <Route path='/*' element={<ProtectedRoute element={<App />} />} />
+          <Route
+            path='/:organization/*'
+            element={
+              <ProtectedRoute
+                element={
+                  <GlobalStateContentApiProvider>
+                    <App />
+                  </GlobalStateContentApiProvider>
+                }
+              />
+            }
+          />
 
           {/* Error FallBack Rout */}
 

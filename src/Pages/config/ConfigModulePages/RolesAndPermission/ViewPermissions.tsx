@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import { useParams } from 'react-router-dom';
 
-import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import Breadcrumbs from '../../../../common/Breadcrumbs';
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../../../Context/globalState/GlobalStateContectApi';
+import {
+  NotificationContext,
+  NotificationContextApiProps,
+} from '../../../../Context/Notification/NotificationContextApi';
 import {
   endpointObject,
   multipleFetchApi,
@@ -20,6 +28,7 @@ const initialState = {
   role_name: '',
   description: '',
   source_type: '',
+  status: false,
   created_by: null,
   created_at: '2025-04-04T17:53:40',
   updated_by: null,
@@ -28,6 +37,10 @@ const initialState = {
 };
 
 function ViewPermissions() {
+  const { handelNotification } = useContext(
+    NotificationContext
+  ) as NotificationContextApiProps;
+  const navigate = useNavigate();
   const useEffectRef = useRef(false);
   const { id } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
@@ -36,14 +49,26 @@ function ViewPermissions() {
   const [data, setData] =
     useState<ConfigRolesAndPermissionModule>(initialState);
 
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_url.split(
+      'https://orbitrms.com/'
+    )[1];
+
   const BreadcrumbsObjects = [
     { name: 'Home', label: 'home', link: '/home' },
     { name: 'Config', label: 'config-module', link: '/config/project-status' },
-    { name: 'Roles', label: 'role-permission', link: '/config/roles-permission' },
+    {
+      name: 'Roles',
+      label: 'role-permission',
+      link: '/config/roles-permission',
+    },
     {
       name: data?.role_name,
       label: 'specific-role-permission',
-      link: `/config/roles-permission/${data?.id}`,
+      link: `/${organization}/config/roles-permission/${data?.id}`,
     },
   ];
 
@@ -61,6 +86,11 @@ function ViewPermissions() {
       setData(res?.data);
       setLoading(false);
       setUpdatingModuleLoaderId('');
+    } else {
+      handelNotification(res, 'top-right');
+      setTimeout(() => {
+        navigate('/config/roles-permission');
+      }, 1000);
     }
   }, 50);
 
@@ -123,9 +153,15 @@ function ViewPermissions() {
                     </p>
                   </div>
                   <div className='flex items-center justify-end gap-3'>
-                    <span className='text-green-600 capitalize font-semibold text-sm border border-green-600 px-6 py-1.5 rounded-full bg-green-50 font-inter'>
-                      active
-                    </span>
+                    {data?.status ? (
+                      <span className='text-green-600 capitalize font-semibold text-sm border border-green-600 px-6 py-1.5 rounded-full bg-green-50 font-inter'>
+                        active
+                      </span>
+                    ) : (
+                      <span className='text-red-600 capitalize font-semibold text-sm border border-red-600 px-6 py-1.5 rounded-full bg-red-50 font-inter'>
+                        in Active
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

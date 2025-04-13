@@ -1,7 +1,11 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import PageNotFound from '../../Components/PageNotFound';
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../Context/globalState/GlobalStateContectApi';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
 import AttachmentTypes from './ConfigModulePages/AttachmentTypes';
 import Designations from './ConfigModulePages/Designations';
@@ -14,11 +18,19 @@ function Config() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_url.split(
+      'https://orbitrms.com/'
+    )[1];
+
   useEffect(() => {
-    if (location.pathname === '/config') {
-      navigate('/config/project-status');
+    if (location.pathname == `/${organization}/config`) {
+      navigate(`/${organization}/config/project-status`);
     }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, navigate, organization]);
 
   return (
     <div className='w-full h-full'>
