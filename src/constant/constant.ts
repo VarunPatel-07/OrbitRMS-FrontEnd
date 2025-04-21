@@ -12,3 +12,24 @@ export const getExitAnimationClass = {
   'bottom-left': 'animate-exit-bottom-left',
   center: 'animate-exit-center',
 };
+
+export const bloodGroupArray = [
+  'A+',
+  'A-',
+  'B+',
+  'B-',
+  'AB+',
+  'AB-',
+  'O+',
+  'O-',
+  'Bombay (hh)',
+  'Rh-null',
+];
+export const GenderArray = ['Male', 'Female', 'Other'];
+
+export const OrganizationEmployeeStatusArray = [
+  'Intern',
+  'Trainee',
+  'Probation',
+  'Confirmed',
+];

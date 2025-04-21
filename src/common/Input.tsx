@@ -37,6 +37,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const updateValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = e.target.value;
       const basicRegex = /^[^|+=:;?]*$/;
+      
       if (!setValue) return;
       switch (type) {
         case 'url':
@@ -56,6 +57,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         case 'password':
           setValue(val);
           break;
+
         default:
           if (basicRegex.test(val)) {
             setValue(val);

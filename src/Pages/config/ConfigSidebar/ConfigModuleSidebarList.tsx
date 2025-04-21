@@ -20,9 +20,9 @@ export const ConfigSidebarMenuList = (
   },
   {
     id: 2,
-    name: 'Attachment Type',
+    name: 'Department',
     label: 'config-attachment-type-tooltip',
-    link: `/${organization}/config/attachment-type`,
+    link: `/${organization}/config/department`,
     showToolTip: false,
     ToolTipValue: 'Attachment Type',
   },

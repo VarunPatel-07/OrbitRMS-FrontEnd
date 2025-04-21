@@ -55,7 +55,9 @@ function SignIn() {
       if (!res?.organization_created) {
         navigate(`/onboarding?organization_id=${res?.organization_id}`);
       } else {
-        navigate('/config/project-status');
+        navigate(
+          `/${res?.organization_general_info?.portal_url?.split('https://orbitrms.com/')[1]}/config/project-status`
+        );
       }
     } else {
       setLoading(false);

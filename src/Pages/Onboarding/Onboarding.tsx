@@ -21,6 +21,7 @@ import Loader from '../../common/Loader';
 import SearchDrop from '../../common/SearchDrop';
 import TextArea from '../../common/TextArea';
 import MainSuspenseLoader from '../../Components/Loader/MainSuspenseLoader';
+import { bloodGroupArray, GenderArray } from '../../constant/constant';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -130,19 +131,6 @@ const SideBarArray = [
     description:
       'Basic profile details for the organization. You can change it later.',
   },
-];
-
-const bloodGroupArray = [
-  'A+',
-  'A-',
-  'B+',
-  'B-',
-  'AB+',
-  'AB-',
-  'O+',
-  'O-',
-  'Bombay (hh)',
-  'Rh-null',
 ];
 
 const initialCountryInfo = {
@@ -1555,7 +1543,7 @@ function Onboarding() {
                         <div className='grid grid-cols-2 gap-4'>
                           <div className='w-full'>
                             <SearchDrop
-                              options={['Male', 'Female', 'Other']}
+                              options={GenderArray}
                               searchKey=''
                               position='bottom'
                               emptyDataMessage=''

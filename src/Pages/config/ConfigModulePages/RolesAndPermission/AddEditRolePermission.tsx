@@ -208,7 +208,7 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
                     ])}
                     searchKey='clone_role_name'
                     isRequiredField={true}
-                    labelFieldName='Country'
+                    labelFieldName='Clone Role Name'
                     selectedValue={value?.clone_role_info?.clone_role_name}
                     onSelectValBtn={handleClickOnActiveRoleValue}
                     position='top'
@@ -255,7 +255,7 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
                 Cancel
               </button>
               <button
-                className='text-white bg-[#3538CD] py-2 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'
+                className='text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'
                 disabled={loading}
                 onClick={handelSubmitButton}
               >

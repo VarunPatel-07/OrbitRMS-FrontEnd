@@ -19,10 +19,7 @@ function DeleteModal({
 
   useEffect(() => {
     const handelClickOutSideTheBox = (event: MouseEvent) => {
-      if (
-        boxRef.current &&
-        !boxRef.current.contains(event.target as Node)
-      ) {
+      if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
         setShowDeleteModal(false);
       }
     };
@@ -77,7 +74,7 @@ function DeleteModal({
             </div>
             <div className='grid grid-cols-2 w-full gap-x-2'>
               <button
-                className='text-indigo-600 w-full py-2.5 rounded-lg font-inter border border-indigo-600 text-base font-semibold hover:bg-indigo-600 hover:text-white transition-all'
+                className='text-[var(--them-green-color)] w-full py-2.5 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 hover:text-white transition-all'
                 onClick={() => setShowDeleteModal(false)}
               >
                 Cancel
