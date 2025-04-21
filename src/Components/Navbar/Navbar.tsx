@@ -31,7 +31,7 @@ function Navbar() {
   ];
 
   return (
-    <div className='w-full h-14 flex items-center justify-between border-b border-b-black/10'>
+    <div className='w-full min-h-14 flex items-center justify-between border-b border-b-black/15'>
       <div className='h-full flex w-fit gap-3'>
         <div className='w-fit pl-4 flex items-center justify-center'>
           <img

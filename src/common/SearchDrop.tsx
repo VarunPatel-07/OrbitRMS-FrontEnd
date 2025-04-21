@@ -28,11 +28,16 @@ export default function SearchDrop(props: SearchDropProps) {
 
   const boxRef = useRef<HTMLDivElement>(null);
   const inputFieldRef = useRef<HTMLInputElement>(null);
+  const dropDownRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [highlightIndex, setHighlightIndex] = useState<number>(-1);
+  const [dynamicPosition, setDynamicPosition] = useState<'bottom' | 'top'>(
+    position || 'bottom'
+  );
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
@@ -72,6 +77,28 @@ export default function SearchDrop(props: SearchDropProps) {
     }
     setIsOpen(false);
   };
+
+  useEffect(() => {
+    const adjustPosition = () => {
+      if (dropDownRef.current && buttonRef.current) {
+        const pickerHeight = dropDownRef.current.offsetHeight;
+        const buttonRect = buttonRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - buttonRect.bottom;
+        const spaceAbove = buttonRect.top;
+
+        // If not enough space below but enough space above, move picker to top
+        if (spaceBelow < pickerHeight && spaceAbove > pickerHeight) {
+          setDynamicPosition('top');
+        } else {
+          setDynamicPosition('bottom');
+        }
+      }
+    };
+
+    adjustPosition();
+    window.addEventListener('resize', adjustPosition);
+    return () => window.removeEventListener('resize', adjustPosition);
+  }, []);
 
   useEffect(() => {
     const handelClickOutSideTheBox = (event: MouseEvent) => {
@@ -137,6 +164,7 @@ export default function SearchDrop(props: SearchDropProps) {
         <button
           onClick={handleToggle}
           onKeyDown={handelKeyPress}
+          ref={buttonRef}
           className={clsx(
             'px-2.5 py-2.5 bg-white border border-black/45 rounded-lg w-full flex justify-between items-center',
             className
@@ -157,17 +185,18 @@ export default function SearchDrop(props: SearchDropProps) {
 
         {isOpen && (
           <div
+            ref={dropDownRef}
             className={classNames('absolute w-full z-50 transition-all', {
-              'bottom-0': position == 'top',
-              'top-0': position == 'bottom',
+              'bottom-0': dynamicPosition == 'top',
+              'top-0': dynamicPosition == 'bottom',
             })}
           >
             <div
               className={classNames(
                 'flex items-center justify-center gap-1.5',
                 {
-                  'flex-col-reverse': position == 'top',
-                  'flex-col': position == 'bottom',
+                  'flex-col-reverse': dynamicPosition == 'top',
+                  'flex-col': dynamicPosition == 'bottom',
                 }
               )}
             >

@@ -84,14 +84,14 @@ function RolesAndPermission() {
   };
 
   const handleRolesPermissionViewButton = (data: any) => {
-    navigate(`/config/roles-permission/${data?.id}`);
+    navigate(`/${organization}/config/roles-permission/${data?.id}`);
   };
 
   const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
     {
       buttonTitle: 'Add Role',
       classNames:
-        'font-inter text-white font-medium bg-[#3538CD] px-4 py-1.5 text-base rounded-lg',
+        'font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg',
       onclickFunction: handelShowModal,
     },
   ];

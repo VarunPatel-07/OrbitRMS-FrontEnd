@@ -7,7 +7,7 @@ import {
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
-import AttachmentTypes from './ConfigModulePages/AttachmentTypes';
+import AttachmentTypes from './ConfigModulePages/Department';
 import Designations from './ConfigModulePages/Designations';
 import ProjectStatus from './ConfigModulePages/ProjectStatus';
 import RolesAndPermission from './ConfigModulePages/RolesAndPermission/RolesAndPermission';
@@ -46,7 +46,7 @@ function Config() {
               element={<ProtectedRoute element={<ProjectStatus />} />}
             />
             <Route
-              path='/attachment-type'
+              path='/department'
               element={<ProtectedRoute element={<AttachmentTypes />} />}
             />
             <Route

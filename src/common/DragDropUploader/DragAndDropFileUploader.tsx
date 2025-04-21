@@ -202,7 +202,7 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
 
   return (
     <>
-      <div {...getRootProps()}>
+      <div {...getRootProps()} className='cursor-pointer'>
         <input {...getInputProps()} />
         {isDragActive ? (
           showDropFileScreenInFullScreen ? (

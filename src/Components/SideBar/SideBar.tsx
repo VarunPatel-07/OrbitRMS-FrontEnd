@@ -29,7 +29,7 @@ function SideBar() {
 
   return (
     <div
-      className={`h-full bg-[#3538CD] text-white flex flex-col  transition-all duration-300  ${
+      className={`h-full bg-[var(--them-green-color)] text-white flex flex-col  transition-all duration-300  ${
         collapsed ? 'max-w-[60px] min-w-[60px]' : 'min-w-[240px] max-w-[250px]'
       }`}
     >
@@ -45,21 +45,21 @@ function SideBar() {
                       ? '/config'
                       : item?.link
                   )
-                    ? 'bg-[#444CE7]'
-                    : 'hover:bg-[#444CE7]'
+                    ? 'bg-[#4f7a63]'
+                    : 'hover:bg-[#2f4c3d]'
                 }`}
               >
                 <Link
                   to={item.link}
-                  className={`w-full overflow-hidden flex gap-3 py-2.5 transition-all font-inter ${
+                  className={`w-full overflow-hidden flex gap-3 py-2.5 transition-all font-inter text-white ${
                     collapsed ? 'px-[12px]' : 'px-4'
                   }`}
                   data-tooltip-id={item.label}
                   data-tooltip-content={item.ToolTipValue}
                 >
-                  <span className='font-medium'>{item.icon}</span>
+                  <span className='font-medium text-white'>{item.icon}</span>
                   <span
-                    className={`transition-all inline-block text-nowrap ${
+                    className={`transition-all inline-block text-nowrap text-white ${
                       collapsed
                         ? 'px-4 opacity-0'
                         : 'px-0 opacity-100 text-base font-medium'
@@ -82,7 +82,7 @@ function SideBar() {
         </div>
         <div className='w-full relative z-50'>
           <button
-            className={`w-full flex items-center border-t-[1px] border-t-slate-500 backdrop-blur bg-[#00000029] hover:bg-[#00000050] transition-all duration-500  py-3 flex-nowrap overflow-hidden ${
+            className={`w-full flex items-center border-t-[1px] border-t-slate-500 backdrop-blur bg-[#00000029] hover:bg-[#00000050] transition-all duration-500  py-3 flex-nowrap overflow-hidden text-white ${
               collapsed ? 'px-4 justify-start' : 'px-6 justify-center'
             }`}
             onClick={handelSidebarCollapse}

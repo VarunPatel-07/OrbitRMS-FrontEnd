@@ -118,7 +118,7 @@ function Designations() {
     {
       buttonTitle: 'Add Designations',
       classNames:
-        'font-inter text-white font-medium bg-[#3538CD] px-4 py-1.5 text-base rounded-lg',
+        'font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg',
       onclickFunction: handelShowModal,
     },
   ];

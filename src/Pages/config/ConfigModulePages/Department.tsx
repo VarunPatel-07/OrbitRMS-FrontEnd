@@ -63,11 +63,15 @@ export default function AttachmentTypes() {
 
   const BreadcrumbsObjects = [
     { name: 'Home', label: 'home', link: '/home' },
-    { name: 'Config', label: 'config-module', link: `/${organization}/config/project-status` },
+    {
+      name: 'Config',
+      label: 'config-module',
+      link: `/${organization}/config/project-status`,
+    },
     {
       name: 'Attachment Types',
       label: 'attachment-types',
-      link: `/${organization}/config/attachment-type`,
+      link: `/${organization}/config/department`,
     },
   ];
 
@@ -112,9 +116,9 @@ export default function AttachmentTypes() {
 
   const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
     {
-      buttonTitle: 'Add Attachment',
+      buttonTitle: 'Add Department',
       classNames:
-        'font-inter text-white font-medium bg-[#3538CD] px-4 py-1.5 text-base rounded-lg',
+        'font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg',
       onclickFunction: handelShowModal,
     },
   ];
@@ -196,7 +200,7 @@ export default function AttachmentTypes() {
   const columns: Array<Column> = [
     {
       key: 'attachment_name',
-      title: 'Attachment Name',
+      title: 'Department',
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
@@ -327,7 +331,7 @@ export default function AttachmentTypes() {
             ) : (
               <>
                 <TableInfoHeader
-                  moduleName='Attachment Types'
+                  moduleName='Department'
                   badgeValue={
                     showSearchFilterData
                       ? filterData.length?.toString()
@@ -357,12 +361,12 @@ export default function AttachmentTypes() {
                     notFoundTitle={
                       showSearchFilterData
                         ? 'No Data Found For Related Search'
-                        : 'You haven’t added any Projects Status yet'
+                        : 'You haven’t added any Department yet'
                     }
                     notFoundMessage={
                       showSearchFilterData
-                        ? 'No matching project status found. Try refining your search or adding a new project status.'
-                        : 'Add Projects Status manually by clicking Add Projects Status button.'
+                        ? 'No matching Department found. Try refining your search or adding a new Department.'
+                        : 'Add Department manually by clicking Add Department button.'
                     }
                     notFoundOptionsButtonsArray={
                       showSearchFilterData ? [] : optionsButtonArray
