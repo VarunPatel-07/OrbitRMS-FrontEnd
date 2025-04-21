@@ -61,7 +61,7 @@ export default function AddEditEmployeeProfile() {
 
   const { organization } = useParams();
 
-  const [showErrorObj, setShowErrorObj] = useState<{
+  const [showErrorObj] = useState<{
     errorModule: ErrorModuleType;
     showError: boolean;
   }>({ errorModule: '', showError: false });
