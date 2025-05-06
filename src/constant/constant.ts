@@ -27,6 +27,21 @@ export const bloodGroupArray = [
 ];
 export const GenderArray = ['Male', 'Female', 'Other'];
 
+export const maritalStatus = [
+  'Single',
+  'Married',
+  'Divorced',
+  'Widowed',
+  'Prefer not to say',
+];
+
+export const AlignableForChildInfo = [
+  'Married',
+  'Divorced',
+  'Widowed',
+  'Prefer not to say',
+];
+
 export const OrganizationEmployeeStatusArray = [
   'Intern',
   'Trainee',

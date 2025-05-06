@@ -57,10 +57,7 @@ function App() {
             response?.data?.organization?.general_info
               ?.organization_profile_picture,
           portal_url: response?.data?.organization?.general_info?.portal_url,
-          portal_url_slug:
-            response?.data?.organization?.general_info?.portal_url.split(
-              'https://orbitrms.com/'
-            )[1],
+          portal_slug: response?.data?.organization?.general_info?.portal_slug,
         };
 
         storeDataInLocalStorage(

@@ -129,7 +129,7 @@ function SignUp() {
       };
 
       const response = await signUpApiFunction(
-        'organization/sign-up',
+        'auth/sign-up',
         data,
         'POST',
         setLoading
@@ -321,7 +321,13 @@ function SignUp() {
   }, []);
 
   useEffect(() => {
-    setPortalUrl(formData.organizationName?.toLocaleLowerCase());
+    setPortalUrl(
+      formData.organizationName
+        ?.toLocaleLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+    );
   }, [formData.organizationName]);
 
   useEffect(() => {

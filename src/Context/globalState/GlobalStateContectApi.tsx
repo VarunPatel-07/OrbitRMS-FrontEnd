@@ -31,6 +31,7 @@ const initialState: GlobalContextStore = {
         country_number_code: '',
       },
       portal_url: '',
+      portal_slug: '',
       website_url: '',
       is_meta_verified: false,
       meta_key: '',

@@ -31,6 +31,7 @@ import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
+import { DesignationConfig } from '../../../interface/interface';
 
 function Designations() {
   const { handelNotification } = useContext(
@@ -45,8 +46,8 @@ function Designations() {
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const [value, setValue] = useState<string>('');
-  const [data, setData] = useState<Array<any>>([]);
-  const [filterData, setFilterData] = useState<Array<any>>([]);
+  const [data, setData] = useState<Array<DesignationConfig>>([]);
+  const [filterData, setFilterData] = useState<Array<DesignationConfig>>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -340,7 +341,7 @@ function Designations() {
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
                   data={data}
-                  search_key='status_name'
+                  search_key='designations_name'
                   setData={setFilterData}
                 />
                 {(data?.length > 0 && !showSearchFilterData) ||

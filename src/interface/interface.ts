@@ -15,6 +15,7 @@ export interface GeneralInfo {
   primary_number: string;
   country_info: CountryInfo | null;
   portal_url: string;
+  portal_slug: string;
   website_url: string;
   is_meta_verified: boolean;
   meta_key: string;
@@ -110,7 +111,37 @@ export interface ConfigRolesAndPermissionModule {
   modules: RolesAndPermissionsModule[];
 }
 
+export interface CountryDataInterface {
+  country_code: string;
+  country_flag: string;
+  country_name: string;
+  country_number_code: string;
+  postal_code: { format: string; regex: string };
+}
+export interface StateOptionArrayInterFace {
+  state_code: string;
+  state_name: string;
+}
 //? -------------------------- This Is The End Of The Roles And Permission InterFace -------------------------
 
+export interface DepartmentConfig {
+  config_module_id: string;
+  created_at: string;
+  created_by: object | null;
+  department_name: string;
+  id: string;
+  source_type: string;
+  updated_at: object | null;
+  updated_by: string | null;
+}
 
-
+export interface DesignationConfig {
+  config_module_id: string;
+  created_at: string;
+  created_by: object | null;
+  designations_name: string;
+  id: string;
+  source_type: string;
+  updated_at: object | null;
+  updated_by: string | null;
+}

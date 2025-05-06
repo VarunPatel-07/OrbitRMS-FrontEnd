@@ -27,6 +27,7 @@ import {
 } from '../../../Helper/api/multipleAPI';
 import { formateDate } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
+import { DepartmentConfig } from '../../../interface/interface';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
@@ -45,8 +46,8 @@ export default function AttachmentTypes() {
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const [value, setValue] = useState<string>('');
-  const [data, setData] = useState<Array<any>>([]);
-  const [filterData, setFilterData] = useState<Array<any>>([]);
+  const [data, setData] = useState<Array<DepartmentConfig>>([]);
+  const [filterData, setFilterData] = useState<Array<DepartmentConfig>>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -69,8 +70,8 @@ export default function AttachmentTypes() {
       link: `/${organization}/config/project-status`,
     },
     {
-      name: 'Attachment Types',
-      label: 'attachment-types',
+      name: 'Department',
+      label: 'department',
       link: `/${organization}/config/department`,
     },
   ];
@@ -84,14 +85,14 @@ export default function AttachmentTypes() {
   const handelEditButtonClick = (data: any) => {
     setModalType('edit');
     setShowModal(!showModal);
-    setValue(data?.attachment_name);
+    setValue(data?.department_name);
     setEditId(data?.id);
   };
 
   const fetchAttachmentTypesWithDebounce = useDebounce(async () => {
     const endPointArr: Array<endpointObject> = [
       {
-        endPoint: 'config/attachment_type/fetch',
+        endPoint: 'config/department/fetch',
         protected: true,
       },
     ];
@@ -124,7 +125,7 @@ export default function AttachmentTypes() {
   ];
 
   const handelFormSubmitWithDebounce = useDebounce(async (value: string) => {
-    let endPoint = `config/attachment_type/add-edit`;
+    let endPoint = `config/department/add-edit`;
 
     if (modalType === 'edit') {
       endPoint += `?type=edit&id=${editId}`;
@@ -133,7 +134,7 @@ export default function AttachmentTypes() {
     }
 
     const data = {
-      attachment_name: value,
+      department_name: value,
     };
 
     const endPointArr: Array<endpointObject> = [
@@ -168,7 +169,7 @@ export default function AttachmentTypes() {
     try {
       const response = await multipleDeleteApi([
         {
-          endPoint: `config/attachment_type/delete?id=${deleteItemId}`,
+          endPoint: `config/department/delete?id=${deleteItemId}`,
           protected: true,
         },
       ]);
@@ -199,7 +200,7 @@ export default function AttachmentTypes() {
 
   const columns: Array<Column> = [
     {
-      key: 'attachment_name',
+      key: 'department_name',
       title: 'Department',
       isSortable: true,
       isSticky: false,
@@ -342,7 +343,7 @@ export default function AttachmentTypes() {
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
                   data={data}
-                  search_key='status_name'
+                  search_key='department_name'
                   setData={setFilterData}
                 />
                 {(data?.length > 0 && !showSearchFilterData) ||

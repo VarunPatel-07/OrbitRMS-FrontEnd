@@ -90,6 +90,7 @@ export const signUpApiFunction = async (
       primary_number: data.contactNumber,
       country_info: JSON.parse(data.countryInfo as string),
       portal_url: `${data.defaultPortalUrlSlug}${data.portalUrl}`,
+      portal_slug: data.portalUrl,
       website_url: data.websiteUrl || '',
       is_meta_verified: false,
       meta_key: '',
@@ -110,7 +111,7 @@ export const signUpApiFunction = async (
     if (response?.data?.success) {
       setLoader(false);
       return {
-        message: `We've sent a verification email to **${response.data?.organization?.primary_email}**.  
+        message: `We've sent a verification email to **${data.primaryEmail}**.  
         Please check your inbox and verify your email to activate your account.`,
         success: true,
         showModal: true,
