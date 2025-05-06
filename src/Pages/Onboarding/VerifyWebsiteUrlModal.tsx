@@ -77,7 +77,7 @@ export default function VerifyWebsiteUrlModal({
     };
     const endpointArray: Array<endpointObject> = [
       {
-        endPoint: 'organization/verify-meta-tag',
+        endPoint: 'auth/verify-meta-tag',
         protected: false,
         data,
       },

@@ -40,7 +40,10 @@ import {
   formateAndVerifyPhoneNumber,
 } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
-import { OnboardingFormInterface } from '../../interface/interface';
+import {
+  CountryDataInterface,
+  OnboardingFormInterface,
+} from '../../interface/interface';
 import VerifyWebsiteUrlModal from './VerifyWebsiteUrlModal';
 
 const initialState = {
@@ -50,6 +53,7 @@ const initialState = {
     primary_number: '',
     country_info: null,
     portal_url: '',
+    portal_slug: '',
     website_url: '',
     is_meta_verified: false,
     meta_key: '',
@@ -186,7 +190,9 @@ function Onboarding() {
   const [stateOptionArray, setStateOptionArray] = useState<
     Array<string | object>
   >([]);
-  const [countryData, setCountryData] = useState<Array<object>>([]);
+  const [countryData, setCountryData] = useState<Array<CountryDataInterface>>(
+    []
+  );
   const [isFetchingCountryData, setIsFetchingCountryData] =
     useState<boolean>(false);
   const [citiesOptionsArray, setCitiesOptionsArray] = useState<Array<string>>(
@@ -351,11 +357,12 @@ function Onboarding() {
       if (res?.success) {
         handelNotification(res, 'top-right');
         setIsSubmitting(false);
-        const organization = formData?.general_info?.portal_url.split(
-          'https://orbitrms.com/'
-        )[1];
+        const organization = formData?.general_info?.portal_slug;
         navigate(`/${organization}/config/project-status`);
       }
+    } else {
+      setIsSubmitting(false);
+      handelNotification(res, 'top-right');
     }
   }, 300);
 
@@ -720,6 +727,7 @@ function Onboarding() {
             ...perData.general_info,
             organization_name: res?.data?.general_info?.organization_name ?? '',
             portal_url: res?.data?.general_info?.portal_url ?? '',
+            portal_slug: res?.data?.general_info?.portal_slug ?? '',
             primary_email: res?.data?.general_info?.primary_email ?? '',
             primary_number: res?.data?.general_info?.primary_number ?? '',
             country_info:

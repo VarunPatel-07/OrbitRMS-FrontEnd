@@ -44,7 +44,7 @@ Follow these steps to set up and run the OrbitRMS-FrontEnd on your local machine
 2.  **Install Dependencies**:
 
     ```
-    npm install
+    pnpm install
     ```
 
 ### Configuration
@@ -58,7 +58,7 @@ Follow these steps to set up and run the OrbitRMS-FrontEnd on your local machine
 1.  **Start the Development Server**:
 
     ```
-    npm start
+    pnpm start
     ```
 
     The application will be accessible at `http://localhost:3000`.
@@ -71,8 +71,12 @@ OrbitRMS-FrontEnd/
 │   └── index.html
 ├── src/
 │   ├── assets/           # Images and other static assets
-│   ├── components/       # Reusable UI components
+│   ├── components/       # Reusable UI
+|   ├── common/           # The Common Component Through Out The Project
 │   ├── context/          # State management with Context API
+|   ├── Hooks/            # Some Of The Hooks Logic
+│   ├── Helper/           # Helper Functions
+│   ├── Interface/        # All The Typescript Interface
 │   ├── pages/            # Application pages
 │   ├── services/         # API calls and services
 │   ├── App.js            # Main application component

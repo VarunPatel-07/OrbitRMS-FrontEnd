@@ -25,6 +25,7 @@ export interface GeneralInfo {
   primary_number: string;
   country_info: CountryInfo;
   portal_url: string;
+  portal_slug: string;
   website_url: string;
   is_meta_verified: boolean;
   meta_key: string;
