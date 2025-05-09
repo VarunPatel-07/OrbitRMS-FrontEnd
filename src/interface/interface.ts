@@ -145,3 +145,37 @@ export interface DesignationConfig {
   updated_at: object | null;
   updated_by: string | null;
 }
+
+export interface ReportingManagerModuleInterface {
+  user_id: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  full_name: string;
+}
+
+export interface EmployeeRoleModuleInterface {
+  id: string;
+  role_name: string;
+  description: string;
+  status: boolean;
+  source_type: string;
+  config_module_id: string;
+  created_at: string;
+  created_by: string | null;
+  updated_at: string | null;
+  updated_by: string | null;
+}
+
+export interface InterFaceModuleData {
+  label:
+    | 'personal_information'
+    | 'employee_information'
+    | 'personal_contact_information'
+    | 'family_info'
+    | 'address'
+    | 'social_links';
+  title: string;
+  module: React.ReactElement;
+  id: number;
+}

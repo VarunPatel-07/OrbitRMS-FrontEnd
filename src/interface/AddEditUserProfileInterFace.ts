@@ -56,4 +56,10 @@ export interface AddEditUserProfileInterFace {
     zip_code: string;
     country_code: string;
   };
+  social_links: {
+    icon: string;
+    name: string;
+    link: string;
+    target_blank: boolean;
+  }[];
 }
