@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import { FiPlus } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 
 import OrbitRMSLogo from '../../assets/Images/orbitrms-final-logo-transperent.webp';
@@ -13,7 +12,7 @@ interface NavbarProfileDropDownInterface {
   label: string;
   name: string;
   link: string;
-  icon: React.ReactElement;
+  icon: React.ReactElement | null;
 }
 
 function Navbar() {
@@ -23,15 +22,21 @@ function Navbar() {
   const [showNavBarDropDown, setShowNavBarDropDown] = useState<boolean>(false);
   const NavbarProfileDropDown: NavbarProfileDropDownInterface[] = [
     {
-      icon: <FiPlus />,
+      icon: null,
       label: 'my-profile',
       name: 'My Profile',
+      link: `/${GlobalStateProvider?.organization?.general_info?.portal_url.split('https://orbitrms.com/')[1]}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}`,
+    },
+    {
+      icon: null,
+      label: 'logged-in-devices',
+      name: 'Logged In Devices',
       link: `/${GlobalStateProvider?.organization?.general_info?.portal_url.split('https://orbitrms.com/')[1]}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}`,
     },
   ];
 
   return (
-    <div className='w-full min-h-14 flex items-center justify-between border-b border-b-black/15'>
+    <div className='w-full min-h-14 flex items-center justify-between border-b border-b-black/20'>
       <div className='h-full flex w-fit gap-3'>
         <div className='w-fit pl-4 flex items-center justify-center'>
           <img
@@ -50,10 +55,10 @@ function Navbar() {
           ></button>
         </div>
 
-        <div className='absolute top-full right-0 z-50 mr-4 mt-2'>
+        <div className='absolute top-full right-0 z-50 mr-4 mt-2.5'>
           <ul
             className={classNames(
-              'w-full h-full bg-gray-200 shadow-lg rounded-lg overflow-hidden transition-all duration-150 origin-top',
+              'w-full h-full bg-gray-200 shadow-xl rounded-lg overflow-hidden transition-all duration-150 origin-top',
               {
                 'scale-y-0 opacity-0': !showNavBarDropDown,
                 'scale-y-100 opacity-100': showNavBarDropDown,
@@ -63,7 +68,13 @@ function Navbar() {
             {NavbarProfileDropDown.map((item, index) => (
               <li className='w-full' key={index}>
                 <Link
-                  className='text-black inline-block whitespace-nowrap pl-3 pr-5 py-2 hover:bg-slate-50'
+                  className={classNames(
+                    'text-black inline-block whitespace-nowrap pl-5 pr-5 py-1.5 hover:bg-slate-50 w-full',
+                    {
+                      'border-b border-b-black/15':
+                        index + 1 != NavbarProfileDropDown.length,
+                    }
+                  )}
                   to={item?.link}
                   onClick={() => setShowNavBarDropDown(!showNavBarDropDown)}
                 >

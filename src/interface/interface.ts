@@ -169,6 +169,7 @@ export interface EmployeeRoleModuleInterface {
 
 export interface InterFaceModuleData {
   label:
+    | 'employee_general_info'
     | 'personal_information'
     | 'employee_information'
     | 'personal_contact_information'
@@ -178,4 +179,9 @@ export interface InterFaceModuleData {
   title: string;
   module: React.ReactElement;
   id: number;
+}
+
+export interface EmployeeProfilePictureInterface {
+  width: number;
+  height: number;
 }

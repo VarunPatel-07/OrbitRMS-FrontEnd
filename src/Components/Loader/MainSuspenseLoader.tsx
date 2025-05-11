@@ -41,7 +41,7 @@ function MainSuspenseLoader({ loading }: { loading: boolean }) {
       <div
         ref={loadingElementRef}
         className={classNames(
-          'w-screen h-screen bg-slate-50 backdrop-blur-sm fixed top-0 left-0 z-40',
+          'w-screen h-screen bg-slate-50 backdrop-blur-sm fixed top-0 left-0 z-[99999999]',
           {
             'fade-out': fadeOut,
           }
