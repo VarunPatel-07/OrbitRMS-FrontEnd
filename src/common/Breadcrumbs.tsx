@@ -13,7 +13,7 @@ function Breadcrumbs({
   const navigation = useLocation();
   return (
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
-      <div className='w-full bg-white py-2 px-3 absolute z-10'>
+      <div className='w-full bg-white py-2 px-3 absolute z-10 border-b border-b-black/20'>
         <div className='w-full flex items-center gap-2'>
           {BreadcrumbsNavigationFlow.map((item, index) => (
             <div

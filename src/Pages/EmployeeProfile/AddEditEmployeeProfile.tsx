@@ -45,7 +45,10 @@ import {
   formateAndVerifyPhoneNumber,
 } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
-import { AddEditUserProfileInterFace } from '../../interface/AddEditUserProfileInterFace';
+import {
+  AddEditUserProfileInterFace,
+  AddressModuleInterface,
+} from '../../interface/AddEditUserProfileInterFace';
 import {
   CountryDataInterface,
   DepartmentConfig,
@@ -63,15 +66,6 @@ type ErrorModuleType =
   | 'personal_contact_info'
   | 'family_info'
   | 'address_info';
-
-interface AddressModuleInterface {
-  address: string;
-  country: string;
-  city: string;
-  state: string;
-  zip_code: string;
-  country_code: string;
-}
 
 const initialState: AddEditUserProfileInterFace = {
   personal_info: {
@@ -1366,9 +1360,9 @@ export default function AddEditEmployeeProfile() {
                       name='employee_info.employee_email'
                       className='border border-black/[.65] border-r-0 rounded-r-none text-black w-full'
                       type='text'
-                      value={
-                        formData?.employee_info?.employee_email?.split('@')[0]
-                      }
+                      value={formData?.employee_info?.employee_email
+                        ?.split('@')[0]
+                        .toLocaleLowerCase()}
                       onChange={handleOnChange}
                     />
                     <div className='flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-r-lg text-[14px] px-3 whitespace-nowrap'>

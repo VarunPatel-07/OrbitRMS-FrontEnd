@@ -27,11 +27,11 @@ import {
 } from '../../../Helper/api/multipleAPI';
 import { formateDate } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
+import { DesignationConfig } from '../../../interface/interface';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
-import { DesignationConfig } from '../../../interface/interface';
 
 function Designations() {
   const { handelNotification } = useContext(
@@ -71,9 +71,7 @@ function Designations() {
     GlobalStateContext
   ) as GlobalStateContextApiProps;
   const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_url.split(
-      'https://orbitrms.com/'
-    )[1];
+    GlobalStateProvider?.organization?.general_info?.portal_slug;
 
   const BreadcrumbsObjects = [
     { name: 'Home', label: 'home', link: '/home' },
