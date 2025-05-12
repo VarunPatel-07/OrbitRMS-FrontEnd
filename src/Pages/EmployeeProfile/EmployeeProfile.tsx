@@ -12,6 +12,7 @@ import ProtectedRoute from '../../Helper/ProtectedRoute';
 import { useDebounce } from '../../Hooks/useDebounce';
 import { UserProfileInformationInterface } from '../../interface/AddEditUserProfileInterFace';
 import EmployeeDetails from './EmployeeDetails';
+import EmployeeProfileSkeletonLoader from '../../Components/Loader/EmployeeProfileSkeletonLoader';
 
 // The initialState Of The Data
 const initialState: UserProfileInformationInterface = {
@@ -104,6 +105,7 @@ function EmployeeProfile() {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
+  const [loading, setLoading] = useState<boolean>(false);
 
   const organization =
     GlobalStateProvider?.organization?.general_info?.portal_slug;
@@ -160,6 +162,7 @@ function EmployeeProfile() {
       if (res?.success) {
         setData(res?.data);
       }
+      setLoading(false);
     },
     100
   );
@@ -170,6 +173,7 @@ function EmployeeProfile() {
   useEffect(() => {
     if (!useEffectRef.current) {
       useEffectRef.current = true;
+      setLoading(true);
       fetchTheUsersProfileInfoWithDebounce(employee_id);
     }
   }, []);
@@ -220,24 +224,30 @@ function EmployeeProfile() {
           </div>
         </div>
         <div className='w-[70%] flex-grow'>
-          <div className='w-full h-full'>
+          <div className='w-full  h-full relative '>
             <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
-            <div className='w-full'></div>
-            <div className='w-full h-[calc(100vh-60px)] pt-16 overflow-auto px-6'>
-              <Routes>
-                {['/', '/employee-details'].map((eachPath, index) => (
-                  <Route
-                    path={eachPath}
-                    key={index}
-                    element={
-                      <ProtectedRoute
-                        element={<EmployeeDetails data={data} />}
+            {loading ? (
+              <EmployeeProfileSkeletonLoader />
+            ) : (
+              <>
+                <div className='w-full'></div>
+                <div className='w-full h-[calc(100vh-60px)] pt-16 overflow-auto px-6 hide-scrollbar'>
+                  <Routes>
+                    {['/', '/employee-details'].map((eachPath, index) => (
+                      <Route
+                        path={eachPath}
+                        key={index}
+                        element={
+                          <ProtectedRoute
+                            element={<EmployeeDetails data={data} />}
+                          />
+                        }
                       />
-                    }
-                  />
-                ))}
-              </Routes>
-            </div>
+                    ))}
+                  </Routes>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
