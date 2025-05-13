@@ -12,7 +12,6 @@ import ProtectedRoute from '../../Helper/ProtectedRoute';
 import { useDebounce } from '../../Hooks/useDebounce';
 import { UserProfileInformationInterface } from '../../interface/AddEditUserProfileInterFace';
 import EmployeeDetails from './EmployeeDetails';
-import EmployeeProfileSkeletonLoader from '../../Components/Loader/EmployeeProfileSkeletonLoader';
 
 // The initialState Of The Data
 const initialState: UserProfileInformationInterface = {
@@ -225,10 +224,8 @@ function EmployeeProfile() {
         </div>
         <div className='w-[70%] flex-grow'>
           <div className='w-full  h-full relative '>
-            <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
-            {loading ? (
-              <EmployeeProfileSkeletonLoader />
-            ) : (
+            <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />z
+          
               <>
                 <div className='w-full'></div>
                 <div className='w-full h-[calc(100vh-60px)] pt-16 overflow-auto px-6 hide-scrollbar'>
@@ -239,7 +236,7 @@ function EmployeeProfile() {
                         key={index}
                         element={
                           <ProtectedRoute
-                            element={<EmployeeDetails data={data} />}
+                            element={<EmployeeDetails data={data} loading={loading} />}
                           />
                         }
                       />
@@ -247,7 +244,6 @@ function EmployeeProfile() {
                   </Routes>
                 </div>
               </>
-            )}
           </div>
         </div>
       </div>

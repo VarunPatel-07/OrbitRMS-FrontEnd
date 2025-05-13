@@ -2,8 +2,9 @@ import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 const EmployeeProfileSkeletonLoader = () => {
   return (
-    <div className='w-full h-[calc(100vh-60px)] pt-16 overflow-auto px-6 hide-scrollbar'>
-      <div className='mb-4  border border-gray-200 rounded-lg shadow-sm bg-white'>
+    <SkeletonTheme>
+      <div className='class="w-full flex flex-col gap-6 pb-5"'>
+      <div className='border border-gray-200 rounded-lg shadow-sm bg-white'>
         <div className=' w-full grid grid-cols-3 '>
           <div className='w-full border-r border-r-black/40'>
             <div className='w-full h-full flex  items-center p-6'>
@@ -32,7 +33,7 @@ const EmployeeProfileSkeletonLoader = () => {
         </div>
       </div>
 
-      <div className='mb-4  border border-gray-200 rounded-lg shadow-sm bg-white'>
+      <div className='border border-gray-200 rounded-lg shadow-sm bg-white'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <Skeleton height={28} width={180} />
         </div>
@@ -48,7 +49,7 @@ const EmployeeProfileSkeletonLoader = () => {
         </div>
       </div>
 
-      <div className='mb-4  border border-gray-200 rounded-lg shadow-sm bg-white'>
+      <div className='border border-gray-200 rounded-lg shadow-sm bg-white'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <Skeleton height={28} width={180} />
         </div>
@@ -64,7 +65,7 @@ const EmployeeProfileSkeletonLoader = () => {
         </div>
       </div>
 
-      <div className='mb-4  border border-gray-200 rounded-lg shadow-sm bg-white'>
+      <div className='border border-gray-200 rounded-lg shadow-sm bg-white'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <Skeleton height={28} width={180} />
         </div>
@@ -80,7 +81,7 @@ const EmployeeProfileSkeletonLoader = () => {
         </div>
       </div>
 
-      <div className='mb-4  border border-gray-200 rounded-lg shadow-sm bg-white'>
+      <div className='border border-gray-200 rounded-lg shadow-sm bg-white'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <Skeleton height={28} width={180} />
         </div>
@@ -96,7 +97,7 @@ const EmployeeProfileSkeletonLoader = () => {
         </div>
       </div>
 
-      <div className='mb-4  border border-gray-200 rounded-lg shadow-sm bg-white'>
+      <div className='border border-gray-200 rounded-lg shadow-sm bg-white'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <Skeleton height={28} width={180} />
         </div>
@@ -115,7 +116,8 @@ const EmployeeProfileSkeletonLoader = () => {
             </div>
         </div>
       </div>
-    </div>
+      </div>
+  </SkeletonTheme>
   );
 };
 

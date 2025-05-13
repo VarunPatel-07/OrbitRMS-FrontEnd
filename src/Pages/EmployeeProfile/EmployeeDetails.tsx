@@ -9,6 +9,7 @@ import {
   UserProfileInformationInterface,
 } from '../../interface/AddEditUserProfileInterFace';
 import { InterFaceModuleData } from '../../interface/interface';
+import EmployeeProfileSkeletonLoader from '../../Components/Loader/EmployeeProfileSkeletonLoader';
 
 interface InfoFieldProps {
   label: string;
@@ -35,8 +36,11 @@ const InfoField = ({ label, value, renderDate = false }: InfoFieldProps) => (
   </div>
 );
 
-function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
-  const { data } = props;
+function EmployeeDetails(props: {
+  data: UserProfileInformationInterface;
+  loading?: boolean;
+}) {
+  const { data,loading } = props;
   // This are The Bunch Of Function That Help To Render The components
   // * ------ Start Of The Function That Help In The Rendering -----
   //
@@ -464,11 +468,17 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
   //
   return (
     <div className='w-full flex flex-col gap-6 pb-5'>
-      {UserInformationDataModules?.map((section) => (
-        <div className='w-full' key={section?.id}>
-          {section?.module}
-        </div>
-      ))}
+      {loading ? (
+        <EmployeeProfileSkeletonLoader />
+      ) : (
+        <>
+          {UserInformationDataModules?.map((section) => (
+            <div className='w-full' key={section?.id}>
+              {section?.module}
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 }
