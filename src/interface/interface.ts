@@ -175,7 +175,7 @@ export interface InterFaceModuleData {
     | 'personal_contact_information'
     | 'family_info'
     | 'address'
-    | 'social_links';
+    | 'social_link';
   title: string;
   module: React.ReactElement;
   id: number;
@@ -184,4 +184,5 @@ export interface InterFaceModuleData {
 export interface EmployeeProfilePictureInterface {
   width: number;
   height: number;
+  profilePicture?: string;
 }

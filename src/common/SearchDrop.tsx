@@ -214,7 +214,7 @@ export default function SearchDrop(props: SearchDropProps) {
 
               <ul
                 ref={listRef}
-                className='max-h-[150px] h-full overflow-auto py-1 w-full bg-gray-100 shadow-md rounded-lg'
+                className='max-h-[150px] h-full overflow-auto py-1 w-full bg-gray-100 shadow-md rounded-lg hide-scrollbar'
               >
                 {!loading ? (
                   filteredOptions.length > 0 ? (

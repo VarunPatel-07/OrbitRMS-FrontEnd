@@ -24,7 +24,6 @@ function RolesAndPermissionTable({
   setUpdatingModuleLoaderId: React.Dispatch<SetStateAction<string>>;
 }) {
   const handelStatusToggler = (info: RolesAndPermissionsModule) => {
-    console.log(info);
     setUpdatingModuleLoaderId(info?.id);
     StatusTogglerFunc(info?.id);
   };

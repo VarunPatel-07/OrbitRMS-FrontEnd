@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { endpointObject, multipleFetchApi } from './api/multipleAPI';
 
 export interface countryObject {

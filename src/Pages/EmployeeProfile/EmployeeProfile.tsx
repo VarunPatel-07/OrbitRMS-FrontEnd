@@ -42,7 +42,7 @@ const initialState: UserProfileInformationInterface = {
       profile_picture_bg: '',
     },
     employee_role: {
-      role_id: '',
+      id: '',
       role_name: '',
     },
     employee_email: '',
@@ -172,7 +172,7 @@ function EmployeeProfile() {
       useEffectRef.current = true;
       fetchTheUsersProfileInfoWithDebounce(employee_id);
     }
-  }, []);
+  }, [employee_id, fetchTheUsersProfileInfoWithDebounce]);
 
   return (
     <div className='w-full h-full'>
@@ -181,16 +181,26 @@ function EmployeeProfile() {
           <div className='w-full h-full pt-10 pb-4'>
             <div className='w-full h-full flex flex-col items-center justify-between gap-7'>
               <div className='flex flex-col items-center justify-start gap-5 w-full px-2'>
-                <EmployeeProfilePicture width={160} height={160} />
+                <EmployeeProfilePicture
+                  width={160}
+                  height={160}
+                  profilePicture={data?.personal_info?.profile_picture}
+                />
                 <div className='flex flex-col items-center justify-start gap-2 w-full'>
                   <p className='text-base text-black font-inter font-medium max-w-[90%] text-ellipsis overflow-hidden text-center m-auto'>
-                    {data?.personal_info?.full_name}
+                    {data?.personal_info?.full_name
+                      ? data?.personal_info?.full_name
+                      : data?.personal_info?.first_name +
+                        ' ' +
+                        data?.personal_info?.middle_name +
+                        ' ' +
+                        data?.personal_info?.last_name}
                   </p>
                   <p className='text-sm text-black/60 font-inter font-medium max-w-[90%] text-ellipsis overflow-hidden text-center m-auto'>
-                    {data?.employee_info?.designation}
+                    {data?.employee_info?.designation || '-'}
                   </p>
                   <p className='text-xs text-black bg-slate-50 py-1 px-3 border border-black/15 font-inter font-medium w-fit rounded-lg max-w-[90%] text-ellipsis overflow-hidden text-center m-auto mt-1'>
-                    {data?.employee_info?.department}
+                    {data?.employee_info?.department || '-'}
                   </p>
                 </div>
                 <button className='font-inter font-semibold bg-[#EEF4FF] border border-[#C7D7FE] text-[#3538CD] text-base h-full px-5 py-2 rounded-lg capitalize'>
@@ -219,11 +229,11 @@ function EmployeeProfile() {
             </div>
           </div>
         </div>
-        <div className='w-[70%] flex-grow'>
-          <div className='w-full h-full'>
+        <div className='w-[70%] flex-grow overflow-hidden'>
+          <div className='w-full h-full relative'>
             <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
             <div className='w-full'></div>
-            <div className='w-full h-[calc(100vh-60px)] pt-16 overflow-auto px-6'>
+            <div className='w-full h-[calc(100vh-60px)] pt-16 overflow-auto hide-scrollbar px-6'>
               <Routes>
                 {['/', '/employee-details'].map((eachPath, index) => (
                   <Route

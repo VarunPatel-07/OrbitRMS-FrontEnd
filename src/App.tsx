@@ -24,7 +24,7 @@ import {
 import ProtectedRoute from './Helper/ProtectedRoute';
 import ClientInquiry from './Pages/ClientInquiry/ClientInquiry';
 import Config from './Pages/config/Config';
-import EditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile';
+import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile';
 import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
 
 function App() {
@@ -122,7 +122,7 @@ function App() {
                   <Route
                     path='/employee-profile/:type/:id'
                     element={
-                      <ProtectedRoute element={<EditEmployeeProfile />} />
+                      <ProtectedRoute element={<AddEditEmployeeProfile />} />
                     }
                   />
                   <Route path='*' element={<PageNotFound />} />

@@ -34,7 +34,7 @@ function Notification() {
         <div
           key={direction}
           className={classNames(
-            'w-fit h-auto max-h-screen overflow-y-auto absolute z-50 bg-transparent',
+            'w-fit h-auto max-h-screen overflow-y-auto hide-scrollbar absolute z-50 bg-transparent',
             {
               'invisible hidden': notificationInfoArray?.length === 0,
               'top-0 left-1/2 -translate-x-1/2': direction === 'center',

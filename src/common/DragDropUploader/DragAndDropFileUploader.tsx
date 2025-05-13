@@ -50,10 +50,8 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
     (acceptedFiles: Array<File>) => {
       acceptedFiles.map((eachFile: File) => {
         if (uploadingFilesTypeCheckingFunction(eachFile)) {
-          // console.log('allowed for', eachFile.name);
           setSelectedFile(eachFile);
         } else {
-          // console.log('wrong formate for ', eachFile.name);
           const res = {
             success: false,
             message: `The Formate Is Not Allowed`,

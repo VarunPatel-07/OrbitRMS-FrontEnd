@@ -319,14 +319,14 @@ export default function AttachmentTypes() {
     <>
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
-        <div className='w-full h-full pt-10'>
+        <div className='w-full h-full pt-9'>
           <div className='w-full h-full p-4 2xl:p-5'>
             {isFetchingData ? (
               <div className='w-full h-full overflow-hidden'>
                 <TableSkeletonLoader
                   tableHeaderCount={5}
                   tableValueCount={13}
-                  maxHeight='calc(-335px + 100vh)'
+                  maxHeight='calc(-350px + 100vh)'
                 />
               </div>
             ) : (
@@ -352,7 +352,7 @@ export default function AttachmentTypes() {
                     columns={columns}
                     data={showSearchFilterData ? filterData : data}
                     tableWrapperClass={
-                      'overflow-auto max-h-[calc(100vh-270px)] rounded-b-lg'
+                      'overflow-auto max-h-[calc(100vh-280px)] rounded-b-lg'
                     }
                     stickyHeaderClass='sticky top-0'
                   />

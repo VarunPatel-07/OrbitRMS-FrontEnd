@@ -7,6 +7,7 @@ import {
   MdModeEditOutline,
   MdOutlineFileUpload,
 } from 'react-icons/md';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { useParams } from 'react-router-dom';
 
 import CommonDatePicker from '../../common/CommonDatePicker';
@@ -16,6 +17,7 @@ import Input from '../../common/Input';
 import Loader from '../../common/Loader';
 import SearchDrop from '../../common/SearchDrop';
 import TextArea from '../../common/TextArea';
+import AddEditProfileSkeletonLoader from '../../Components/Loader/AddEditProfileSkeletonLoader';
 import {
   AlignableForChildInfo,
   bloodGroupArray,
@@ -35,6 +37,7 @@ import {
   endpointObject,
   multipleFetchApi,
   multiplePostApi,
+  multiplePutApi,
 } from '../../Helper/api/multipleAPI';
 import {
   countryObject,
@@ -48,6 +51,7 @@ import { useDebounce } from '../../Hooks/useDebounce';
 import {
   AddEditUserProfileInterFace,
   AddressModuleInterface,
+  UserProfileInformationInterface,
 } from '../../interface/AddEditUserProfileInterFace';
 import {
   CountryDataInterface,
@@ -93,7 +97,7 @@ const initialState: AddEditUserProfileInterFace = {
     personal_email: '',
     mobile_number: '',
     country_info: '',
-    emergency_contact: [
+    emergency_contacts: [
       {
         emergency_contact_name: '',
         emergency_contact_number: '',
@@ -129,7 +133,7 @@ const initialState: AddEditUserProfileInterFace = {
     zip_code: '',
     country_code: '',
   },
-  social_links: [
+  social_link: [
     {
       icon: '',
       link: '',
@@ -147,6 +151,8 @@ const initialCountryInfo: CountryDataInterface = {
 };
 
 export default function AddEditEmployeeProfile() {
+  const { type: moduleType, id: employee_id } = useParams();
+
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
@@ -160,6 +166,7 @@ export default function AddEditEmployeeProfile() {
   const multipleSectionRef = useRef<(HTMLDivElement | null)[]>([]);
   const CountryDataRef = useRef(false);
   const DesignationsDepartmentsRef = useRef(false);
+  const employeeInfoFetchRef = useRef(false);
 
   const [showEmptyFieldError, setShowEmptyFieldError] =
     useState<boolean>(false);
@@ -178,6 +185,8 @@ export default function AddEditEmployeeProfile() {
   const [isFetchingCountryData, setIsFetchingCountryData] =
     useState<boolean>(false);
   const [formSubmitLoader, setFormSubmitLoader] = useState<boolean>(false);
+  const [fetchingTheEmployeeData, setFetchingTheEmployeeData] =
+    useState<boolean>(false);
 
   const [
     selectedCountryInfoForPermanentAddress,
@@ -260,10 +269,10 @@ export default function AddEditEmployeeProfile() {
           formData?.employee_info?.organization_name &&
           formData?.employee_info?.department &&
           formData?.employee_info?.designation &&
-          formData?.employee_info?.reporting_to?.id &&
-          formData?.employee_info?.reporting_to?.name &&
-          formData?.employee_info?.employee_role?.role_id &&
-          formData?.employee_info?.employee_role?.role_name &&
+          formData?.employee_info?.reporting_to?.id !== '' &&
+          formData?.employee_info?.reporting_to?.name !== '' &&
+          formData?.employee_info?.employee_role?.role_id !== '' &&
+          formData?.employee_info?.employee_role?.role_name !== '' &&
           formData?.employee_info?.employee_email &&
           formData?.employee_info?.employee_code
         ),
@@ -275,11 +284,11 @@ export default function AddEditEmployeeProfile() {
           formData?.personal_contact_info?.personal_email &&
           formData?.personal_contact_info?.mobile_number &&
           formData?.personal_contact_info?.country_info &&
-          formData?.personal_contact_info?.emergency_contact?.every(
+          formData?.personal_contact_info?.emergency_contacts?.every(
             (contact) =>
-              contact.emergency_contact_name &&
-              contact.emergency_contact_number &&
-              contact.emergency_contact_country_info
+              contact?.emergency_contact_name &&
+              contact?.emergency_contact_number &&
+              contact?.emergency_contact_country_info
           )
         ),
       errorModule: 'personal_contact_info',
@@ -294,10 +303,10 @@ export default function AddEditEmployeeProfile() {
         let HasChildren = true;
 
         if (
-          AlignableForChildInfo.includes(formData?.family_info?.marital_status)
+          AlignableForChildInfo?.includes(formData?.family_info?.marital_status)
         ) {
           HasChildren = formData?.family_info?.children?.every(
-            (child) => child.child_date_of_birth && child.child_name
+            (child) => child?.child_date_of_birth && child?.child_name
           );
         } else {
           HasChildren = true;
@@ -449,7 +458,7 @@ export default function AddEditEmployeeProfile() {
 
   const handelAddNewContact = () => {
     if (
-      formData.personal_contact_info.emergency_contact.every(
+      formData.personal_contact_info.emergency_contacts.every(
         (eachContact) =>
           eachContact?.emergency_contact_name !== '' &&
           eachContact?.emergency_contact_number !== ''
@@ -459,8 +468,8 @@ export default function AddEditEmployeeProfile() {
         ...prevData,
         personal_contact_info: {
           ...prevData.personal_contact_info,
-          emergency_contact: [
-            ...(prevData.personal_contact_info?.emergency_contact || []),
+          emergency_contacts: [
+            ...(prevData.personal_contact_info?.emergency_contacts || []),
             {
               emergency_contact_name: '',
               emergency_contact_number: '',
@@ -476,8 +485,8 @@ export default function AddEditEmployeeProfile() {
       ...prevData,
       personal_contact_info: {
         ...prevData.personal_contact_info,
-        emergency_contact:
-          prevData.personal_contact_info.emergency_contact.filter(
+        emergency_contacts:
+          prevData.personal_contact_info.emergency_contacts.filter(
             (_, i) => i !== index
           ),
       },
@@ -488,7 +497,7 @@ export default function AddEditEmployeeProfile() {
     index: number,
     name: string,
     ParentSectionName: 'personal_contact_info' | 'family_info',
-    SubSectionName: 'emergency_contact' | 'children',
+    SubSectionName: 'emergency_contacts' | 'children',
     dateOfBirth?: Date | null,
     e?: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -522,15 +531,15 @@ export default function AddEditEmployeeProfile() {
       ...prevData,
       personal_contact_info: {
         ...prevData.personal_contact_info,
-        emergency_contact: prevData.personal_contact_info.emergency_contact.map(
-          (contact, i) =>
+        emergency_contacts:
+          prevData.personal_contact_info.emergency_contacts.map((contact, i) =>
             i == index
               ? {
                   ...contact,
                   emergency_contact_country_info: data,
                 }
               : contact
-        ),
+          ),
       },
     }));
   };
@@ -568,9 +577,30 @@ export default function AddEditEmployeeProfile() {
     }));
   };
 
-  const handelTheFormSubmitWithDebounce = useDebounce(
+  const handelEditProfileApiWithDebounce = useDebounce(
+    async (data: AddEditUserProfileInterFace, id: string) => {
+      const endPoint: endpointObject[] = [
+        {
+          endPoint: `employee/edit?employee-id=${id}`,
+          protected: true,
+          data: data,
+        },
+      ];
+      const response = await multiplePutApi(endPoint);
+
+      const res = response[0];
+      if (res?.success) {
+        setFormSubmitLoader(false);
+        handelNotification(res, 'top-right');
+      } else {
+        setFormSubmitLoader(false);
+        handelNotification(res, 'top-right');
+      }
+    },
+    100
+  );
+  const handelAddNewEmployeeWithDebounce = useDebounce(
     async (data: AddEditUserProfileInterFace) => {
-      console.log('FormData', data);
       const endPoint: endpointObject[] = [
         {
           endPoint: `employee/add?organization-id=${GlobalStateProvider?.organization?.id}`,
@@ -589,7 +619,7 @@ export default function AddEditEmployeeProfile() {
         handelNotification(res, 'top-right');
       }
     },
-    150
+    100
   );
   // The function to handel the Form Submit
   const handelSubmitAndUpdateButton = () => {
@@ -599,10 +629,16 @@ export default function AddEditEmployeeProfile() {
     if (invalidModule) {
       setShowEmptyFieldError(true);
     } else {
-      console.log('All sections are valid. Submitting form...');
-
-      setFormSubmitLoader(true);
-      handelTheFormSubmitWithDebounce(formData);
+      console.log(formData);
+      if (moduleType?.toLocaleLowerCase() == 'edit') {
+        if (employee_id) {
+          setFormSubmitLoader(true);
+          handelEditProfileApiWithDebounce(formData, employee_id);
+        }
+      } else {
+        setFormSubmitLoader(true);
+        handelAddNewEmployeeWithDebounce(formData);
+      }
     }
   };
   //
@@ -712,17 +748,6 @@ export default function AddEditEmployeeProfile() {
     module_name: 'current_address' | 'permanent_address'
   ) => {
     let { value } = e.target;
-
-    console.log(
-      'selectedCountryInfoForCurrentAddress',
-      selectedCountryInfoForCurrentAddress
-    );
-
-    console.log(
-      'selectedCountryInfoForPermanentAddress',
-      selectedCountryInfoForPermanentAddress
-    );
-
     // Remove any non-numeric characters
     value = value.replace(/\D/g, '');
 
@@ -836,13 +861,13 @@ export default function AddEditEmployeeProfile() {
 
   const handleSelectedIcon = (data: string, index: number) => {
     setFormData((prev) => {
-      const updatedLinks = prev.social_links.map((link, i) =>
+      const updatedLinks = prev.social_link.map((link, i) =>
         i === index ? { ...link, icon: data } : link
       );
 
       return {
         ...prev,
-        social_links: updatedLinks,
+        social_link: updatedLinks,
       } as AddEditUserProfileInterFace; // 👈 Ensures full compatibility
     });
   };
@@ -853,38 +878,38 @@ export default function AddEditEmployeeProfile() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => {
-      const updatedLinks = prev.social_links.map((link, i) =>
+      const updatedLinks = prev.social_link.map((link, i) =>
         i === index ? { ...link, [name]: value } : link
       );
 
       return {
         ...prev,
-        social_links: updatedLinks,
+        social_link: updatedLinks,
       } as AddEditUserProfileInterFace; // 👈 Ensures full compatibility
     });
   };
 
   const handelClickOnTargetBlockButton = (index: number) => {
     setFormData((prev) => {
-      const updatedLinks = prev.social_links.map((link, i) =>
+      const updatedLinks = prev.social_link.map((link, i) =>
         i === index
           ? {
               ...link,
-              target_blank: !formData?.social_links[index]?.target_blank,
+              target_blank: !formData?.social_link[index]?.target_blank,
             }
           : link
       );
 
       return {
         ...prev,
-        social_links: updatedLinks,
+        social_link: updatedLinks,
       } as AddEditUserProfileInterFace; // 👈 Ensures full compatibility
     });
   };
 
   const handelAddNewEmptySocialLink = () => {
     if (
-      formData.social_links.every(
+      formData.social_link.every(
         (link) =>
           link?.icon?.trim() !== '' &&
           link?.link?.trim() !== '' &&
@@ -893,8 +918,8 @@ export default function AddEditEmployeeProfile() {
     ) {
       setFormData((prevData) => ({
         ...prevData,
-        social_links: [
-          ...prevData.social_links,
+        social_link: [
+          ...prevData.social_link,
           {
             icon: '',
             link: '',
@@ -909,7 +934,7 @@ export default function AddEditEmployeeProfile() {
   const removeTheSpecificLink = (index: number) => {
     setFormData((perValue) => ({
       ...perValue,
-      social_links: perValue?.social_links?.filter((_, i) => i != index),
+      social_link: perValue?.social_link?.filter((_, i) => i != index),
     }));
   };
 
@@ -920,790 +945,601 @@ export default function AddEditEmployeeProfile() {
   // * -------- Start Of The JSX Helper Function --------------------
 
   const personal_information = () => {
-    return (
-      <div className='bg-white rounded-xl'>
-        <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
-          <h2 className='font-inter text-xl text-black font-semibold capitalize'>
-            Personal Information
-          </h2>
-          <p className='font-inter text-sm text-black font-light w-[70%]'>
-            Please provide your basic personal details. This information will
-            help us get to know you better and ensure your profile is complete.
-          </p>
-        </div>
-        <div className='p-6 w-full'>
-          <div className='grid grid-cols-1 gap-6'>
-            {formData?.personal_info?.profile_picture?.trim() == '' ? (
+    if (!fetchingTheEmployeeData) {
+      return (
+        <div className='bg-white rounded-xl'>
+          <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
+            <h2 className='font-inter text-xl text-black font-semibold capitalize'>
+              Personal Information
+            </h2>
+            <p className='font-inter text-sm text-black font-light w-[70%]'>
+              Please provide your basic personal details. This information will
+              help us get to know you better and ensure your profile is
+              complete.
+            </p>
+          </div>
+          <div className='p-6 w-full'>
+            <div className='grid grid-cols-1 gap-6'>
+              {formData?.personal_info?.profile_picture?.trim() == '' ? (
+                <div className='w-full'>
+                  <DragAndDropFileUploader
+                    name='general_info.organization_profile_picture'
+                    type='file'
+                    RequiredFileTypeArray={[
+                      'image/png',
+                      'image/jpeg',
+                      'image/webp',
+                    ]}
+                    showDropFileScreenInFullScreen={true}
+                    cropShape='round'
+                    maxCropHeight={400}
+                    maxCropWidth={400}
+                    setImageUrl={handelProfileUploadation}
+                  />
+                </div>
+              ) : (
+                <div className='w-full pb-2'>
+                  <div className='flex items-center justify-start gap-10'>
+                    <div
+                      className='image w-[180px] h-[180px] aspect-square rounded-full overflow-hidden border
+                    border-black/20'
+                    >
+                      <img
+                        src={formData?.personal_info?.profile_picture}
+                        alt='organization profile picture'
+                        width={150}
+                        height={150}
+                        loading='lazy'
+                        className='w-full h-full object-center rounded-full bg-cover'
+                      />
+                    </div>
+                    <div className='flex items-center justify-start gap-4'>
+                      <button
+                        className='text-black bg-black/10 hover:bg-black/15 transition-all p-2.5 rounded-lg'
+                        onClick={() => handelProfileUploadation('')}
+                      >
+                        <MdOutlineFileUpload className='w-6 h-6' />
+                      </button>
+                      <button
+                        className='text-black bg-black/10 hover:bg-black/15 transition-all p-2.5 rounded-lg'
+                        onClick={() => handelProfileUploadation('')}
+                      >
+                        <IoCloseSharp className='w-6 h-6' />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className='w-full'>
-                <DragAndDropFileUploader
-                  name='general_info.organization_profile_picture'
-                  type='file'
-                  RequiredFileTypeArray={[
-                    'image/png',
-                    'image/jpeg',
-                    'image/webp',
-                  ]}
-                  showDropFileScreenInFullScreen={true}
-                  cropShape='round'
-                  maxCropHeight={400}
-                  maxCropWidth={400}
-                  setImageUrl={handelProfileUploadation}
+                <Input
+                  type='text'
+                  name='personal_info.full_name'
+                  labelFieldName='Full Name'
+                  className='border border-black/45'
+                  isRequiredField={true}
+                  value={formData.personal_info.full_name}
+                  onChange={handleOnChange}
+                  disabled={true}
+                  showError={showEmptyFieldError}
+                  errorMessage={
+                    formData?.personal_info?.full_name?.trim()
+                      ? ''
+                      : 'this field is required'
+                  }
                 />
               </div>
-            ) : (
-              <div className='w-full pb-2'>
-                <div className='flex items-center justify-start gap-10'>
-                  <div
-                    className='image w-[180px] h-[180px] aspect-square rounded-full overflow-hidden border
-                    border-black/20'
-                  >
-                    <img
-                      src={formData?.personal_info?.profile_picture}
-                      alt='organization profile picture'
-                      width={150}
-                      height={150}
-                      loading='lazy'
-                      className='w-full h-full object-center rounded-full bg-cover'
+              <div className='w-full'>
+                <div className='w-full grid grid-cols-3 gap-5'>
+                  <div className='w-full'>
+                    <Input
+                      type='text'
+                      name='personal_info.first_name'
+                      labelFieldName='First Name'
+                      className='border border-black/45'
+                      isRequiredField={true}
+                      value={formData.personal_info.first_name}
+                      onChange={handleOnChange}
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.personal_info?.first_name
+                          ? ''
+                          : 'this field is required'
+                      }
                     />
                   </div>
-                  <div className='flex items-center justify-start gap-4'>
-                    <button
-                      className='text-black bg-black/10 hover:bg-black/15 transition-all p-2.5 rounded-lg'
-                      onClick={() => handelProfileUploadation('')}
-                    >
-                      <MdOutlineFileUpload className='w-6 h-6' />
-                    </button>
-                    <button
-                      className='text-black bg-black/10 hover:bg-black/15 transition-all p-2.5 rounded-lg'
-                      onClick={() => handelProfileUploadation('')}
-                    >
-                      <IoCloseSharp className='w-6 h-6' />
-                    </button>
+                  <div className='w-full'>
+                    <Input
+                      type='text'
+                      name='personal_info.middle_name'
+                      labelFieldName='Middle Name'
+                      className='border border-black/45'
+                      isRequiredField={false}
+                      value={formData.personal_info.middle_name}
+                      onChange={handleOnChange}
+                    />
+                  </div>
+                  <div className='w-full'>
+                    <Input
+                      type='text'
+                      name='personal_info.last_name'
+                      labelFieldName='Last Name'
+                      className='border border-black/45'
+                      isRequiredField={true}
+                      value={formData.personal_info.last_name}
+                      onChange={handleOnChange}
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.personal_info?.last_name
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
                   </div>
                 </div>
               </div>
-            )}
-            <div className='w-full'>
-              <Input
-                type='text'
-                name='personal_info.full_name'
-                labelFieldName='Full Name'
-                className='border border-black/45'
-                isRequiredField={true}
-                value={formData.personal_info.full_name}
-                onChange={handleOnChange}
-                disabled={true}
-                showError={showEmptyFieldError}
-                errorMessage={
-                  formData?.personal_info?.full_name?.trim()
-                    ? ''
-                    : 'this field is required'
-                }
-              />
-            </div>
-            <div className='w-full'>
-              <div className='w-full grid grid-cols-3 gap-5'>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='personal_info.first_name'
-                    labelFieldName='First Name'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.personal_info.first_name}
-                    onChange={handleOnChange}
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.personal_info?.first_name
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='personal_info.middle_name'
-                    labelFieldName='Middle Name'
-                    className='border border-black/45'
-                    isRequiredField={false}
-                    value={formData.personal_info.middle_name}
-                    onChange={handleOnChange}
-                  />
-                </div>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='personal_info.last_name'
-                    labelFieldName='Last Name'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.personal_info.last_name}
-                    onChange={handleOnChange}
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.personal_info?.last_name
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-            <div className='w-full'>
-              <div className='w-full grid grid-cols-3 gap-5'>
-                <div className='w-full'>
-                  <SearchDrop
-                    options={GenderArray}
-                    searchKey=''
-                    position='bottom'
-                    emptyDataMessage=''
-                    showSearchBar={false}
-                    labelFieldName='Gender'
-                    isRequiredField={true}
-                    selectedValue={formData?.personal_info?.gender}
-                    onSelectValBtn={(data: string | object) =>
-                      handelSearchDropSelectValue(
-                        data,
-                        'gender',
-                        'personal_info'
-                      )
-                    }
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.personal_info?.gender
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <CommonDatePicker
-                    onChange={handelDateOfBirthPickUpChangeFunction}
-                    selectedValue={
-                      formData?.personal_info?.date_of_birth as Date
-                    }
-                    name='date_of_birth'
-                    labelFieldName='Date Of Birth'
-                    isRequiredField={true}
-                    datePickerPosition={'left-start'}
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.personal_info?.date_of_birth
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <SearchDrop
-                    options={bloodGroupArray}
-                    searchKey=''
-                    position='bottom'
-                    emptyDataMessage=''
-                    showSearchBar={true}
-                    labelFieldName='Blood Group'
-                    isRequiredField={true}
-                    selectedValue={formData?.personal_info?.blood_group}
-                    onSelectValBtn={(data: string | object) =>
-                      handelSearchDropSelectValue(
-                        data,
-                        'blood_group',
-                        'personal_info'
-                      )
-                    }
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.personal_info?.blood_group
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
+              <div className='w-full'>
+                <div className='w-full grid grid-cols-3 gap-5'>
+                  <div className='w-full'>
+                    <SearchDrop
+                      options={GenderArray}
+                      searchKey=''
+                      position='bottom'
+                      emptyDataMessage=''
+                      showSearchBar={false}
+                      labelFieldName='Gender'
+                      isRequiredField={true}
+                      selectedValue={formData?.personal_info?.gender}
+                      onSelectValBtn={(data: string | object) =>
+                        handelSearchDropSelectValue(
+                          data,
+                          'gender',
+                          'personal_info'
+                        )
+                      }
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.personal_info?.gender
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                  <div className='w-full'>
+                    <CommonDatePicker
+                      onChange={handelDateOfBirthPickUpChangeFunction}
+                      selectedValue={
+                        formData?.personal_info?.date_of_birth as Date
+                      }
+                      name='date_of_birth'
+                      labelFieldName='Date Of Birth'
+                      isRequiredField={true}
+                      datePickerPosition={'left-start'}
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.personal_info?.date_of_birth
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                  <div className='w-full'>
+                    <SearchDrop
+                      options={bloodGroupArray}
+                      searchKey=''
+                      position='bottom'
+                      emptyDataMessage=''
+                      showSearchBar={true}
+                      labelFieldName='Blood Group'
+                      isRequiredField={true}
+                      selectedValue={formData?.personal_info?.blood_group}
+                      onSelectValBtn={(data: string | object) =>
+                        handelSearchDropSelectValue(
+                          data,
+                          'blood_group',
+                          'personal_info'
+                        )
+                      }
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.personal_info?.blood_group
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className='w-full'>
-              <TextArea
-                name='personal_info.about'
-                rows={4}
-                value={formData?.personal_info?.about}
-                onChange={handleOnChange}
-                labelFieldName='About'
-              />
+              <div className='w-full'>
+                <TextArea
+                  name='personal_info.about'
+                  rows={4}
+                  value={formData?.personal_info?.about}
+                  onChange={handleOnChange}
+                  labelFieldName='About'
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <AddEditProfileSkeletonLoader
+          showProfileLoader
+          showAboutFiled
+          singleColumnFieldCount={1}
+          tripleColumnFieldCount={6}
+        />
+      );
+    }
   };
 
   const employee_information = () => {
-    return (
-      <div className='w-full bg-white rounded-xl'>
-        <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
-          <h2 className='font-inter text-xl text-black font-semibold capitalize'>
-            Employee Information
-          </h2>
-          <p className='font-inter text-base text-black font-light w-[70%]'>
-            Enter key employment details to help us manage records accurately
-            and maintain a complete employee profile.
-          </p>
-        </div>
-        <div className='p-6 w-full'>
-          <div className='grid grid-cols-1 gap-6'>
-            <div className='w-full'>
-              <div className='w-full grid grid-cols-3 gap-5'>
-                <div className='w-full'>
-                  <SearchDrop
-                    options={OrganizationEmployeeStatusArray}
-                    searchKey=''
-                    position='bottom'
-                    emptyDataMessage='No Status Found'
-                    showSearchBar={true}
-                    labelFieldName='Status'
-                    isRequiredField={true}
-                    selectedValue={formData?.employee_info?.status}
-                    onSelectValBtn={(data: string | object) =>
-                      handelSearchDropSelectValue(
-                        data,
-                        'status',
-                        'employee_info'
-                      )
-                    }
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.employee_info?.status
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='employee_info.organization_name'
-                    labelFieldName='Organization Name'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    disabled
-                    value={formData.employee_info?.organization_name}
-                    onChange={handleOnChange}
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.employee_info?.organization_name
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <SearchDrop
-                    options={departmentOptions}
-                    searchKey='department_name'
-                    position='bottom'
-                    emptyDataMessage='No Department Found'
-                    showSearchBar={true}
-                    labelFieldName='Department'
-                    isRequiredField={true}
-                    selectedValue={formData?.employee_info?.department}
-                    loading={fetchingDesignationsDepartments['departments']}
-                    onSelectValBtn={(data: string | object) =>
-                      handelSearchDropSelectValue(
-                        (data as DepartmentConfig).department_name,
-                        'department',
-                        'employee_info'
-                      )
-                    }
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.employee_info?.department
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-            <div className='w-full'>
-              <div className='w-full grid grid-cols-3 gap-5'>
-                <div className='w-full'>
-                  <SearchDrop
-                    options={designationOptions}
-                    searchKey='designations_name'
-                    position='bottom'
-                    emptyDataMessage='No Designation Found'
-                    showSearchBar={true}
-                    labelFieldName='Designation'
-                    isRequiredField={true}
-                    loading={fetchingDesignationsDepartments['designations']}
-                    selectedValue={formData?.employee_info?.designation}
-                    onSelectValBtn={(data: string | object) =>
-                      handelSearchDropSelectValue(
-                        (data as DesignationConfig).designations_name,
-                        'designation',
-                        'employee_info'
-                      )
-                    }
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.employee_info?.designation
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <SearchDrop
-                    options={reportingManagerOptions}
-                    searchKey='full_name'
-                    position='bottom'
-                    emptyDataMessage='No Reporting Manager Found'
-                    showSearchBar={true}
-                    labelFieldName='Reporting To'
-                    isRequiredField={true}
-                    loading={fetchingDesignationsDepartments['reporting_to']}
-                    selectedValue={formData?.employee_info?.reporting_to?.name}
-                    onSelectValBtn={(data: string | object) =>
-                      handelOnClickReportingManager(
-                        data as ReportingManagerModuleInterface
-                      )
-                    }
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.employee_info?.reporting_to?.name
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <SearchDrop
-                    options={employeeRoleOptions}
-                    searchKey='role_name'
-                    position='bottom'
-                    emptyDataMessage='No Role Found'
-                    showSearchBar={true}
-                    labelFieldName='Employee Role'
-                    isRequiredField={true}
-                    loading={fetchingDesignationsDepartments['employee_role']}
-                    selectedValue={
-                      formData?.employee_info?.employee_role?.role_name
-                    }
-                    onSelectValBtn={(data: string | object) =>
-                      handelOnClickEmployeeRole(
-                        data as EmployeeRoleModuleInterface
-                      )
-                    }
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.employee_info?.employee_role?.role_name
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-            <div className='w-full'>
-              <div className='grid grid-cols-2 gap-5'>
-                <div className='w-full'>
-                  <label
-                    htmlFor=''
-                    className='text-sm font-inter font-normal text-black/[.65] pb-2 inline-block'
-                  >
-                    <span className='flex gap-1'>
-                      <span>Employee Code</span>
-                      <FaStarOfLife className='w-1.5 text-red-700' />
-                    </span>
-                  </label>
-                  <div className='relative w-full flex items-stretch justify-start'>
-                    <div className='flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-l-lg text-[14px] px-3 whitespace-nowrap'>
-                      {formData?.employee_info?.status.toLocaleLowerCase() ==
-                      'intern'
-                        ? GlobalStateProvider?.organization
-                            ?.organization_settings?.intern_code_prefix
-                        : GlobalStateProvider?.organization
-                            ?.organization_settings?.employee_code_prefix}{' '}
-                      -
-                    </div>
-                    <Input
-                      name='employee_info.employee_code'
-                      className='border border-black/[.65] border-l-0 rounded-l-none text-black w-full'
-                      type='number'
-                      value={formData?.employee_info?.employee_code
-                        ?.split('-')
-                        .pop()}
-                      onChange={handleOnChange}
-                    />
-                  </div>
-                  {showEmptyFieldError &&
-                  formData?.employee_info?.employee_code?.trim() == '' ? (
-                    <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
-                      This field is required.
-                    </span>
-                  ) : (
-                    ''
-                  )}
-                </div>
-                <div className='w-full'>
-                  <label
-                    htmlFor=''
-                    className='text-sm font-inter font-normal text-black/[.65] pb-2 inline-block'
-                  >
-                    <span className='flex gap-1'>
-                      <span>Employee Email</span>
-                      <FaStarOfLife className='w-1.5 text-red-700' />
-                    </span>
-                  </label>
-                  <div className='relative w-full flex items-stretch justify-start'>
-                    <Input
-                      name='employee_info.employee_email'
-                      className='border border-black/[.65] border-r-0 rounded-r-none text-black w-full'
-                      type='text'
-                      value={formData?.employee_info?.employee_email
-                        ?.split('@')[0]
-                        .toLocaleLowerCase()}
-                      onChange={handleOnChange}
-                    />
-                    <div className='flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-r-lg text-[14px] px-3 whitespace-nowrap'>
-                      @
-                      {
-                        GlobalStateProvider?.organization?.general_info?.primary_email?.split(
-                          '@'
-                        )[1]
+    if (!fetchingTheEmployeeData) {
+      return (
+        <div className='w-full bg-white rounded-xl'>
+          <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
+            <h2 className='font-inter text-xl text-black font-semibold capitalize'>
+              Employee Information
+            </h2>
+            <p className='font-inter text-base text-black font-light w-[70%]'>
+              Enter key employment details to help us manage records accurately
+              and maintain a complete employee profile.
+            </p>
+          </div>
+          <div className='p-6 w-full'>
+            <div className='grid grid-cols-1 gap-6'>
+              <div className='w-full'>
+                <div className='w-full grid grid-cols-3 gap-5'>
+                  <div className='w-full'>
+                    <SearchDrop
+                      options={OrganizationEmployeeStatusArray}
+                      searchKey=''
+                      position='bottom'
+                      emptyDataMessage='No Status Found'
+                      showSearchBar={true}
+                      labelFieldName='Status'
+                      isRequiredField={true}
+                      selectedValue={formData?.employee_info?.status}
+                      onSelectValBtn={(data: string | object) =>
+                        handelSearchDropSelectValue(
+                          data,
+                          'status',
+                          'employee_info'
+                        )
                       }
-                    </div>
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.employee_info?.status
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
                   </div>
-                  {showEmptyFieldError &&
-                  formData?.employee_info?.employee_email?.trim() == '' ? (
-                    <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
-                      This field is required.
-                    </span>
-                  ) : (
-                    ''
-                  )}
+                  <div className='w-full'>
+                    <Input
+                      type='text'
+                      name='employee_info.organization_name'
+                      labelFieldName='Organization Name'
+                      className='border border-black/45'
+                      isRequiredField={true}
+                      disabled
+                      value={formData.employee_info?.organization_name}
+                      onChange={handleOnChange}
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.employee_info?.organization_name
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                  <div className='w-full'>
+                    <SearchDrop
+                      options={departmentOptions}
+                      searchKey='department_name'
+                      position='bottom'
+                      emptyDataMessage='No Department Found'
+                      showSearchBar={true}
+                      labelFieldName='Department'
+                      isRequiredField={true}
+                      selectedValue={formData?.employee_info?.department}
+                      loading={fetchingDesignationsDepartments['departments']}
+                      onSelectValBtn={(data: string | object) =>
+                        handelSearchDropSelectValue(
+                          (data as DepartmentConfig).department_name,
+                          'department',
+                          'employee_info'
+                        )
+                      }
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.employee_info?.department
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className='w-full'>
+                <div className='w-full grid grid-cols-3 gap-5'>
+                  <div className='w-full'>
+                    <SearchDrop
+                      options={designationOptions}
+                      searchKey='designations_name'
+                      position='bottom'
+                      emptyDataMessage='No Designation Found'
+                      showSearchBar={true}
+                      labelFieldName='Designation'
+                      isRequiredField={true}
+                      loading={fetchingDesignationsDepartments['designations']}
+                      selectedValue={formData?.employee_info?.designation}
+                      onSelectValBtn={(data: string | object) =>
+                        handelSearchDropSelectValue(
+                          (data as DesignationConfig).designations_name,
+                          'designation',
+                          'employee_info'
+                        )
+                      }
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.employee_info?.designation
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                  <div className='w-full'>
+                    <SearchDrop
+                      options={reportingManagerOptions}
+                      searchKey='full_name'
+                      position='bottom'
+                      emptyDataMessage='No Reporting Manager Found'
+                      showSearchBar={true}
+                      labelFieldName='Reporting To'
+                      isRequiredField={true}
+                      loading={fetchingDesignationsDepartments['reporting_to']}
+                      selectedValue={
+                        formData?.employee_info?.reporting_to?.name
+                      }
+                      onSelectValBtn={(data: string | object) =>
+                        handelOnClickReportingManager(
+                          data as ReportingManagerModuleInterface
+                        )
+                      }
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.employee_info?.reporting_to?.name
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                  <div className='w-full'>
+                    <SearchDrop
+                      options={employeeRoleOptions}
+                      searchKey='role_name'
+                      position='bottom'
+                      emptyDataMessage='No Role Found'
+                      showSearchBar={true}
+                      labelFieldName='Employee Role'
+                      isRequiredField={true}
+                      loading={fetchingDesignationsDepartments['employee_role']}
+                      selectedValue={
+                        formData?.employee_info?.employee_role?.role_name
+                      }
+                      onSelectValBtn={(data: string | object) =>
+                        handelOnClickEmployeeRole(
+                          data as EmployeeRoleModuleInterface
+                        )
+                      }
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.employee_info?.employee_role?.role_name
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className='w-full'>
+                <div className='grid grid-cols-2 gap-5'>
+                  <div className='w-full'>
+                    <label
+                      htmlFor=''
+                      className='text-sm font-inter font-normal text-black/[.65] pb-2 inline-block'
+                    >
+                      <span className='flex gap-1'>
+                        <span>Employee Code</span>
+                        <FaStarOfLife className='w-1.5 text-red-700' />
+                      </span>
+                    </label>
+                    <div className='relative w-full flex items-stretch justify-start'>
+                      <div className='flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-l-lg text-[14px] px-3 whitespace-nowrap'>
+                        {formData?.employee_info?.status.toLocaleLowerCase() ==
+                        'intern'
+                          ? GlobalStateProvider?.organization
+                              ?.organization_settings?.intern_code_prefix
+                          : GlobalStateProvider?.organization
+                              ?.organization_settings
+                              ?.employee_code_prefix}{' '}
+                        -
+                      </div>
+                      <Input
+                        name='employee_info.employee_code'
+                        className='border border-black/[.65] border-l-0 rounded-l-none text-black w-full'
+                        type='number'
+                        value={formData?.employee_info?.employee_code
+                          ?.split('-')
+                          .pop()}
+                        onChange={handleOnChange}
+                      />
+                    </div>
+                    {showEmptyFieldError &&
+                    formData?.employee_info?.employee_code?.trim() == '' ? (
+                      <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
+                        This field is required.
+                      </span>
+                    ) : (
+                      ''
+                    )}
+                  </div>
+                  <div className='w-full'>
+                    <label
+                      htmlFor=''
+                      className='text-sm font-inter font-normal text-black/[.65] pb-2 inline-block'
+                    >
+                      <span className='flex gap-1'>
+                        <span>Employee Email</span>
+                        <FaStarOfLife className='w-1.5 text-red-700' />
+                      </span>
+                    </label>
+                    <div className='relative w-full flex items-stretch justify-start'>
+                      <Input
+                        name='employee_info.employee_email'
+                        className='border border-black/[.65] border-r-0 rounded-r-none text-black w-full'
+                        type='text'
+                        value={formData?.employee_info?.employee_email
+                          ?.split('@')[0]
+                          .toLocaleLowerCase()}
+                        onChange={handleOnChange}
+                      />
+                      <div className='flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-r-lg text-[14px] px-3 whitespace-nowrap'>
+                        @
+                        {
+                          GlobalStateProvider?.organization?.general_info?.primary_email?.split(
+                            '@'
+                          )[1]
+                        }
+                      </div>
+                    </div>
+                    {showEmptyFieldError &&
+                    formData?.employee_info?.employee_email?.trim() == '' ? (
+                      <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
+                        This field is required.
+                      </span>
+                    ) : (
+                      ''
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <AddEditProfileSkeletonLoader
+          tripleColumnFieldCount={6}
+          doubleColumnFieldCount={2}
+        />
+      );
+    }
   };
 
   const personal_contact_information = () => {
-    return (
-      <div className='w-full bg-white rounded-xl'>
-        <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
-          <h2 className='font-inter text-xl text-black font-semibold capitalize'>
-            Personal contact information
-          </h2>
-          <p className='font-inter text-base text-black font-light w-[70%]'>
-            Enter your personal contact information to help us maintain accurate
-            records and ensure seamless communication.
-          </p>
-        </div>
-        <div className='p-6 w-full'>
-          <div className='grid grid-cols-1 gap-6'>
-            <div className='w-full'>
-              <div className='w-full grid grid-cols-2 gap-5'>
-                <div className='w-full'>
-                  <Input
-                    type='email'
-                    name='personal_contact_info.personal_email'
-                    labelFieldName='Personal Email'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.personal_contact_info.personal_email}
-                    onChange={handleOnChange}
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.personal_contact_info.personal_email
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <Input
-                    type='number'
-                    name='personal_contact_info.mobile_number'
-                    className='border border-black/[.65] text-black rounded-lg rounded-l-none'
-                    labelFieldName='Contact Number'
-                    isRequiredField={true}
-                    value={formateAndVerifyPhoneNumber(
-                      formData?.personal_contact_info?.mobile_number,
-                      formData?.personal_contact_info?.country_info
-                        ? JSON.parse(
-                            formData?.personal_contact_info
-                              ?.country_info as string
-                          )?.country_code
-                        : 'IN'
-                    )}
-                    onChange={(e) =>
-                      handelInputFieldChange(
-                        e,
-                        'mobile_number',
-                        'personal_contact_info'
-                      )
-                    }
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.personal_contact_info?.mobile_number
-                        ? ''
-                        : 'this field is required'
-                    }
-                    dropDownSelectedValue={
-                      formData?.personal_contact_info?.country_info
-                        ? JSON.parse(
-                            formData?.personal_contact_info
-                              ?.country_info as string
-                          )?.country_number_code
-                        : '+91'
-                    }
-                    setDropDownSelectedValue={(data) =>
-                      handelSearchDropSelectValue(
-                        data as string,
-                        'country_info',
-                        'personal_contact_info'
-                      )
-                    }
-                    countryDropDownPosition='top'
-                    countryOptionsData={countryOptionsDataArray}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h2 className='font-inter text-base text-black font-medium pt-7 pb-3 border-b border-b-black/45'>
-              Emergency Contact Information
+    if (!fetchingTheEmployeeData) {
+      return (
+        <div className='w-full bg-white rounded-xl'>
+          <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
+            <h2 className='font-inter text-xl text-black font-semibold capitalize'>
+              Personal contact information
             </h2>
-            <div className='flex w-full gap-2 items-center pb-2 pt-6'>
-              <div className='grid grid-cols-2 w-full gap-2.5'>
-                <p className='text-sm font-inter font-normal text-black/65 inline-block'>
-                  <span className='flex gap-1'>
-                    <span>Emergency Contact Name</span>
-                    <FaStarOfLife className='w-1.5 text-red-700' />
-                  </span>
-                </p>
-                <p className='text-sm font-inter font-normal text-black/65 inline-block'>
-                  <span className='flex gap-1'>
-                    <span>Emergency Contact Number</span>
-                    <FaStarOfLife className='w-1.5 text-red-700' />
-                  </span>
-                </p>
-              </div>
-              <div className='min-w-[100px]'></div>
-            </div>
+            <p className='font-inter text-base text-black font-light w-[70%]'>
+              Enter your personal contact information to help us maintain
+              accurate records and ensure seamless communication.
+            </p>
+          </div>
+          <div className='p-6 w-full'>
             <div className='grid grid-cols-1 gap-6'>
-              {formData?.personal_contact_info?.emergency_contact?.map(
-                (eachContact, index) => (
-                  <div
-                    className='w-full flex items-stretch justify-start gap-5'
-                    key={index}
-                  >
-                    <div className='w-full grid grid-cols-2 gap-5'>
-                      <div className='w-full'>
-                        <Input
-                          type='text'
-                          name='emergency_contact_name'
-                          className='border border-black/45'
-                          isRequiredField={true}
-                          value={eachContact?.emergency_contact_name}
-                          onChange={(e) =>
-                            handleEmergencyContactField(
-                              index,
-                              'emergency_contact_name',
-                              'personal_contact_info',
-                              'emergency_contact',
-                              undefined,
-                              e
-                            )
-                          }
-                          showError={showEmptyFieldError}
-                          errorMessage={
-                            eachContact?.emergency_contact_name
-                              ? ''
-                              : 'this field is required'
-                          }
-                        />
-                      </div>
-                      <div className='w-full'>
-                        <Input
-                          type='number'
-                          name='emergency_contact_number'
-                          className='border border-black/[.65] text-black rounded-lg rounded-l-none'
-                          isRequiredField={true}
-                          value={formateAndVerifyPhoneNumber(
-                            eachContact?.emergency_contact_number,
-                            eachContact?.emergency_contact_country_info
-                              ? JSON.parse(
-                                  eachContact?.emergency_contact_country_info as string
-                                )?.country_code
-                              : 'IN'
-                          )}
-                          onChange={(e) =>
-                            handleEmergencyContactField(
-                              index,
-                              'emergency_contact_number',
-                              'personal_contact_info',
-                              'emergency_contact',
-                              undefined,
-                              e
-                            )
-                          }
-                          showError={showEmptyFieldError}
-                          errorMessage={
-                            eachContact?.emergency_contact_number
-                              ? ''
-                              : 'this field is required'
-                          }
-                          dropDownSelectedValue={
-                            eachContact?.emergency_contact_country_info
-                              ? JSON.parse(
-                                  eachContact?.emergency_contact_country_info as string
-                                )?.country_number_code
-                              : '+91'
-                          }
-                          setDropDownSelectedValue={(data) =>
-                            handleEmergencyContactCountryInfo(
-                              data as string,
-                              index
-                            )
-                          }
-                          countryDropDownPosition='top'
-                          countryOptionsData={countryOptionsDataArray}
-                        />
-                      </div>
-                    </div>
-                    <div className='min-w-[100px] grid grid-cols-2 gap-2.5 max-h-[41px]'>
-                      {index ==
-                        formData.personal_contact_info?.emergency_contact
-                          .length -
-                          1 && (
-                        <button
-                          className='bg-green-100 h-full w-full rounded-[4px] flex items-center justify-center border border-green-600 text-black text-xl'
-                          onClick={handelAddNewContact}
-                        >
-                          <MdModeEditOutline />
-                        </button>
-                      )}
-                      {formData.personal_contact_info?.emergency_contact
-                        .length > 1 && (
-                        <button
-                          className='bg-rose-100 h-full w-full rounded-[4px] flex items-center justify-center border border-rose-500 text-black text-xl'
-                          onClick={() => removeContactInfo(index)}
-                        >
-                          <MdDelete />
-                        </button>
-                      )}
-                    </div>
+              <div className='w-full'>
+                <div className='w-full grid grid-cols-2 gap-5'>
+                  <div className='w-full'>
+                    <Input
+                      type='email'
+                      name='personal_contact_info.personal_email'
+                      labelFieldName='Personal Email'
+                      className='border border-black/45'
+                      isRequiredField={true}
+                      value={formData.personal_contact_info.personal_email}
+                      onChange={handleOnChange}
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.personal_contact_info.personal_email
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
                   </div>
-                )
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-  const family_info = () => {
-    return (
-      <div className='w-full bg-white rounded-xl'>
-        <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
-          <h2 className='font-inter text-xl text-black font-semibold capitalize'>
-            Family information
-          </h2>
-          <p className='font-inter text-base text-black font-light w-[70%]'>
-            Provide your family information to help us support you better and
-            ensure accurate records for benefits and emergency planning.
-          </p>
-        </div>
-        <div className='p-6 w-full'>
-          <div className='grid grid-cols-1 gap-6'>
-            <div className='w-full'>
-              <div className='w-full grid grid-cols-2 gap-5'>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='family_info.father_name'
-                    labelFieldName='Father Name'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.family_info?.father_name}
-                    onChange={handleOnChange}
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData.family_info?.father_name
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <Input
-                    type='text'
-                    name='family_info.mother_name'
-                    labelFieldName='Mother Name'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.family_info?.mother_name}
-                    onChange={handleOnChange}
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData.family_info?.mother_name
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <SearchDrop
-                    options={maritalStatus}
-                    searchKey=''
-                    position='bottom'
-                    emptyDataMessage=''
-                    labelFieldName='Marital Status'
-                    isRequiredField
-                    showSearchBar={false}
-                    selectedValue={formData?.family_info?.marital_status}
-                    onSelectValBtn={(data: string | object) =>
-                      handelSearchDropSelectValue(
-                        data,
-                        'marital_status',
-                        'family_info'
-                      )
-                    }
-                    showError={showEmptyFieldError}
-                    errorMessage={
-                      formData?.family_info?.marital_status
-                        ? ''
-                        : 'this field is required'
-                    }
-                  />
+                  <div className='w-full'>
+                    <Input
+                      type='number'
+                      name='personal_contact_info.mobile_number'
+                      className='border border-black/[.65] text-black rounded-lg rounded-l-none'
+                      labelFieldName='Contact Number'
+                      isRequiredField={true}
+                      value={formateAndVerifyPhoneNumber(
+                        formData?.personal_contact_info?.mobile_number,
+                        formData?.personal_contact_info?.country_info
+                          ? JSON.parse(
+                              formData?.personal_contact_info
+                                ?.country_info as string
+                            )?.country_code
+                          : 'IN'
+                      )}
+                      onChange={(e) =>
+                        handelInputFieldChange(
+                          e,
+                          'mobile_number',
+                          'personal_contact_info'
+                        )
+                      }
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.personal_contact_info?.mobile_number
+                          ? ''
+                          : 'this field is required'
+                      }
+                      dropDownSelectedValue={
+                        formData?.personal_contact_info?.country_info
+                          ? JSON.parse(
+                              formData?.personal_contact_info
+                                ?.country_info as string
+                            )?.country_number_code
+                          : '+91'
+                      }
+                      setDropDownSelectedValue={(data) =>
+                        handelSearchDropSelectValue(
+                          data as string,
+                          'country_info',
+                          'personal_contact_info'
+                        )
+                      }
+                      countryDropDownPosition='top'
+                      countryOptionsData={countryOptionsDataArray}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          {AlignableForChildInfo.includes(
-            formData?.family_info?.marital_status
-          ) && (
-            <div className='w-full transition-all'>
-              <h2 className='font-inter text-base text-black font-medium pt-7 pb-3 border-b border-b-black/45'>
-                Child Information
+            <div className='w-full'>
+              <h2 className='font-inter text-base text-black font-medium pt-7 pb-3 border-b border-b-black/30'>
+                Emergency Contact Information
               </h2>
               <div className='flex w-full gap-2 items-center pb-2 pt-6'>
                 <div className='grid grid-cols-2 w-full gap-2.5'>
                   <p className='text-sm font-inter font-normal text-black/65 inline-block'>
                     <span className='flex gap-1'>
-                      <span>Children Name</span>
+                      <span>Emergency Contact Name</span>
                       <FaStarOfLife className='w-1.5 text-red-700' />
                     </span>
                   </p>
                   <p className='text-sm font-inter font-normal text-black/65 inline-block'>
                     <span className='flex gap-1'>
-                      <span>Children Date Of Birth</span>
+                      <span>Emergency Contact Number</span>
                       <FaStarOfLife className='w-1.5 text-red-700' />
                     </span>
                   </p>
@@ -1711,96 +1547,322 @@ export default function AddEditEmployeeProfile() {
                 <div className='min-w-[100px]'></div>
               </div>
               <div className='grid grid-cols-1 gap-6'>
-                {formData?.family_info.children.map((eachContact, index) => (
-                  <div
-                    className='w-full flex items-stretch justify-start gap-5'
-                    key={index}
-                  >
-                    <div className='w-full grid grid-cols-2 gap-5'>
-                      <div className='w-full'>
-                        <Input
-                          type='text'
-                          name='child_name'
-                          className='border border-black/45'
-                          isRequiredField={true}
-                          value={eachContact?.child_name}
-                          onChange={(e) =>
-                            handleEmergencyContactField(
-                              index,
-                              'child_name',
-                              'family_info',
-                              'children',
-                              undefined,
-                              e
-                            )
-                          }
-                          showError={showEmptyFieldError}
-                          errorMessage={
-                            AlignableForChildInfo.includes(
-                              formData?.family_info?.marital_status
-                            )
-                              ? eachContact?.child_name
+                {formData?.personal_contact_info?.emergency_contacts?.map(
+                  (eachContact, index) => (
+                    <div
+                      className='w-full flex items-stretch justify-start gap-5'
+                      key={index}
+                    >
+                      <div className='w-full grid grid-cols-2 gap-5'>
+                        <div className='w-full'>
+                          <Input
+                            type='text'
+                            name='emergency_contact_name'
+                            className='border border-black/45'
+                            isRequiredField={true}
+                            value={eachContact?.emergency_contact_name}
+                            onChange={(e) =>
+                              handleEmergencyContactField(
+                                index,
+                                'emergency_contact_name',
+                                'personal_contact_info',
+                                'emergency_contacts',
+                                undefined,
+                                e
+                              )
+                            }
+                            showError={showEmptyFieldError}
+                            errorMessage={
+                              eachContact?.emergency_contact_name
                                 ? ''
                                 : 'this field is required'
-                              : ''
-                          }
-                        />
-                      </div>
-                      <div className='w-full'>
-                        <CommonDatePicker
-                          onChange={(date) =>
-                            handleEmergencyContactField(
-                              index,
-                              'child_date_of_birth',
-                              'family_info',
-                              'children',
-                              date
-                            )
-                          }
-                          selectedValue={
-                            eachContact?.child_date_of_birth as Date
-                          }
-                          name='child_date_of_birth'
-                          datePickerPosition={'left-start'}
-                          showError={showEmptyFieldError}
-                          errorMessage={
-                            AlignableForChildInfo.includes(
-                              formData?.family_info?.marital_status
-                            )
-                              ? eachContact?.child_date_of_birth
+                            }
+                          />
+                        </div>
+                        <div className='w-full'>
+                          <Input
+                            type='number'
+                            name='emergency_contact_number'
+                            className='border border-black/[.65] text-black rounded-lg rounded-l-none'
+                            isRequiredField={true}
+                            value={formateAndVerifyPhoneNumber(
+                              eachContact?.emergency_contact_number,
+                              eachContact?.emergency_contact_country_info
+                                ? JSON.parse(
+                                    eachContact?.emergency_contact_country_info as string
+                                  )?.country_code
+                                : 'IN'
+                            )}
+                            onChange={(e) =>
+                              handleEmergencyContactField(
+                                index,
+                                'emergency_contact_number',
+                                'personal_contact_info',
+                                'emergency_contacts',
+                                undefined,
+                                e
+                              )
+                            }
+                            showError={showEmptyFieldError}
+                            errorMessage={
+                              eachContact?.emergency_contact_number
                                 ? ''
                                 : 'this field is required'
-                              : ''
-                          }
-                        />
+                            }
+                            dropDownSelectedValue={
+                              eachContact?.emergency_contact_country_info
+                                ? JSON.parse(
+                                    eachContact?.emergency_contact_country_info as string
+                                  )?.country_number_code
+                                : '+91'
+                            }
+                            setDropDownSelectedValue={(data) =>
+                              handleEmergencyContactCountryInfo(
+                                data as string,
+                                index
+                              )
+                            }
+                            countryDropDownPosition='top'
+                            countryOptionsData={countryOptionsDataArray}
+                          />
+                        </div>
+                      </div>
+                      <div className='min-w-[100px] grid grid-cols-2 gap-2.5 max-h-[41px]'>
+                        {index ==
+                          formData.personal_contact_info?.emergency_contacts
+                            .length -
+                            1 && (
+                          <button
+                            className='bg-green-100 h-full w-full rounded-[4px] flex items-center justify-center border border-green-600 text-black text-xl'
+                            onClick={handelAddNewContact}
+                          >
+                            <MdModeEditOutline />
+                          </button>
+                        )}
+                        {formData.personal_contact_info?.emergency_contacts
+                          .length > 1 && (
+                          <button
+                            className='bg-rose-100 h-full w-full rounded-[4px] flex items-center justify-center border border-rose-500 text-black text-xl'
+                            onClick={() => removeContactInfo(index)}
+                          >
+                            <MdDelete />
+                          </button>
+                        )}
                       </div>
                     </div>
-                    <div className='min-w-[100px] grid grid-cols-2 gap-2.5 max-h-[41px]'>
-                      {index == formData.family_info.children.length - 1 && (
-                        <button
-                          className='bg-green-100 h-full w-full rounded-[4px] flex items-center justify-center border border-green-600 text-black text-xl'
-                          onClick={handelAddNewChild}
-                        >
-                          <MdModeEditOutline />
-                        </button>
-                      )}
-                      {formData.family_info.children.length > 1 && (
-                        <button
-                          className='bg-rose-100 h-full w-full rounded-[4px] flex items-center justify-center border border-rose-500 text-black text-xl'
-                          onClick={() => removeSpecificChild(index)}
-                        >
-                          <MdDelete />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <AddEditProfileSkeletonLoader
+          doubleColumnFieldCount={2}
+          childrenEmergencySection
+        />
+      );
+    }
+  };
+  const family_info = () => {
+    if (!fetchingTheEmployeeData) {
+      return (
+        <div className='w-full bg-white rounded-xl'>
+          <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
+            <h2 className='font-inter text-xl text-black font-semibold capitalize'>
+              Family information
+            </h2>
+            <p className='font-inter text-base text-black font-light w-[70%]'>
+              Provide your family information to help us support you better and
+              ensure accurate records for benefits and emergency planning.
+            </p>
+          </div>
+          <div className='p-6 w-full'>
+            <div className='grid grid-cols-1 gap-6'>
+              <div className='w-full'>
+                <div className='w-full grid grid-cols-2 gap-5'>
+                  <div className='w-full'>
+                    <Input
+                      type='text'
+                      name='family_info.father_name'
+                      labelFieldName='Father Name'
+                      className='border border-black/45'
+                      isRequiredField={true}
+                      value={formData.family_info?.father_name}
+                      onChange={handleOnChange}
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData.family_info?.father_name
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                  <div className='w-full'>
+                    <Input
+                      type='text'
+                      name='family_info.mother_name'
+                      labelFieldName='Mother Name'
+                      className='border border-black/45'
+                      isRequiredField={true}
+                      value={formData.family_info?.mother_name}
+                      onChange={handleOnChange}
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData.family_info?.mother_name
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                  <div className='w-full'>
+                    <SearchDrop
+                      options={maritalStatus}
+                      searchKey=''
+                      position='bottom'
+                      emptyDataMessage=''
+                      labelFieldName='Marital Status'
+                      isRequiredField
+                      showSearchBar={false}
+                      selectedValue={formData?.family_info?.marital_status}
+                      onSelectValBtn={(data: string | object) =>
+                        handelSearchDropSelectValue(
+                          data,
+                          'marital_status',
+                          'family_info'
+                        )
+                      }
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.family_info?.marital_status
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            {AlignableForChildInfo.includes(
+              formData?.family_info?.marital_status
+            ) && (
+              <div className='w-full transition-all'>
+                <h2 className='font-inter text-base text-black font-medium pt-7 pb-3 border-b border-b-black/30'>
+                  Child Information
+                </h2>
+                <div className='flex w-full gap-2 items-center pb-2 pt-6'>
+                  <div className='grid grid-cols-2 w-full gap-2.5'>
+                    <p className='text-sm font-inter font-normal text-black/65 inline-block'>
+                      <span className='flex gap-1'>
+                        <span>Children Name</span>
+                        <FaStarOfLife className='w-1.5 text-red-700' />
+                      </span>
+                    </p>
+                    <p className='text-sm font-inter font-normal text-black/65 inline-block'>
+                      <span className='flex gap-1'>
+                        <span>Children Date Of Birth</span>
+                        <FaStarOfLife className='w-1.5 text-red-700' />
+                      </span>
+                    </p>
+                  </div>
+                  <div className='min-w-[100px]'></div>
+                </div>
+                <div className='grid grid-cols-1 gap-6'>
+                  {formData?.family_info.children.map((eachContact, index) => (
+                    <div
+                      className='w-full flex items-stretch justify-start gap-5'
+                      key={index}
+                    >
+                      <div className='w-full grid grid-cols-2 gap-5'>
+                        <div className='w-full'>
+                          <Input
+                            type='text'
+                            name='child_name'
+                            className='border border-black/45'
+                            isRequiredField={true}
+                            value={eachContact?.child_name}
+                            onChange={(e) =>
+                              handleEmergencyContactField(
+                                index,
+                                'child_name',
+                                'family_info',
+                                'children',
+                                undefined,
+                                e
+                              )
+                            }
+                            showError={showEmptyFieldError}
+                            errorMessage={
+                              AlignableForChildInfo.includes(
+                                formData?.family_info?.marital_status
+                              )
+                                ? eachContact?.child_name
+                                  ? ''
+                                  : 'this field is required'
+                                : ''
+                            }
+                          />
+                        </div>
+                        <div className='w-full'>
+                          <CommonDatePicker
+                            onChange={(date) =>
+                              handleEmergencyContactField(
+                                index,
+                                'child_date_of_birth',
+                                'family_info',
+                                'children',
+                                date
+                              )
+                            }
+                            selectedValue={
+                              eachContact?.child_date_of_birth as Date
+                            }
+                            name='child_date_of_birth'
+                            datePickerPosition={'left-start'}
+                            showError={showEmptyFieldError}
+                            errorMessage={
+                              AlignableForChildInfo.includes(
+                                formData?.family_info?.marital_status
+                              )
+                                ? eachContact?.child_date_of_birth
+                                  ? ''
+                                  : 'this field is required'
+                                : ''
+                            }
+                          />
+                        </div>
+                      </div>
+                      <div className='min-w-[100px] grid grid-cols-2 gap-2.5 max-h-[41px]'>
+                        {index == formData.family_info.children.length - 1 && (
+                          <button
+                            className='bg-green-100 h-full w-full rounded-[4px] flex items-center justify-center border border-green-600 text-black text-xl'
+                            onClick={handelAddNewChild}
+                          >
+                            <MdModeEditOutline />
+                          </button>
+                        )}
+                        {formData.family_info.children.length > 1 && (
+                          <button
+                            className='bg-rose-100 h-full w-full rounded-[4px] flex items-center justify-center border border-rose-500 text-black text-xl'
+                            onClick={() => removeSpecificChild(index)}
+                          >
+                            <MdDelete />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    } else {
+      return <AddEditProfileSkeletonLoader doubleColumnFieldCount={3} />;
+    }
   };
 
   const RenderTheAddressFieldDynamically = (
@@ -1813,19 +1875,19 @@ export default function AddEditEmployeeProfile() {
           <TextArea
             name={`${module_name}.address`}
             rows={4}
-            value={module.address}
+            value={module?.address}
             onChange={handleOnChange}
             isRequiredField={true}
             labelFieldName='Address'
             showError={showEmptyFieldError}
             errorMessage={
               module_name === 'current_address'
-                ? module.address.trim()
+                ? module?.address.trim()
                   ? ''
                   : 'this field is required'
                 : module_name === 'permanent_address' &&
                     !formData?.same_as_current_address
-                  ? module.address.trim()
+                  ? module?.address.trim()
                     ? ''
                     : 'this field is required'
                   : ''
@@ -1840,7 +1902,7 @@ export default function AddEditEmployeeProfile() {
               searchKey='country_name'
               isRequiredField={true}
               labelFieldName='Country'
-              selectedValue={module.country}
+              selectedValue={module?.country}
               onSelectValBtn={(data) =>
                 handleClickOnCountryValue(
                   data as CountryDataInterface,
@@ -1853,12 +1915,12 @@ export default function AddEditEmployeeProfile() {
               showError={showEmptyFieldError}
               errorMessage={
                 module_name === 'current_address'
-                  ? module.country.trim()
+                  ? module?.country?.trim()
                     ? ''
                     : 'this field is required'
                   : module_name === 'permanent_address' &&
                       !formData?.same_as_current_address
-                    ? module.country.trim()
+                    ? module?.country?.trim()
                       ? ''
                       : 'this field is required'
                     : ''
@@ -1871,7 +1933,7 @@ export default function AddEditEmployeeProfile() {
               searchKey='state_name'
               isRequiredField={true}
               labelFieldName='State'
-              selectedValue={module.state}
+              selectedValue={module?.state}
               onSelectValBtn={(data) =>
                 handleClickOnStateValue(
                   data as StateOptionArrayInterFace,
@@ -1880,7 +1942,7 @@ export default function AddEditEmployeeProfile() {
               }
               position='top'
               emptyDataMessage={
-                module.country.trim() == ''
+                module?.country?.trim() == ''
                   ? 'Please Select A Country First'
                   : 'No Option'
               }
@@ -1888,12 +1950,12 @@ export default function AddEditEmployeeProfile() {
               showError={showEmptyFieldError}
               errorMessage={
                 module_name === 'current_address'
-                  ? module.state.trim()
+                  ? module?.state?.trim()
                     ? ''
                     : 'this field is required'
                   : module_name === 'permanent_address' &&
                       !formData?.same_as_current_address
-                    ? module.state.trim()
+                    ? module?.state?.trim()
                       ? ''
                       : 'this field is required'
                     : ''
@@ -1906,13 +1968,13 @@ export default function AddEditEmployeeProfile() {
               searchKey='city_name'
               isRequiredField={true}
               labelFieldName='City'
-              selectedValue={module.city}
+              selectedValue={module?.city}
               onSelectValBtn={(data) =>
                 handleClickOnCityVal(data as string, module_name)
               }
               position='top'
               emptyDataMessage={
-                module.state.trim() == ''
+                module?.state?.trim() == ''
                   ? 'Please Select A State First'
                   : 'No Option'
               }
@@ -1920,12 +1982,12 @@ export default function AddEditEmployeeProfile() {
               showError={showEmptyFieldError}
               errorMessage={
                 module_name === 'current_address'
-                  ? module.city.trim()
+                  ? module?.city?.trim()
                     ? ''
                     : 'this field is required'
                   : module_name === 'permanent_address' &&
                       !formData?.same_as_current_address
-                    ? module.city.trim()
+                    ? module?.city?.trim()
                       ? ''
                       : 'this field is required'
                     : ''
@@ -1939,7 +2001,7 @@ export default function AddEditEmployeeProfile() {
               className='border border-black/45'
               isRequiredField={true}
               labelFieldName='Zip Code'
-              value={module.zip_code}
+              value={module?.zip_code}
               onChange={(e) => handelZipCodeOnChange(e, module_name)}
               showError={showEmptyFieldError}
               errorMessage={
@@ -1970,183 +2032,200 @@ export default function AddEditEmployeeProfile() {
   };
 
   const RenderAddressComponent = () => {
-    return (
-      <div className='w-full bg-white rounded-xl'>
-        <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
-          <h2 className='font-inter text-xl text-black font-semibold capitalize'>
-            Address Information
-          </h2>
-          <p className='font-inter text-base text-black font-light w-[70%]'>
-            Provide your address details to help us maintain accurate records,
-            ensure timely communication, and support logistical and emergency
-            planning.
-          </p>
-        </div>
-        <div className='w-full'>
-          <div className='p-6 w-full'>
-            {RenderTheAddressFieldDynamically(
-              'current_address',
-              formData.current_address
-            )}
+    if (!fetchingTheEmployeeData) {
+      return (
+        <div className='w-full bg-white rounded-xl'>
+          <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
+            <h2 className='font-inter text-xl text-black font-semibold capitalize'>
+              Address Information
+            </h2>
+            <p className='font-inter text-base text-black font-light w-[70%]'>
+              Provide your address details to help us maintain accurate records,
+              ensure timely communication, and support logistical and emergency
+              planning.
+            </p>
           </div>
-          <div className='py-3 px-6 w-full bg-gray-50 border-t border-t-black/10  rounded-b-xl'>
-            <div className='w-full flex items-center justify-between'>
-              <p className='text-black capitalize font-inter text-sm'>
-                permanent address
-              </p>
-              <div className='flex items-center justify-end gap-3'>
-                <p className='text-black capitalize font-inter text-sm'>
-                  same as current address
-                </p>
-                <Input
-                  type='checkbox'
-                  name='termsAccepted'
-                  value={formData?.same_as_current_address ? 'true' : 'false'}
-                  setValue={(val: string) =>
-                    handelTheSameAsCurrentAddressButton(val as 'true' | 'false')
-                  }
-                />
-              </div>
+          <div className='w-full'>
+            <div className='p-6 w-full'>
+              {RenderTheAddressFieldDynamically(
+                'current_address',
+                formData.current_address
+              )}
             </div>
-
-            {!formData?.same_as_current_address ? (
-              <div className='pb-3 mt-6 transition-all'>
-                {RenderTheAddressFieldDynamically(
-                  'permanent_address',
-                  formData.permanent_address
-                )}
+            <div className='py-3 px-6 w-full bg-gray-50 border-t border-t-black/10  rounded-b-xl'>
+              <div className='w-full flex items-center justify-between'>
+                <p className='text-black capitalize font-inter text-sm'>
+                  permanent address
+                </p>
+                <div className='flex items-center justify-end gap-3'>
+                  <p className='text-black capitalize font-inter text-sm'>
+                    same as current address
+                  </p>
+                  <Input
+                    type='checkbox'
+                    name='termsAccepted'
+                    value={formData?.same_as_current_address ? 'true' : 'false'}
+                    setValue={(val: string) =>
+                      handelTheSameAsCurrentAddressButton(
+                        val as 'true' | 'false'
+                      )
+                    }
+                  />
+                </div>
               </div>
-            ) : null}
+
+              {!formData?.same_as_current_address ? (
+                <div className='pb-3 mt-6 transition-all'>
+                  {RenderTheAddressFieldDynamically(
+                    'permanent_address',
+                    formData.permanent_address
+                  )}
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <AddEditProfileSkeletonLoader
+          showAddressField
+          doubleColumnFieldCount={4}
+        />
+      );
+    }
   };
   const SocialLinkComponent = () => {
-    return (
-      <div className='w-full bg-white rounded-xl'>
-        <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
-          <h2 className='font-inter text-xl text-black font-semibold capitalize'>
-            Social Media Links
-          </h2>
-          <p className='font-inter text-base text-black font-light w-[70%]'>
-            Share your social media profiles to enhance your visibility, build
-            connections, and allow others to engage with your online presence
-            more effectively.
-          </p>
-        </div>
-        <div className='w-full'>
-          <div className='p-6 w-full'>
-            <div className='w-full'>
+    if (!fetchingTheEmployeeData) {
+      return (
+        <div className='w-full bg-white rounded-xl'>
+          <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
+            <h2 className='font-inter text-xl text-black font-semibold capitalize'>
+              Social Media Links
+            </h2>
+            <p className='font-inter text-base text-black font-light w-[70%]'>
+              Share your social media profiles to enhance your visibility, build
+              connections, and allow others to engage with your online presence
+              more effectively.
+            </p>
+          </div>
+          <div className='w-full'>
+            <div className='p-6 w-full'>
               <div className='w-full'>
-                {formData?.social_links?.map((link, index) => (
-                  <div
-                    className='flex items-center justify-start gap-3'
-                    key={index}
-                  >
-                    <div className='flex flex-col items-start justify-start'>
-                      <span
-                        className={classNames(
-                          'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
-                          {
-                            'opacity-0': index !== 0,
-                          }
-                        )}
-                      >
-                        Icon & Name
-                      </span>
-                      <div className='flex items-stretch justify-start w-fit gap-2'>
-                        <div className='w-fit flex flex-col items-start justify-start'>
-                          <IconPicker
-                            selectedIcon={link?.icon}
-                            position='top'
-                            onSelectValBtn={(data) =>
-                              handleSelectedIcon(data, index)
+                <div className='w-full'>
+                  {formData?.social_link?.map((link, index) => (
+                    <div
+                      className='flex items-center justify-start gap-3'
+                      key={index}
+                    >
+                      <div className='flex flex-col items-start justify-start'>
+                        <span
+                          className={classNames(
+                            'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
+                            {
+                              'opacity-0': index !== 0,
                             }
-                          />
+                          )}
+                        >
+                          Icon & Name
+                        </span>
+                        <div className='flex items-stretch justify-start w-fit gap-2'>
+                          <div className='w-fit flex flex-col items-start justify-start'>
+                            <IconPicker
+                              selectedIcon={link?.icon}
+                              position='top'
+                              onSelectValBtn={(data) =>
+                                handleSelectedIcon(data, index)
+                              }
+                            />
+                          </div>
+                          <div className='w-fit flex flex-col items-start justify-start'>
+                            <Input
+                              type='text'
+                              value={link?.name}
+                              className='border border-black/45'
+                              name='name'
+                              onChange={(e) => handelSocialLinkChange(e, index)}
+                            />
+                          </div>
                         </div>
-                        <div className='w-fit flex flex-col items-start justify-start'>
+                      </div>
+                      <div className='flex flex-col items-start justify-start flex-grow'>
+                        <span
+                          className={classNames(
+                            'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
+                            {
+                              'opacity-0': index !== 0,
+                            }
+                          )}
+                        >
+                          Link
+                        </span>
+                        <div className='flex items-stretch justify-start w-full gap-2'>
                           <Input
                             type='text'
-                            value={link?.name}
+                            value={link?.link}
                             className='border border-black/45'
-                            name='name'
+                            name='link'
                             onChange={(e) => handelSocialLinkChange(e, index)}
                           />
                         </div>
                       </div>
-                    </div>
-                    <div className='flex flex-col items-start justify-start flex-grow'>
-                      <span
-                        className={classNames(
-                          'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
-                          {
-                            'opacity-0': index !== 0,
-                          }
-                        )}
-                      >
-                        Link
-                      </span>
-                      <div className='flex items-stretch justify-start w-full gap-2'>
-                        <Input
-                          type='text'
-                          value={link?.link}
-                          className='border border-black/45'
-                          name='link'
-                          onChange={(e) => handelSocialLinkChange(e, index)}
-                        />
-                      </div>
-                    </div>
-                    <div className='flex flex-col items-start justify-start'>
-                      <span className='pb-2 font-inter text-black/65 text-sm px-1 inline-block opacity-0'>
-                        Link
-                      </span>
-                      <div className='flex items-stretch justify-end gap-2'>
-                        <button
-                          type='button'
-                          className={classNames(
-                            'relative inline-block min-w-10 min-h-10 rounded-lg cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)]',
-                            {
-                              'border border-black/[.65] bg-white':
-                                !formData?.social_links[index]?.target_blank,
-                              'border border-[var(--them-pink-color)] bg-[rgba(215,139,159,0.2)]':
-                                formData?.social_links[index]?.target_blank,
-                            }
-                          )}
-                          onClick={() => handelClickOnTargetBlockButton(index)}
-                        >
-                          {formData?.social_links[index]?.target_blank && (
-                            <span className='flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all'>
-                              <FaCheck className='w-5 h-5' />
-                            </span>
-                          )}
-                        </button>
-                        {index !== 0 && (
+                      <div className='flex flex-col items-start justify-start'>
+                        <span className='pb-2 font-inter text-black/65 text-sm px-1 inline-block opacity-0'>
+                          Link
+                        </span>
+                        <div className='flex items-stretch justify-end gap-2'>
                           <button
-                            className='bg-rose-100 w-10 rounded-lg flex items-center justify-center border border-rose-500 text-black text-xl'
-                            onClick={() => removeTheSpecificLink(index)}
+                            type='button'
+                            className={classNames(
+                              'relative inline-block min-w-10 min-h-10 rounded-lg cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)]',
+                              {
+                                'border border-black/[.65] bg-white':
+                                  !formData?.social_link[index]?.target_blank,
+                                'border border-[var(--them-pink-color)] bg-[rgba(215,139,159,0.2)]':
+                                  formData?.social_link[index]?.target_blank,
+                              }
+                            )}
+                            onClick={() =>
+                              handelClickOnTargetBlockButton(index)
+                            }
                           >
-                            <MdDelete />
+                            {formData?.social_link[index]?.target_blank && (
+                              <span className='flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all'>
+                                <FaCheck className='w-5 h-5' />
+                              </span>
+                            )}
                           </button>
-                        )}
+                          {index !== 0 && (
+                            <button
+                              className='bg-rose-100 w-10 rounded-lg flex items-center justify-center border border-rose-500 text-black text-xl'
+                              onClick={() => removeTheSpecificLink(index)}
+                            >
+                              <MdDelete />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-              <div className='button pt-4'>
-                <button
-                  className='font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg'
-                  onClick={handelAddNewEmptySocialLink}
-                >
-                  <span>Add Link</span>
-                </button>
+                  ))}
+                </div>
+                <div className='button pt-4'>
+                  <button
+                    className='font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg'
+                    onClick={handelAddNewEmptySocialLink}
+                  >
+                    <span>Add Link</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return <AddEditProfileSkeletonLoader showSocialLinkField />;
+    }
   };
 
   // * -------- Start Of The JSX Helper Function --------------------
@@ -2188,12 +2267,125 @@ export default function AddEditEmployeeProfile() {
     },
     {
       id: 6,
-      label: 'social_links',
+      label: 'social_link',
       module: SocialLinkComponent(),
       title: 'Social Links',
     },
   ];
 
+  const fetchTheUsersProfileInfoWithDebounce = useDebounce(
+    async (id: string) => {
+      const endPointArr: endpointObject[] = [
+        {
+          endPoint: `employee/fetch-profile?employee_id=${id}`,
+          protected: true,
+        },
+      ];
+
+      const response = await multipleFetchApi(endPointArr);
+      const res = response[0];
+
+      if (res?.success) {
+        const data: UserProfileInformationInterface = res?.data;
+        setFormData((prevData) => ({
+          ...prevData,
+          personal_info: {
+            ...data?.personal_info,
+            date_of_birth: new Date(data?.personal_info.date_of_birth),
+          },
+          employee_info: {
+            department: data?.employee_info?.department,
+            designation: data?.employee_info?.designation,
+            employee_code: data?.employee_info?.employee_code,
+            employee_email: data?.employee_info?.employee_email,
+            employee_role: {
+              role_id: data?.employee_info?.employee_role?.id,
+              role_name: data?.employee_info?.employee_role?.role_name,
+            },
+            organization_name: data?.employee_info?.organization_name,
+            status: data?.employee_info?.status,
+            reporting_to: {
+              id: data?.employee_info?.reporting_manager?.id,
+              name: data?.employee_info?.reporting_manager?.full_name
+                ? data?.employee_info?.reporting_manager?.full_name
+                : [
+                    data?.employee_info?.reporting_manager?.first_name,
+                    data?.employee_info?.reporting_manager?.middle_name,
+                    data?.employee_info?.reporting_manager?.last_name,
+                  ]
+                    ?.filter(Boolean)
+                    ?.join(' '),
+            },
+          },
+          personal_contact_info: {
+            country_info: data?.personal_contact_info?.country_info,
+            mobile_number: data?.personal_contact_info?.mobile_number,
+            personal_email: data?.personal_contact_info?.personal_email,
+            emergency_contacts:
+              data?.personal_contact_info?.emergency_contacts?.length != 0
+                ? [
+                    {
+                      emergency_contact_country_info: filteredCountry,
+                      emergency_contact_name: '',
+                      emergency_contact_number: '',
+                    },
+                  ]
+                : data?.personal_contact_info?.emergency_contacts,
+          },
+          family_info: {
+            ...data?.family_info,
+            children:
+              data?.family_info?.children?.length != 0
+                ? [{ child_name: '', child_date_of_birth: null }]
+                : data?.family_info?.children?.map((child) => ({
+                    child_name: child?.child_name,
+                    child_date_of_birth: new Date(child?.child_date_of_birth),
+                  })),
+          },
+          current_address: data?.current_address,
+          same_as_current_address: data?.same_as_current_address,
+          permanent_address: {
+            address: data?.permanent_address?.address || '',
+            city: data?.permanent_address?.city || '',
+            country: data?.permanent_address?.country || '',
+            country_code: data?.permanent_address?.country_code || '',
+            state: data?.permanent_address?.state || '',
+            zip_code: data?.permanent_address?.zip_code || '',
+          },
+          social_link:
+            data?.social_link?.length == 0
+              ? [
+                  {
+                    icon: '',
+                    link: '',
+                    name: '',
+                    target_blank: true,
+                  },
+                ]
+              : data?.social_link,
+        }));
+
+        setFetchingTheEmployeeData(false);
+        const endpointArray: Array<endpointObject> = [
+          {
+            endPoint: `country-info/getFormats?country-code=${data?.current_address?.country_code}`,
+            protected: false,
+          },
+        ];
+        const currentAddressResponse = await multipleFetchApi(endpointArray);
+        const currentAddressRes = currentAddressResponse[0];
+        if (res?.success) {
+          setSelectedCountryInfoForCurrentAddress((perValue) => ({
+            ...perValue,
+            country_code: data?.current_address?.country_code,
+            country_name: data?.current_address?.country,
+            postal_code: currentAddressRes?.postal_code_formate,
+          }));
+        }
+      }
+    },
+    100
+  );
   //
   // ? Defining The UseEffect That is Going To be Used To load the Initial Data
   //
@@ -2222,8 +2414,8 @@ export default function AddEditEmployeeProfile() {
             personal_contact_info: {
               ...pervData.personal_contact_info,
               country_info: JSON.stringify(response.filteredCountry),
-              emergency_contact:
-                pervData.personal_contact_info.emergency_contact?.map(
+              emergency_contacts:
+                pervData.personal_contact_info.emergency_contacts?.map(
                   (contact, index) =>
                     index == 0
                       ? {
@@ -2310,13 +2502,23 @@ export default function AddEditEmployeeProfile() {
       });
     };
   }, []);
-
+  useEffect(() => {
+    if (!employeeInfoFetchRef.current) {
+      employeeInfoFetchRef.current = true;
+      if (moduleType?.toLocaleLowerCase() == 'edit') {
+        if (employee_id) {
+          setFetchingTheEmployeeData(true);
+          fetchTheUsersProfileInfoWithDebounce(employee_id);
+        }
+      }
+    }
+  }, [employee_id, fetchTheUsersProfileInfoWithDebounce, moduleType]);
   return (
-    <>
+    <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       <div className='w-full h-full relative'>
         <div className='w-full'>
           <div className='w-full h-full flex items-stretch justify-between'>
-            <div className='w-full xl:w-[80%] flex-grow h-[calc(100vh-135px)] overflow-auto px-6 flex flex-col gap-6 pt-6 pb-5'>
+            <div className='w-full xl:w-[70%] flex-grow h-[calc(100vh-135px)] hide-scrollbar overflow-auto px-6 flex flex-col gap-6 pt-6 pb-5'>
               {interSectionObserverModules?.map((section, index) => (
                 <div
                   className='w-full'
@@ -2327,67 +2529,127 @@ export default function AddEditEmployeeProfile() {
                 </div>
               ))}
             </div>
-            <div className='hidden xl:w-[20%] xl:block bg-white'>
+            <div className='hidden xl:w-[30%] max-w-[300px] xl:block bg-white'>
               <div className='w-1/2 m-auto h-full flex flex-col justify-start items-stretch py-10'>
-                {interSectionObserverModules?.map((section, index) => (
-                  <div className='flex items-center justify-start gap-2'>
-                    <span
-                      className={classNames(
-                        'w-2 h-[50px] inline-block overflow-hidden relative',
-                        {
-                          'rounded-t-lg': index == 0,
-                          'rounded-b-lg':
-                            index + 1 == interSectionObserverModules.length,
-                        }
-                      )}
-                    >
-                      <span className='bg-[rgba(99,102,241,0.2)] inline-block w-full h-full'></span>
-                      <span
-                        className={classNames(
-                          'bg-indigo-600 absolute top-0 left-0 inline-block w-full h-full origin-top transition-all',
-                          {
-                            'scale-y-0 opacity-50':
-                              section.id > visibleSectionId,
-                          }
-                        )}
-                      ></span>
-                    </span>
-                    <p className='font-inter text-sm font-medium text-black'>
-                      {section?.title}
-                    </p>
+                {fetchingTheEmployeeData ? (
+                  <div className='w-full flex flex-col items-center justify-start'>
+                    {interSectionObserverModules?.map((_, index) => (
+                      <div
+                        className='flex items-center justify-start gap-2 py-[6px]'
+                        key={index}
+                      >
+                        <div className='w-fit'>
+                          <Skeleton
+                            width={15}
+                            height={15}
+                            className='inline-block'
+                            circle
+                          />
+                        </div>
+                        <div className='w-fit'>
+                          <Skeleton
+                            width={150}
+                            height={15}
+                            className='inline-block'
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <>
+                    {interSectionObserverModules?.map((section, index) => (
+                      <div
+                        className='flex items-center justify-start gap-2'
+                        key={index}
+                      >
+                        <span
+                          className={classNames(
+                            'w-2 h-[50px] inline-block overflow-hidden relative',
+                            {
+                              'rounded-t-lg': index == 0,
+                              'rounded-b-lg':
+                                index + 1 == interSectionObserverModules.length,
+                            }
+                          )}
+                        >
+                          <span className='bg-[rgba(99,102,241,0.2)] inline-block w-full h-full'></span>
+                          <span
+                            className={classNames(
+                              'bg-indigo-600 absolute top-0 left-0 inline-block w-full h-full origin-top transition-all',
+                              {
+                                'scale-y-0 opacity-50':
+                                  section.id > visibleSectionId,
+                              }
+                            )}
+                          ></span>
+                        </span>
+
+                        <p className='font-inter text-sm font-medium text-black'>
+                          {section?.title}
+                        </p>
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             </div>
           </div>
         </div>
-        <div className='w-full bg-white px-4 py-3 mt-2 flex items-center justify-between'>
-          <div className='w-fit'>
-            <p className='font-inter text-xl font-medium capitalize text-black whitespace-nowrap flex items-center justify-start gap-1.5'>
-              <span>Editing profile details -</span>
-              <span className='font-semibold text-[var(--them-orange-color)] max-w-[200px] overflow-hidden text-ellipsis inline-block'>
-                {formData?.personal_info?.full_name}
-              </span>
+        <div className='w-full bg-white px-4 py-3 mt-2 flex items-center justify-between gap-2'>
+          <div className='w-full max-w-[60%] '>
+            <p className='font-inter text-lg font-medium capitalize text-black whitespace-nowrap flex items-center justify-start gap-1.5'>
+              <span>Editing profile -</span>
+              {fetchingTheEmployeeData ? (
+                <Skeleton
+                  width={200}
+                  height={18}
+                  borderRadius={4}
+                  className='inline-block'
+                />
+              ) : (
+                <span className='font-bold text-[var(--them-orange-color)] w-full max-w-[300px] overflow-hidden text-ellipsis inline-block'>
+                  {formData?.personal_info?.full_name}
+                </span>
+              )}
             </p>
           </div>
           <div className='flex items-center gap-4 w-full justify-end'>
-            <button className='text-[var(--them-green-color)] py-2.5 px-14 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 transition-all w-fit'>
-              Cancel
-            </button>
-            <button
-              className='text-white bg-[var(--them-green-color)] hover:bg-[var(--them-green-light-color)] w-fit py-2.5 px-14 rounded-lg font-inter text-base font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed'
-              onClick={handelSubmitAndUpdateButton}
-              disabled={formSubmitLoader}
-            >
-              {formSubmitLoader ? (
-                <Loader loaderText='Updating....' />
-              ) : (
-                <span>Update</span>
-              )}
-            </button>
+            {fetchingTheEmployeeData ? (
+              <Skeleton
+                width={160}
+                height={40}
+                borderRadius={8}
+                className='inline-block'
+              />
+            ) : (
+              <button className='text-[var(--them-green-color)] py-2.5 px-14 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 transition-all w-fit'>
+                Cancel
+              </button>
+            )}
+            {fetchingTheEmployeeData ? (
+              <Skeleton
+                width={160}
+                height={40}
+                borderRadius={8}
+                className='inline-block'
+              />
+            ) : (
+              <button
+                className='text-white bg-[var(--them-green-color)] hover:bg-[var(--them-green-light-color)] w-fit py-2.5 px-14 rounded-lg font-inter text-base font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed'
+                onClick={handelSubmitAndUpdateButton}
+                disabled={formSubmitLoader}
+              >
+                {formSubmitLoader ? (
+                  <Loader loaderText='Updating....' />
+                ) : (
+                  <span>Update</span>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
-    </>
+    </SkeletonTheme>
   );
 }

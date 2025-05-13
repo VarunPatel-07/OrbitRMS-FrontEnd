@@ -370,7 +370,6 @@ function Onboarding() {
     const { validated } = onboardingFormValidation[SideBarArray.length - 1];
 
     if (!validated()) {
-      console.log('not validated');
       return;
     }
     setIsSubmitting(true);
@@ -408,7 +407,7 @@ function Onboarding() {
         protected: false,
       },
       {
-        endPoint: `country-info/getFormats?country_code=${country_code}`,
+        endPoint: `country-info/getFormats?country-code=${country_code}`,
         protected: false,
       },
     ];
@@ -597,7 +596,6 @@ function Onboarding() {
   };
 
   const handelProfileUploadation = (url: string) => {
-    console.log('url', url);
     setFormData((pervValue) => ({
       ...pervValue,
       general_info: {

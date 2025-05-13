@@ -44,7 +44,7 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
     return (
       <div className='bg-white rounded-xl'>
         <div className='w-full'>
-          <div className='w-full grid grid-cols-3 gap-5'>
+          <div className='w-full grid grid-cols-3'>
             <div className='w-full border-r border-r-black/40'>
               <div className='w-full h-full flex flex-col items-start justify-end p-6'>
                 <div className='w-full'>
@@ -55,7 +55,7 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
                     Email Address
                   </span>
                   <p className='text-base text-black font-inter font-medium'>
-                    {data?.employee_info?.employee_email}
+                    {data?.employee_info?.employee_email || '-'}
                   </p>
                 </div>
               </div>
@@ -70,7 +70,7 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
                     Employee Code
                   </span>
                   <p className='text-base text-black font-inter font-medium'>
-                    {data?.employee_info?.employee_code}
+                    {data?.employee_info?.employee_code || '-'}
                   </p>
                 </div>
               </div>
@@ -84,15 +84,21 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
                   <span className='text-sm font-inter font-normal text-black/60 pb-0.5 inline-block'>
                     Reporting Manager
                   </span>
-                  <p className='text-base text-black font-inter font-medium'>
-                    {data?.employee_info?.reporting_manager?.full_name
-                      ? data?.employee_info?.reporting_manager?.full_name
-                      : data?.employee_info?.reporting_manager?.first_name +
-                        ' ' +
-                        data?.employee_info?.reporting_manager?.middle_name +
-                        ' ' +
-                        data?.employee_info?.reporting_manager?.last_name}
-                  </p>
+                  {data?.employee_info?.reporting_manager?.first_name ? (
+                    <p className='text-base text-black font-inter font-medium'>
+                      {data?.employee_info?.reporting_manager?.full_name
+                        ? data?.employee_info?.reporting_manager?.full_name
+                        : data?.employee_info?.reporting_manager?.first_name +
+                          ' ' +
+                          data?.employee_info?.reporting_manager?.middle_name +
+                          ' ' +
+                          data?.employee_info?.reporting_manager?.last_name}
+                    </p>
+                  ) : (
+                    <p className='text-base text-black font-inter font-medium'>
+                      -
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

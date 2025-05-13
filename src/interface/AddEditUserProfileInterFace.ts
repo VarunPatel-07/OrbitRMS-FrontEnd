@@ -33,7 +33,7 @@ export interface AddEditUserProfileInterFace {
     personal_email: string;
     mobile_number: string;
     country_info: string;
-    emergency_contact: {
+    emergency_contacts: {
       emergency_contact_country_info: string;
       emergency_contact_number: string;
       emergency_contact_name: string;
@@ -65,7 +65,7 @@ export interface AddEditUserProfileInterFace {
     zip_code: string;
     country_code: string;
   };
-  social_links: {
+  social_link: {
     icon: string;
     name: string;
     link: string;
@@ -101,7 +101,7 @@ export interface UserProfileInformationInterface {
       profile_picture_bg: string;
     };
     employee_role: {
-      role_id: string;
+      id: string;
       role_name: string;
     };
     employee_email: string;

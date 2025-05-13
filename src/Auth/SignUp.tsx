@@ -10,7 +10,6 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
 import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
-import signIn3dImage from '../assets/Images/sign-in-page-3d-image.webp';
 import AlertModal from '../common/AlertModal';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
@@ -27,6 +26,7 @@ import {
   isValidEmail,
 } from '../Helper/HelperFunctions';
 import { signUpForm } from '../interface/funcParamInterface';
+import AuthLottieAnimation from '../Components/Animation/AuthLottieAnimation';
 
 const initialOrganizationFormInfo = {
   organizationName: '',
@@ -354,7 +354,7 @@ function SignUp() {
 
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
-        <div className='h-screen w-screen bg-[var(--them-pink-color)]'>
+        <div className='h-screen w-screen bg-[var(--them-pink-color)] overflow-hidden'>
           <div className='w-full h-full flex items-stretch justify-start relative'>
             <img
               src={signInGradientBgImage}
@@ -362,14 +362,9 @@ function SignUp() {
               alt='Gradient Background'
               loading='lazy'
             />
-            <img
-              src={signIn3dImage}
-              className='w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block'
-              loading='lazy'
-              width={1200} // add appropriate dimensions
-              height={800}
-              alt='3D Image'
-            />
+            {/* Auth Lottie Animation  */}
+            <AuthLottieAnimation />
+
             <div className='w-1/3 relative hidden md:block'>
               <div className='w-full h-full p-7'>
                 <div>
