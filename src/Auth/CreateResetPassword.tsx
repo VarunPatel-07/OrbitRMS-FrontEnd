@@ -2,7 +2,12 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { BsArrowLeft } from 'react-icons/bs';
 import { FiLock } from 'react-icons/fi';
 import { LiaKeySolid } from 'react-icons/lia';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 
 import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
 import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
@@ -13,6 +18,7 @@ import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import {
   NotificationContext,
   NotificationContextApiProps,
+  NotificationFunctionParamsInterface,
 } from '../Context/Notification/NotificationContextApi';
 import { verifyUsersLoginStatus } from '../Helper/api/api';
 import { endpointObject, multiplePostApi } from '../Helper/api/multipleAPI';
@@ -21,6 +27,7 @@ import { useDebounce } from '../Hooks/useDebounce';
 
 function CreateResetPassword() {
   const useEffectRef = useRef(false);
+  const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const currentPath = location.pathname.split('/auth/')[1];
@@ -60,6 +67,16 @@ function CreateResetPassword() {
     if (res?.success) {
       setLoading(false);
       handelNotification(res, 'top-right');
+      const data: NotificationFunctionParamsInterface = {
+        success: true,
+        message: 'Redirecting To Sign In Page',
+      };
+      setTimeout(() => {
+        handelNotification(data, 'top-right');
+      }, 500);
+      setTimeout(() => {
+        navigate('/auth/sign-in');
+      }, 2000);
     } else {
       setLoading(false);
       handelNotification(res, 'top-right');

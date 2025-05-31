@@ -2,6 +2,7 @@ import { LuUser } from 'react-icons/lu';
 import { MdOutlineEmail } from 'react-icons/md';
 
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
+import EmployeeProfileSkeletonLoader from '../../Components/Loader/EmployeeProfileSkeletonLoader';
 import { AlignableForChildInfo } from '../../constant/constant';
 import { formateDate } from '../../Helper/HelperFunctions';
 import {
@@ -9,40 +10,51 @@ import {
   UserProfileInformationInterface,
 } from '../../interface/AddEditUserProfileInterFace';
 import { InterFaceModuleData } from '../../interface/interface';
+import { Organization } from '../../interface/UserProfileInterface';
 
 interface InfoFieldProps {
   label: string;
   value: string | number | null | undefined;
   renderDate?: boolean;
+  default_dateformat?: string;
 }
-const InfoField = ({ label, value, renderDate = false }: InfoFieldProps) => (
+const InfoField = ({
+  label,
+  value,
+  renderDate = false,
+  default_dateformat,
+}: InfoFieldProps) => (
   <div className='w-full'>
     {label?.trim() !== '' && (
-      <span className='text-sm font-inter font-normal text-black/60 pb-0.5 inline-block'>
+      <span className='text-base font-inter font-medium text-black pb-1 inline-block'>
         {label}
       </span>
     )}
 
-    {renderDate ? (
+    {renderDate && default_dateformat ? (
       <p className='text-base text-black font-inter font-medium'>
-        {value ? formateDate(value as string, false) : '-'}
+        {value ? formateDate(value as string, default_dateformat, false) : '-'}
       </p>
     ) : (
-      <p className='text-base text-black font-inter font-medium'>
+      <p className='text-sm text-black/65 font-medium font-inter'>
         {value || '-'}
       </p>
     )}
   </div>
 );
 
-function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
-  const { data } = props;
+function EmployeeDetails(props: {
+  data: UserProfileInformationInterface;
+  isFetching: boolean;
+  organizationInfo: Organization;
+}) {
+  const { data, isFetching, organizationInfo } = props;
   // This are The Bunch Of Function That Help To Render The components
   // * ------ Start Of The Function That Help In The Rendering -----
   //
   const employee_general_info = () => {
     return (
-      <div className='bg-white rounded-xl'>
+      <div className='bg-white rounded-xl border border-black/15'>
         <div className='w-full'>
           <div className='w-full grid grid-cols-3'>
             <div className='w-full border-r border-r-black/40'>
@@ -54,7 +66,7 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
                   <span className='text-sm font-inter font-normal text-black/60 pb-0.5 inline-block'>
                     Email Address
                   </span>
-                  <p className='text-base text-black font-inter font-medium'>
+                  <p className='text-base text-black font-inter font-medium w-full text-ellipsis overflow-hidden'>
                     {data?.employee_info?.employee_email || '-'}
                   </p>
                 </div>
@@ -79,7 +91,13 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
               <div className='w-full h-full flex flex-col items-start justify-end p-6'>
                 <div className='w-full'>
                   <div className='w-fit mb-3'>
-                    <EmployeeProfilePicture width={40} height={40} />
+                    <EmployeeProfilePicture
+                      width={40}
+                      height={40}
+                      profilePicture={
+                        data?.employee_info?.reporting_manager?.profile_picture
+                      }
+                    />
                   </div>
                   <span className='text-sm font-inter font-normal text-black/60 pb-0.5 inline-block'>
                     Reporting Manager
@@ -109,7 +127,7 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
   };
   const personal_information = () => {
     return (
-      <div className='bg-white rounded-xl'>
+      <div className='bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <span className='font-inter text-lg text-black font-semibold capitalize'>
             Personal Information
@@ -149,6 +167,10 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
                     label='Date Of Birth'
                     value={data.personal_info.date_of_birth}
                     renderDate
+                    default_dateformat={
+                      organizationInfo?.organization_settings
+                        ?.default_dateformat
+                    }
                   />
                 </div>
                 <div className='w-full'>
@@ -169,7 +191,7 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
   };
   const employee_information = () => {
     return (
-      <div className='w-full bg-white rounded-xl'>
+      <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <span className='font-inter text-lg text-black font-semibold capitalize'>
             Employee Information
@@ -181,11 +203,11 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
               <div className='w-full grid grid-cols-3 gap-5'>
                 <div className='w-full'>
                   <div className='w-full'>
-                    <span className='text-sm font-inter font-normal text-black/60 pb-0.5 inline-block'>
+                    <span className='text-base font-inter font-medium text-black pb-0.5 inline-block'>
                       Status
                     </span>
 
-                    <p className='text-base text-black font-inter font-medium'>
+                    <p className='text-sm text-black/60 font-inter font-medium'>
                       {data.employee_info?.status || '-'}
                     </p>
                   </div>
@@ -219,6 +241,23 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
                     value={data.employee_info?.employee_role?.role_name}
                   />
                 </div>
+                <div className='w-full'>
+                  <InfoField
+                    label='Employee Type'
+                    value={data.employee_info?.employee_type}
+                  />
+                </div>
+                <div className='w-full'>
+                  <InfoField
+                    label='Joining Date'
+                    value={formateDate(
+                      data.employee_info?.joining_date,
+                      organizationInfo?.organization_settings
+                        ?.default_dateformat,
+                      false
+                    )}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -228,7 +267,7 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
   };
   const personal_contact_information = () => {
     return (
-      <div className='w-full bg-white rounded-xl'>
+      <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <span className='font-inter text-lg text-black font-semibold capitalize'>
             Personal contact information
@@ -256,10 +295,10 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
           <div className='w-full'>
             <div className='flex w-full gap-2 items-center pb-2 pt-6'>
               <div className='grid grid-cols-2 w-full gap-2.5'>
-                <p className='text-sm font-inter font-normal text-black/60 pb-0.5 inline-block'>
+                <p className='text-base font-inter font-medium text-black pb-1 inline-block'>
                   Emergency Contact Name
                 </p>
-                <p className='text-sm font-inter font-normal text-black/60 pb-0.5 inline-block'>
+                <p className='text-base font-inter font-medium text-black pb-1 inline-block'>
                   Emergency Contact Number
                 </p>
               </div>
@@ -296,7 +335,7 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
   };
   const family_info = () => {
     return (
-      <div className='w-full bg-white rounded-xl'>
+      <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <span className='font-inter text-lg text-black font-semibold capitalize'>
             Family information
@@ -356,6 +395,10 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
                           label=''
                           value={child?.child_date_of_birth}
                           renderDate
+                          default_dateformat={
+                            organizationInfo?.organization_settings
+                              ?.default_dateformat
+                          }
                         />
                       </div>
                     </div>
@@ -395,7 +438,7 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
 
   const RenderAddressComponent = () => {
     return (
-      <div className='w-full bg-white rounded-xl'>
+      <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <span className='font-inter text-lg text-black font-semibold capitalize'>
             Current Information
@@ -470,11 +513,17 @@ function EmployeeDetails(props: { data: UserProfileInformationInterface }) {
   //
   return (
     <div className='w-full flex flex-col gap-6 pb-5'>
-      {UserInformationDataModules?.map((section) => (
-        <div className='w-full' key={section?.id}>
-          {section?.module}
-        </div>
-      ))}
+      {isFetching ? (
+        <EmployeeProfileSkeletonLoader />
+      ) : (
+        <>
+          {UserInformationDataModules?.map((section) => (
+            <div className='w-full' key={section?.id}>
+              {section?.module}
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 }

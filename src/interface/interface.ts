@@ -185,4 +185,5 @@ export interface EmployeeProfilePictureInterface {
   width: number;
   height: number;
   profilePicture?: string;
+  isLoading?: boolean;
 }

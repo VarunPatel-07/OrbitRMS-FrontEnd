@@ -225,7 +225,11 @@ function ProjectStatus() {
           <div className='flex flex-col w-full'>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>{`${JSON.parse(data).first_name} ${JSON.parse(data).last_name}`}</span>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(childKeyData)}
+              {formateDate(
+                childKeyData,
+                GlobalStateProvider?.organization?.organization_settings
+                  ?.default_dateformat
+              )}
             </span>
           </div>
         ) : (
@@ -234,7 +238,11 @@ function ProjectStatus() {
               system
             </span>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(childKeyData)}
+              {formateDate(
+                childKeyData,
+                GlobalStateProvider?.organization?.organization_settings
+                  ?.default_dateformat
+              )}
             </span>
           </div>
         );
@@ -252,7 +260,11 @@ function ProjectStatus() {
           <div className='flex flex-col w-full'>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>{`${JSON.parse(data).first_name} ${JSON.parse(data).last_name}`}</span>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(childKeyData)}
+              {formateDate(
+                childKeyData,
+                GlobalStateProvider?.organization?.organization_settings
+                  ?.default_dateformat
+              )}
             </span>
           </div>
         ) : (

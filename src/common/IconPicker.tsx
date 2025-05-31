@@ -29,6 +29,8 @@ interface IconPickerInterFace {
   selectedIcon: string;
   onSelectValBtn: (data: string) => void;
   position: 'bottom' | 'top';
+  showError: boolean;
+  errorMessage?: string;
 }
 
 const socialLinks: SocialLinksInterFace[] = [
@@ -100,7 +102,13 @@ const socialLinks: SocialLinksInterFace[] = [
 ];
 
 function IconPicker(props: IconPickerInterFace) {
-  const { selectedIcon, onSelectValBtn, position = 'top' } = props;
+  const {
+    selectedIcon,
+    onSelectValBtn,
+    position = 'top',
+    errorMessage,
+    showError,
+  } = props;
   const boxRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [searchVal, setSearchVal] = useState<string>('');
@@ -137,7 +145,12 @@ function IconPicker(props: IconPickerInterFace) {
   return (
     <div className='w-full relative' ref={boxRef}>
       <button className='w-fit' onClick={() => setIsOpen(!isOpen)}>
-        <div className='icon p-2 bg-gray-200 rounded-md w-10 h-10 flex items-center justify-center'>
+        <div
+          className={classNames(
+            'icon p-2 bg-gray-200 rounded-md w-10 h-10 flex items-center justify-center',
+            { 'border border-red-500': showError && errorMessage?.length != 0 }
+          )}
+        >
           {selectedIcon ? (
             <span
               className='text-black w-5 h-5 inline-block full-width-svg'

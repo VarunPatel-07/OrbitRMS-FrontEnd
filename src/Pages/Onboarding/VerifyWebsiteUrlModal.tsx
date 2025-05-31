@@ -90,15 +90,16 @@ export default function VerifyWebsiteUrlModal({
     if (res?.success) {
       handelNotification(
         {
-          success: res?.match,
+          success: true,
           message: res?.match
             ? 'Website Verified Successfully'
-            : 'Oops! Meta tag mismatch!',
+            : 'Verification completed using an existing meta tag.',
         },
         'top-right'
       );
-      addWebsiteUrlFunction(websiteUrl, 'orbitrms', metaTag, res?.match);
-      if (res?.match) {
+      setMetaTag(res?.actual_value);
+      addWebsiteUrlFunction(websiteUrl, 'orbitrms', metaTag, res?.success);
+      if (res?.success) {
         setShowModal(false);
       }
     } else {
@@ -109,7 +110,7 @@ export default function VerifyWebsiteUrlModal({
         },
         'top-right'
       );
-      addWebsiteUrlFunction(websiteUrl, 'orbitrms', metaTag, res?.match);
+      addWebsiteUrlFunction(websiteUrl, 'orbitrms', metaTag, res?.success);
       setShowModal(false);
     }
 

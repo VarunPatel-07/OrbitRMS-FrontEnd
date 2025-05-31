@@ -4,7 +4,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import ComingSoon from './Components/ComingSoon';
 import MainSuspenseLoader from './Components/Loader/MainSuspenseLoader';
 import Navbar from './Components/Navbar/Navbar';
-import PageNotFound from './Components/PageNotFound';
 import SideBar from './Components/SideBar/SideBar';
 import {
   GlobalStateContext,
@@ -24,8 +23,25 @@ import {
 import ProtectedRoute from './Helper/ProtectedRoute';
 import ClientInquiry from './Pages/ClientInquiry/ClientInquiry';
 import Config from './Pages/config/Config';
+import EmployeeListing from './Pages/Employee/EmployeeListing';
 import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile';
 import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
+
+export const HandelPathFunction = () => {
+  const _data = getDataFromLocalStorage('organization-info');
+  const _isAuthenticated = getDataFromLocalStorage('authenticationToken');
+  if (_data && _isAuthenticated) {
+    return (
+      <Navigate
+        to={`/${JSON.parse(_data)?.portal_url_slug}/config/project-status`}
+        replace
+      />
+    );
+  } else {
+    clearLocalSessionStorage();
+    return <Navigate to={`/auth/sign-in`} replace />;
+  }
+};
 
 function App() {
   const { handelNotification } = useContext(
@@ -69,19 +85,6 @@ function App() {
     })();
   }, []);
 
-  const HandelPathFunction = () => {
-    const _data = getDataFromLocalStorage('organization-info');
-    if (_data) {
-      return (
-        <Navigate
-          to={`/${JSON.parse(_data)?.portal_url_slug}/config/project-status`}
-          replace
-        />
-      );
-    }
-    return null;
-  };
-
   return (
     <>
       <HelmetSeo
@@ -100,7 +103,7 @@ function App() {
               </div>
               <div className='w-[calc(100%-60px)] ml-auto bg-[var(--main-white-color)] overflow-hidden'>
                 <Routes>
-                  <Route path='/' element={<HandelPathFunction />} />
+                  <Route path='*' element={<HandelPathFunction />} />
 
                   <Route
                     path='/client-inquiry'
@@ -116,16 +119,22 @@ function App() {
                     element={<ProtectedRoute element={<Config />} />}
                   />
                   <Route
-                    path='/employee-profile/:id'
+                    path='/employee-profile/:id/*'
                     element={<ProtectedRoute element={<EmployeeProfile />} />}
                   />
+
                   <Route
-                    path='/employee-profile/:type/:id'
+                    path='/employee/:type/:id?'
                     element={
                       <ProtectedRoute element={<AddEditEmployeeProfile />} />
                     }
                   />
-                  <Route path='*' element={<PageNotFound />} />
+                  <Route
+                    path='/employee/employee-listing'
+                    element={<ProtectedRoute element={<EmployeeListing />} />}
+                  />
+                  {/* <Route path='*' element={<PageNotFound />} /> */}
+                  <Route path='*' element={<HandelPathFunction />} />
                 </Routes>
               </div>
             </div>

@@ -21,6 +21,7 @@ import AddEditProfileSkeletonLoader from '../../Components/Loader/AddEditProfile
 import {
   AlignableForChildInfo,
   bloodGroupArray,
+  employeeTypesArray,
   GenderArray,
   maritalStatus,
   OrganizationEmployeeStatusArray,
@@ -92,16 +93,30 @@ const initialState: AddEditUserProfileInterFace = {
     employee_role: { role_id: '', role_name: '' },
     employee_email: '',
     employee_code: '',
+    joining_date: new Date(),
+    employee_type: '',
   },
   personal_contact_info: {
     personal_email: '',
     mobile_number: '',
-    country_info: '',
+    country_info: JSON.stringify({
+      country_code: 'IN',
+      country_flag: '🇮🇳',
+      country_name: 'India',
+      country_number_code: '+91',
+    }),
     emergency_contacts: [
       {
         emergency_contact_name: '',
         emergency_contact_number: '',
-        emergency_contact_country_info: '',
+        emergency_contact_country_info: JSON.stringify({
+          country_code: 'IN',
+          country_flag: '🇮🇳',
+          country_name: 'India',
+          country_number_code: '+91',
+        }),
+        contact_id: '',
+        id: '',
       },
     ],
   },
@@ -139,6 +154,8 @@ const initialState: AddEditUserProfileInterFace = {
       link: '',
       name: '',
       target_blank: true,
+      id: '',
+      user_id: '',
     },
   ],
 };
@@ -153,7 +170,7 @@ const initialCountryInfo: CountryDataInterface = {
 export default function AddEditEmployeeProfile() {
   const { type: moduleType, id: employee_id } = useParams();
 
-  const { GlobalStateProvider } = useContext(
+  const { GlobalStateProvider, setGlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
 
@@ -227,6 +244,7 @@ export default function AddEditEmployeeProfile() {
   >([]);
   const [fetchingStateInfo, setFetchingStateInfo] = useState<boolean>(false);
   const [visibleSectionId, setVisibleSectionId] = useState<number>(0);
+  const [isEmptySocialLink, setIsEmptySocialLink] = useState<boolean[]>([]);
 
   const [stateOptionArray, setStateOptionArray] = useState<{
     current_address: Array<StateOptionArrayInterFace>;
@@ -274,7 +292,9 @@ export default function AddEditEmployeeProfile() {
           formData?.employee_info?.employee_role?.role_id !== '' &&
           formData?.employee_info?.employee_role?.role_name !== '' &&
           formData?.employee_info?.employee_email &&
-          formData?.employee_info?.employee_code
+          formData?.employee_info?.employee_code &&
+          formData?.employee_info?.employee_type !== '' &&
+          formData?.employee_info?.joining_date
         ),
       errorModule: 'employee_info',
     },
@@ -413,6 +433,15 @@ export default function AddEditEmployeeProfile() {
       },
     }));
   };
+  const handelJoiningDateOfEmployee = (date: Date | null) => {
+    setFormData((pervValue) => ({
+      ...pervValue,
+      employee_info: {
+        ...pervValue.employee_info,
+        joining_date: date,
+      },
+    }));
+  };
 
   const handleOnChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -474,6 +503,8 @@ export default function AddEditEmployeeProfile() {
               emergency_contact_name: '',
               emergency_contact_number: '',
               emergency_contact_country_info: filteredCountry,
+              contact_id: '',
+              id: '',
             },
           ],
         },
@@ -592,6 +623,24 @@ export default function AddEditEmployeeProfile() {
       if (res?.success) {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
+
+        if (employee_id == GlobalStateProvider.user.personal_info.user_id) {
+          const endPointArr: endpointObject[] = [
+            {
+              endPoint: `employee/fetch-profile?employee_id=${id}`,
+              protected: true,
+            },
+          ];
+
+          const response = await multipleFetchApi(endPointArr);
+          const _res = response[0];
+
+          setGlobalStateProvider((perValue) => ({
+            ...perValue,
+            organization: perValue.organization,
+            user: _res.data,
+          }));
+        }
       } else {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
@@ -626,10 +675,10 @@ export default function AddEditEmployeeProfile() {
     const invalidModule = userProfileValidation.find(
       (section) => !section.validated()
     );
+
     if (invalidModule) {
       setShowEmptyFieldError(true);
     } else {
-      console.log(formData);
       if (moduleType?.toLocaleLowerCase() == 'edit') {
         if (employee_id) {
           setFormSubmitLoader(true);
@@ -679,6 +728,9 @@ export default function AddEditEmployeeProfile() {
         ...perValue[module_name],
         country: data?.country_name,
         country_code: data?.country_code,
+        state: '',
+        city: '',
+        zip_code: '',
       },
     }));
 
@@ -732,6 +784,8 @@ export default function AddEditEmployeeProfile() {
       [module_name]: {
         ...perValue[module_name],
         state: data?.state_name,
+        city: '',
+        zip_code: '',
       },
     }));
 
@@ -907,7 +961,7 @@ export default function AddEditEmployeeProfile() {
     });
   };
 
-  const handelAddNewEmptySocialLink = () => {
+  const handelAddNewEmptySocialLink = (index: number) => {
     if (
       formData.social_link.every(
         (link) =>
@@ -925,9 +979,17 @@ export default function AddEditEmployeeProfile() {
             link: '',
             name: '',
             target_blank: true,
+            id: '',
+            user_id: '',
           },
         ],
       }));
+    } else {
+      setIsEmptySocialLink((prev) => {
+        const updated = [...prev];
+        updated[index] = true;
+        return updated;
+      });
     }
   };
 
@@ -947,7 +1009,7 @@ export default function AddEditEmployeeProfile() {
   const personal_information = () => {
     if (!fetchingTheEmployeeData) {
       return (
-        <div className='bg-white rounded-xl'>
+        <div className='bg-white rounded-xl border border-black/15'>
           <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
             <h2 className='font-inter text-xl text-black font-semibold capitalize'>
               Personal Information
@@ -1177,7 +1239,7 @@ export default function AddEditEmployeeProfile() {
   const employee_information = () => {
     if (!fetchingTheEmployeeData) {
       return (
-        <div className='w-full bg-white rounded-xl'>
+        <div className='w-full bg-white rounded-xl border border-black/15'>
           <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
             <h2 className='font-inter text-xl text-black font-semibold capitalize'>
               Employee Information
@@ -1342,6 +1404,50 @@ export default function AddEditEmployeeProfile() {
                       }
                     />
                   </div>
+                  <div className='w-full'>
+                    <SearchDrop
+                      options={employeeTypesArray}
+                      searchKey=''
+                      position='bottom'
+                      emptyDataMessage='No Role Found'
+                      showSearchBar={true}
+                      labelFieldName='Employee Type'
+                      isRequiredField={true}
+                      loading={fetchingDesignationsDepartments['employee_role']}
+                      selectedValue={formData?.employee_info?.employee_type}
+                      onSelectValBtn={(data: string | object) =>
+                        handelSearchDropSelectValue(
+                          data,
+                          'employee_type',
+                          'employee_info'
+                        )
+                      }
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.employee_info?.employee_type
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
+                  <div className='w-full'>
+                    <CommonDatePicker
+                      onChange={handelJoiningDateOfEmployee}
+                      selectedValue={
+                        formData?.employee_info?.joining_date as Date
+                      }
+                      name='joining_date'
+                      labelFieldName='Joining Date'
+                      isRequiredField={true}
+                      datePickerPosition={'left-start'}
+                      showError={showEmptyFieldError}
+                      errorMessage={
+                        formData?.employee_info?.joining_date
+                          ? ''
+                          : 'this field is required'
+                      }
+                    />
+                  </div>
                 </div>
               </div>
               <div className='w-full'>
@@ -1443,7 +1549,7 @@ export default function AddEditEmployeeProfile() {
   const personal_contact_information = () => {
     if (!fetchingTheEmployeeData) {
       return (
-        <div className='w-full bg-white rounded-xl'>
+        <div className='w-full bg-white rounded-xl border border-black/15'>
           <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
             <h2 className='font-inter text-xl text-black font-semibold capitalize'>
               Personal contact information
@@ -1551,7 +1657,7 @@ export default function AddEditEmployeeProfile() {
                   (eachContact, index) => (
                     <div
                       className='w-full flex items-stretch justify-start gap-5'
-                      key={index}
+                      key={eachContact?.contact_id + index}
                     >
                       <div className='w-full grid grid-cols-2 gap-5'>
                         <div className='w-full'>
@@ -1669,7 +1775,7 @@ export default function AddEditEmployeeProfile() {
   const family_info = () => {
     if (!fetchingTheEmployeeData) {
       return (
-        <div className='w-full bg-white rounded-xl'>
+        <div className='w-full bg-white rounded-xl border border-black/15'>
           <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
             <h2 className='font-inter text-xl text-black font-semibold capitalize'>
               Family information
@@ -1770,10 +1876,10 @@ export default function AddEditEmployeeProfile() {
                   <div className='min-w-[100px]'></div>
                 </div>
                 <div className='grid grid-cols-1 gap-6'>
-                  {formData?.family_info.children.map((eachContact, index) => (
+                  {formData?.family_info.children.map((eachChild, index) => (
                     <div
                       className='w-full flex items-stretch justify-start gap-5'
-                      key={index}
+                      key={index + eachChild?.child_name}
                     >
                       <div className='w-full grid grid-cols-2 gap-5'>
                         <div className='w-full'>
@@ -1782,7 +1888,7 @@ export default function AddEditEmployeeProfile() {
                             name='child_name'
                             className='border border-black/45'
                             isRequiredField={true}
-                            value={eachContact?.child_name}
+                            value={eachChild?.child_name}
                             onChange={(e) =>
                               handleEmergencyContactField(
                                 index,
@@ -1798,7 +1904,7 @@ export default function AddEditEmployeeProfile() {
                               AlignableForChildInfo.includes(
                                 formData?.family_info?.marital_status
                               )
-                                ? eachContact?.child_name
+                                ? eachChild?.child_name
                                   ? ''
                                   : 'this field is required'
                                 : ''
@@ -1817,7 +1923,7 @@ export default function AddEditEmployeeProfile() {
                               )
                             }
                             selectedValue={
-                              eachContact?.child_date_of_birth as Date
+                              eachChild?.child_date_of_birth as Date
                             }
                             name='child_date_of_birth'
                             datePickerPosition={'left-start'}
@@ -1826,7 +1932,7 @@ export default function AddEditEmployeeProfile() {
                               AlignableForChildInfo.includes(
                                 formData?.family_info?.marital_status
                               )
-                                ? eachContact?.child_date_of_birth
+                                ? eachChild?.child_date_of_birth
                                   ? ''
                                   : 'this field is required'
                                 : ''
@@ -1882,12 +1988,12 @@ export default function AddEditEmployeeProfile() {
             showError={showEmptyFieldError}
             errorMessage={
               module_name === 'current_address'
-                ? module?.address.trim()
+                ? module?.address?.trim()
                   ? ''
                   : 'this field is required'
                 : module_name === 'permanent_address' &&
                     !formData?.same_as_current_address
-                  ? module?.address.trim()
+                  ? module?.address?.trim()
                     ? ''
                     : 'this field is required'
                   : ''
@@ -2034,7 +2140,7 @@ export default function AddEditEmployeeProfile() {
   const RenderAddressComponent = () => {
     if (!fetchingTheEmployeeData) {
       return (
-        <div className='w-full bg-white rounded-xl'>
+        <div className='w-full bg-white rounded-xl border border-black/15'>
           <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
             <h2 className='font-inter text-xl text-black font-semibold capitalize'>
               Address Information
@@ -2098,7 +2204,7 @@ export default function AddEditEmployeeProfile() {
   const SocialLinkComponent = () => {
     if (!fetchingTheEmployeeData) {
       return (
-        <div className='w-full bg-white rounded-xl'>
+        <div className='w-full bg-white rounded-xl border border-black/15'>
           <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>
             <h2 className='font-inter text-xl text-black font-semibold capitalize'>
               Social Media Links
@@ -2114,109 +2220,129 @@ export default function AddEditEmployeeProfile() {
               <div className='w-full'>
                 <div className='w-full'>
                   {formData?.social_link?.map((link, index) => (
-                    <div
-                      className='flex items-center justify-start gap-3'
-                      key={index}
-                    >
-                      <div className='flex flex-col items-start justify-start'>
-                        <span
-                          className={classNames(
-                            'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
-                            {
-                              'opacity-0': index !== 0,
-                            }
-                          )}
-                        >
-                          Icon & Name
-                        </span>
-                        <div className='flex items-stretch justify-start w-fit gap-2'>
-                          <div className='w-fit flex flex-col items-start justify-start'>
-                            <IconPicker
-                              selectedIcon={link?.icon}
-                              position='top'
-                              onSelectValBtn={(data) =>
-                                handleSelectedIcon(data, index)
+                    <>
+                      <div
+                        className='flex items-start justify-start gap-3'
+                        key={index + link?.id + index}
+                      >
+                        <div className='flex flex-col items-start justify-start'>
+                          <span
+                            className={classNames(
+                              'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
+                              {
+                                'opacity-0': index !== 0,
                               }
-                            />
+                            )}
+                          >
+                            Icon & Name
+                          </span>
+                          <div className='flex items-stretch justify-start w-fit gap-2'>
+                            <div className='w-fit flex flex-col items-start justify-start'>
+                              <IconPicker
+                                selectedIcon={link?.icon}
+                                position='top'
+                                onSelectValBtn={(data) =>
+                                  handleSelectedIcon(data, index)
+                                }
+                                showError={isEmptySocialLink[index]}
+                                errorMessage={
+                                  link?.icon ? '' : 'This Is An Required Field'
+                                }
+                              />
+                            </div>
+                            <div className='w-fit flex flex-col items-start justify-start'>
+                              <Input
+                                type='text'
+                                value={link?.name}
+                                className='border border-black/45'
+                                name='name'
+                                onChange={(e) =>
+                                  handelSocialLinkChange(e, index)
+                                }
+                                showError={isEmptySocialLink[index]}
+                                errorMessage={
+                                  !link?.name ? 'This Is An Required Field' : ''
+                                }
+                              />
+                            </div>
                           </div>
-                          <div className='w-fit flex flex-col items-start justify-start'>
+                        </div>
+                        <div className='flex flex-col items-start justify-start flex-grow'>
+                          <span
+                            className={classNames(
+                              'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
+                              {
+                                'opacity-0': index !== 0,
+                              }
+                            )}
+                          >
+                            Link
+                          </span>
+                          <div className='items-stretch justify-start w-full gap-2'>
                             <Input
                               type='text'
-                              value={link?.name}
+                              value={link?.link}
                               className='border border-black/45'
-                              name='name'
+                              name='link'
                               onChange={(e) => handelSocialLinkChange(e, index)}
+                              showError={isEmptySocialLink[index]}
+                              errorMessage={
+                                !link?.link ? 'This Is An Required Field' : ''
+                              }
                             />
                           </div>
                         </div>
-                      </div>
-                      <div className='flex flex-col items-start justify-start flex-grow'>
-                        <span
-                          className={classNames(
-                            'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
-                            {
-                              'opacity-0': index !== 0,
-                            }
-                          )}
-                        >
-                          Link
-                        </span>
-                        <div className='flex items-stretch justify-start w-full gap-2'>
-                          <Input
-                            type='text'
-                            value={link?.link}
-                            className='border border-black/45'
-                            name='link'
-                            onChange={(e) => handelSocialLinkChange(e, index)}
-                          />
-                        </div>
-                      </div>
-                      <div className='flex flex-col items-start justify-start'>
-                        <span className='pb-2 font-inter text-black/65 text-sm px-1 inline-block opacity-0'>
-                          Link
-                        </span>
-                        <div className='flex items-stretch justify-end gap-2'>
-                          <button
-                            type='button'
-                            className={classNames(
-                              'relative inline-block min-w-10 min-h-10 rounded-lg cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)]',
-                              {
-                                'border border-black/[.65] bg-white':
-                                  !formData?.social_link[index]?.target_blank,
-                                'border border-[var(--them-pink-color)] bg-[rgba(215,139,159,0.2)]':
-                                  formData?.social_link[index]?.target_blank,
-                              }
-                            )}
-                            onClick={() =>
-                              handelClickOnTargetBlockButton(index)
-                            }
-                          >
-                            {formData?.social_link[index]?.target_blank && (
-                              <span className='flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all'>
-                                <FaCheck className='w-5 h-5' />
-                              </span>
-                            )}
-                          </button>
-                          {index !== 0 && (
+                        <div className='flex flex-col items-start justify-start'>
+                          <span className='pb-2 font-inter text-black/65 text-sm px-1 inline-block opacity-0'>
+                            Link
+                          </span>
+                          <div className='flex items-stretch justify-end gap-2'>
                             <button
-                              className='bg-rose-100 w-10 rounded-lg flex items-center justify-center border border-rose-500 text-black text-xl'
-                              onClick={() => removeTheSpecificLink(index)}
+                              type='button'
+                              className={classNames(
+                                'relative inline-block min-w-10 min-h-10 rounded-lg cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)]',
+                                {
+                                  'border border-black/[.65] bg-white':
+                                    !formData?.social_link[index]?.target_blank,
+                                  'border border-[var(--them-pink-color)] bg-[rgba(215,139,159,0.2)]':
+                                    formData?.social_link[index]?.target_blank,
+                                }
+                              )}
+                              onClick={() =>
+                                handelClickOnTargetBlockButton(index)
+                              }
                             >
-                              <MdDelete />
+                              {formData?.social_link[index]?.target_blank && (
+                                <span className='flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all'>
+                                  <FaCheck className='w-5 h-5' />
+                                </span>
+                              )}
                             </button>
-                          )}
+                            {index !== 0 && (
+                              <button
+                                className='bg-rose-100 w-10 rounded-lg flex items-center justify-center border border-rose-500 text-black text-xl'
+                                onClick={() => removeTheSpecificLink(index)}
+                              >
+                                <MdDelete />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                      {index === formData.social_link.length - 1 ? (
+                        <div className='button pt-4' key={index + link?.id}>
+                          <button
+                            className='font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg'
+                            onClick={() => handelAddNewEmptySocialLink(index)}
+                          >
+                            <span>Add Link</span>
+                          </button>
+                        </div>
+                      ) : (
+                        ''
+                      )}
+                    </>
                   ))}
-                </div>
-                <div className='button pt-4'>
-                  <button
-                    className='font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg'
-                    onClick={handelAddNewEmptySocialLink}
-                  >
-                    <span>Add Link</span>
-                  </button>
                 </div>
               </div>
             </div>
@@ -2298,6 +2424,10 @@ export default function AddEditEmployeeProfile() {
             designation: data?.employee_info?.designation,
             employee_code: data?.employee_info?.employee_code,
             employee_email: data?.employee_info?.employee_email,
+            employee_type: data?.employee_info?.employee_type,
+            joining_date: data?.employee_info?.joining_date
+              ? new Date(data?.employee_info?.joining_date)
+              : new Date(),
             employee_role: {
               role_id: data?.employee_info?.employee_role?.id,
               role_name: data?.employee_info?.employee_role?.role_name,
@@ -2322,12 +2452,16 @@ export default function AddEditEmployeeProfile() {
             mobile_number: data?.personal_contact_info?.mobile_number,
             personal_email: data?.personal_contact_info?.personal_email,
             emergency_contacts:
-              data?.personal_contact_info?.emergency_contacts?.length != 0
+              !data?.personal_contact_info ||
+              !Array.isArray(data.personal_contact_info.emergency_contacts) ||
+              data.personal_contact_info.emergency_contacts.length === 0
                 ? [
                     {
                       emergency_contact_country_info: filteredCountry,
                       emergency_contact_name: '',
                       emergency_contact_number: '',
+                      contact_id: '',
+                      id: '',
                     },
                   ]
                 : data?.personal_contact_info?.emergency_contacts,
@@ -2360,6 +2494,8 @@ export default function AddEditEmployeeProfile() {
                     link: '',
                     name: '',
                     target_blank: true,
+                    id: '',
+                    user_id: '',
                   },
                 ]
               : data?.social_link,
@@ -2405,31 +2541,41 @@ export default function AddEditEmployeeProfile() {
     const loadCountryData = async () => {
       if (CountryDataRef.current) return;
       CountryDataRef.current = true;
-      if (countryOptionsDataArray.length === 0) {
-        const response = await fetchFormattedCountryData();
-        if (response?.success) {
-          setCountryOptionsDataArray(response?.countryOptionsData);
-          setFormData((pervData) => ({
-            ...pervData,
-            personal_contact_info: {
-              ...pervData.personal_contact_info,
-              country_info: JSON.stringify(response.filteredCountry),
-              emergency_contacts:
-                pervData.personal_contact_info.emergency_contacts?.map(
-                  (contact, index) =>
-                    index == 0
-                      ? {
-                          ...contact,
-                          emergency_contact_country_info: JSON.stringify(
-                            response.filteredCountry
-                          ),
-                        }
-                      : contact
-                ),
-            },
-          }));
-          setFilteredCountry(JSON.stringify(response.filteredCountry));
-        }
+      const response = await fetchFormattedCountryData();
+
+      if (response?.success) {
+        setCountryOptionsDataArray(response?.countryOptionsData);
+
+        setFormData((prevData) => {
+          const prevContactInfo = prevData.personal_contact_info || {};
+          const prevEmergencyContacts = Array.isArray(
+            prevContactInfo.emergency_contacts
+          )
+            ? prevContactInfo.emergency_contacts
+            : [];
+
+          const updatedContactInfo = {
+            ...prevContactInfo,
+            country_info: JSON.stringify(response.filteredCountry),
+            emergency_contacts: prevEmergencyContacts.map((contact, index) =>
+              index === 0
+                ? {
+                    ...contact,
+                    emergency_contact_country_info: JSON.stringify(
+                      response.filteredCountry
+                    ),
+                  }
+                : contact
+            ),
+          };
+
+          return {
+            ...prevData,
+            personal_contact_info: updatedContactInfo,
+          };
+        });
+
+        setFilteredCountry(JSON.stringify(response.filteredCountry));
       }
       if (countryData.length == 0) {
         setIsFetchingCountryData(true);
@@ -2505,14 +2651,35 @@ export default function AddEditEmployeeProfile() {
   useEffect(() => {
     if (!employeeInfoFetchRef.current) {
       employeeInfoFetchRef.current = true;
+      if (
+        moduleType &&
+        !['edit', 'add'].includes(moduleType?.toLocaleLowerCase())
+      ) {
+        const data = {
+          success: false,
+          message: 'Only Add And Edit Routes Are Allowed',
+        };
+        handelNotification(data, 'top-right');
+      }
       if (moduleType?.toLocaleLowerCase() == 'edit') {
         if (employee_id) {
           setFetchingTheEmployeeData(true);
           fetchTheUsersProfileInfoWithDebounce(employee_id);
+        } else {
+          const data = {
+            success: false,
+            message: 'The Id Is Required',
+          };
+          handelNotification(data, 'top-right', 40000);
         }
       }
     }
-  }, [employee_id, fetchTheUsersProfileInfoWithDebounce, moduleType]);
+  }, [
+    employee_id,
+    fetchTheUsersProfileInfoWithDebounce,
+    handelNotification,
+    moduleType,
+  ]);
   return (
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       <div className='w-full h-full relative'>
@@ -2529,7 +2696,7 @@ export default function AddEditEmployeeProfile() {
                 </div>
               ))}
             </div>
-            <div className='hidden xl:w-[30%] max-w-[300px] xl:block bg-white'>
+            <div className='hidden xl:w-[30%] max-w-[300px] xl:block bg-white border-l border-l-black/15'>
               <div className='w-1/2 m-auto h-full flex flex-col justify-start items-stretch py-10'>
                 {fetchingTheEmployeeData ? (
                   <div className='w-full flex flex-col items-center justify-start'>
