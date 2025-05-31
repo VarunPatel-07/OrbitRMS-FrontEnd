@@ -4,7 +4,13 @@ import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import OrbitRMSTransparentLogo from '../../assets/Images/orbitrms-final-logo-transperent.webp';
 import { classNames } from '../../Helper/HelperFunctions';
 
-function MainSuspenseLoader({ loading }: { loading: boolean }) {
+function MainSuspenseLoader({
+  loading,
+  time,
+}: {
+  loading: boolean;
+  time?: number;
+}) {
   const [renderLoaderContent, setRenderLoaderContent] = useState(loading);
   const [fadeOut, setFadeOut] = useState(false);
   const loadingElementRef = useRef<HTMLDivElement>(null);
@@ -12,12 +18,12 @@ function MainSuspenseLoader({ loading }: { loading: boolean }) {
   useEffect(() => {
     let timer = null;
     if (!loading) {
-      timer = setTimeout(() => setFadeOut(true), 200);
+      timer = setTimeout(() => setFadeOut(true), time || 200);
     }
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [loading]);
+  }, [loading, time]);
 
   useEffect(() => {
     const handelAnimationEnd = () => {

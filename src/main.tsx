@@ -32,7 +32,6 @@ createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <Routes>
           {/* All The Routes That Are Not Protected */}
-
           <Route path='/auth/sign-in' element={<SignIn />} />
           <Route path='/auth/sign-up' element={<SignUp />} />
           <Route path='/auth/forgot-password' element={<ForgotPassword />} />
@@ -47,7 +46,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path='/verification/verify-email' element={<VerifyEmail />} />
           <Route path='/onboarding' element={<Onboarding />} />
 
-          <Route path='/' element={<RedirectToDashboard />} />
+          <Route path='*' element={<RedirectToDashboard />} />
 
           {/* all The Protected Routes are Defined Blow */}
           <Route

@@ -11,6 +11,20 @@ export interface EmployeeInfo {
   user_id: string;
 }
 
+export interface PersonalInfo {
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  full_name: string;
+  profile_picture: string;
+  profile_picture_bg: string;
+  gender: string;
+  date_of_birth: null | Date;
+  blood_group: string;
+  about: string;
+  id: string;
+  user_id: string;
+}
 export interface CountryInfo {
   country_code: string;
   country_flag: string;
@@ -88,6 +102,7 @@ export interface Organization {
 
 export interface User {
   employee_info: EmployeeInfo;
+  personal_info: PersonalInfo;
 }
 
 export interface GlobalContextStore {

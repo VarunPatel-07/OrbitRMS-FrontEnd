@@ -28,15 +28,19 @@ export interface AddEditUserProfileInterFace {
     employee_email: string;
     reporting_to: { id: string; name: string };
     employee_role: { role_id: string; role_name: string };
+    employee_type: string;
+    joining_date: null | Date;
   };
   personal_contact_info: {
     personal_email: string;
     mobile_number: string;
     country_info: string;
-    emergency_contact: {
+    emergency_contacts: {
       emergency_contact_country_info: string;
       emergency_contact_number: string;
       emergency_contact_name: string;
+      contact_id: string;
+      id: string;
     }[];
   };
   family_info: {
@@ -65,11 +69,13 @@ export interface AddEditUserProfileInterFace {
     zip_code: string;
     country_code: string;
   };
-  social_links: {
+  social_link: {
     icon: string;
     name: string;
     link: string;
     target_blank: boolean;
+    id: string;
+    user_id: string;
   }[];
 }
 
@@ -101,11 +107,13 @@ export interface UserProfileInformationInterface {
       profile_picture_bg: string;
     };
     employee_role: {
-      role_id: string;
+      id: string;
       role_name: string;
     };
     employee_email: string;
     employee_code: string;
+    employee_type: string;
+    joining_date: string;
   };
   personal_contact_info: {
     personal_email: string;
@@ -115,6 +123,8 @@ export interface UserProfileInformationInterface {
       emergency_contact_name: string;
       emergency_contact_number: string;
       emergency_contact_country_info: string;
+      contact_id: string;
+      id: string;
     }>;
   };
   family_info: {
@@ -149,5 +159,13 @@ export interface UserProfileInformationInterface {
     name: string;
     target_blank: boolean;
     id: string;
+    user_id: string;
   }>;
+}
+
+export interface EmployeeProfileActionArrayInterface {
+  link: string;
+  label: string;
+  title: string;
+  classNames: string;
 }

@@ -57,6 +57,7 @@ const NotificationContextApiProvider: React.FC<{ children: ReactNode }> = ({
       | 'center',
     timeOut?: number
   ) => {
+    if (!data?.message) return;
     const notificationId = uuidv4();
     setNotificationInfoArray((previous) => [
       ...previous,

@@ -35,7 +35,7 @@ function Config() {
   return (
     <div className='w-full h-full'>
       <div className='w-full h-full flex items-stretch justify-start'>
-        <div className='w-[30%] max-w-[300px]'>
+        <div className='w-[30%] max-w-[300px] border-r border-r-black/15'>
           <ConfigSidebar />
         </div>
 

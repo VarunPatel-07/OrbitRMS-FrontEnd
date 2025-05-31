@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// import { useParams } from 'react-router-dom';
-
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import Breadcrumbs from '../../../../common/Breadcrumbs';
@@ -94,10 +91,13 @@ function ViewPermissions() {
     }
   }, 50);
 
-  const fetchingSpecificRoleFunction = (_id: string) => {
-    setLoading(true);
-    fetchingSpecificRoleWithDebounce(_id);
-  };
+  const fetchingSpecificRoleFunction = useCallback(
+    (_id: string) => {
+      setLoading(true);
+      fetchingSpecificRoleWithDebounce(_id);
+    },
+    [fetchingSpecificRoleWithDebounce]
+  );
 
   const StatusTogglerFunction = async (module_id: string) => {
     const endPointArr: Array<endpointObject> = [
@@ -134,7 +134,7 @@ function ViewPermissions() {
       useEffectRef.current = true;
       fetchingSpecificRoleFunction(id);
     }
-  }, [id]);
+  }, [fetchingSpecificRoleFunction, id]);
 
   return (
     <div className='w-full h-full relative'>

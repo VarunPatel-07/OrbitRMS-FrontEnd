@@ -1,7 +1,6 @@
 import { ReactElement } from 'react';
-import { HiUsers } from 'react-icons/hi2';
 import { IoSettings } from 'react-icons/io5';
-import { MdSpaceDashboard } from 'react-icons/md';
+import { MdAssignment, MdSpaceDashboard } from 'react-icons/md';
 
 export interface SidebarMenuItemInterface {
   id: number;
@@ -31,7 +30,7 @@ export const SidebarMenuItems = (
   {
     id: 2,
     name: 'Client Inquiry',
-    icon: <HiUsers className='w-6 h-6' />,
+    icon: <MdAssignment className='w-6 h-6' />,
     label: 'data-tooltip-client-inquiry',
     link: `/${organization}/client-inquiry`,
     protected: true,

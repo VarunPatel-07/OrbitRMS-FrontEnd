@@ -10,10 +10,10 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
 import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
-import signIn3dImage from '../assets/Images/sign-in-page-3d-image.webp';
 import AlertModal from '../common/AlertModal';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
+import AuthLottieAnimation from '../Components/Animation/AuthLottieAnimation';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import { signUpApiFunction, verifyUsersLoginStatus } from '../Helper/api/api';
 import {
@@ -315,7 +315,13 @@ function SignUp() {
           );
         }
       } finally {
-        setShowGlobalLoader(false);
+        if (document.readyState === 'complete') {
+          setShowGlobalLoader(false);
+        } else {
+          window.addEventListener('load', () => {
+            setShowGlobalLoader(false);
+          });
+        }
       }
     })();
   }, []);
@@ -353,115 +359,108 @@ function SignUp() {
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />
-      {!showGlobalLoader && (
-        <div className='h-screen w-screen bg-[var(--them-pink-color)]'>
-          <div className='w-full h-full flex items-stretch justify-start relative'>
-            <img
-              src={signInGradientBgImage}
-              className='w-2/3 h-full absolute top-0 left-0'
-              alt='Gradient Background'
-              loading='lazy'
-            />
-            <img
-              src={signIn3dImage}
-              className='w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block'
-              loading='lazy'
-              width={1200} // add appropriate dimensions
-              height={800}
-              alt='3D Image'
-            />
-            <div className='w-1/3 relative hidden md:block'>
-              <div className='w-full h-full p-7'>
-                <div>
-                  <img
-                    src={orbitLogo}
-                    className='max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]'
-                    alt='OrbitRMS Logo'
-                    loading='lazy'
-                  />
-                </div>
-                <div className='pt-7 '>
-                  <h1 className='font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5'>
-                    OrbitRMS: Simplify, Streamline, Succeed.
-                  </h1>
-                </div>
+      <div className='h-screen w-screen bg-[var(--them-pink-color)] overflow-hidden'>
+        <div className='w-full h-full flex items-stretch justify-start relative'>
+          <img
+            src={signInGradientBgImage}
+            className='w-2/3 h-full absolute top-0 left-0'
+            alt='Gradient Background'
+            loading='lazy'
+          />
+          {/* Auth Lottie Animation  */}
+          <AuthLottieAnimation />
+
+          <div className='w-1/3 relative hidden md:block'>
+            <div className='w-full h-full p-7'>
+              <div>
+                <img
+                  src={orbitLogo}
+                  className='max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]'
+                  alt='OrbitRMS Logo'
+                  loading='lazy'
+                />
+              </div>
+              <div className='pt-7 '>
+                <h1 className='font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5'>
+                  OrbitRMS: Simplify, Streamline, Succeed.
+                </h1>
               </div>
             </div>
-            <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px]  z-10 overflow-hidden'>
-              <div className='login-form w-full h-full  z-20 flex items-center justify-center'>
-                <div className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[480px] py-8 relative'>
-                  {currentPage == 2 && (
-                    <button
-                      className='font-medium text-[var(--them-orange-color)] cursor-pointer text-sm transition-all absolute top-0 left-5'
-                      onClick={handelBackPage}
-                    >
-                      <span className='flex items-center text-black/[0.65] justify-center gap-2'>
-                        <BsArrowLeft className='w-5 h-5' />
-                        <span>Back</span>
+          </div>
+          <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px]  z-10 overflow-hidden'>
+            <div className='login-form w-full h-full  z-20 flex items-center justify-center'>
+              <div className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[480px] py-8 relative'>
+                {currentPage == 2 && (
+                  <button
+                    className='font-medium text-[var(--them-orange-color)] cursor-pointer text-sm transition-all absolute top-0 left-5'
+                    onClick={handelBackPage}
+                  >
+                    <span className='flex items-center text-black/[0.65] justify-center gap-2'>
+                      <BsArrowLeft className='w-5 h-5' />
+                      <span>Back</span>
+                    </span>
+                  </button>
+                )}
+                <div className={'w-full px-5 transition-all'}>
+                  <div className='flex flex-col items-start justify-start gap-2'>
+                    <h1 className='font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black'>
+                      Sign Up for{' '}
+                      <span className='text-[var(--them-orange-color)]'>
+                        OrbitRMS!
                       </span>
-                    </button>
-                  )}
-                  <div className={'w-full px-5 transition-all'}>
-                    <div className='flex flex-col items-start justify-start gap-2'>
-                      <h1 className='font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black'>
-                        Sign Up for{' '}
-                        <span className='text-[var(--them-orange-color)]'>
-                          OrbitRMS!
-                        </span>
-                      </h1>
-                      <p className='text-black text-sm font-normal font-inter'>
-                        Join now and bring all your resources into one orbit!
-                      </p>
-                    </div>
-                  </div>
-                  <div className='w-full'>
-                    <div className='w-full flex transition-all'>
-                      {/* First Page */}
-                      {currentPage == 1
-                        ? SignUpFormFirstPage()
-                        : SignUpFormSecondPage()}
-                      {/* Second Page */}
-                    </div>
-                  </div>
-                  <div className='w-full grid grid-cols-1 gap-y-8 px-5'>
-                    {currentPage == 1 ? (
-                      <button
-                        type='button'
-                        className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all'
-                        disabled={loading}
-                        onClick={handleMoveToNextPage}
-                      >
-                        <span>Next</span>
-                      </button>
-                    ) : (
-                      <button
-                        type='button'
-                        className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed'
-                        disabled={loading}
-                        onClick={handleFormSubmit}
-                      >
-                        {loading ? (
-                          <Loader loaderText='Submitting...' />
-                        ) : (
-                          <span>Submit</span>
-                        )}
-                      </button>
-                    )}
-                    <p className='text-center font-inter w-full text-sm text-black'>
-                      Already have an account?{' '}
-                      <Link to='/auth/sign-in'>
-                        <span className=' text-[var(--them-orange-color)] cursor-pointer underline  font-bold'>
-                          Sign In
-                        </span>
-                      </Link>
+                    </h1>
+                    <p className='text-black text-sm font-normal font-inter'>
+                      Join now and bring all your resources into one orbit!
                     </p>
                   </div>
+                </div>
+                <div className='w-full'>
+                  <div className='w-full flex transition-all'>
+                    {/* First Page */}
+                    {currentPage == 1
+                      ? SignUpFormFirstPage()
+                      : SignUpFormSecondPage()}
+                    {/* Second Page */}
+                  </div>
+                </div>
+                <div className='w-full grid grid-cols-1 gap-y-8 px-5'>
+                  {currentPage == 1 ? (
+                    <button
+                      type='button'
+                      className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all'
+                      disabled={loading}
+                      onClick={handleMoveToNextPage}
+                    >
+                      <span>Next</span>
+                    </button>
+                  ) : (
+                    <button
+                      type='button'
+                      className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed'
+                      disabled={loading}
+                      onClick={handleFormSubmit}
+                    >
+                      {loading ? (
+                        <Loader loaderText='Submitting...' />
+                      ) : (
+                        <span>Submit</span>
+                      )}
+                    </button>
+                  )}
+                  <p className='text-center font-inter w-full text-sm text-black'>
+                    Already have an account?{' '}
+                    <Link to='/auth/sign-in'>
+                      <span className=' text-[var(--them-orange-color)] cursor-pointer underline  font-bold'>
+                        Sign In
+                      </span>
+                    </Link>
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
       <AlertModal
         ModalInfo={alertModalPropsInfo}
         showAlertModal={showAlertModal}

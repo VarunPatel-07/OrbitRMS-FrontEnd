@@ -34,7 +34,7 @@ export default function SearchDrop(props: SearchDropProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
-  const [highlightIndex, setHighlightIndex] = useState<number>(-1);
+  const [highlightIndex, setHighlightIndex] = useState<number>(0);
   const [dynamicPosition, setDynamicPosition] = useState<'bottom' | 'top'>(
     position || 'bottom'
   );
@@ -214,7 +214,7 @@ export default function SearchDrop(props: SearchDropProps) {
 
               <ul
                 ref={listRef}
-                className='max-h-[150px] h-full overflow-auto py-1 w-full bg-gray-100 shadow-md rounded-lg'
+                className='max-h-[130px] h-full overflow-auto w-full bg-gray-100 shadow-md rounded-lg hide-scrollbar'
               >
                 {!loading ? (
                   filteredOptions.length > 0 ? (

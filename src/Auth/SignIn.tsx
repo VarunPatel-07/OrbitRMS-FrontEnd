@@ -5,9 +5,9 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
 import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
-import signIn3dImage from '../assets/Images/sign-in-page-3d-image.webp';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
+import AuthLottieAnimation from '../Components/Animation/AuthLottieAnimation';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import {
   NotificationContext,
@@ -93,14 +93,20 @@ function SignIn() {
           clearLocalSessionStorage();
         } else {
           navigate(
-            `/${response?.data?.organization?.general_info?.portal_url.split('https://orbitrms.com/')[1]}/config/project-status`
+            `/${response?.data?.organization?.general_info?.portal_slug}/config/project-status`
           );
         }
       } finally {
-        setShowGlobalLoader(false);
+        if (document.readyState === 'complete') {
+          setShowGlobalLoader(false);
+        } else {
+          window.addEventListener('load', () => {
+            setShowGlobalLoader(false);
+          });
+        }
       }
     })();
-  }, []);
+  }, [handelNotification, navigate]);
 
   return (
     <>
@@ -110,148 +116,141 @@ function SignIn() {
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />
-      {!showGlobalLoader && (
-        <div className='h-screen w-screen bg-[var(--them-pink-color)]'>
-          <div className='w-full h-full flex items-stretch justify-start relative'>
-            <img
-              src={signInGradientBgImage}
-              className='w-2/3 h-full absolute top-0 left-0'
-              alt='linear gradient image'
-              loading='lazy'
-            />
-            <img
-              src={signIn3dImage}
-              className='w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block'
-              alt='3D image'
-              width={1200} // add appropriate dimensions
-              height={800}
-              loading='lazy'
-            />
-            <div className='w-1/3 relative hidden md:block'>
-              <div className='w-full h-full p-7'>
-                <div>
-                  <img
-                    src={orbitLogo}
-                    className='max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]'
-                    alt='OrbitRMS Logo'
-                    loading='lazy'
-                  />
-                </div>
-                <div className='pt-7 '>
-                  <h1 className='font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5'>
-                    OrbitRMS: Simplify, Streamline, Succeed.
-                  </h1>
-                </div>
+      <div className='h-screen w-screen bg-[var(--them-pink-color)] overflow-hidden'>
+        <div className='w-full h-full flex items-stretch justify-start relative'>
+          <img
+            src={signInGradientBgImage}
+            className='w-2/3 h-full absolute top-0 left-0'
+            alt='linear gradient image'
+            loading='lazy'
+          />
+          {/* Auth Lottie Animation  */}
+          <AuthLottieAnimation />
+
+          <div className='w-1/3 relative hidden md:block'>
+            <div className='w-full h-full p-7'>
+              <div>
+                <img
+                  src={orbitLogo}
+                  className='max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]'
+                  alt='OrbitRMS Logo'
+                  loading='lazy'
+                />
+              </div>
+              <div className='pt-7 '>
+                <h1 className='font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5'>
+                  OrbitRMS: Simplify, Streamline, Succeed.
+                </h1>
               </div>
             </div>
-            <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10'>
-              <div className='login-form w-full h-full relative z-20 flex items-center justify-center'>
-                <div className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0'>
-                  <div className='flex flex-col items-start justify-start gap-2'>
-                    <h1 className='font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black'>
-                      Sign In to{' '}
-                      <span className='text-[var(--them-orange-color)]'>
-                        OrbitRMS!
-                      </span>
-                    </h1>
-                    <p className='text-black text-sm font-normal font-inter'>
-                      Sign in and Unite all your resources in one orbit!
-                    </p>
+          </div>
+          <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10'>
+            <div className='login-form w-full h-full relative z-20 flex items-center justify-center'>
+              <div className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0'>
+                <div className='flex flex-col items-start justify-start gap-2'>
+                  <h1 className='font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black'>
+                    Sign In to{' '}
+                    <span className='text-[var(--them-orange-color)]'>
+                      OrbitRMS!
+                    </span>
+                  </h1>
+                  <p className='text-black text-sm font-normal font-inter'>
+                    Sign in and Unite all your resources in one orbit!
+                  </p>
+                </div>
+                <div className='grid grid-cols-1 gap-y-6  w-full'>
+                  <div className='w-full'>
+                    <Input
+                      name='email'
+                      className='border border-black/[.65] text-black'
+                      labelFieldName='Email'
+                      isRequiredField={true}
+                      value={email}
+                      type='email'
+                      setValue={setEmail}
+                      showError={showError}
+                      errorMessage={
+                        showError
+                          ? email.trim() === ''
+                            ? 'This field is required.'
+                            : !isValidEmail(email)
+                              ? 'Please enter a valid email address.'
+                              : ''
+                          : ''
+                      }
+                    />
                   </div>
-                  <div className='grid grid-cols-1 gap-y-6  w-full'>
+                  <div className='w-full grid grid-cols-1 gap-y-3'>
                     <div className='w-full'>
                       <Input
-                        name='email'
-                        className='border border-black/[.65] text-black'
-                        labelFieldName='Email'
+                        name='password'
+                        className='border border-black/[.65]'
+                        labelFieldName='Password'
                         isRequiredField={true}
-                        value={email}
-                        type='email'
-                        setValue={setEmail}
+                        type='password'
+                        viewPasswordBtn={true}
+                        value={password}
+                        setValue={setPassword}
                         showError={showError}
                         errorMessage={
                           showError
-                            ? email.trim() === ''
+                            ? password.trim().length === 0
                               ? 'This field is required.'
-                              : !isValidEmail(email)
-                                ? 'Please enter a valid email address.'
+                              : password.trim().length < 6
+                                ? 'Password must be at least 6 characters.'
                                 : ''
                             : ''
                         }
                       />
                     </div>
-                    <div className='w-full grid grid-cols-1 gap-y-3'>
-                      <div className='w-full'>
+                    <div className='w-full flex items-center justify-between'>
+                      <div className='flex items-center justify-start gap-1.5'>
                         <Input
-                          name='password'
-                          className='border border-black/[.65]'
-                          labelFieldName='Password'
-                          isRequiredField={true}
-                          type='password'
-                          viewPasswordBtn={true}
-                          value={password}
-                          setValue={setPassword}
-                          showError={showError}
-                          errorMessage={
-                            showError
-                              ? password.trim().length === 0
-                                ? 'This field is required.'
-                                : password.trim().length < 6
-                                  ? 'Password must be at least 6 characters.'
-                                  : ''
-                              : ''
-                          }
+                          type='checkbox'
+                          name='termsAccepted'
+                          value={rememberMe}
+                          setValue={setRememberMe}
                         />
+                        <span className='text-black font-light text-sm font-inter'>
+                          Remember Me
+                        </span>
                       </div>
-                      <div className='w-full flex items-center justify-between'>
-                        <div className='flex items-center justify-start gap-1.5'>
-                          <Input
-                            type='checkbox'
-                            name='termsAccepted'
-                            value={rememberMe}
-                            setValue={setRememberMe}
-                          />
-                          <span className='text-black font-light text-sm font-inter'>
-                            Remember Me
-                          </span>
-                        </div>
-                        <Link
-                          to={'/auth/forgot-password'}
-                          className='text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer'
-                        >
-                          Forgot Password?
-                        </Link>
-                      </div>
+                      <Link
+                        to={'/auth/forgot-password'}
+                        className='text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer'
+                      >
+                        Forgot Password?
+                      </Link>
                     </div>
                   </div>
-                  <div className='w-full grid grid-cols-1 gap-y-8'>
-                    <button
-                      type='button'
-                      className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed'
-                      disabled={loading}
-                      onClick={handleFormSubmit}
-                    >
-                      {loading ? (
-                        <Loader loaderText='Submitting...' />
-                      ) : (
-                        <span>Submit</span>
-                      )}
-                    </button>
-                    <p className='text-center font-inter w-full text-sm text-black'>
-                      Don’t have an account?{' '}
-                      <Link to='/auth/sign-up'>
-                        <span className=' text-[var(--them-orange-color)] cursor-pointer underline  font-bold'>
-                          Sign Up
-                        </span>
-                      </Link>
-                    </p>
-                  </div>
+                </div>
+                <div className='w-full grid grid-cols-1 gap-y-8'>
+                  <button
+                    type='button'
+                    className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed'
+                    disabled={loading}
+                    onClick={handleFormSubmit}
+                  >
+                    {loading ? (
+                      <Loader loaderText='Submitting...' />
+                    ) : (
+                      <span>Submit</span>
+                    )}
+                  </button>
+                  <p className='text-center font-inter w-full text-sm text-black'>
+                    Don’t have an account?{' '}
+                    <Link to='/auth/sign-up'>
+                      <span className=' text-[var(--them-orange-color)] cursor-pointer underline  font-bold'>
+                        Sign Up
+                      </span>
+                    </Link>
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 }

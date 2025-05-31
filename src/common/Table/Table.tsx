@@ -67,15 +67,20 @@ function Table({
                       {
                         'border-b border-b-black/10':
                           data?.length !== index + 1,
-                        'min-w-fit sticky right-0 shadow-2xl bg-white':
+                        'min-w-fit sticky right-0 shadow-2xl bg-white border-0':
                           column?.key == 'action' && column?.isSticky,
-                        'min-w-fit relative':
+                        'min-w-fit relative border-0':
                           column?.key == 'action' && !column?.isSticky,
                       }
                     )}
                   >
                     {column?.key == 'action' && (
-                      <span className='w-[1px] h-full bg-black/15 inline-block top-0 left-0 absolute'></span>
+                      <>
+                        <span className='w-[1px] h-full bg-black/15 inline-block top-0 left-0 absolute'></span>
+                        {index != 0 && (
+                          <span className='w-full h-[1px] bg-black/15 inline-block top-0 left-0 absolute'></span>
+                        )}
+                      </>
                     )}
                     {column?.key == 'action'
                       ? column.renderContent(row)

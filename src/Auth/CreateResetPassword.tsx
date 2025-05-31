@@ -2,17 +2,23 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { BsArrowLeft } from 'react-icons/bs';
 import { FiLock } from 'react-icons/fi';
 import { LiaKeySolid } from 'react-icons/lia';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 
 import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
 import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
-import signIn3dImage from '../assets/Images/sign-in-page-3d-image.webp';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
+import AuthLottieAnimation from '../Components/Animation/AuthLottieAnimation';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import {
   NotificationContext,
   NotificationContextApiProps,
+  NotificationFunctionParamsInterface,
 } from '../Context/Notification/NotificationContextApi';
 import { verifyUsersLoginStatus } from '../Helper/api/api';
 import { endpointObject, multiplePostApi } from '../Helper/api/multipleAPI';
@@ -21,6 +27,7 @@ import { useDebounce } from '../Hooks/useDebounce';
 
 function CreateResetPassword() {
   const useEffectRef = useRef(false);
+  const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const currentPath = location.pathname.split('/auth/')[1];
@@ -60,6 +67,16 @@ function CreateResetPassword() {
     if (res?.success) {
       setLoading(false);
       handelNotification(res, 'top-right');
+      const data: NotificationFunctionParamsInterface = {
+        success: true,
+        message: 'Redirecting To Sign In Page',
+      };
+      setTimeout(() => {
+        handelNotification(data, 'top-right');
+      }, 500);
+      setTimeout(() => {
+        navigate('/auth/sign-in');
+      }, 2000);
     } else {
       setLoading(false);
       handelNotification(res, 'top-right');
@@ -111,17 +128,14 @@ function CreateResetPassword() {
 
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
-        <div className='h-screen w-screen bg-[var(--them-pink-color)]'>
+        <div className='h-screen w-screen bg-[var(--them-pink-color)] overflow-hidden'>
           <div className='w-full h-full flex items-stretch justify-start relative'>
             <img
               src={signInGradientBgImage}
               className='w-2/3 h-full absolute top-0 left-0'
             />
-            <img
-              src={signIn3dImage}
-              className='w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block'
-              alt=''
-            />
+            {/* Auth Lottie Animation  */}
+            <AuthLottieAnimation />
             <div className='w-1/3 relative hidden md:block'>
               <div className='w-full h-full p-7'>
                 <div>

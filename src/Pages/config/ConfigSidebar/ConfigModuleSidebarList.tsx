@@ -42,4 +42,12 @@ export const ConfigSidebarMenuList = (
     showToolTip: false,
     ToolTipValue: 'Roles & Permission',
   },
+  {
+    id: 5,
+    name: 'Client Form',
+    label: 'config-client-form-tooltip',
+    link: `/${organization}/config/client-form`,
+    showToolTip: false,
+    ToolTipValue: 'Client Form',
+  },
 ];

@@ -28,7 +28,7 @@ function Breadcrumbs({
                 <Link
                   to={item.link}
                   className={`${
-                    navigation.pathname === item.link
+                    navigation.pathname.startsWith(item.link)
                       ? 'text-blue-700 font-medium cursor-default'
                       : 'text-black font-medium'
                   } text-sm`}

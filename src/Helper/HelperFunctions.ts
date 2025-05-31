@@ -246,23 +246,62 @@ export const hexToRgb = (hex: string) => {
   return `${r}, ${g}, ${b}`;
 };
 
-export const formateDate = (UTCString: string, showTime: boolean = true) => {
+export const formateDate = (
+  UTCString: string,
+  default_dateformat: string,
+  showTime: boolean = true
+): string => {
   const date = new Date(UTCString + 'Z');
   const year = date.getFullYear();
-  const month = date.getMonth() + 1;
+  const twoDigitYear = year % 100;
+  const month = date.getMonth(); // 0-based
   const day = date.getDate();
-  const formattedDay = day <= 9 ? `0${day}` : day;
-  const formattedMonth = month <= 9 ? `0${month}` : month;
 
-  const creationTime = date.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
+  const monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  const replacements: Record<string, string> = {
+    YYYY: `${year}`,
+    MMM: monthNames[month],
+    YY: twoDigitYear <= 9 ? `0${twoDigitYear}` : `${twoDigitYear}`,
+    MM: month + 1 <= 9 ? `0${month + 1}` : `${month + 1}`,
+    Y: `${year}`,
+    DD: day <= 9 ? `0${day}` : `${day}`,
+    D: `${day}`,
+    M: `${month + 1}`,
+  };
+
+  // Replace tokens in order from longest to shortest to avoid partial replacements
+  const tokenOrder = ['YYYY', 'MMM', 'YY', 'MM', 'Y', 'DD', 'D', 'M'];
+
+  let formattedDate = default_dateformat;
+
+  for (const token of tokenOrder) {
+    // Replace exact tokens only (use \b boundaries or match whole token)
+    const regex = new RegExp(`\\b${token}\\b`, 'g');
+    formattedDate = formattedDate.replace(regex, replacements[token]);
+  }
 
   if (showTime) {
-    return `${formattedDay}-${formattedMonth}-${year}, ${creationTime.toUpperCase()}`;
-  } else {
-    return `${formattedDay}-${formattedMonth}-${year}`;
+    const creationTime = date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+    formattedDate += `, ${creationTime.toUpperCase()}`;
   }
+
+  return formattedDate;
 };

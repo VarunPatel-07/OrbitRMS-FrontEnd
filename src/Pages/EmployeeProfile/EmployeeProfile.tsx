@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { Route, Routes, useParams } from 'react-router-dom';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
@@ -8,9 +9,13 @@ import {
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
 import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
+import { classNames } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
 import { useDebounce } from '../../Hooks/useDebounce';
-import { UserProfileInformationInterface } from '../../interface/AddEditUserProfileInterFace';
+import {
+  EmployeeProfileActionArrayInterface,
+  UserProfileInformationInterface,
+} from '../../interface/AddEditUserProfileInterFace';
 import EmployeeDetails from './EmployeeDetails';
 
 // The initialState Of The Data
@@ -42,11 +47,13 @@ const initialState: UserProfileInformationInterface = {
       profile_picture_bg: '',
     },
     employee_role: {
-      role_id: '',
+      id: '',
       role_name: '',
     },
     employee_email: '',
     employee_code: '',
+    employee_type: '',
+    joining_date: '',
   },
   personal_contact_info: {
     personal_email: '',
@@ -57,6 +64,8 @@ const initialState: UserProfileInformationInterface = {
         emergency_contact_name: '',
         emergency_contact_number: '',
         emergency_contact_country_info: '',
+        contact_id: '',
+        id: '',
       },
     ],
   },
@@ -95,12 +104,14 @@ const initialState: UserProfileInformationInterface = {
       name: '',
       target_blank: true,
       id: '',
+      user_id: '',
     },
   ],
 };
 
 function EmployeeProfile() {
   const { id: employee_id } = useParams();
+  const navigation = useLocation();
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
@@ -122,14 +133,30 @@ function EmployeeProfile() {
     {
       name: 'Employee Profile',
       label: 'employee-profile',
-      link: `/${organization}/employee-profile/${employee_id}`,
+      link: `/${organization}/employee-profile/${employee_id}/employee-details`,
+    },
+  ];
+  const EmployeeProfileActionArray: EmployeeProfileActionArrayInterface[] = [
+    {
+      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${employee_id}/employee-details`,
+      classNames:
+        'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
+      label: 'employee_details',
+      title: 'Employee Details',
+    },
+    {
+      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${employee_id}/logged-in-device`,
+      classNames:
+        'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
+      label: 'logged_in_device',
+      title: 'Logged In Device',
     },
   ];
 
   // * ------- Some Of The Reference That Are Used In This Page ---------------
   //
   //
-  const useEffectRef = useRef(false);
+  const useEffectRef = useRef('');
 
   //
   // * ----- The Definition Of The State Start From Here
@@ -137,6 +164,7 @@ function EmployeeProfile() {
 
   const [data, setData] =
     useState<UserProfileInformationInterface>(initialState);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
 
   //
   // * ----- The Definition Of The State  END  From Here
@@ -159,6 +187,9 @@ function EmployeeProfile() {
 
       if (res?.success) {
         setData(res?.data);
+        setIsFetching(false);
+      } else {
+        setIsFetching(false);
       }
     },
     100
@@ -168,80 +199,184 @@ function EmployeeProfile() {
   //
 
   useEffect(() => {
-    if (!useEffectRef.current) {
-      useEffectRef.current = true;
+    if (employee_id && useEffectRef.current !== employee_id) {
+      useEffectRef.current = employee_id;
+      setIsFetching(true);
       fetchTheUsersProfileInfoWithDebounce(employee_id);
     }
-  }, []);
+  }, [employee_id, fetchTheUsersProfileInfoWithDebounce]);
 
   return (
-    <div className='w-full h-full'>
-      <div className='w-full h-full flex items-stretch justify-start'>
-        <div className='w-[30%] max-w-[300px] bg-white border-r border-r-black/20'>
-          <div className='w-full h-full pt-10 pb-4'>
-            <div className='w-full h-full flex flex-col items-center justify-between gap-7'>
-              <div className='flex flex-col items-center justify-start gap-5 w-full px-2'>
-                <EmployeeProfilePicture width={160} height={160} />
-                <div className='flex flex-col items-center justify-start gap-2 w-full'>
-                  <p className='text-base text-black font-inter font-medium max-w-[90%] text-ellipsis overflow-hidden text-center m-auto'>
-                    {data?.personal_info?.full_name}
-                  </p>
-                  <p className='text-sm text-black/60 font-inter font-medium max-w-[90%] text-ellipsis overflow-hidden text-center m-auto'>
-                    {data?.employee_info?.designation}
-                  </p>
-                  <p className='text-xs text-black bg-slate-50 py-1 px-3 border border-black/15 font-inter font-medium w-fit rounded-lg max-w-[90%] text-ellipsis overflow-hidden text-center m-auto mt-1'>
-                    {data?.employee_info?.department}
-                  </p>
+    <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
+      <div className='w-full h-full'>
+        <div className='w-full h-full flex items-stretch justify-start'>
+          <div className='w-[30%] max-w-[300px] bg-white border-r border-r-black/20'>
+            <div className='w-full h-full pt-10 pb-4'>
+              <div className='w-full h-full flex flex-col items-center justify-between gap-7'>
+                <div className='flex flex-col items-center justify-start gap-5 w-full px-2'>
+                  <EmployeeProfilePicture
+                    width={160}
+                    height={160}
+                    profilePicture={data?.personal_info?.profile_picture}
+                    isLoading={isFetching}
+                  />
+
+                  <div className='flex flex-col items-center justify-start gap-2 w-full'>
+                    {isFetching ? (
+                      <Skeleton height={20} width={200} />
+                    ) : (
+                      <p className='text-base text-black font-inter font-medium max-w-[90%] text-ellipsis overflow-hidden text-center m-auto'>
+                        {data?.personal_info?.full_name
+                          ? data?.personal_info?.full_name
+                          : data?.personal_info?.first_name +
+                            ' ' +
+                            data?.personal_info?.middle_name +
+                            ' ' +
+                            data?.personal_info?.last_name}
+                      </p>
+                    )}
+
+                    {isFetching ? (
+                      <Skeleton height={20} width={160} />
+                    ) : (
+                      <p className='text-sm text-black/60 font-inter font-medium max-w-[90%] text-ellipsis overflow-hidden text-center m-auto'>
+                        {data?.employee_info?.designation || '-'}
+                      </p>
+                    )}
+
+                    {isFetching ? (
+                      <Skeleton height={26} width={110} borderRadius={8} />
+                    ) : (
+                      <p className='text-xs text-black bg-slate-50 py-1 px-3 border border-black/15 font-inter font-medium w-fit rounded-lg max-w-[90%] text-ellipsis overflow-hidden text-center m-auto mt-1'>
+                        {data?.employee_info?.department || '-'}
+                      </p>
+                    )}
+                  </div>
+
+                  {isFetching ? (
+                    <Skeleton height={42} width={220} borderRadius={8} />
+                  ) : (
+                    <button className='font-inter font-semibold bg-[#EEF4FF] border border-[#C7D7FE] text-[#3538CD] text-base h-full px-5 py-2 rounded-lg capitalize'>
+                      Send Reset Instructions
+                    </button>
+                  )}
                 </div>
-                <button className='font-inter font-semibold bg-[#EEF4FF] border border-[#C7D7FE] text-[#3538CD] text-base h-full px-5 py-2 rounded-lg capitalize'>
-                  Send Reset Instructions
-                </button>
-              </div>
-              <div className='w-full py-4 border-t border-t-black/20 px-2'>
-                <p className='text-sm text-black/60 font-inter font-medium pb-2'>
-                  Social Links
-                </p>
-                <div className='flex flex-wrap items-stretch'>
-                  {data?.social_link?.map((link) => (
-                    <a
-                      href={link?.link}
-                      target={link?.target_blank ? '_blank' : '_self'}
-                      className='p-2 border border-black/20 flex rounded-md hover:bg-black/10 transition-all'
-                    >
-                      <span
-                        className='text-black w-5 h-5 inline-block full-width-svg'
-                        dangerouslySetInnerHTML={{ __html: link?.icon }}
-                      ></span>
-                    </a>
-                  ))}
+                <div className='w-full py-4 border-t border-t-black/20 px-3'>
+                  <p className='text-sm text-black/60 font-inter font-medium pb-2'>
+                    Social Links
+                  </p>
+                  <div className='flex flex-wrap items-stretch gap-1.5 justify-start'>
+                    {isFetching ? (
+                      <>
+                        {Array.from({ length: 5 }).map((_, index) => (
+                          <Skeleton
+                            height={38}
+                            width={38}
+                            borderRadius={6}
+                            key={index}
+                          />
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        {data?.social_link?.map((link) => (
+                          <a
+                            href={link?.link}
+                            target={link?.target_blank ? '_blank' : '_self'}
+                            className='p-2 border border-black/20 flex rounded-md hover:bg-black/10 transition-all'
+                          >
+                            <span
+                              className='text-black w-5 h-5 inline-block full-width-svg'
+                              dangerouslySetInnerHTML={{ __html: link?.icon }}
+                            ></span>
+                          </a>
+                        ))}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className='w-[70%] flex-grow'>
-          <div className='w-full h-full'>
-            <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
-            <div className='w-full'></div>
-            <div className='w-full h-[calc(100vh-60px)] pt-16 overflow-auto px-6'>
-              <Routes>
-                {['/', '/employee-details'].map((eachPath, index) => (
-                  <Route
-                    path={eachPath}
-                    key={index}
-                    element={
-                      <ProtectedRoute
-                        element={<EmployeeDetails data={data} />}
-                      />
-                    }
-                  />
-                ))}
-              </Routes>
+          <div className='w-[70%] flex-grow overflow-hidden'>
+            <div className='w-full h-full relative'>
+              <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+              <div className='w-full absolute top-[37px]'>
+                <div className='w-full bg-white px-3 py-2.5 border-b border-black/20'>
+                  <div className='flex items-stretch justify-between gap-4'>
+                    <div className='flex items-center justify-start flex-grow gap-4'>
+                      {isFetching ? (
+                        <>
+                          {Array?.from({ length: 3 }).map((_, index) => (
+                            <Skeleton
+                              height={35}
+                              width={140}
+                              borderRadius={6}
+                              key={index}
+                            />
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          {EmployeeProfileActionArray?.map((item, index) => (
+                            <Link
+                              to={item?.link}
+                              key={index}
+                              className={classNames(`${item?.classNames}`, {
+                                'bg-[#EEF4FF] border border-[#C7D7FE] !text-[#3538CD]':
+                                  navigation.pathname?.startsWith(item?.link),
+                              })}
+                            >
+                              {item?.title}
+                            </Link>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                    {employee_id ==
+                      GlobalStateProvider?.user?.personal_info?.user_id && (
+                      <div className='w-fit'>
+                        {isFetching ? (
+                          <Skeleton height={35} width={140} borderRadius={6} />
+                        ) : (
+                          <Link
+                            to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/edit/${GlobalStateProvider?.user?.personal_info?.user_id}`}
+                            className='font-inter capitalize text-sm px-3 py-1.5 h-full inline-block rounded-md text-white font-medium bg-[var(--them-green-color)]'
+                          >
+                            Edit Profile
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className='w-full h-[calc(100vh-60px)] pt-28 overflow-auto hide-scrollbar px-6'>
+                <Routes>
+                  {['/', '/employee-details'].map((eachPath, index) => (
+                    <Route
+                      path={eachPath}
+                      key={index}
+                      element={
+                        <ProtectedRoute
+                          element={
+                            <EmployeeDetails
+                              data={data}
+                              isFetching={isFetching}
+                              organizationInfo={GlobalStateProvider?.organization}
+                            />
+                          }
+                        />
+                      }
+                    />
+                  ))}
+                </Routes>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </SkeletonTheme>
   );
 }
 

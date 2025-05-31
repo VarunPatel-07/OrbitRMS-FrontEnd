@@ -50,10 +50,8 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
     (acceptedFiles: Array<File>) => {
       acceptedFiles.map((eachFile: File) => {
         if (uploadingFilesTypeCheckingFunction(eachFile)) {
-          // console.log('allowed for', eachFile.name);
           setSelectedFile(eachFile);
         } else {
-          // console.log('wrong formate for ', eachFile.name);
           const res = {
             success: false,
             message: `The Formate Is Not Allowed`,
@@ -206,11 +204,14 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
         <input {...getInputProps()} />
         {isDragActive ? (
           showDropFileScreenInFullScreen ? (
-            <div className='fixed top-0 left-0 w-full h-full bg-[rgba(0,0,0,0.5)] backdrop-blur-sm z-50 flex items-center justify-center'>
-              <h6 className='text-5xl font-sans font-semibold'>
-                Drop the files here ...
-              </h6>
-            </div>
+            createPortal(
+              <div className='fixed top-0 left-0 w-full h-full bg-[rgba(0,0,0,0.5)] backdrop-blur-sm z-50 flex items-center justify-center'>
+                <h6 className='text-5xl font-sans font-semibold'>
+                  Drop the files here ...
+                </h6>
+              </div>,
+              document.body
+            )
           ) : (
             <>
               <div className='py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]'>

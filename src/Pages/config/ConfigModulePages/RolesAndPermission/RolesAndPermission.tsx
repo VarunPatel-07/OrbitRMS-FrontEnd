@@ -167,7 +167,11 @@ function RolesAndPermission() {
           <div className='flex flex-col w-full'>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>{`${JSON.parse(data).first_name} ${JSON.parse(data).last_name}`}</span>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(childKeyData)}
+              {formateDate(
+                childKeyData,
+                GlobalStateProvider?.organization?.organization_settings
+                  ?.default_dateformat
+              )}
             </span>
           </div>
         ) : (
@@ -176,7 +180,11 @@ function RolesAndPermission() {
               system
             </span>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(childKeyData)}
+              {formateDate(
+                childKeyData,
+                GlobalStateProvider?.organization?.organization_settings
+                  ?.default_dateformat
+              )}
             </span>
           </div>
         );
@@ -194,7 +202,11 @@ function RolesAndPermission() {
           <div className='flex flex-col w-full'>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>{`${JSON.parse(data).first_name} ${JSON.parse(data).last_name}`}</span>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(childKeyData)}
+              {formateDate(
+                childKeyData,
+                GlobalStateProvider?.organization?.organization_settings
+                  ?.default_dateformat
+              )}
             </span>
           </div>
         ) : (
@@ -394,14 +406,14 @@ function RolesAndPermission() {
     <>
       <div className='relative w-full h-full'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
-        <div className='w-full h-full pt-10'>
+        <div className='w-full h-full pt-9'>
           <div className='w-full h-full p-4 2xl:p-5'>
             {isFetchingData ? (
               <div className='w-full h-full overflow-hidden'>
                 <TableSkeletonLoader
                   tableHeaderCount={5}
                   tableValueCount={13}
-                  maxHeight='calc(-335px + 100vh)'
+                  maxHeight='calc(-350px + 100vh)'
                 />
               </div>
             ) : (
@@ -428,7 +440,7 @@ function RolesAndPermission() {
                     columns={columns}
                     data={showSearchFilterData ? filterData : data}
                     tableWrapperClass={
-                      'overflow-auto max-h-[calc(100vh-270px)] rounded-b-lg'
+                      'overflow-auto max-h-[calc(100vh-280px)] rounded-b-lg'
                     }
                     stickyHeaderClass='sticky top-0'
                   />

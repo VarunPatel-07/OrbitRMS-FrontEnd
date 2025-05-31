@@ -48,3 +48,10 @@ export const OrganizationEmployeeStatusArray = [
   'Probation',
   'Confirmed',
 ];
+
+export const employeeTypesArray = [
+  'Technical',
+  'Support',
+  'Non-Technical',
+  'Management',
+];
