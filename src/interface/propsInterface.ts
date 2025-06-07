@@ -118,14 +118,16 @@ export interface Column {
 export interface operatorObject {
   label: string;
   value: string;
+  type: string;
 }
 
-export interface clientInquiryFiltersInterFace {
+export interface SearchBarFilterOptionsInterface {
   id: string;
+  value: string;
   label: React.ReactElement;
   operator?: Array<operatorObject>;
   options?: Array<operatorObject>;
-  type: string;
+  optionType: 'text' | 'select' | 'multi-select' | 'date';
 }
 
 export interface ModalInfoType {

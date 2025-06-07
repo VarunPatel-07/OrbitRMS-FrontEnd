@@ -20,7 +20,7 @@ function Breadcrumbs({
               key={index}
               className='text-base flex items-center justify-start gap-2'
             >
-              {item.name.toLocaleLowerCase() == 'home' ? (
+              {['dashboard', 'home'].includes(item.name.toLocaleLowerCase()) ? (
                 <Link to={item.link} className='text-black'>
                   <FaHome />
                 </Link>

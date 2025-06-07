@@ -8,8 +8,9 @@ import {
   MdOutlineFileUpload,
 } from 'react-icons/md';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
-import { useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import Breadcrumbs from '../../common/Breadcrumbs';
 import CommonDatePicker from '../../common/CommonDatePicker';
 import DragAndDropFileUploader from '../../common/DragDropUploader/DragAndDropFileUploader';
 import IconPicker from '../../common/IconPicker';
@@ -169,6 +170,8 @@ const initialCountryInfo: CountryDataInterface = {
 
 export default function AddEditEmployeeProfile() {
   const { type: moduleType, id: employee_id } = useParams();
+
+  const navigate = useNavigate();
 
   const { GlobalStateProvider, setGlobalStateProvider } = useContext(
     GlobalStateContext
@@ -2220,10 +2223,10 @@ export default function AddEditEmployeeProfile() {
               <div className='w-full'>
                 <div className='w-full'>
                   {formData?.social_link?.map((link, index) => (
-                    <>
+                    <React.Fragment key={index + Math.random()}>
                       <div
                         className='flex items-start justify-start gap-3'
-                        key={index + link?.id + index}
+                        key={index + Math.random()}
                       >
                         <div className='flex flex-col items-start justify-start'>
                           <span
@@ -2341,7 +2344,7 @@ export default function AddEditEmployeeProfile() {
                       ) : (
                         ''
                       )}
-                    </>
+                    </React.Fragment>
                   ))}
                 </div>
               </div>
@@ -2657,9 +2660,15 @@ export default function AddEditEmployeeProfile() {
       ) {
         const data = {
           success: false,
-          message: 'Only Add And Edit Routes Are Allowed',
+          message: 'Only Add/Edit allowed. Redirecting to Employee Page.',
         };
         handelNotification(data, 'top-right');
+        setFetchingTheEmployeeData(true);
+        setTimeout(() => {
+          navigate(
+            `/${GlobalStateProvider.organization?.general_info?.portal_slug}/employee/employee-listing`
+          );
+        }, 2000);
       }
       if (moduleType?.toLocaleLowerCase() == 'edit') {
         if (employee_id) {
@@ -2679,22 +2688,47 @@ export default function AddEditEmployeeProfile() {
     fetchTheUsersProfileInfoWithDebounce,
     handelNotification,
     moduleType,
+    navigate,
   ]);
+
+  const BreadcrumbsObjects = [
+    {
+      name: 'Home',
+      label: 'home',
+      link: `/${organization}/dashboard`,
+    },
+    {
+      name: 'Employees',
+      label: 'employees',
+      link: `/${organization}/employee/employee-listing`,
+    },
+    {
+      name: moduleType == 'edit' ? 'Edit Profile' : 'Add Employee',
+      label: 'employee-profile',
+      link:
+        moduleType == 'edit'
+          ? `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/${moduleType}/${employee_id}`
+          : `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/${moduleType}`,
+    },
+  ];
   return (
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       <div className='w-full h-full relative'>
         <div className='w-full'>
           <div className='w-full h-full flex items-stretch justify-between'>
-            <div className='w-full xl:w-[70%] flex-grow h-[calc(100vh-135px)] hide-scrollbar overflow-auto px-6 flex flex-col gap-6 pt-6 pb-5'>
-              {interSectionObserverModules?.map((section, index) => (
-                <div
-                  className='w-full'
-                  key={section?.id}
-                  ref={(el) => (multipleSectionRef.current[index] = el)}
-                >
-                  {section?.module}
-                </div>
-              ))}
+            <div className='w-full xl:w-[70%] flex-grow relative'>
+              <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+              <div className='h-[calc(100vh-135px)] hide-scrollbar overflow-auto px-6 flex flex-col gap-6 pt-16 pb-5'>
+                {interSectionObserverModules?.map((section, index) => (
+                  <div
+                    className='w-full'
+                    key={section?.id}
+                    ref={(el) => (multipleSectionRef.current[index] = el)}
+                  >
+                    {section?.module}
+                  </div>
+                ))}
+              </div>
             </div>
             <div className='hidden xl:w-[30%] max-w-[300px] xl:block bg-white border-l border-l-black/15'>
               <div className='w-1/2 m-auto h-full flex flex-col justify-start items-stretch py-10'>
@@ -2765,21 +2799,27 @@ export default function AddEditEmployeeProfile() {
         </div>
         <div className='w-full bg-white px-4 py-3 mt-2 flex items-center justify-between gap-2'>
           <div className='w-full max-w-[60%] '>
-            <p className='font-inter text-lg font-medium capitalize text-black whitespace-nowrap flex items-center justify-start gap-1.5'>
-              <span>Editing profile -</span>
-              {fetchingTheEmployeeData ? (
-                <Skeleton
-                  width={200}
-                  height={18}
-                  borderRadius={4}
-                  className='inline-block'
-                />
-              ) : (
-                <span className='font-bold text-[var(--them-orange-color)] w-full max-w-[300px] overflow-hidden text-ellipsis inline-block'>
-                  {formData?.personal_info?.full_name}
-                </span>
-              )}
-            </p>
+            {moduleType == 'edit' ? (
+              <p className='font-inter text-lg font-medium capitalize text-black whitespace-nowrap flex items-center justify-start gap-1.5'>
+                <span>Editing profile -</span>
+                {fetchingTheEmployeeData ? (
+                  <Skeleton
+                    width={200}
+                    height={18}
+                    borderRadius={4}
+                    className='inline-block'
+                  />
+                ) : (
+                  <span className='font-bold text-[var(--them-orange-color)] w-full max-w-[300px] overflow-hidden text-ellipsis inline-block'>
+                    {formData?.personal_info?.full_name}
+                  </span>
+                )}
+              </p>
+            ) : (
+              <p className='font-inter text-lg font-medium capitalize text-black whitespace-nowrap flex items-center justify-start gap-1.5'>
+                <span>Add Employee</span>
+              </p>
+            )}
           </div>
           <div className='flex items-center gap-4 w-full justify-end'>
             {fetchingTheEmployeeData ? (
@@ -2790,9 +2830,12 @@ export default function AddEditEmployeeProfile() {
                 className='inline-block'
               />
             ) : (
-              <button className='text-[var(--them-green-color)] py-2.5 px-14 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 transition-all w-fit'>
+              <Link
+                to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/employee-listing`}
+                className='text-[var(--them-green-color)] py-2.5 px-14 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 transition-all w-fit'
+              >
                 Cancel
-              </button>
+              </Link>
             )}
             {fetchingTheEmployeeData ? (
               <Skeleton
@@ -2809,8 +2852,10 @@ export default function AddEditEmployeeProfile() {
               >
                 {formSubmitLoader ? (
                   <Loader loaderText='Updating....' />
-                ) : (
+                ) : moduleType == 'edit' ? (
                   <span>Update</span>
+                ) : (
+                  <span>Submit</span>
                 )}
               </button>
             )}

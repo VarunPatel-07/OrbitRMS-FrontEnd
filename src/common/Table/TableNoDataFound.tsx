@@ -29,7 +29,9 @@ function TableNoDataFound({
   };
 
   return (
-    <div className={`w-full bg-white h-full ${tableWrapperClass}`}>
+    <div
+      className={`w-full bg-white h-full ${tableWrapperClass} border border-black/10 border-t-0`}
+    >
       <div className='w-full h-full flex items-center justify-center'>
         <div className='flex flex-col items-center justify-center gap-5 max-w-[450px]'>
           <span className='bg-gradient-to-b from-[#f5f7f7] to-[#eaedf0] p-2 flex items-center justify-center max-w-[90px] max-h-[90px] rounded-full'>
@@ -50,7 +52,9 @@ function TableNoDataFound({
             </p>
           </div>
           {notFoundOptionsButtonsArray && (
-            <div className='pt-3'>{renderOptionsButtonArray(notFoundOptionsButtonsArray)}</div>
+            <div className='pt-3'>
+              {renderOptionsButtonArray(notFoundOptionsButtonsArray)}
+            </div>
           )}
         </div>
       </div>

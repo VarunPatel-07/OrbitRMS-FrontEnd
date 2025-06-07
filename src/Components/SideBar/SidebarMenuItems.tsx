@@ -1,4 +1,5 @@
 import { ReactElement } from 'react';
+import { FaUser } from 'react-icons/fa';
 import { IoSettings } from 'react-icons/io5';
 import { MdAssignment, MdSpaceDashboard } from 'react-icons/md';
 
@@ -26,9 +27,18 @@ export const SidebarMenuItems = (
     showToolTip: true,
     ToolTipValue: 'Dashboard',
   },
-
   {
     id: 2,
+    name: 'Employees',
+    icon: <FaUser className='w-5 h-5 mx-auto' />,
+    label: 'data-tooltip-employee-listing',
+    link: `/${organization}/employee/employee-listing`,
+    protected: true,
+    showToolTip: true,
+    ToolTipValue: 'Employees',
+  },
+  {
+    id: 3,
     name: 'Client Inquiry',
     icon: <MdAssignment className='w-6 h-6' />,
     label: 'data-tooltip-client-inquiry',
@@ -38,7 +48,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Client Inquiry',
   },
   {
-    id: 3,
+    id: 4,
     name: 'Config',
     icon: <IoSettings className='w-6 h-6' />,
     label: 'data-tooltip-settings',

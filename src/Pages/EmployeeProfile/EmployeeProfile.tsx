@@ -128,7 +128,7 @@ function EmployeeProfile() {
     {
       name: 'Employees',
       label: 'employees',
-      link: `/${organization}/config/project-status`,
+      link: `/${organization}/employee/employee-listing`,
     },
     {
       name: 'Employee Profile',
@@ -363,7 +363,9 @@ function EmployeeProfile() {
                             <EmployeeDetails
                               data={data}
                               isFetching={isFetching}
-                              organizationInfo={GlobalStateProvider?.organization}
+                              organizationInfo={
+                                GlobalStateProvider?.organization
+                              }
                             />
                           }
                         />

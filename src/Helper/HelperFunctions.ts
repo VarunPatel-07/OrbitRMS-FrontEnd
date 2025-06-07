@@ -188,6 +188,27 @@ export const formateAndVerifyPhoneNumber = (
   // Prevent retention of formatting when clearing
   return cleave.getFormattedValue();
 };
+
+export const verifyPhoneNumberLength = (
+  phoneNumber: string,
+  countryCode: string
+): boolean => {
+  if (!countryCode) return false;
+
+  const upperCountryCode = countryCode.toUpperCase();
+  const format = phoneFormats[upperCountryCode];
+
+  if (!format) return true;
+
+  // Extract lengths from format like 'XXX-XXX-XXXX' or '3-3-4'
+  const blocks = format.split('-').map((block) => block.length);
+  const expectedLength = blocks.reduce((sum, len) => sum + len, 0);
+  const number = formateAndVerifyPhoneNumber(phoneNumber, countryCode);
+  const rowPhoneNumber = number.replace(/-/g, '');
+
+  return rowPhoneNumber.length == expectedLength ? true : false;
+};
+
 export const getRadianAngle = (rotation: number) => {
   return (rotation * Math.PI) / 180;
 };

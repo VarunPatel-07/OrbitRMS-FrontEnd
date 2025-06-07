@@ -24,7 +24,10 @@ function TableSkeletonLoader({
   return (
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       {showHeaderLoader && (
-        <div className='w-full p-6 bg-white rounded-t-lg' aria-hidden='true'>
+        <div
+          className='w-full p-6 bg-white rounded-t-lg border border-black/10 border-b-0'
+          aria-hidden='true'
+        >
           <div className='w-full flex items-center justify-between'>
             <div className='flex items-center justify-start gap-2'>
               <p className='text-gray-800 font-semibold capitalize text-xl font-inter'>
@@ -46,7 +49,10 @@ function TableSkeletonLoader({
         </div>
       )}
       {showFilterLoader && (
-        <div aria-hidden='true' className='p-2 bg-gray-200 w-full relative'>
+        <div
+          aria-hidden='true'
+          className='p-2 bg-gray-200 w-full relative border border-black/10 border-b-0'
+        >
           <div className='flex items-stretch justify-between h-10 -translate-y-1 gap-3'>
             <div className='w-full'>
               <Skeleton
@@ -67,7 +73,7 @@ function TableSkeletonLoader({
       )}
       <div
         aria-hidden='true'
-        className='w-full overflow-auto overflow-x-hidden relative hide-scrollbar'
+        className='w-full overflow-auto overflow-x-hidden relative hide-scrollbar border border-black/10 border-b-0 border-t-0'
         style={{ maxHeight: maxHeight || 'calc(100vh - 345px)' }}
       >
         {showTableHeader && (
@@ -109,7 +115,7 @@ function TableSkeletonLoader({
       {showPaginationLoader && (
         <div
           aria-hidden='true'
-          className='w-full bg-white border-t border-t-[#d8d9dc] px-4 py-3 rounded-b-lg'
+          className='w-full bg-white border-t border border-black/10 px-4 py-3 rounded-b-lg'
         >
           <div className='w-full flex items-center justify-between'>
             <div className='flex items-center justify-start gap-2'>

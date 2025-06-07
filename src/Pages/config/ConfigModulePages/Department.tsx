@@ -58,10 +58,7 @@ export default function AttachmentTypes() {
     GlobalStateContext
   ) as GlobalStateContextApiProps;
   const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_url.split(
-      'https://orbitrms.com/'
-    )[1];
-
+    GlobalStateProvider?.organization?.general_info?.portal_slug;
   const BreadcrumbsObjects = [
     { name: 'Home', label: 'home', link: '/home' },
     {

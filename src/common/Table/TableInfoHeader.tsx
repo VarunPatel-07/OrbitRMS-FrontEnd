@@ -25,7 +25,7 @@ function TableInfoHeader(props: TableInfoHeaderInterface) {
   };
 
   return (
-    <div className='w-full p-6 bg-white rounded-t-lg'>
+    <div className='w-full p-6 bg-white rounded-t-lg border border-black/10 border-b-0'>
       <div className='w-full flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <p className='text-slate-950 font-semibold capitalize text-xl font-inter'>

@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import OrbitRMSLogo from '../../assets/Images/orbitrms-final-logo-transperent.webp';
+
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -54,6 +55,7 @@ function Navbar() {
           />
         </div>
       </div>
+
       <div className='w-fit relative'>
         <div className='profile-picture pr-4'>
           <button

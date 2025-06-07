@@ -32,7 +32,7 @@ const InfoField = ({
     )}
 
     {renderDate && default_dateformat ? (
-      <p className='text-base text-black font-inter font-medium'>
+      <p className='text-sm text-black/65 font-inter font-medium'>
         {value ? formateDate(value as string, default_dateformat, false) : '-'}
       </p>
     ) : (
@@ -294,7 +294,7 @@ function EmployeeDetails(props: {
           </div>
           <div className='w-full'>
             <div className='flex w-full gap-2 items-center pb-2 pt-6'>
-              <div className='grid grid-cols-2 w-full gap-2.5'>
+              <div className='grid grid-cols-2 w-full gap-5'>
                 <p className='text-base font-inter font-medium text-black pb-1 inline-block'>
                   Emergency Contact Name
                 </p>
