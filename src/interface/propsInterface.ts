@@ -188,3 +188,15 @@ export interface RolesPermissionInterface {
   source_type: string;
   status: boolean;
 }
+
+export interface UrlEncodedFilterQueryInterface {
+  field_name: string;
+  operator: string;
+  value: string;
+}
+export interface MetaDataInterface {
+  total_data: number;
+  total_pages: number;
+  current_page: number;
+  record_per_page: number;
+}

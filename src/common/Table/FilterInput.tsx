@@ -4,7 +4,10 @@ import { IoClose } from 'react-icons/io5';
 
 import { FilterFieldsTypeEnums } from '../../enums/enums';
 import { classNames } from '../../Helper/HelperFunctions';
-import { SearchBarFilterOptionsInterface } from '../../interface/propsInterface';
+import {
+  SearchBarFilterOptionsInterface,
+  UrlEncodedFilterQueryInterface,
+} from '../../interface/propsInterface';
 
 export interface ModuleValueInterface {
   label: string;
@@ -20,12 +23,16 @@ export interface FilterObjectInterface {
 function FilterInput({
   filterColumnsArray,
   handelApplyFilterFunc,
+  urlDecodedFilterQuery,
 }: {
   filterColumnsArray: SearchBarFilterOptionsInterface[];
   handelApplyFilterFunc: (filterArray: FilterObjectInterface[]) => void;
+  urlDecodedFilterQuery?: UrlEncodedFilterQueryInterface[];
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
   const inputFieldRef = useRef<HTMLInputElement>(null);
+
+  const useEffectRef = useRef(false);
 
   const filterDropDownInputRef = useRef<HTMLDivElement>(null);
   const optionsDropdownRef = useRef<HTMLDivElement>(null);
@@ -73,11 +80,17 @@ function FilterInput({
     setSelectedFilterObject((pervArray) => {
       const updatedArray = [...pervArray, ...newData];
 
+      return updatedArray;
+    });
+
+    const updatedArray = [...selectedFilterObject, ...newData];
+
+    // Then call the filter function after state updates
+    setTimeout(() => {
       if (handelApplyFilterFunc) {
         handelApplyFilterFunc(updatedArray);
       }
-      return updatedArray;
-    });
+    }, 0);
     setFilterObject([]);
     setCurrentFilterId('');
     setShowFilterDropDownMenu(false);
@@ -219,10 +232,24 @@ function FilterInput({
   const handelClearFilterQueryBtn = () => {
     setSelectedFilterObject([]);
     setFilterObject([]);
+    setShowFilterDropDownMenu(false);
+    setShowCurrentOperatorDropdown(false);
+    setShowCurrentOptionDropdown(false);
+    setCurrentFilterId('');
 
     if (handelApplyFilterFunc) {
       handelApplyFilterFunc([]);
     }
+  };
+
+  const convertToTitleCase = (field_name: string) => {
+    return field_name
+      ?.split('_')
+      .map(
+        (word) =>
+          word?.charAt(0)?.toUpperCase() + word?.slice(1)?.toLocaleLowerCase()
+      )
+      .join(' ');
   };
 
   useEffect(() => {
@@ -250,6 +277,44 @@ function FilterInput({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, []);
+
+  useEffect(() => {
+    if (useEffectRef.current) return;
+    useEffectRef.current = true;
+    if (urlDecodedFilterQuery) {
+      const modelValueArray: ModuleValueInterface[] = [];
+
+      const filteredFieldArray: FilterObjectInterface[] = [];
+
+      urlDecodedFilterQuery?.forEach((arrayItem) => {
+        modelValueArray.push({
+          label: arrayItem?.field_name,
+          value: convertToTitleCase(arrayItem?.field_name),
+          type: FilterFieldsTypeEnums[0],
+        });
+
+        modelValueArray.push({
+          label: arrayItem?.operator,
+          value: convertToTitleCase(arrayItem?.operator),
+          type: FilterFieldsTypeEnums[1],
+        });
+
+        modelValueArray.push({
+          label: arrayItem?.value,
+          value: arrayItem?.value,
+          type: FilterFieldsTypeEnums[2],
+        });
+
+        const obj: FilterObjectInterface = {
+          id: arrayItem?.field_name,
+          moduleValue: modelValueArray,
+        };
+        filteredFieldArray.push(obj);
+      });
+
+      setSelectedFilterObject(filteredFieldArray);
+    }
   }, []);
 
   return (

@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { FaRegCircleCheck } from 'react-icons/fa6';
 import { IoCloseCircleOutline, IoEye } from 'react-icons/io5';
 import { MdModeEdit } from 'react-icons/md';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
@@ -12,8 +12,10 @@ import Table from '../../common/Table/Table';
 import TableFilterSearchBar from '../../common/Table/TableFilterSearchBar';
 import TableInfoHeader from '../../common/Table/TableInfoHeader';
 import TableNoDataFound from '../../common/Table/TableNoDataFound';
+import TablePagination from '../../common/Table/TablePagination';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
 import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoader';
+import { dropdownMenuArray } from '../../constant/constant';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -28,9 +30,18 @@ import {
 } from '../../interface/EmployeeInterface';
 import {
   Column,
+  MetaDataInterface,
   TableInfoHeaderInterfaceButtonArrayObject,
+  UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
 import { EmployeeListingFiltersArray } from './EmployeeListingFiltersArray';
+
+const initialMetadata: MetaDataInterface = {
+  total_data: 0,
+  total_pages: 1,
+  current_page: 1,
+  record_per_page: 10,
+};
 
 function EmployeeListing() {
   const { GlobalStateProvider } = useContext(
@@ -39,13 +50,24 @@ function EmployeeListing() {
 
   const navigate = useNavigate();
 
+  const [queryParameter] = useSearchParams();
+
   const organization =
     GlobalStateProvider?.organization?.general_info?.portal_slug;
 
   const useEffectRef = useRef(false);
   const [data, setData] = useState<EmployeeFieldInterface[]>([]);
+  const [metaData, setMetaData] = useState<MetaDataInterface>(initialMetadata);
   const [isInitialFetching, setIsInitialFetching] = useState<boolean>(true);
   const [isFetchingData, setIsFetchingData] = useState<boolean>(false);
+
+  const [urlDecodedFilterQuery, setUrlDecodedFilterQuery] = useState<
+    UrlEncodedFilterQueryInterface[]
+  >([]);
+
+  // Some State That Is Used For The Table Pagination
+  const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
+  const [selectedPage, setSelectedPage] = useState<number>(1);
 
   const BreadcrumbsObjects = [
     {
@@ -271,13 +293,13 @@ function EmployeeListing() {
   ];
 
   const fetchAllEmployeeWithDebounce = useDebounce(
-    async (queryString: string) => {
+    async (queryString: string, page: number = 1, limit: number = 10) => {
       const endPointArr: endpointObject[] = [
         {
           endPoint:
             queryString == undefined || queryString?.trim() == ''
-              ? `employee/fetch-all`
-              : `employee/fetch-all?${queryString}`,
+              ? `employee/fetch-all?page=${page}&limit=${limit}`
+              : `employee/fetch-all?page=${page}&limit=${limit}&${queryString}`,
           protected: true,
         },
       ];
@@ -288,6 +310,9 @@ function EmployeeListing() {
         setData(res?.data);
         setIsInitialFetching(false);
         setIsFetchingData(false);
+        setMetaData(res?.metadata);
+        setSelectedPage(res?.metadata?.current_page);
+        setRecordsPerPage(res?.metadata?.record_per_page);
       } else {
         setIsInitialFetching(false);
         setIsFetchingData(false);
@@ -299,10 +324,15 @@ function EmployeeListing() {
   const handelApplyFilterEmployeeListing = async (
     filterArray: FilterObjectInterface[]
   ) => {
+    setIsFetchingData(true);
     let queryString = '';
     if (filterArray?.length > 0) {
       const queryFilterArray = filterArray?.map((queryObj) => {
-        const obj = { field_name: '', operator: '', value: '' };
+        const obj: UrlEncodedFilterQueryInterface = {
+          field_name: '',
+          operator: '',
+          value: '',
+        };
         queryObj?.moduleValue?.forEach((moduleValue) => {
           if (moduleValue?.type === FilterFieldsTypeEnums[0]) {
             obj.field_name = moduleValue?.label;
@@ -319,18 +349,48 @@ function EmployeeListing() {
 
       queryString = `filter=${encodeURIComponent(JSON.stringify(queryFilterArray))}`;
     }
-    setIsFetchingData(true);
-    fetchAllEmployeeWithDebounce(queryString);
+
+    // First update the state and fetch data
+    await fetchAllEmployeeWithDebounce(queryString);
+
+    // Then navigate after the state updates are complete
+    setTimeout(() => {
+      navigate(
+        `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/employee-listing?${queryString}`
+      );
+    }, 0);
   };
 
+  const handelClickOnRecordPerPage = (record_per_page: number) => {
+    const filterQuery = queryParameter.get('filter');
+    let queryString = '';
+    if (filterQuery) {
+      const decodeQuery = decodeURIComponent(filterQuery);
+      const parsedFilter = JSON.parse(decodeQuery);
+      queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
+    }
+    setIsFetchingData(true);
+    fetchAllEmployeeWithDebounce(queryString, 1, record_per_page);
+  };
   //
   // ? This UseEffect Which Is Being Render For Only One Time
   //
   useEffect(() => {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
-    fetchAllEmployeeWithDebounce();
-  });
+
+    const filterQuery = queryParameter.get('filter');
+    let queryString = '';
+    if (filterQuery) {
+      const decodeQuery = decodeURIComponent(filterQuery);
+      const parsedFilter = JSON.parse(decodeQuery);
+
+      setUrlDecodedFilterQuery(parsedFilter);
+      queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
+    }
+
+    fetchAllEmployeeWithDebounce(queryString);
+  }, [fetchAllEmployeeWithDebounce, queryParameter]);
   return (
     <div className='w-full h-full relative'>
       <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
@@ -348,12 +408,13 @@ function EmployeeListing() {
             <>
               <TableInfoHeader
                 moduleName='Employees'
-                badgeValue={data.length?.toString()}
+                badgeValue={`${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length} of  ${metaData?.total_data}  Employee`}
                 buttonsArray={optionsButtonArray}
               />
               <TableFilterSearchBar
                 filterColumnsArray={EmployeeListingFiltersArray}
                 handelApplyFilterFunc={handelApplyFilterEmployeeListing}
+                urlDecodedFilterQuery={urlDecodedFilterQuery || ''}
               />
               {isFetchingData ? (
                 <TableSkeletonLoader
@@ -362,27 +423,36 @@ function EmployeeListing() {
                   maxHeight='calc(-350px + 100vh)'
                   showFilterLoader={false}
                   showHeaderLoader={false}
-                  // showPaginationLoader={false}
                 />
               ) : (
                 <>
                   {data?.length > 0 ? (
-                    <Table
-                      columns={columns}
-                      data={data}
-                      tableWrapperClass={
-                        'overflow-auto max-h-[calc(100vh-280px)] rounded-b-lg'
-                      }
-                      stickyHeaderClass='sticky top-0'
-                    />
+                    <>
+                      <Table
+                        columns={columns}
+                        data={data}
+                        tableWrapperClass={
+                          'overflow-auto max-h-[calc(100vh-330px)] h-full bg-white'
+                        }
+                        stickyHeaderClass='sticky top-0'
+                      />
+                      <TablePagination
+                        paginationDropDownArray={dropdownMenuArray}
+                        recordsPerPage={recordsPerPage}
+                        setRecordsPerPage={setRecordsPerPage}
+                        selectedPage={selectedPage}
+                        setSelectedPage={setSelectedPage}
+                        totalPage={metaData?.total_pages}
+                      />
+                    </>
                   ) : (
                     <TableNoDataFound
                       tableWrapperClass={
                         'max-h-[calc(100%-150px)] rounded-b-lg'
                       }
-                      notFoundTitle={'No Data Found For Related Search'}
+                      notFoundTitle={'No Employees Found'}
                       notFoundMessage={
-                        'No matching Department found. Try refining your search or adding a new Department.'
+                        'No matching employee found. Try refining your search or add a new employee.'
                       }
                       notFoundOptionsButtonsArray={[]}
                     />

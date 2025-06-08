@@ -40,7 +40,7 @@ function TablePagination({
   };
 
   return (
-    <div className='w-full bg-white border-t border-t-[#d8d9dc] px-4 py-3 rounded-b-lg'>
+    <div className='w-full bg-white border border-black/10 border-t-0 px-4 py-3 rounded-b-lg'>
       <div className='w-full flex items-center justify-between'>
         <div className='flex items-center justify-start gap-2'>
           <p className='text-slate-950 font-medium text-sm capitalize'>
@@ -50,6 +50,7 @@ function TablePagination({
             dropDownSelectedValue={recordsPerPage}
             setDropDownSelectedValue={setRecordsPerPage}
             dropdownMenuArray={paginationDropDownArray}
+            dropdownPosition='top'
             maxHeight={100}
           />
         </div>
@@ -57,22 +58,28 @@ function TablePagination({
           <ul className='flex items-center justify-end'>
             <li className='w-fit'>
               <button
-                className='text-slate-950 text-sm capitalize flex items-center gap-1.5 bg-[#F9FAFB] px-3 py-1.5 border border-slate-400 rounded-l-lg hover:bg-slate-200'
+                className={classNames(
+                  'text-slate-950 text-sm capitalize flex items-center gap-1.5 bg-[#f4f4f4] px-3 py-1.5 border border-slate-400 rounded-l-lg disabled:cursor-not-allowed disabled:bg-black/10',
+                  {
+                    'hover:bg-gray-200': selectedPage > 1,
+                  }
+                )}
                 onClick={handelPreviousButton}
+                disabled={selectedPage <= 1}
               >
                 <FaArrowLeftLong />
                 <span>previous</span>
               </button>
             </li>
             {derivedPaginationArray.map((value, index) => (
-              <li className='w-fit'>
+              <li className='w-fit' key={index}>
                 <button
                   className={classNames(
-                    'text-slate-950 text-sm capitalize flex items-center justify-center gap-1.5  px-3 py-1.5 border-t border-b border-t-slate-400 border-b-slate-400 w-9',
+                    'text-slate-950 text-base capitalize flex items-center justify-center gap-1.5  px-3 py-1 border-t border-b border-t-slate-400 border-b-slate-400 w-9 font-medium',
                     {
                       'border-r border-r-slate-400':
                         derivedPaginationArray.length !== index + 1,
-                      'bg-gray-300': value === selectedPage,
+                      'bg-black/25': value === selectedPage,
                       'hover:bg-gray-100': value !== selectedPage,
                     }
                   )}
@@ -88,8 +95,14 @@ function TablePagination({
             ))}
             <li className='w-fit'>
               <button
-                className='text-slate-950 text-sm capitalize flex items-center gap-1.5 bg-[#F9FAFB] px-3 py-1.5 border border-slate-400 rounded-r-lg hover:bg-slate-200'
+                className={classNames(
+                  'text-slate-950 text-sm capitalize flex items-center gap-1.5 bg-[#f4f4f4] px-3 py-1.5 border border-slate-400 rounded-r-lg disabled:cursor-not-allowed disabled:bg-black/10',
+                  {
+                    'hover:bg-gray-200': selectedPage < totalPage,
+                  }
+                )}
                 onClick={handelNextPage}
+                disabled={selectedPage == totalPage}
               >
                 <span>next</span>
                 <FaArrowRightLong />

@@ -1,15 +1,20 @@
-import { SearchBarFilterOptionsInterface } from '../../interface/propsInterface';
+import {
+  SearchBarFilterOptionsInterface,
+  UrlEncodedFilterQueryInterface,
+} from '../../interface/propsInterface';
 import FilterInput, { FilterObjectInterface } from './FilterInput';
 
 interface TableFilterSearchBarInterface {
   filterColumnsArray: SearchBarFilterOptionsInterface[];
   handelApplyFilterFunc: (filterArray: FilterObjectInterface[]) => void;
+  urlDecodedFilterQuery?: UrlEncodedFilterQueryInterface[];
 }
 
 export default function TableFilterSearchBar(
   props: TableFilterSearchBarInterface
 ) {
-  const { filterColumnsArray, handelApplyFilterFunc } = props;
+  const { filterColumnsArray, handelApplyFilterFunc, urlDecodedFilterQuery } =
+    props;
   return (
     <div className='p-2 bg-gray-200 w-full border border-black/5 border-t-0 border-b-0'>
       <div className='flex items-start justify-between gap-2'>
@@ -17,6 +22,7 @@ export default function TableFilterSearchBar(
           <FilterInput
             filterColumnsArray={filterColumnsArray}
             handelApplyFilterFunc={handelApplyFilterFunc}
+            urlDecodedFilterQuery={urlDecodedFilterQuery}
           />
         </div>
         <div className=''>

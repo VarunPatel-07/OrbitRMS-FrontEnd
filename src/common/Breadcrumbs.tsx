@@ -24,15 +24,20 @@ function Breadcrumbs({
                 <Link to={item.link} className='text-black'>
                   <FaHome />
                 </Link>
+              ) : navigation.pathname == item.link ? (
+                <span className='text-blue-700 font-medium cursor-default inline-block text-sm'>
+                  {item.name ? (
+                    item?.name
+                  ) : (
+                    <Skeleton
+                      width={100}
+                      height={18}
+                      className='inline-block'
+                    />
+                  )}
+                </span>
               ) : (
-                <Link
-                  to={item.link}
-                  className={`${
-                    navigation.pathname.startsWith(item.link)
-                      ? 'text-blue-700 font-medium cursor-default'
-                      : 'text-black font-medium'
-                  } text-sm`}
-                >
+                <Link to={item.link} className='text-black font-medium text-sm'>
                   {item.name ? (
                     item?.name
                   ) : (

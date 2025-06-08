@@ -666,6 +666,9 @@ export default function AddEditEmployeeProfile() {
       if (res?.success) {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
+        navigate(
+          `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/employee-listing`
+        );
       } else {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
