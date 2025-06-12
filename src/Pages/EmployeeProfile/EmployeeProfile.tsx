@@ -9,7 +9,7 @@ import {
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
 import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
-import { classNames } from '../../Helper/HelperFunctions';
+import { classNames, getTotalExperience } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
 import { useDebounce } from '../../Hooks/useDebounce';
 import {
@@ -20,6 +20,7 @@ import EmployeeDetails from './EmployeeDetails';
 
 // The initialState Of The Data
 const initialState: UserProfileInformationInterface = {
+  account_status: true,
   personal_info: {
     first_name: '',
     middle_name: '',
@@ -210,91 +211,132 @@ function EmployeeProfile() {
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       <div className='w-full h-full'>
         <div className='w-full h-full flex items-stretch justify-start'>
-          <div className='w-[30%] max-w-[300px] bg-white border-r border-r-black/20'>
+          <div className='w-[30%] max-w-[300px] bg-white border-r border-r-black/20 overflow-auto max-h-[calc(100vh-60px)] hide-scrollbar'>
             <div className='w-full h-full pt-10 pb-4'>
               <div className='w-full h-full flex flex-col items-center justify-between gap-7'>
-                <div className='flex flex-col items-center justify-start gap-5 w-full px-2'>
-                  <EmployeeProfilePicture
-                    width={160}
-                    height={160}
-                    profilePicture={data?.personal_info?.profile_picture}
-                    isLoading={isFetching}
-                  />
+                <div className='w-full flex flex-col'>
+                  <div className='flex flex-col items-center justify-start gap-5 px-2 w-full pb-5 border-b border-b-black/20'>
+                    <EmployeeProfilePicture
+                      width={160}
+                      height={160}
+                      profilePicture={data?.personal_info?.profile_picture}
+                      isLoading={isFetching}
+                    />
 
-                  <div className='flex flex-col items-center justify-start gap-2 w-full'>
-                    {isFetching ? (
-                      <Skeleton height={20} width={200} />
-                    ) : (
-                      <p className='text-base text-black font-inter font-medium max-w-[90%] text-ellipsis overflow-hidden text-center m-auto'>
-                        {data?.personal_info?.full_name
-                          ? data?.personal_info?.full_name
-                          : data?.personal_info?.first_name +
-                            ' ' +
-                            data?.personal_info?.middle_name +
-                            ' ' +
-                            data?.personal_info?.last_name}
-                      </p>
-                    )}
+                    <div className='flex flex-col items-center justify-start gap-2 w-full'>
+                      {isFetching ? (
+                        <Skeleton height={20} width={200} />
+                      ) : (
+                        <p className='text-base text-black font-inter font-medium max-w-[90%] text-ellipsis overflow-hidden text-center m-auto'>
+                          {data?.personal_info?.full_name
+                            ? data?.personal_info?.full_name
+                            : data?.personal_info?.first_name +
+                              ' ' +
+                              data?.personal_info?.middle_name +
+                              ' ' +
+                              data?.personal_info?.last_name}
+                        </p>
+                      )}
+
+                      {isFetching ? (
+                        <Skeleton height={20} width={160} />
+                      ) : (
+                        <p className='text-sm text-black/60 font-inter font-medium max-w-[90%] text-ellipsis overflow-hidden text-center m-auto'>
+                          {data?.employee_info?.designation || '-'}
+                        </p>
+                      )}
+
+                      {isFetching ? (
+                        <Skeleton height={26} width={110} borderRadius={8} />
+                      ) : (
+                        <p className='text-xs text-black bg-slate-50 py-1 px-3 border border-black/15 font-inter font-medium w-fit rounded-lg max-w-[90%] text-ellipsis overflow-hidden text-center m-auto mt-1'>
+                          {data?.employee_info?.department || '-'}
+                        </p>
+                      )}
+                    </div>
 
                     {isFetching ? (
-                      <Skeleton height={20} width={160} />
+                      <Skeleton height={42} width={220} borderRadius={8} />
                     ) : (
-                      <p className='text-sm text-black/60 font-inter font-medium max-w-[90%] text-ellipsis overflow-hidden text-center m-auto'>
-                        {data?.employee_info?.designation || '-'}
-                      </p>
-                    )}
-
-                    {isFetching ? (
-                      <Skeleton height={26} width={110} borderRadius={8} />
-                    ) : (
-                      <p className='text-xs text-black bg-slate-50 py-1 px-3 border border-black/15 font-inter font-medium w-fit rounded-lg max-w-[90%] text-ellipsis overflow-hidden text-center m-auto mt-1'>
-                        {data?.employee_info?.department || '-'}
-                      </p>
-                    )}
-                  </div>
-
-                  {isFetching ? (
-                    <Skeleton height={42} width={220} borderRadius={8} />
-                  ) : (
-                    <button className='font-inter font-semibold bg-[#EEF4FF] border border-[#C7D7FE] text-[#3538CD] text-base h-full px-5 py-2 rounded-lg capitalize'>
-                      Send Reset Instructions
-                    </button>
-                  )}
-                </div>
-                <div className='w-full py-4 border-t border-t-black/20 px-3'>
-                  <p className='text-sm text-black/60 font-inter font-medium pb-2'>
-                    Social Links
-                  </p>
-                  <div className='flex flex-wrap items-stretch gap-1.5 justify-start'>
-                    {isFetching ? (
-                      <>
-                        {Array.from({ length: 5 }).map((_, index) => (
-                          <Skeleton
-                            height={38}
-                            width={38}
-                            borderRadius={6}
-                            key={index}
-                          />
-                        ))}
-                      </>
-                    ) : (
-                      <>
-                        {data?.social_link?.map((link) => (
-                          <a
-                            href={link?.link}
-                            target={link?.target_blank ? '_blank' : '_self'}
-                            className='p-2 border border-black/20 flex rounded-md hover:bg-black/10 transition-all'
-                          >
-                            <span
-                              className='text-black w-5 h-5 inline-block full-width-svg'
-                              dangerouslySetInnerHTML={{ __html: link?.icon }}
-                            ></span>
-                          </a>
-                        ))}
-                      </>
+                      <button className='font-inter font-semibold bg-[#EEF4FF] border border-[#C7D7FE] text-[#3538CD] text-base h-full px-5 py-2 rounded-lg capitalize'>
+                        Send Reset Instructions
+                      </button>
                     )}
                   </div>
+                  <div className='px-2.5 py-5 border-b border-b-black/20'>
+                    <div className='flex items-center justify-between'>
+                      <p className='text-black text-sm font-medium font-inter'>
+                        Account Status:
+                      </p>
+                      {data?.account_status ? (
+                        <span className='text-xs font-medium font-inter bg-green-100 text-green-700 border border-green-500 px-4 py-1.5 rounded-full'>
+                          Active
+                        </span>
+                      ) : (
+                        <span className='text-xs font-medium font-inter bg-red-100 text-red-700 border border-red-500 px-4 py-1.5 rounded-full'>
+                          Inactive
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className='px-2.5 py-5 border-b border-b-black/20'>
+                    <div className='flex items-center justify-between'>
+                      <p className='text-black text-sm font-medium font-inter'>
+                        Experience In {data?.employee_info?.organization_name}:
+                      </p>
+                      <span className='text-sm font-medium font-inter text-black text-nowrap rounded-full'>
+                        {getTotalExperience(data?.employee_info?.joining_date)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className='px-2.5 py-5 border-b border-b-black/20'>
+                    <div className='flex items-center justify-between'>
+                      <p className='text-black text-sm font-medium font-inter'>
+                        Employee Type:
+                      </p>
+                      <span className='text-sm font-medium font-inter text-black text-nowrap rounded-full'>
+                        {data?.employee_info?.employee_type}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+                {data?.social_link?.length !== 0 && (
+                  <div className='w-full py-4 border-t border-t-black/20 px-3'>
+                    <p className='text-sm text-black/60 font-inter font-medium pb-2'>
+                      Social Links
+                    </p>
+                    <div className='flex flex-wrap items-stretch gap-1.5 justify-start'>
+                      {isFetching ? (
+                        <>
+                          {Array.from({ length: 5 }).map((_, index) => (
+                            <Skeleton
+                              height={38}
+                              width={38}
+                              borderRadius={6}
+                              key={index}
+                            />
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          {data?.social_link?.map((link) => (
+                            <a
+                              key={link?.id}
+                              href={link?.link}
+                              target={link?.target_blank ? '_blank' : '_self'}
+                              className='p-2 border border-black/20 flex rounded-md hover:bg-black/10 transition-all'
+                            >
+                              <span
+                                className='text-black w-5 h-5 inline-block full-width-svg'
+                                dangerouslySetInnerHTML={{ __html: link?.icon }}
+                              ></span>
+                            </a>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

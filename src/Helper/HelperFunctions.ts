@@ -326,3 +326,32 @@ export const formateDate = (
 
   return formattedDate;
 };
+
+export const getTotalExperience = (dateString: string) => {
+  const joiningDate = new Date(dateString);
+  const currentDate = new Date();
+
+  let year = currentDate?.getFullYear() - joiningDate?.getFullYear();
+
+  let months = currentDate?.getMonth() - joiningDate?.getMonth();
+
+  let day = currentDate?.getDate() - joiningDate?.getDate();
+
+  if (day < 0) {
+    months--;
+    const previousMonth = new Date(
+      currentDate?.getFullYear(),
+      currentDate?.getMonth(),
+      0
+    );
+
+    day += previousMonth?.getDate();
+  }
+
+  if (months < 0) {
+    year--;
+    months += 12;
+  }
+
+  return `${year}Y ${months}M ${day}D`;
+};

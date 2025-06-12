@@ -100,6 +100,16 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
         value: 'Non Technical',
         type: FilterFieldsTypeEnums[2],
       },
+      {
+        label: 'support',
+        value: 'Support',
+        type: FilterFieldsTypeEnums[2],
+      },
+      {
+        label: 'management',
+        value: 'Management',
+        type: FilterFieldsTypeEnums[2],
+      },
     ], // No options for text filters
   },
   {

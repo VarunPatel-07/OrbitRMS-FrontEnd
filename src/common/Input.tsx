@@ -37,7 +37,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const updateValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = e.target.value;
       const basicRegex = /^[^|+=:;?]*$/;
-      
+
       if (!setValue) return;
       switch (type) {
         case 'url':
@@ -77,6 +77,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               styleDropdownButton='h-full bg-slate-100/[50] rounded-l-lg rounded-r-none border border-black/45  border-r-0'
               dropdownPosition={countryDropDownPosition}
               maxHeight={countryDropDownMaxHeight || 100}
+              minWidth={300}
             />
           )}
           <div

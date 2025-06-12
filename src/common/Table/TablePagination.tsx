@@ -12,30 +12,59 @@ function TablePagination({
   selectedPage,
   setSelectedPage,
   totalPage,
+  clickOnPaginationVal,
+  handelClickOnDroDownVal,
 }: {
   paginationDropDownArray: Array<number | string>;
   recordsPerPage: number | string;
-  setRecordsPerPage: React.Dispatch<SetStateAction<number | string>>;
+  setRecordsPerPage?: React.Dispatch<SetStateAction<number | string>>;
   selectedPage: number;
-  setSelectedPage: React.Dispatch<SetStateAction<number>>;
+  setSelectedPage?: React.Dispatch<SetStateAction<number>>;
   totalPage: number;
+  clickOnPaginationVal?: (value: number) => void;
+  handelClickOnDroDownVal?: (value: number) => void;
 }) {
   const derivedPaginationArray = returnPaginationRang(
     totalPage,
     selectedPage,
     1
   );
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handelDropDownClick = (value: any) => {
+    if (handelClickOnDroDownVal) {
+      handelClickOnDroDownVal(value as number);
+    } else {
+      if (setRecordsPerPage) setRecordsPerPage(value);
+    }
+  };
   const handelPaginationButtonClick = (value: number) => {
-    setSelectedPage(value);
+    if (clickOnPaginationVal) {
+      clickOnPaginationVal(value);
+    } else {
+      if (setSelectedPage) setSelectedPage(value);
+    }
   };
   const handelPreviousButton = () => {
-    if (selectedPage !== 1) {
-      setSelectedPage(selectedPage - 1);
+    if (clickOnPaginationVal) {
+      if (selectedPage !== 1) {
+        clickOnPaginationVal(selectedPage - 1);
+      }
+    } else {
+      if (selectedPage !== 1) {
+        if (setSelectedPage) setSelectedPage(selectedPage - 1);
+      }
     }
   };
   const handelNextPage = () => {
-    if (selectedPage < totalPage) {
-      setSelectedPage(selectedPage + 1);
+    if (clickOnPaginationVal) {
+      if (selectedPage < totalPage) {
+        clickOnPaginationVal(selectedPage + 1);
+      }
+    } else {
+      if (selectedPage < totalPage) {
+        if (setSelectedPage) setSelectedPage(selectedPage + 1);
+      }
     }
   };
 
@@ -48,10 +77,11 @@ function TablePagination({
           </p>
           <DropDown
             dropDownSelectedValue={recordsPerPage}
-            setDropDownSelectedValue={setRecordsPerPage}
+            setDropDownSelectedValue={handelDropDownClick}
             dropdownMenuArray={paginationDropDownArray}
             dropdownPosition='top'
             maxHeight={100}
+            minWidth={64}
           />
         </div>
         <div className='w-fit'>

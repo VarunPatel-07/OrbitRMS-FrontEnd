@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { FaRegCircleCheck } from 'react-icons/fa6';
 import { IoCloseCircleOutline, IoEye } from 'react-icons/io5';
 import { MdModeEdit } from 'react-icons/md';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
@@ -222,8 +222,12 @@ function EmployeeListing() {
               profilePicture={data?.reporting_manager?.profile_picture}
             />
             <div className='w-fit'>
-              <span className='flex items-center justify-start gap-1'>
-                <span className='font-inter text-sm font-medium text-nowrap text-black'>
+              <Link
+                to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${data?.reporting_to_id}/employee-details`}
+                className='flex items-center justify-start gap-1 text-black hover:text-[#3538CD]'
+                target='_blank'
+              >
+                <span className='font-inter text-sm font-medium text-nowrap'>
                   {data?.reporting_manager?.full_name ||
                     data?.reporting_manager?.first_name +
                       ' ' +
@@ -231,10 +235,10 @@ function EmployeeListing() {
                       ' ' +
                       data?.reporting_manager?.last_name}
                 </span>
-                <span className='font-inter text-sm font-medium text-nowrap text-black'>
+                <span className='font-inter text-sm font-medium text-nowrap'>
                   ({data?.reporting_manager?.employee_code})
                 </span>
-              </span>
+              </Link>
             </div>
           </div>
         </div>
@@ -361,7 +365,8 @@ function EmployeeListing() {
     }, 0);
   };
 
-  const handelClickOnRecordPerPage = (record_per_page: number) => {
+  const handelClickOnRecordPerPage = (value: string | number) => {
+    setRecordsPerPage(value);
     const filterQuery = queryParameter.get('filter');
     let queryString = '';
     if (filterQuery) {
@@ -370,7 +375,21 @@ function EmployeeListing() {
       queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
     }
     setIsFetchingData(true);
-    fetchAllEmployeeWithDebounce(queryString, 1, record_per_page);
+    fetchAllEmployeeWithDebounce(queryString, 1, value);
+  };
+
+  const handelClickOnPaginationButtons = (value: number) => {
+    setSelectedPage(value);
+
+    const filterQuery = queryParameter.get('filter');
+    let queryString = '';
+    if (filterQuery) {
+      const decodeQuery = decodeURIComponent(filterQuery);
+      const parsedFilter = JSON.parse(decodeQuery);
+      queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
+    }
+    setIsFetchingData(true);
+    fetchAllEmployeeWithDebounce(queryString, value, recordsPerPage);
   };
   //
   // ? This UseEffect Which Is Being Render For Only One Time
@@ -439,9 +458,9 @@ function EmployeeListing() {
                       <TablePagination
                         paginationDropDownArray={dropdownMenuArray}
                         recordsPerPage={recordsPerPage}
-                        setRecordsPerPage={setRecordsPerPage}
+                        handelClickOnDroDownVal={handelClickOnRecordPerPage}
+                        clickOnPaginationVal={handelClickOnPaginationButtons}
                         selectedPage={selectedPage}
-                        setSelectedPage={setSelectedPage}
                         totalPage={metaData?.total_pages}
                       />
                     </>

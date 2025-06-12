@@ -1,10 +1,10 @@
- 
 import { endpointObject, multipleFetchApi } from './api/multipleAPI';
 
 export interface countryObject {
   country_flag: string;
   country_name: string;
   country_code: string;
+  country_number_code: string;
 }
 export const countryDataApiHelper = async (): Promise<
   Array<countryObject> | undefined

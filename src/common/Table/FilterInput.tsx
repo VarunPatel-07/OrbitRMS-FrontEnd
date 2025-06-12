@@ -318,7 +318,7 @@ function FilterInput({
   }, []);
 
   return (
-    <div className='w-full hhhhh relative' ref={boxRef}>
+    <div className='w-full relative' ref={boxRef}>
       <div className='flex items-stretch flex-wrap justify-start rounded-lg relative bg-white pr-7'>
         {selectedFilterObject.length > 0 && (
           <div className='w-fit py-1 pl-1 flex flex-wrap gap-2 h-full'>
