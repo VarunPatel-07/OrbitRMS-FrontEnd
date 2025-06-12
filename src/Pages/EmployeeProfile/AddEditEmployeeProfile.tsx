@@ -8,8 +8,9 @@ import {
   MdOutlineFileUpload,
 } from 'react-icons/md';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
-import { useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import Breadcrumbs from '../../common/Breadcrumbs';
 import CommonDatePicker from '../../common/CommonDatePicker';
 import DragAndDropFileUploader from '../../common/DragDropUploader/DragAndDropFileUploader';
 import IconPicker from '../../common/IconPicker';
@@ -169,6 +170,8 @@ const initialCountryInfo: CountryDataInterface = {
 
 export default function AddEditEmployeeProfile() {
   const { type: moduleType, id: employee_id } = useParams();
+
+  const navigate = useNavigate();
 
   const { GlobalStateProvider, setGlobalStateProvider } = useContext(
     GlobalStateContext
@@ -641,6 +644,10 @@ export default function AddEditEmployeeProfile() {
             user: _res.data,
           }));
         }
+
+        navigate(
+          `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/employee-listing`
+        );
       } else {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
@@ -663,6 +670,9 @@ export default function AddEditEmployeeProfile() {
       if (res?.success) {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
+        navigate(
+          `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/employee-listing`
+        );
       } else {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
@@ -941,6 +951,8 @@ export default function AddEditEmployeeProfile() {
         social_link: updatedLinks,
       } as AddEditUserProfileInterFace; // 👈 Ensures full compatibility
     });
+
+    console.log(name, value);
   };
 
   const handelClickOnTargetBlockButton = (index: number) => {
@@ -2218,132 +2230,128 @@ export default function AddEditEmployeeProfile() {
           <div className='w-full'>
             <div className='p-6 w-full'>
               <div className='w-full'>
-                <div className='w-full'>
-                  {formData?.social_link?.map((link, index) => (
-                    <>
-                      <div
-                        className='flex items-start justify-start gap-3'
-                        key={index + link?.id + index}
-                      >
-                        <div className='flex flex-col items-start justify-start'>
-                          <span
-                            className={classNames(
-                              'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
-                              {
-                                'opacity-0': index !== 0,
+                {formData?.social_link?.map((link, index) => (
+                  <React.Fragment key={index}>
+                    <div
+                      className='flex items-start justify-start gap-3'
+                      key={index}
+                    >
+                      <div className='flex flex-col items-start justify-start'>
+                        <span
+                          className={classNames(
+                            'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
+                            {
+                              'opacity-0': index !== 0,
+                            }
+                          )}
+                        >
+                          Icon & Name
+                        </span>
+                        <div className='flex items-stretch justify-start w-fit gap-2'>
+                          <div className='w-fit flex flex-col items-start justify-start'>
+                            <IconPicker
+                              selectedIcon={link?.icon}
+                              position='top'
+                              onSelectValBtn={(data) =>
+                                handleSelectedIcon(data, index)
                               }
-                            )}
-                          >
-                            Icon & Name
-                          </span>
-                          <div className='flex items-stretch justify-start w-fit gap-2'>
-                            <div className='w-fit flex flex-col items-start justify-start'>
-                              <IconPicker
-                                selectedIcon={link?.icon}
-                                position='top'
-                                onSelectValBtn={(data) =>
-                                  handleSelectedIcon(data, index)
-                                }
-                                showError={isEmptySocialLink[index]}
-                                errorMessage={
-                                  link?.icon ? '' : 'This Is An Required Field'
-                                }
-                              />
-                            </div>
-                            <div className='w-fit flex flex-col items-start justify-start'>
-                              <Input
-                                type='text'
-                                value={link?.name}
-                                className='border border-black/45'
-                                name='name'
-                                onChange={(e) =>
-                                  handelSocialLinkChange(e, index)
-                                }
-                                showError={isEmptySocialLink[index]}
-                                errorMessage={
-                                  !link?.name ? 'This Is An Required Field' : ''
-                                }
-                              />
-                            </div>
+                              showError={isEmptySocialLink[index]}
+                              errorMessage={
+                                link?.icon ? '' : 'This Is An Required Field'
+                              }
+                            />
                           </div>
-                        </div>
-                        <div className='flex flex-col items-start justify-start flex-grow'>
-                          <span
-                            className={classNames(
-                              'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
-                              {
-                                'opacity-0': index !== 0,
-                              }
-                            )}
-                          >
-                            Link
-                          </span>
-                          <div className='items-stretch justify-start w-full gap-2'>
+                          <div className='w-fit flex flex-col items-start justify-start'>
                             <Input
                               type='text'
-                              value={link?.link}
+                              value={link?.name || ''}
                               className='border border-black/45'
-                              name='link'
+                              name='name'
                               onChange={(e) => handelSocialLinkChange(e, index)}
                               showError={isEmptySocialLink[index]}
                               errorMessage={
-                                !link?.link ? 'This Is An Required Field' : ''
+                                !link?.name ? 'This Is An Required Field' : ''
                               }
                             />
                           </div>
                         </div>
-                        <div className='flex flex-col items-start justify-start'>
-                          <span className='pb-2 font-inter text-black/65 text-sm px-1 inline-block opacity-0'>
-                            Link
-                          </span>
-                          <div className='flex items-stretch justify-end gap-2'>
-                            <button
-                              type='button'
-                              className={classNames(
-                                'relative inline-block min-w-10 min-h-10 rounded-lg cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)]',
-                                {
-                                  'border border-black/[.65] bg-white':
-                                    !formData?.social_link[index]?.target_blank,
-                                  'border border-[var(--them-pink-color)] bg-[rgba(215,139,159,0.2)]':
-                                    formData?.social_link[index]?.target_blank,
-                                }
-                              )}
-                              onClick={() =>
-                                handelClickOnTargetBlockButton(index)
-                              }
-                            >
-                              {formData?.social_link[index]?.target_blank && (
-                                <span className='flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all'>
-                                  <FaCheck className='w-5 h-5' />
-                                </span>
-                              )}
-                            </button>
-                            {index !== 0 && (
-                              <button
-                                className='bg-rose-100 w-10 rounded-lg flex items-center justify-center border border-rose-500 text-black text-xl'
-                                onClick={() => removeTheSpecificLink(index)}
-                              >
-                                <MdDelete />
-                              </button>
-                            )}
-                          </div>
+                      </div>
+                      <div className='flex flex-col items-start justify-start flex-grow'>
+                        <span
+                          className={classNames(
+                            'pb-2 font-inter text-black/65 text-sm px-1 inline-block',
+                            {
+                              'opacity-0': index !== 0,
+                            }
+                          )}
+                        >
+                          Link
+                        </span>
+                        <div className='items-stretch justify-start w-full gap-2'>
+                          <Input
+                            type='text'
+                            value={link?.link || ''}
+                            className='border border-black/45'
+                            name='link'
+                            onChange={(e) => handelSocialLinkChange(e, index)}
+                            showError={isEmptySocialLink[index]}
+                            errorMessage={
+                              !link?.link ? 'This Is An Required Field' : ''
+                            }
+                          />
                         </div>
                       </div>
-                      {index === formData.social_link.length - 1 ? (
-                        <div className='button pt-4' key={index + link?.id}>
+                      <div className='flex flex-col items-start justify-start'>
+                        <span className='pb-2 font-inter text-black/65 text-sm px-1 inline-block opacity-0'>
+                          Link
+                        </span>
+                        <div className='flex items-stretch justify-end gap-2'>
                           <button
-                            className='font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg'
-                            onClick={() => handelAddNewEmptySocialLink(index)}
+                            type='button'
+                            className={classNames(
+                              'relative inline-block min-w-10 min-h-10 rounded-lg cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)]',
+                              {
+                                'border border-black/[.65] bg-white':
+                                  !formData?.social_link[index]?.target_blank,
+                                'border border-[var(--them-pink-color)] bg-[rgba(215,139,159,0.2)]':
+                                  formData?.social_link[index]?.target_blank,
+                              }
+                            )}
+                            onClick={() =>
+                              handelClickOnTargetBlockButton(index)
+                            }
                           >
-                            <span>Add Link</span>
+                            {formData?.social_link[index]?.target_blank && (
+                              <span className='flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all'>
+                                <FaCheck className='w-5 h-5' />
+                              </span>
+                            )}
                           </button>
+                          {index !== 0 && (
+                            <button
+                              className='bg-rose-100 w-10 rounded-lg flex items-center justify-center border border-rose-500 text-black text-xl'
+                              onClick={() => removeTheSpecificLink(index)}
+                            >
+                              <MdDelete />
+                            </button>
+                          )}
                         </div>
-                      ) : (
-                        ''
-                      )}
-                    </>
-                  ))}
-                </div>
+                      </div>
+                    </div>
+                    {index === formData.social_link.length - 1 ? (
+                      <div className='button pt-4' key={index + link?.id}>
+                        <button
+                          className='font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg'
+                          onClick={() => handelAddNewEmptySocialLink(index)}
+                        >
+                          <span>Add Link</span>
+                        </button>
+                      </div>
+                    ) : (
+                      ''
+                    )}
+                  </React.Fragment>
+                ))}
               </div>
             </div>
           </div>
@@ -2543,6 +2551,8 @@ export default function AddEditEmployeeProfile() {
       CountryDataRef.current = true;
       const response = await fetchFormattedCountryData();
 
+      console.log(response);
+
       if (response?.success) {
         setCountryOptionsDataArray(response?.countryOptionsData);
 
@@ -2657,9 +2667,15 @@ export default function AddEditEmployeeProfile() {
       ) {
         const data = {
           success: false,
-          message: 'Only Add And Edit Routes Are Allowed',
+          message: 'Only Add/Edit allowed. Redirecting to Employee Page.',
         };
         handelNotification(data, 'top-right');
+        setFetchingTheEmployeeData(true);
+        setTimeout(() => {
+          navigate(
+            `/${GlobalStateProvider.organization?.general_info?.portal_slug}/employee/employee-listing`
+          );
+        }, 2000);
       }
       if (moduleType?.toLocaleLowerCase() == 'edit') {
         if (employee_id) {
@@ -2679,22 +2695,47 @@ export default function AddEditEmployeeProfile() {
     fetchTheUsersProfileInfoWithDebounce,
     handelNotification,
     moduleType,
+    navigate,
   ]);
+
+  const BreadcrumbsObjects = [
+    {
+      name: 'Home',
+      label: 'home',
+      link: `/${organization}/dashboard`,
+    },
+    {
+      name: 'Employees',
+      label: 'employees',
+      link: `/${organization}/employee/employee-listing`,
+    },
+    {
+      name: moduleType == 'edit' ? 'Edit Profile' : 'Add Employee',
+      label: 'employee-profile',
+      link:
+        moduleType == 'edit'
+          ? `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/${moduleType}/${employee_id}`
+          : `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/${moduleType}`,
+    },
+  ];
   return (
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       <div className='w-full h-full relative'>
         <div className='w-full'>
           <div className='w-full h-full flex items-stretch justify-between'>
-            <div className='w-full xl:w-[70%] flex-grow h-[calc(100vh-135px)] hide-scrollbar overflow-auto px-6 flex flex-col gap-6 pt-6 pb-5'>
-              {interSectionObserverModules?.map((section, index) => (
-                <div
-                  className='w-full'
-                  key={section?.id}
-                  ref={(el) => (multipleSectionRef.current[index] = el)}
-                >
-                  {section?.module}
-                </div>
-              ))}
+            <div className='w-full xl:w-[70%] flex-grow relative'>
+              <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+              <div className='h-[calc(100vh-135px)] hide-scrollbar overflow-auto px-6 flex flex-col gap-6 pt-16 pb-5'>
+                {interSectionObserverModules?.map((section, index) => (
+                  <div
+                    className='w-full'
+                    key={section?.id}
+                    ref={(el) => (multipleSectionRef.current[index] = el)}
+                  >
+                    {section?.module}
+                  </div>
+                ))}
+              </div>
             </div>
             <div className='hidden xl:w-[30%] max-w-[300px] xl:block bg-white border-l border-l-black/15'>
               <div className='w-1/2 m-auto h-full flex flex-col justify-start items-stretch py-10'>
@@ -2765,21 +2806,27 @@ export default function AddEditEmployeeProfile() {
         </div>
         <div className='w-full bg-white px-4 py-3 mt-2 flex items-center justify-between gap-2'>
           <div className='w-full max-w-[60%] '>
-            <p className='font-inter text-lg font-medium capitalize text-black whitespace-nowrap flex items-center justify-start gap-1.5'>
-              <span>Editing profile -</span>
-              {fetchingTheEmployeeData ? (
-                <Skeleton
-                  width={200}
-                  height={18}
-                  borderRadius={4}
-                  className='inline-block'
-                />
-              ) : (
-                <span className='font-bold text-[var(--them-orange-color)] w-full max-w-[300px] overflow-hidden text-ellipsis inline-block'>
-                  {formData?.personal_info?.full_name}
-                </span>
-              )}
-            </p>
+            {moduleType == 'edit' ? (
+              <p className='font-inter text-lg font-medium capitalize text-black whitespace-nowrap flex items-center justify-start gap-1.5'>
+                <span>Editing profile -</span>
+                {fetchingTheEmployeeData ? (
+                  <Skeleton
+                    width={200}
+                    height={18}
+                    borderRadius={4}
+                    className='inline-block'
+                  />
+                ) : (
+                  <span className='font-bold text-[var(--them-orange-color)] w-full max-w-[300px] overflow-hidden text-ellipsis inline-block'>
+                    {formData?.personal_info?.full_name}
+                  </span>
+                )}
+              </p>
+            ) : (
+              <p className='font-inter text-lg font-medium capitalize text-black whitespace-nowrap flex items-center justify-start gap-1.5'>
+                <span>Add Employee</span>
+              </p>
+            )}
           </div>
           <div className='flex items-center gap-4 w-full justify-end'>
             {fetchingTheEmployeeData ? (
@@ -2790,9 +2837,12 @@ export default function AddEditEmployeeProfile() {
                 className='inline-block'
               />
             ) : (
-              <button className='text-[var(--them-green-color)] py-2.5 px-14 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 transition-all w-fit'>
+              <Link
+                to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/employee-listing`}
+                className='text-[var(--them-green-color)] py-2.5 px-14 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 transition-all w-fit'
+              >
                 Cancel
-              </button>
+              </Link>
             )}
             {fetchingTheEmployeeData ? (
               <Skeleton
@@ -2809,8 +2859,10 @@ export default function AddEditEmployeeProfile() {
               >
                 {formSubmitLoader ? (
                   <Loader loaderText='Updating....' />
-                ) : (
+                ) : moduleType == 'edit' ? (
                   <span>Update</span>
+                ) : (
+                  <span>Submit</span>
                 )}
               </button>
             )}

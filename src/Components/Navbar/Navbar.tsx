@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import OrbitRMSLogo from '../../assets/Images/orbitrms-final-logo-transperent.webp';
@@ -20,6 +20,9 @@ function Navbar() {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
+
+  const dropDownModalRef = useRef<HTMLDivElement>(null);
+
   const [showNavBarDropDown, setShowNavBarDropDown] = useState<boolean>(false);
   const NavbarProfileDropDown: NavbarProfileDropDownInterface[] = [
     {
@@ -42,6 +45,21 @@ function Navbar() {
     },
   ];
 
+  useEffect(() => {
+    const handelClickOutSide = (event: MouseEvent) => {
+      if (
+        dropDownModalRef.current &&
+        !dropDownModalRef.current.contains(event.target as Node)
+      ) {
+        setShowNavBarDropDown(false);
+      }
+    };
+    document.addEventListener('mousedown', handelClickOutSide);
+    return () => {
+      document.removeEventListener('mousedown', handelClickOutSide);
+    };
+  });
+
   return (
     <div className='w-full min-h-14 flex items-center justify-between border-b border-b-black/20'>
       <div className='h-full flex w-fit gap-3'>
@@ -54,6 +72,7 @@ function Navbar() {
           />
         </div>
       </div>
+
       <div className='w-fit relative'>
         <div className='profile-picture pr-4'>
           <button
@@ -78,6 +97,7 @@ function Navbar() {
               'scale-y-100 opacity-100': showNavBarDropDown,
             }
           )}
+          ref={dropDownModalRef}
         >
           <ul className='w-full h-full bg-white border border-black/15 shadow-xl rounded-lg overflow-hidden'>
             {NavbarProfileDropDown.map((item, index) => (

@@ -80,6 +80,7 @@ export interface AddEditUserProfileInterFace {
 }
 
 export interface UserProfileInformationInterface {
+  account_status: boolean;
   personal_info: {
     first_name: string;
     middle_name: string;

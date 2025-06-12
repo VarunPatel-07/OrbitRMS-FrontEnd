@@ -55,3 +55,5 @@ export const employeeTypesArray = [
   'Non-Technical',
   'Management',
 ];
+
+export const dropdownMenuArray = [10, 25, 50, 100];

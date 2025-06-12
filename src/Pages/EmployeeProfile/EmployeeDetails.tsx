@@ -1,9 +1,15 @@
+import { useContext } from 'react';
 import { LuUser } from 'react-icons/lu';
 import { MdOutlineEmail } from 'react-icons/md';
+import { Link } from 'react-router-dom';
 
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
 import EmployeeProfileSkeletonLoader from '../../Components/Loader/EmployeeProfileSkeletonLoader';
 import { AlignableForChildInfo } from '../../constant/constant';
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../Context/globalState/GlobalStateContectApi';
 import { formateDate } from '../../Helper/HelperFunctions';
 import {
   AddressModuleInterface,
@@ -32,7 +38,7 @@ const InfoField = ({
     )}
 
     {renderDate && default_dateformat ? (
-      <p className='text-base text-black font-inter font-medium'>
+      <p className='text-sm text-black/65 font-inter font-medium'>
         {value ? formateDate(value as string, default_dateformat, false) : '-'}
       </p>
     ) : (
@@ -49,6 +55,9 @@ function EmployeeDetails(props: {
   organizationInfo: Organization;
 }) {
   const { data, isFetching, organizationInfo } = props;
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
   // This are The Bunch Of Function That Help To Render The components
   // * ------ Start Of The Function That Help In The Rendering -----
   //
@@ -66,9 +75,12 @@ function EmployeeDetails(props: {
                   <span className='text-sm font-inter font-normal text-black/60 pb-0.5 inline-block'>
                     Email Address
                   </span>
-                  <p className='text-base text-black font-inter font-medium w-full text-ellipsis overflow-hidden'>
+                  <Link
+                    to={`mailto:${data?.employee_info?.employee_email}`}
+                    className='text-base text-black font-inter font-medium w-full text-ellipsis overflow-hidden hover:text-[#3538CD] block'
+                  >
                     {data?.employee_info?.employee_email || '-'}
-                  </p>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -103,7 +115,11 @@ function EmployeeDetails(props: {
                     Reporting Manager
                   </span>
                   {data?.employee_info?.reporting_manager?.first_name ? (
-                    <p className='text-base text-black font-inter font-medium'>
+                    <Link
+                      to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${data?.employee_info?.reporting_manager?.id}/employee-details`}
+                      className='text-base text-black font-inter font-medium block hover:text-[#3538CD]'
+                      target='_blank'
+                    >
                       {data?.employee_info?.reporting_manager?.full_name
                         ? data?.employee_info?.reporting_manager?.full_name
                         : data?.employee_info?.reporting_manager?.first_name +
@@ -111,7 +127,7 @@ function EmployeeDetails(props: {
                           data?.employee_info?.reporting_manager?.middle_name +
                           ' ' +
                           data?.employee_info?.reporting_manager?.last_name}
-                    </p>
+                    </Link>
                   ) : (
                     <p className='text-base text-black font-inter font-medium'>
                       -
@@ -294,7 +310,7 @@ function EmployeeDetails(props: {
           </div>
           <div className='w-full'>
             <div className='flex w-full gap-2 items-center pb-2 pt-6'>
-              <div className='grid grid-cols-2 w-full gap-2.5'>
+              <div className='grid grid-cols-2 w-full gap-5'>
                 <p className='text-base font-inter font-medium text-black pb-1 inline-block'>
                   Emergency Contact Name
                 </p>

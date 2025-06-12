@@ -29,7 +29,7 @@ function SideBar() {
 
   return (
     <div
-      className={`h-full bg-[var(--them-green-color)] text-white flex flex-col  transition-all duration-300  ${
+      className={`h-full bg-white text-white flex flex-col  transition-all duration-300 border-r border-r-black/20  ${
         collapsed ? 'max-w-[60px] min-w-[60px]' : 'min-w-[240px] max-w-[250px]'
       }`}
     >
@@ -39,27 +39,29 @@ function SideBar() {
             {SidebarMenuItemsArray.map((item: SidebarMenuItemInterface) => (
               <li
                 key={item.id}
-                className={`w-full group relative rounded-md ${
+                className={`w-full group relative rounded-md transition-all ${
                   navigation.pathname.includes(
                     item?.name.toLocaleLowerCase() == 'config'
                       ? '/config'
                       : item?.link
                   )
-                    ? 'bg-[#4f7a63]'
-                    : 'hover:bg-[#2f4c3d]'
+                    ? 'bg-[#4f7a63] text-white'
+                    : 'hover:bg-[#4f7a63] text-black hover:text-white'
                 }`}
               >
                 <Link
                   to={item.link}
-                  className={`w-full overflow-hidden flex gap-3 py-2.5 transition-all font-inter text-white ${
+                  className={`w-full overflow-hidden flex gap-3 py-2.5 font-inter ${
                     collapsed ? 'px-[12px]' : 'px-4'
                   }`}
                   data-tooltip-id={item.label}
                   data-tooltip-content={item.ToolTipValue}
                 >
-                  <span className='font-medium text-white'>{item.icon}</span>
+                  <span className='font-medium min-w-6 w-6 h-6 flex items-center justify-center'>
+                    {item.icon}
+                  </span>
                   <span
-                    className={`transition-all inline-block text-nowrap text-white ${
+                    className={`inline-block text-nowrap transition-opacity ${
                       collapsed
                         ? 'px-4 opacity-0'
                         : 'px-0 opacity-100 text-base font-medium'
@@ -73,7 +75,7 @@ function SideBar() {
                   <Tooltip
                     id={item.label}
                     opacity={'100'}
-                    className='z-[15] bg-white'
+                    className='z-[50] bg-white'
                   />
                 )}
               </li>
@@ -82,7 +84,7 @@ function SideBar() {
         </div>
         <div className='w-full relative z-50'>
           <button
-            className={`w-full flex items-center border-t-[1px] border-t-slate-500 backdrop-blur bg-[#00000029] hover:bg-[#00000050] transition-all duration-500  py-3 flex-nowrap overflow-hidden text-white ${
+            className={`w-full flex items-center border-t border-t-black/20 backdrop-blur bg-gray-100 hover:bg-gray-200 transition-all duration-500  py-3 flex-nowrap overflow-hidden text-black ${
               collapsed ? 'px-4 justify-start' : 'px-6 justify-center'
             }`}
             onClick={handelSidebarCollapse}

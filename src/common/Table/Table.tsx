@@ -21,13 +21,15 @@ function Table({
   // Example data
 
   return (
-    <div className={`overflow-auto ${tableWrapperClass} hide-scrollbar`}>
+    <div
+      className={`overflow-auto ${tableWrapperClass} hide-scrollbar border border-black/10 border-t-0`}
+    >
       <table className='table-auto border-collapse w-full relative'>
         <thead>
           <tr className={`${stickyHeaderClass} shadow z-30`}>
-            {columns.map((column) => (
+            {columns.map((column, index) => (
               <th
-                key={column.key}
+                key={`${Math.random()}-row-${index}`}
                 className={classNames(
                   'px-6 py-2.5 text-left bg-[#eef0f4] text-black',
                   {
@@ -57,16 +59,16 @@ function Table({
         </thead>
         <tbody>
           {data.map((row: any, index: number) => (
-            <tr key={row.id} className='group relative'>
+            <tr key={Math.random() * index} className='group relative'>
               {columns.map((column) => {
                 return (
                   <td
-                    key={column.key}
+                    key={`row-${Math.random() * Math.random()}`}
                     className={classNames(
                       'bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointe min-w-[220px]',
                       {
                         'border-b border-b-black/10':
-                          data?.length !== index + 1,
+                          data?.length === 1 || data?.length !== index + 1,
                         'min-w-fit sticky right-0 shadow-2xl bg-white border-0':
                           column?.key == 'action' && column?.isSticky,
                         'min-w-fit relative border-0':
@@ -77,9 +79,6 @@ function Table({
                     {column?.key == 'action' && (
                       <>
                         <span className='w-[1px] h-full bg-black/15 inline-block top-0 left-0 absolute'></span>
-                        {index != 0 && (
-                          <span className='w-full h-[1px] bg-black/15 inline-block top-0 left-0 absolute'></span>
-                        )}
                       </>
                     )}
                     {column?.key == 'action'

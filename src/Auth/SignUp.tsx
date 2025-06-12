@@ -25,6 +25,7 @@ import {
   clearLocalSessionStorage,
   formateAndVerifyPhoneNumber,
   isValidEmail,
+  verifyPhoneNumberLength,
 } from '../Helper/HelperFunctions';
 import { signUpForm } from '../interface/funcParamInterface';
 
@@ -103,6 +104,7 @@ function SignUp() {
   const [countryOptionsDataArray, setCountryOptionsDataArray] = useState<
     Array<countryObject>
   >([]);
+  const [mobileVerified, setMobileVerified] = useState<boolean>(true);
 
   const handleMoveToNextPage = () => {
     if (formData?.organizationName?.trim() === '') {
@@ -115,7 +117,19 @@ function SignUp() {
 
   const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (formData.contactNumber?.trim() != '' && termsAccepted == 'true') {
+    const is_verified = verifyPhoneNumberLength(
+      formData.contactNumber?.trim(),
+      dropDownSelectedValue
+        ? JSON.parse(dropDownSelectedValue as string)?.country_code
+        : 'IN'
+    );
+    if (!is_verified) {
+      setMobileVerified(false);
+    } else {
+      setMobileVerified(true);
+    }
+
+    if (is_verified && termsAccepted == 'true') {
       setLoading(true);
       const data: signUpForm = {
         organizationName: formData.organizationName,
@@ -255,7 +269,10 @@ function SignUp() {
                 : 'IN'
             )}
             onChange={(e) => handelInputFieldChange(e)}
-            showError={showErrorPageTwo && formData.contactNumber?.trim() == ''}
+            showError={
+              (showErrorPageTwo && formData.contactNumber?.trim() == '') ||
+              !mobileVerified
+            }
             countryDropDownPosition='bottom'
             dropDownSelectedValue={
               dropDownSelectedValue
@@ -265,11 +282,13 @@ function SignUp() {
             }
             setDropDownSelectedValue={setDropDownSelectedValue}
             errorMessage={
-              showErrorPageTwo
+              showErrorPageTwo && mobileVerified
                 ? formData?.contactNumber?.trim() === ''
                   ? 'This field is required.'
                   : ''
-                : ''
+                : !mobileVerified
+                  ? 'Please Enter valid Phone No'
+                  : ''
             }
             countryOptionsData={countryOptionsDataArray}
           />

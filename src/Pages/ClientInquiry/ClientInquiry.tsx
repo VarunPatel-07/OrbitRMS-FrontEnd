@@ -1,4 +1,3 @@
- 
 import { useState } from 'react';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
@@ -7,14 +6,14 @@ import TableInfoHeader from '../../common/Table/TableInfoHeader';
 import TablePagination from '../../common/Table/TablePagination';
 import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoader';
 import DeleteModal from '../../Components/Modal/DeleteModal';
+import { dropdownMenuArray } from '../../constant/constant';
 import HelmetSeo from '../../Helper/HelmetSeo';
+import { clientInquiryFiltersArray } from './ClientInquiryFilters';
 
 const BreadcrumbsObjects = [
   { name: 'Home', label: 'home', link: '/home' },
   { name: 'Client Inquiry', label: 'client-inquiry', link: '/client-inquiry' },
 ];
-
-const dropdownMenuArray = [10, 25, 50, 100];
 
 function ClientInquiry() {
   const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
@@ -39,7 +38,10 @@ function ClientInquiry() {
                   moduleName='Client Inquiry'
                   badgeValue='1-10 of 14 Inquiries'
                 />
-                <TableFilterSearchBar />
+                <TableFilterSearchBar
+                  filterColumnsArray={clientInquiryFiltersArray}
+                  handelApplyFilterFunc={() => {}}
+                />
                 {/* <Table
                   columns={columns}
                   data={data}
