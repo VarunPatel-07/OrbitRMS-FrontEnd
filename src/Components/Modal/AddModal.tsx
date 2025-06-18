@@ -1,7 +1,6 @@
 import React, { SetStateAction, useEffect, useRef, useState } from 'react';
 import { FaStarOfLife } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
-import { trim } from 'lodash';
 
 import ColorPicker from '../../common/ColorPicker';
 import Input from '../../common/Input';
