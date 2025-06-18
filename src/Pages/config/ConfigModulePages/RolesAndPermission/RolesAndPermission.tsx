@@ -144,6 +144,18 @@ function RolesAndPermission() {
       ),
     },
     {
+      key: 'employees',
+      title: 'Employee',
+      isSortable: true,
+      isSticky: false,
+      canToggleVisibility: true,
+      renderContent: (data: any) => (
+        <span className='w-fit font-inter text-sm font-medium inline-block'>
+          {data}
+        </span>
+      ),
+    },
+    {
       key: 'description',
       title: 'Description',
       isSortable: false,

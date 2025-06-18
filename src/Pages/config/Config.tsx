@@ -7,6 +7,7 @@ import {
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
+import ClientFormSchema from './ConfigModulePages/ClientFormSchema';
 import AttachmentTypes from './ConfigModulePages/Department';
 import Designations from './ConfigModulePages/Designations';
 import ProjectStatus from './ConfigModulePages/ProjectStatus';
@@ -22,9 +23,7 @@ function Config() {
     GlobalStateContext
   ) as GlobalStateContextApiProps;
   const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_url.split(
-      'https://orbitrms.com/'
-    )[1];
+    GlobalStateProvider?.organization?.general_info?.portal_slug;
 
   useEffect(() => {
     if (location.pathname == `/${organization}/config`) {
@@ -60,6 +59,10 @@ function Config() {
             <Route
               path='/roles-permission/:id'
               element={<ProtectedRoute element={<ViewPermissions />} />}
+            />
+            <Route
+              path='/client-form'
+              element={<ProtectedRoute element={<ClientFormSchema />} />}
             />
             <Route path='*' element={<PageNotFound />} />
           </Routes>

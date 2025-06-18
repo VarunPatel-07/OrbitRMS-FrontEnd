@@ -47,6 +47,7 @@ import {
 } from '../../Helper/countryDataHelper';
 import {
   classNames,
+  compareTwoNestedObject,
   formateAndVerifyPhoneNumber,
 } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
@@ -129,6 +130,8 @@ const initialState: AddEditUserProfileInterFace = {
       {
         child_date_of_birth: null,
         child_name: '',
+        family_info_id: '',
+        id: '',
       },
     ],
   },
@@ -191,6 +194,8 @@ export default function AddEditEmployeeProfile() {
   const [showEmptyFieldError, setShowEmptyFieldError] =
     useState<boolean>(false);
   const [formData, setFormData] =
+    useState<AddEditUserProfileInterFace>(initialState);
+  const [dummyFormData, setDummyFormData] =
     useState<AddEditUserProfileInterFace>(initialState);
 
   const [countryOptionsDataArray, setCountryOptionsDataArray] = useState<
@@ -594,6 +599,8 @@ export default function AddEditEmployeeProfile() {
             {
               child_date_of_birth: null,
               child_name: '',
+              family_info_id: '',
+              id: '',
             },
           ],
         },
@@ -690,7 +697,7 @@ export default function AddEditEmployeeProfile() {
       setShowEmptyFieldError(true);
     } else {
       if (moduleType?.toLocaleLowerCase() == 'edit') {
-        if (employee_id) {
+        if (employee_id && !compareTwoNestedObject(dummyFormData, formData)) {
           setFormSubmitLoader(true);
           handelEditProfileApiWithDebounce(formData, employee_id);
         }
@@ -951,8 +958,6 @@ export default function AddEditEmployeeProfile() {
         social_link: updatedLinks,
       } as AddEditUserProfileInterFace; // 👈 Ensures full compatibility
     });
-
-    console.log(name, value);
   };
 
   const handelClickOnTargetBlockButton = (index: number) => {
@@ -1891,7 +1896,7 @@ export default function AddEditEmployeeProfile() {
                   {formData?.family_info.children.map((eachChild, index) => (
                     <div
                       className='w-full flex items-stretch justify-start gap-5'
-                      key={index + eachChild?.child_name}
+                      key={index}
                     >
                       <div className='w-full grid grid-cols-2 gap-5'>
                         <div className='w-full'>
@@ -2232,10 +2237,7 @@ export default function AddEditEmployeeProfile() {
               <div className='w-full'>
                 {formData?.social_link?.map((link, index) => (
                   <React.Fragment key={index}>
-                    <div
-                      className='flex items-start justify-start gap-3'
-                      key={index}
-                    >
+                    <div className='flex items-start justify-start gap-3'>
                       <div className='flex flex-col items-start justify-start'>
                         <span
                           className={classNames(
@@ -2421,8 +2423,7 @@ export default function AddEditEmployeeProfile() {
 
       if (res?.success) {
         const data: UserProfileInformationInterface = res?.data;
-        setFormData((prevData) => ({
-          ...prevData,
+        const dataObject = {
           personal_info: {
             ...data?.personal_info,
             date_of_birth: new Date(data?.personal_info.date_of_birth),
@@ -2477,11 +2478,22 @@ export default function AddEditEmployeeProfile() {
           family_info: {
             ...data?.family_info,
             children:
-              data?.family_info?.children?.length != 0
-                ? [{ child_name: '', child_date_of_birth: null }]
+              !data?.family_info?.children ||
+              !Array.isArray(data?.family_info?.children) ||
+              data?.family_info?.children?.length === 0
+                ? [
+                    {
+                      child_name: '',
+                      child_date_of_birth: null,
+                      family_info_id: '',
+                      id: '',
+                    },
+                  ]
                 : data?.family_info?.children?.map((child) => ({
                     child_name: child?.child_name,
                     child_date_of_birth: new Date(child?.child_date_of_birth),
+                    family_info_id: child?.family_info_id,
+                    id: child?.id,
                   })),
           },
           current_address: data?.current_address,
@@ -2507,6 +2519,14 @@ export default function AddEditEmployeeProfile() {
                   },
                 ]
               : data?.social_link,
+        };
+        setFormData((prevData) => ({
+          ...prevData,
+          ...dataObject,
+        }));
+        setDummyFormData((prevData) => ({
+          ...prevData,
+          ...dataObject,
         }));
 
         setFetchingTheEmployeeData(false);
@@ -2550,8 +2570,6 @@ export default function AddEditEmployeeProfile() {
       if (CountryDataRef.current) return;
       CountryDataRef.current = true;
       const response = await fetchFormattedCountryData();
-
-      console.log(response);
 
       if (response?.success) {
         setCountryOptionsDataArray(response?.countryOptionsData);
@@ -2705,8 +2723,8 @@ export default function AddEditEmployeeProfile() {
       link: `/${organization}/dashboard`,
     },
     {
-      name: 'Employees',
-      label: 'employees',
+      name: 'Employee Listing',
+      label: 'employee_listing',
       link: `/${organization}/employee/employee-listing`,
     },
     {
@@ -2855,7 +2873,10 @@ export default function AddEditEmployeeProfile() {
               <button
                 className='text-white bg-[var(--them-green-color)] hover:bg-[var(--them-green-light-color)] w-fit py-2.5 px-14 rounded-lg font-inter text-base font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed'
                 onClick={handelSubmitAndUpdateButton}
-                disabled={formSubmitLoader}
+                disabled={
+                  formSubmitLoader ||
+                  compareTwoNestedObject(dummyFormData, formData)
+                }
               >
                 {formSubmitLoader ? (
                   <Loader loaderText='Updating....' />

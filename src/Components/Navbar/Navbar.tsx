@@ -35,7 +35,7 @@ function Navbar() {
       icon: null,
       label: 'logged-in-devices',
       name: 'Logged In Devices',
-      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}`,
+      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/logged-in-device`,
     },
     {
       icon: null,

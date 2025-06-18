@@ -17,6 +17,7 @@ import {
   UserProfileInformationInterface,
 } from '../../interface/AddEditUserProfileInterFace';
 import EmployeeDetails from './EmployeeDetails';
+import LoggedInDevices from './LoggedInDevices';
 
 // The initialState Of The Data
 const initialState: UserProfileInformationInterface = {
@@ -78,6 +79,8 @@ const initialState: UserProfileInformationInterface = {
       {
         child_date_of_birth: '',
         child_name: '',
+        family_info_id: '',
+        id: '',
       },
     ],
   },
@@ -127,8 +130,8 @@ function EmployeeProfile() {
       link: `/${organization}/dashboard`,
     },
     {
-      name: 'Employees',
-      label: 'employees',
+      name: 'Employee Listing',
+      label: 'employee_listing',
       link: `/${organization}/employee/employee-listing`,
     },
     {
@@ -145,13 +148,17 @@ function EmployeeProfile() {
       label: 'employee_details',
       title: 'Employee Details',
     },
-    {
-      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${employee_id}/logged-in-device`,
-      classNames:
-        'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
-      label: 'logged_in_device',
-      title: 'Logged In Device',
-    },
+    ...(employee_id === GlobalStateProvider?.user?.personal_info?.user_id
+      ? [
+          {
+            link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${employee_id}/logged-in-device`,
+            classNames:
+              'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
+            label: 'logged_in_device',
+            title: 'Logged In Device',
+          },
+        ]
+      : []),
   ];
 
   // * ------- Some Of The Reference That Are Used In This Page ---------------
@@ -213,7 +220,7 @@ function EmployeeProfile() {
         <div className='w-full h-full flex items-stretch justify-start'>
           <div className='w-[30%] max-w-[300px] bg-white border-r border-r-black/20 overflow-auto max-h-[calc(100vh-60px)] hide-scrollbar'>
             <div className='w-full h-full pt-10 pb-4'>
-              <div className='w-full h-full flex flex-col items-center justify-between gap-7'>
+              <div className='w-full h-full flex flex-col items-center justify-between'>
                 <div className='w-full flex flex-col'>
                   <div className='flex flex-col items-center justify-start gap-5 px-2 w-full pb-5 border-b border-b-black/20'>
                     <EmployeeProfilePicture
@@ -289,7 +296,7 @@ function EmployeeProfile() {
                       </span>
                     </div>
                   </div>
-                  <div className='px-2.5 py-5 border-b border-b-black/20'>
+                  <div className='px-2.5 py-5'>
                     <div className='flex items-center justify-between'>
                       <p className='text-black text-sm font-medium font-inter'>
                         Employee Type:
@@ -300,43 +307,41 @@ function EmployeeProfile() {
                     </div>
                   </div>
                 </div>
-                {data?.social_link?.length !== 0 && (
-                  <div className='w-full py-4 border-t border-t-black/20 px-3'>
-                    <p className='text-sm text-black/60 font-inter font-medium pb-2'>
-                      Social Links
-                    </p>
-                    <div className='flex flex-wrap items-stretch gap-1.5 justify-start'>
-                      {isFetching ? (
-                        <>
-                          {Array.from({ length: 5 }).map((_, index) => (
-                            <Skeleton
-                              height={38}
-                              width={38}
-                              borderRadius={6}
-                              key={index}
-                            />
-                          ))}
-                        </>
-                      ) : (
-                        <>
-                          {data?.social_link?.map((link) => (
-                            <a
-                              key={link?.id}
-                              href={link?.link}
-                              target={link?.target_blank ? '_blank' : '_self'}
-                              className='p-2 border border-black/20 flex rounded-md hover:bg-black/10 transition-all'
-                            >
-                              <span
-                                className='text-black w-5 h-5 inline-block full-width-svg'
-                                dangerouslySetInnerHTML={{ __html: link?.icon }}
-                              ></span>
-                            </a>
-                          ))}
-                        </>
-                      )}
-                    </div>
+                <div className='w-full py-4 border-t border-t-black/20 px-3 flex-grow'>
+                  <p className='text-sm text-black/60 font-inter font-medium pb-2'>
+                    Social Links
+                  </p>
+                  <div className='flex flex-wrap items-stretch gap-1.5 justify-start'>
+                    {isFetching ? (
+                      <>
+                        {Array.from({ length: 5 }).map((_, index) => (
+                          <Skeleton
+                            height={38}
+                            width={38}
+                            borderRadius={6}
+                            key={index}
+                          />
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        {data?.social_link?.map((link) => (
+                          <a
+                            key={link?.id}
+                            href={link?.link}
+                            target={link?.target_blank ? '_blank' : '_self'}
+                            className='p-2 border border-black/20 flex rounded-md hover:bg-black/10 transition-all'
+                          >
+                            <span
+                              className='text-black w-5 h-5 inline-block full-width-svg'
+                              dangerouslySetInnerHTML={{ __html: link?.icon }}
+                            ></span>
+                          </a>
+                        ))}
+                      </>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -414,6 +419,19 @@ function EmployeeProfile() {
                       }
                     />
                   ))}
+
+                  <Route
+                    path={'/logged-in-device'}
+                    element={
+                      <ProtectedRoute
+                        element={
+                          <LoggedInDevices
+                            organizationInfo={GlobalStateProvider?.organization}
+                          />
+                        }
+                      />
+                    }
+                  />
                 </Routes>
               </div>
             </div>

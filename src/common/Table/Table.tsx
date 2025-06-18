@@ -29,7 +29,7 @@ function Table({
           <tr className={`${stickyHeaderClass} shadow z-30`}>
             {columns.map((column, index) => (
               <th
-                key={`${Math.random()}-row-${index}`}
+                key={index}
                 className={classNames(
                   'px-6 py-2.5 text-left bg-[#eef0f4] text-black',
                   {
@@ -59,16 +59,14 @@ function Table({
         </thead>
         <tbody>
           {data.map((row: any, index: number) => (
-            <tr key={Math.random() * index} className='group relative'>
-              {columns.map((column) => {
+            <tr key={index} className='group relative'>
+              {columns.map((column, _subIndex) => {
                 return (
                   <td
-                    key={`row-${Math.random() * Math.random()}`}
+                    key={_subIndex}
                     className={classNames(
-                      'bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointe min-w-[220px]',
+                      'bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointe min-w-[220px] border-b border-b-black/10',
                       {
-                        'border-b border-b-black/10':
-                          data?.length === 1 || data?.length !== index + 1,
                         'min-w-fit sticky right-0 shadow-2xl bg-white border-0':
                           column?.key == 'action' && column?.isSticky,
                         'min-w-fit relative border-0':

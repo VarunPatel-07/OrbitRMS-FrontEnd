@@ -4,7 +4,7 @@ function PageNotFound() {
   const HandelPathFunction = () => {
     const _data = getDataFromLocalStorage('organization-info');
     if (_data) {
-      window.location.href = `/${JSON.parse(_data)?.portal_url_slug}/config/project-status`;
+      window.location.href = `/${JSON.parse(_data)?.portal_slug}/config/project-status`;
     }
     return null;
   };

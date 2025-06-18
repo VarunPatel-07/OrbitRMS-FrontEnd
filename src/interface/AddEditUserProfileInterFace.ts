@@ -50,6 +50,8 @@ export interface AddEditUserProfileInterFace {
     children: {
       child_name: string;
       child_date_of_birth: null | Date;
+      family_info_id: string;
+      id: string;
     }[];
   };
   current_address: {
@@ -135,6 +137,8 @@ export interface UserProfileInformationInterface {
     children: Array<{
       child_date_of_birth: string;
       child_name: string;
+      family_info_id: string;
+      id: string;
     }>;
   };
   current_address: {

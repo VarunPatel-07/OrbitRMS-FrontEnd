@@ -6,12 +6,9 @@ import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../../Context/globalState/GlobalStateContectApi';
-import {
-  ConfigModuleSidebarInterface,
-  ConfigSidebarMenuList,
-} from './ConfigModuleSidebarList';
+import { ApiManagerSidebarList } from '../../config/ConfigSidebar/ApiManagerSidebarList';
 
-function ConfigSidebar() {
+function ApiManagerSideBar() {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
@@ -19,17 +16,17 @@ function ConfigSidebar() {
     GlobalStateProvider?.organization?.general_info?.portal_slug;
   const navigation = useLocation();
 
-  const ConfigSidebarMenuArray = ConfigSidebarMenuList(organization || '');
+  const ApiManagerSidebarArray = ApiManagerSidebarList(organization || '');
   return (
     <div className='w-full h-full bg-white'>
       <div className='w-full h-full flex flex-col items-start justify-start'>
         <div className='w-full bg-[#7fab98]/15 px-3.5 py-6 border-b border-b-black/15'>
           <h2 className='text-xl text-black font-inter font-semibold'>
-            Config Module
+            Api Manager
           </h2>
         </div>
         <ul className='w-full h-full overflow-hidden'>
-          {ConfigSidebarMenuArray?.map((item: ConfigModuleSidebarInterface) => (
+          {ApiManagerSidebarArray?.map((item: ApiManagerSidebarList) => (
             <li
               key={item?.id}
               className={`border-b border-b-black/15 transition-all group ${
@@ -55,4 +52,4 @@ function ConfigSidebar() {
   );
 }
 
-export default ConfigSidebar;
+export default ApiManagerSideBar;

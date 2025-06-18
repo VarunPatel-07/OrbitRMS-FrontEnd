@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { FaUser } from 'react-icons/fa';
+import { FaProjectDiagram, FaUser } from 'react-icons/fa';
 import { IoSettings } from 'react-icons/io5';
 import { MdAssignment, MdSpaceDashboard } from 'react-icons/md';
 
@@ -56,5 +56,15 @@ export const SidebarMenuItems = (
     protected: true,
     showToolTip: true,
     ToolTipValue: 'Config',
+  },
+  {
+    id: 5,
+    name: 'Api Manager',
+    icon: <FaProjectDiagram className='w-6 h-6' />,
+    label: 'data-tooltip-api-manager',
+    link: `/${organization}/api-manager`,
+    protected: true,
+    showToolTip: true,
+    ToolTipValue: 'Api Manager',
   },
 ];
