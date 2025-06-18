@@ -187,6 +187,7 @@ export interface RolesPermissionInterface {
   role_name: string;
   source_type: string;
   status: boolean;
+  employees: number;
 }
 
 export interface UrlEncodedFilterQueryInterface {

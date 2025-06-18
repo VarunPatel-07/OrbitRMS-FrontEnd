@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
+import { unauthorizedStatusCodes } from '../../constant/constant';
 import {
   ErrorHandler,
   getDataFromLocalStorage,
@@ -56,12 +57,16 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
         const res = await axios(config);
         return res?.data;
       } catch (error: any) {
-        // Handle error (e.g., return an error object or log it)
-        // console.error(
-        //   `Error fetching data from ${eachEndPoint.endPoint}`,
-        //   error
-        // );
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
@@ -78,7 +83,16 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
         //   `Error fetching data from ${eachEndPoint.endPoint}`,
         //   error
         // );
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     }
   });
@@ -124,7 +138,16 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
         //   `Error fetching data from ${eachEndPoint.endPoint}`,
         //   error
         // );
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
@@ -141,7 +164,16 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
       } catch (error: any) {
         // Handle error (e.g., return an error object or log it)
 
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     }
   });
@@ -181,7 +213,16 @@ export const multiplePutApi = async (endPointArr: Array<endpointObject>) => {
         const res = await axios(config);
         return res?.data;
       } catch (error: any) {
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
@@ -196,7 +237,16 @@ export const multiplePutApi = async (endPointArr: Array<endpointObject>) => {
         const res = await axios(config);
         return res?.data;
       } catch (error: any) {
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     }
   });
@@ -241,7 +291,16 @@ export const multipleDeleteApi = async (endPointArr: Array<endpointObject>) => {
         //   `Error fetching data from ${eachEndPoint.endPoint}`,
         //   error
         // );
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
@@ -257,8 +316,16 @@ export const multipleDeleteApi = async (endPointArr: Array<endpointObject>) => {
         return res?.data;
       } catch (error: any) {
         // Handle error (e.g., return an error object or log it)
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
 
-        return ErrorHandler(error);
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     }
   });

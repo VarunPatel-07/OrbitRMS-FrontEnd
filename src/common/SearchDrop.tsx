@@ -32,6 +32,8 @@ export default function SearchDrop(props: SearchDropProps) {
   const dropDownRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const virtualListRef = useRef<VirtualList>(null);
+
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
@@ -138,15 +140,10 @@ export default function SearchDrop(props: SearchDropProps) {
   };
 
   useEffect(() => {
-    if (listRef.current && highlightIndex !== -1) {
-      const highlightItem = listRef.current.children[
-        highlightIndex
-      ] as HTMLElement;
-      if (highlightItem) {
-        highlightItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+    if (isOpen && virtualListRef.current && highlightIndex !== -1) {
+      virtualListRef.current.scrollToItem(highlightIndex, 'smart');
     }
-  }, [highlightIndex]);
+  }, [highlightIndex, isOpen]);
 
   return (
     <div className='w-full' ref={boxRef}>
@@ -220,6 +217,7 @@ export default function SearchDrop(props: SearchDropProps) {
                 {!loading ? (
                   filteredOptions.length > 0 ? (
                     <VirtualList
+                      ref={virtualListRef}
                       height={
                         filteredOptions?.length >= 4
                           ? 130

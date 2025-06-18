@@ -1,10 +1,13 @@
 import React, { SetStateAction, useEffect, useRef, useState } from 'react';
 import { FaStarOfLife } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
+import { trim } from 'lodash';
 
 import ColorPicker from '../../common/ColorPicker';
 import Input from '../../common/Input';
 import Loader from '../../common/Loader';
+import SearchDrop from '../../common/SearchDrop';
+import { formFieldAllowedFieldType } from '../../constant/constant';
 import { classNames, hexToRgb } from '../../Helper/HelperFunctions';
 
 interface AddModalProps {
@@ -21,6 +24,10 @@ interface AddModalProps {
   modalType: 'add' | 'edit';
   color?: string;
   setColor?: React.Dispatch<SetStateAction<string>>;
+  fieldType?: string;
+  setFieldType?: React.Dispatch<SetStateAction<string>>;
+  isRequiredField?: string;
+  setIsRequiredField?: React.Dispatch<SetStateAction<string>>;
 }
 
 function AddModal(props: AddModalProps) {
@@ -38,6 +45,10 @@ function AddModal(props: AddModalProps) {
     modalType,
     color,
     setColor,
+    fieldType,
+    setFieldType,
+    isRequiredField,
+    setIsRequiredField,
   } = props;
 
   const modalBoxRef = useRef<HTMLDivElement>(null);
@@ -48,6 +59,12 @@ function AddModal(props: AddModalProps) {
     if (value?.trim() == '') {
       setShowError(true);
       return;
+    }
+    if (fieldType !== undefined && setFieldType) {
+      if (fieldType?.trim() == '') {
+        setShowError(true);
+        return;
+      }
     }
     handelFormSubmitFunction(value, color);
     setShowError(false);
@@ -65,6 +82,14 @@ function AddModal(props: AddModalProps) {
     setShowModal(false);
     setShowError(false);
     setValue('');
+    if (
+      fieldType !== undefined &&
+      setFieldType &&
+      typeof setIsRequiredField === 'function'
+    ) {
+      setFieldType('');
+      setIsRequiredField('');
+    }
   };
 
   useEffect(() => {
@@ -88,7 +113,7 @@ function AddModal(props: AddModalProps) {
   return (
     <div
       className={classNames(
-        'w-full h-screen bg-black/30 fixed z-40 top-0 left-0 overflow-hidden transition-all duration-100',
+        'w-full h-screen bg-black/30 fixed z-50 top-0 left-0 overflow-hidden transition-all duration-100',
         {
           'opacity-0 invisible': !showModal,
           'opacity-100 visible': showModal,
@@ -161,6 +186,42 @@ function AddModal(props: AddModalProps) {
                   <span className='text-xs'>{value || 'Project'}</span>
                 </div>
               )}
+              {fieldType !== undefined &&
+                setFieldType &&
+                typeof setIsRequiredField === 'function' && (
+                  <div className='w-full mt-3.5'>
+                    <div className='w-full flex flex-col items-start justify-start gap-3.5'>
+                      <div className='w-full'>
+                        <SearchDrop
+                          options={formFieldAllowedFieldType}
+                          searchKey=''
+                          position='bottom'
+                          emptyDataMessage=''
+                          showSearchBar={false}
+                          labelFieldName='Gender'
+                          isRequiredField
+                          selectedValue={fieldType}
+                          setSelectedValue={setFieldType}
+                          showError={showError}
+                          errorMessage={
+                            fieldType ? '' : 'this field is required'
+                          }
+                        />
+                      </div>
+                      <div className='flex items-center justify-start gap-1.5'>
+                        <Input
+                          type='checkbox'
+                          name='termsAccepted'
+                          value={isRequiredField}
+                          setValue={setIsRequiredField}
+                        />
+                        <span className='text-black font-light text-sm font-inter'>
+                          Required Field
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
             </div>
             <div className='px-5 pb-6 w-full grid grid-cols-2 gap-2.5'>
               <button

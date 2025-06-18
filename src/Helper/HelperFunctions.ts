@@ -355,3 +355,40 @@ export const getTotalExperience = (dateString: string) => {
 
   return `${year}Y ${months}M ${day}D`;
 };
+
+export const compareTwoNestedObject = (objOne: any, objTwo: any): boolean => {
+  if (objOne === objTwo) return true;
+
+  if (
+    typeof objOne !== 'object' ||
+    typeof objTwo !== 'object' ||
+    objOne == null ||
+    objTwo == null
+  )
+    return false;
+
+  const objOneKeys = Object.keys(objOne);
+  const objTwoKeys = Object.keys(objTwo);
+
+  if (objOneKeys.length !== objTwoKeys.length) return false;
+
+  for (const key of objOneKeys) {
+    if (!objTwoKeys.includes(key)) return false;
+    const valOne = objOne[key];
+    const valTwo = objTwo[key];
+
+    const areObjects =
+      typeof valOne === 'object' &&
+      valOne !== null &&
+      typeof valTwo === 'object' &&
+      valTwo !== null;
+
+    if (areObjects) {
+      if (!compareTwoNestedObject(valOne, valTwo)) return false;
+    } else {
+      if (valOne !== valTwo) return false;
+    }
+  }
+
+  return true;
+};

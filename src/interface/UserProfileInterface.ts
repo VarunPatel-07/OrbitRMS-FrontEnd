@@ -109,3 +109,21 @@ export interface GlobalContextStore {
   user: User;
   organization: Organization;
 }
+
+export interface UserSessionsInterFace {
+  browser: string;
+  browser_version: string;
+  created_at: string;
+  device_type: string;
+  fingerprint: string;
+  id: string;
+  ip_address: string;
+  is_bot: boolean;
+  is_mobile: boolean;
+  is_pc: boolean;
+  is_tablet: boolean;
+  os: string;
+  os_version: string;
+  updated_at: string;
+  user_id: string;
+}

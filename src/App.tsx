@@ -21,6 +21,7 @@ import {
   storeDataInLocalStorage,
 } from './Helper/HelperFunctions';
 import ProtectedRoute from './Helper/ProtectedRoute';
+import ApiManager from './Pages/ApiManager/ApiManager';
 import ClientInquiry from './Pages/ClientInquiry/ClientInquiry';
 import Config from './Pages/config/Config';
 import EmployeeListing from './Pages/Employee/EmployeeListing';
@@ -33,7 +34,7 @@ export const HandelPathFunction = () => {
   if (_data && _isAuthenticated) {
     return (
       <Navigate
-        to={`/${JSON.parse(_data)?.portal_url_slug}/config/project-status`}
+        to={`/${JSON.parse(_data)?.portal_slug}/config/project-status`}
         replace
       />
     );
@@ -132,6 +133,11 @@ function App() {
                   <Route
                     path='/employee/employee-listing'
                     element={<ProtectedRoute element={<EmployeeListing />} />}
+                  />
+
+                  <Route
+                    path='/api-manager/*'
+                    element={<ProtectedRoute element={<ApiManager />} />}
                   />
                   {/* <Route path='*' element={<PageNotFound />} /> */}
                   <Route path='*' element={<HandelPathFunction />} />

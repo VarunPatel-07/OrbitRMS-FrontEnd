@@ -25,112 +25,159 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../Helper/api/multipleAPI';
-import { formateDate, hexToRgb } from '../../../Helper/HelperFunctions';
+import { formateDate } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
+import { DesignationConfig } from '../../../interface/interface';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
 
-function ProjectStatus() {
+function ClientFormSchema() {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
+
   const useEffectRef = useRef(false);
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [modalType, setModalType] = useState<'add' | 'edit'>('add');
-  const [data, setData] = useState<Array<any>>([]);
-  const [filterData, setFilterData] = useState<Array<any>>([]);
-  const [value, setValue] = useState<string>('');
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
-  const [deleteItemId, setDeleteItemId] = useState<string>('');
+  const [value, setValue] = useState<string>('');
+  const [data, setData] = useState<Array<DesignationConfig>>([]);
+  const [filterData, setFilterData] = useState<Array<DesignationConfig>>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
-  const [statusColor, setStatusColor] = useState<string>('#ff0000');
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [deleteItemId, setDeleteItemId] = useState<string>('');
+  const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
 
-  const { GlobalStateProvider } = useContext(
-    GlobalStateContext
-  ) as GlobalStateContextApiProps;
-  const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_url.split(
-      'https://orbitrms.com/'
-    )[1];
+  const [fieldType, setFieldType] = useState<string>('');
+  const [isRequiredField, setIsRequiredField] = useState<string>('');
 
   const handelShowModal = () => {
     setModalType('add');
     setEditId('');
     setShowModal(!showModal);
-    setStatusColor('#ff0000');
   };
+
+  const handelEditButtonClick = (data: any) => {
+    setModalType('edit');
+    setShowModal(!showModal);
+    setValue(data?.field_name);
+    setFieldType(data?.type);
+    setIsRequiredField(data?.is_required_field ? 'true' : 'false');
+    setEditId(data?.id);
+  };
+
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug;
 
   const BreadcrumbsObjects = [
     { name: 'Home', label: 'home', link: '/home' },
-    { name: 'Config', label: 'config-module', link: `/${organization}/config` },
     {
-      name: 'Project Status',
-      label: 'project-status',
-      link: `/${organization}/config/project-status`,
+      name: 'Config',
+      label: 'config-module',
+      link: `${organization}/config/project-status`,
+    },
+    {
+      name: 'Client Form Fields',
+      label: 'client-form-field',
+      link: `/${organization}/config/client-form`,
     },
   ];
 
-  const handelFormSubmitWithDebounce = useDebounce(
-    async (value: string, color?: string) => {
-      let endPoint = `config/project_status/add-edit`;
+  const fetchClientFormFieldsWithDebounce = useDebounce(async () => {
+    const endPointArr: Array<endpointObject> = [
+      {
+        endPoint: 'config/client_form_schema/fetch',
+        protected: true,
+      },
+    ];
 
-      if (modalType === 'edit') {
-        endPoint += `?type=edit&id=${editId}`;
-      } else {
-        endPoint += `?type=add`;
-      }
+    const response = await multipleFetchApi(endPointArr);
 
-      const data = {
-        status_name: value,
-        status_color: color,
-      };
+    const res = response[0];
 
-      const endPointArr: Array<endpointObject> = [
-        {
-          endPoint: endPoint,
-          protected: true,
-          data,
-        },
-      ];
+    if (res?.success) {
+      setData(res?.data);
+      setIsFetchingData(false);
+    } else {
+      setIsFetchingData(false);
+      handelNotification(res, 'top-right');
+    }
+  }, 50);
 
-      const response = await multiplePostApi(endPointArr);
-      const res = response[0];
-      if (res?.success) {
-        setEditId('');
-        setModalType('add');
-        setShowModal(false);
-        setIsFetchingData(true);
-        setLoading(false);
-        handelNotification(res, 'top-right');
-        fetchProjectStatus();
-        setStatusColor('#ff0000');
-        setValue('');
-      } else {
-        setLoading(false);
-        handelNotification(res, 'top-right');
-      }
+  const fetchClientFormFields = () => {
+    setIsFetchingData(true);
+    fetchClientFormFieldsWithDebounce();
+  };
+
+  const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
+    {
+      buttonTitle: 'Add Form Field',
+      classNames:
+        'font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg',
+      onclickFunction: handelShowModal,
     },
-    200
-  );
+  ];
 
-  const handelFormSubmitFunction = (value: string, color?: string) => {
+  const handelFormSubmitWithDebounce = useDebounce(async (value: string) => {
+    let endPoint = `config/client_form_schema/add-edit`;
+
+    if (modalType === 'edit') {
+      endPoint += `?type=edit&id=${editId}`;
+    } else {
+      endPoint += `?type=add`;
+    }
+
+    const data = {
+      field_name: value,
+      is_required_field:
+        isRequiredField.toLocaleLowerCase() == 'true' ? true : false,
+      type: fieldType,
+    };
+
+    const endPointArr: Array<endpointObject> = [
+      {
+        endPoint: endPoint,
+        protected: true,
+        data,
+      },
+    ];
+
+    const response = await multiplePostApi(endPointArr);
+    const res = response[0];
+    if (res?.success) {
+      setLoading(false);
+      setShowModal(false);
+      setIsFetchingData(true);
+      handelNotification(res, 'top-right');
+      fetchClientFormFields();
+      setValue('');
+      setIsRequiredField('');
+      setFieldType('');
+    } else {
+      setLoading(false);
+      handelNotification(res, 'top-right');
+    }
+  }, 200);
+
+  const handelFormSubmitFunction = (value: string) => {
     setLoading(true);
-    handelFormSubmitWithDebounce(value, color);
+    handelFormSubmitWithDebounce(value);
   };
 
   const handelDeleteItemWithDebounce = useDebounce(async () => {
     try {
       const response = await multipleDeleteApi([
         {
-          endPoint: `config/project_status/delete?id=${deleteItemId}`,
+          endPoint: `config/client_form_schema/delete?id=${deleteItemId}`,
           protected: true,
         },
       ]);
@@ -142,35 +189,11 @@ function ProjectStatus() {
         setIsDeleteLoading(false);
         setIsFetchingData(true);
         handelNotification(res, 'top-right');
-        fetchProjectStatus();
+        fetchClientFormFields();
       } else {
         setDeleteItemId('');
         setShowDeleteModal(false);
         setIsDeleteLoading(false);
-        handelNotification(res, 'top-right');
-      }
-    } catch (error) {
-      console.error('Error fetching project status:', error);
-    }
-  }, 200);
-
-  const handelDeleteItem = () => {
-    setIsDeleteLoading(true);
-    handelDeleteItemWithDebounce();
-  };
-
-  const fetchProjectStatus = useDebounce(async () => {
-    try {
-      const response = await multipleFetchApi([
-        { endPoint: 'config/project_status/fetch', protected: true },
-      ]);
-
-      const res = response[0];
-      if (res?.success) {
-        setData(res?.data);
-        setIsFetchingData(false);
-      } else {
-        setIsFetchingData(false);
         handelNotification(res, 'top-right');
       }
     } catch (error) {
@@ -178,43 +201,52 @@ function ProjectStatus() {
     }
   }, 50);
 
-  const handelEditButtonClick = (data: any) => {
-    setShowModal(true);
-    setModalType('edit');
-    setValue(data?.status_name);
-    setStatusColor(data?.status_color);
-    setEditId(data?.id);
+  const handelDeleteItem = () => {
+    setIsDeleteLoading(true);
+    handelDeleteItemWithDebounce();
   };
-
-  const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
-    {
-      buttonTitle: 'Add Project Status',
-      classNames:
-        'font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg',
-      onclickFunction: handelShowModal,
-    },
-  ];
 
   const columns: Array<Column> = [
     {
-      key: 'status_name',
-      childKey: 'status_color',
-      title: 'Project Status',
+      key: 'field_name',
+      title: 'Field Name',
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any, childKeyData) => (
-        <span
-          className='w-fit font-inter text-sm font-medium inline-block px-2.5 py-0.5 rounded-full'
-          style={{
-            color: childKeyData,
-            border: `1px solid ${childKeyData}`,
-            backgroundColor: `rgba(${hexToRgb(childKeyData)}, 0.15)`,
-          }}
-        >
+      renderContent: (data: any) => (
+        <span className='w-fit font-inter text-sm font-medium inline-block'>
           {data}
         </span>
       ),
+    },
+    {
+      key: 'type',
+      title: 'Field Type',
+      isSortable: true,
+      isSticky: false,
+      canToggleVisibility: true,
+      renderContent: (data: any) => (
+        <span className='w-fit font-inter text-sm font-medium inline-block'>
+          {data}
+        </span>
+      ),
+    },
+    {
+      key: 'is_required_field',
+      title: 'Required',
+      isSortable: true,
+      isSticky: false,
+      canToggleVisibility: true,
+      renderContent: (data: any) =>
+        data ? (
+          <span className='px-3 py-1 rounded-full text-sm bg-green-100 text-green-700 font-medium border border-green-500'>
+            Required
+          </span>
+        ) : (
+          <span className='px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700 font-medium border border-gray-500'>
+            Optional
+          </span>
+        ),
     },
     {
       key: 'created_by',
@@ -328,12 +360,11 @@ function ProjectStatus() {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
     setIsFetchingData(true);
-    fetchProjectStatus();
+    fetchClientFormFields();
   }, []);
-
   return (
     <>
-      <div className='relative w-full h-full'>
+      <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>
           <div className='w-full h-full p-4 2xl:p-5'>
@@ -348,7 +379,7 @@ function ProjectStatus() {
             ) : (
               <>
                 <TableInfoHeader
-                  moduleName='Project Status'
+                  moduleName='Client Form Fields'
                   badgeValue={
                     showSearchFilterData
                       ? filterData.length?.toString()
@@ -359,11 +390,11 @@ function ProjectStatus() {
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
                   data={data}
-                  search_key='status_name'
+                  search_key='designations_name'
                   setData={setFilterData}
                 />
                 {(data?.length > 0 && !showSearchFilterData) ||
-                (showSearchFilterData && filterData.length > 0) ? (
+                (showSearchFilterData && filterData?.length > 0) ? (
                   <Table
                     columns={columns}
                     data={showSearchFilterData ? filterData : data}
@@ -378,12 +409,12 @@ function ProjectStatus() {
                     notFoundTitle={
                       showSearchFilterData
                         ? 'No Data Found For Related Search'
-                        : 'You haven’t added any Projects Status yet'
+                        : 'You haven’t added any Form Field yet'
                     }
                     notFoundMessage={
                       showSearchFilterData
-                        ? 'No matching project status found. Try refining your search or adding a new project status.'
-                        : 'Add Projects Status manually by clicking Add Projects Status button.'
+                        ? 'No matching Form Field found. Try refining your search or adding a new Form Field.'
+                        : 'Add Form Field manually by clicking Add Form Field button.'
                     }
                     notFoundOptionsButtonsArray={
                       showSearchFilterData ? [] : optionsButtonArray
@@ -397,21 +428,21 @@ function ProjectStatus() {
       </div>
 
       <AddModal
-        modalTitle={
-          modalType == 'add' ? 'Add Project Status' : 'Edit Project Status'
-        }
-        labelFieldName='Project Status'
-        showColorPicker={true}
-        showPreview={true}
+        modalTitle={modalType == 'add' ? 'Add Form Field' : 'Edit Form Field'}
+        labelFieldName='Field Name'
+        showColorPicker={false}
+        showPreview={false}
         showModal={showModal}
         setShowModal={setShowModal}
         loading={loading}
         handelFormSubmitFunction={handelFormSubmitFunction}
-        value={value}
+        value={value?.replace(/[\s-]/g, '_')}
         setValue={setValue}
         modalType={modalType}
-        color={statusColor}
-        setColor={setStatusColor}
+        fieldType={fieldType}
+        setFieldType={setFieldType}
+        isRequiredField={isRequiredField}
+        setIsRequiredField={setIsRequiredField}
       />
       <DeleteModal
         loading={isDeleteLoading}
@@ -423,4 +454,4 @@ function ProjectStatus() {
   );
 }
 
-export default ProjectStatus;
+export default ClientFormSchema;

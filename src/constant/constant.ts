@@ -27,6 +27,16 @@ export const bloodGroupArray = [
 ];
 export const GenderArray = ['Male', 'Female', 'Other'];
 
+export const formFieldAllowedFieldType = [
+  'string',
+  'boolean',
+  'number',
+  'array',
+  'object',
+  'array of string',
+  'array of object',
+];
+
 export const maritalStatus = [
   'Single',
   'Married',
@@ -57,3 +67,10 @@ export const employeeTypesArray = [
 ];
 
 export const dropdownMenuArray = [10, 25, 50, 100];
+
+export const unauthorizedStatusCodes = [
+  404,
+  401, // Unauthorized (authentication required or token missing/invalid)
+  403, // Forbidden (authenticated but not authorized for the resource)
+  407, // Proxy Authentication Required (rare, but still access-related)
+];
