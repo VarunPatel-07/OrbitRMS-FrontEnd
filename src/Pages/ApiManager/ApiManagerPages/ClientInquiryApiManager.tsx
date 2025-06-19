@@ -18,6 +18,7 @@ import {
   multipleFetchApi,
   multiplePutApi,
 } from '../../../Helper/api/multipleAPI';
+import { getDataFromLocalStorage } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
 import { ClientInquiry } from '../../../interface/ClientInquiry';
 
@@ -47,21 +48,26 @@ function ClientInquiryApiManager() {
     api_secrete: boolean;
   }>({ api_key: false, api_secrete: false });
 
+  const localStorageData = getDataFromLocalStorage('organization-info');
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
+
   const BreadcrumbsObjects = [
     {
       name: 'Home',
       label: 'home',
-      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/dashboard`,
+      link: `/${organization}/dashboard`,
     },
     {
       name: 'Api Manager',
       label: 'api_manager',
-      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/api-manager`,
+      link: `/${organization}/api-manager`,
     },
     {
       name: 'Client Inquiry',
       label: 'client_inquiry',
-      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/api-manager/client-inquiry`,
+      link: `/${organization}/api-manager/client-inquiry`,
     },
   ];
 
@@ -223,11 +229,11 @@ function ClientInquiryApiManager() {
                   <div className='w-full px-5 py-5 h-[calc(100%-80px)] overscroll-auto hide-scrollbar'>
                     <div className='flex flex-col items-start justify-start gap-5 w-full'>
                       {' '}
-                      <div className='flex items-stretch justify-start overflow-auto w-full'>
-                        <p className='font-inter text-black/80 font-medium text-base w-fit border border-black/10 bg-gray-100 px-3 py-2 rounded-l-lg flex items-center'>
+                      <div className='flex items-stretch justify-start overflow-auto w-full hide-scrollbar'>
+                        <p className='font-inter text-black/80 font-medium text-base w-fit border border-black/10 bg-gray-100 px-3 py-2 rounded-l-lg flex items-center min-w-[115px]'>
                           api_key
                         </p>
-                        <p className='flex-grow font-inter text-black/80 font-medium text-base border border-black/10 bg-gray-100 px-3 py-2 border-x-0 flex items-center justify-start relative group'>
+                        <p className='flex-grow font-inter text-black/80 font-medium text-base border border-black/10 bg-gray-100 px-8 pr-12 py-2 border-x-0 flex items-center justify-start relative group'>
                           {showApiKey ? (
                             formData?.api_key
                           ) : (
@@ -276,11 +282,11 @@ function ClientInquiryApiManager() {
                           </button>
                         </div>
                       </div>
-                      <div className='flex items-stretch justify-start overflow-auto w-full'>
-                        <p className='font-inter text-black/80 font-medium text-base w-fit border border-black/10 bg-gray-100 px-3 py-2 rounded-l-lg flex items-center'>
+                      <div className='flex items-stretch justify-start overflow-auto w-full hide-scrollbar'>
+                        <p className='font-inter text-black/80 font-medium text-base w-fit border border-black/10 bg-gray-100 px-3 py-2 rounded-l-lg flex items-center min-w-[115px]'>
                           api_secrete
                         </p>
-                        <p className='flex-grow font-inter text-black/80 font-medium text-base border border-black/10 bg-gray-100 px-3 py-2 border-x-0 flex items-center justify-start relative group'>
+                        <p className='flex-grow font-inter text-black/80 font-medium text-base border border-black/10 bg-gray-100 px-8 pr-12 py-2 border-x-0 flex items-center justify-start relative group'>
                           {showApiSecrete ? (
                             formData?.api_secrete
                           ) : (

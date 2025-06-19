@@ -49,6 +49,7 @@ import {
   classNames,
   compareTwoNestedObject,
   formateAndVerifyPhoneNumber,
+  getDataFromLocalStorage,
 } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
 import {
@@ -269,6 +270,11 @@ export default function AddEditEmployeeProfile() {
       },
     }));
   };
+
+  const localStorageData = getDataFromLocalStorage('organization-info');
+  const organization_data =
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
 
   // this is the validation function that is being used to validate the employee profile while adding or updating
 
@@ -652,9 +658,7 @@ export default function AddEditEmployeeProfile() {
           }));
         }
 
-        navigate(
-          `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/employee-listing`
-        );
+        navigate(`/${organization_data}/employee/employee-listing`);
       } else {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
@@ -677,9 +681,7 @@ export default function AddEditEmployeeProfile() {
       if (res?.success) {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
-        navigate(
-          `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/employee-listing`
-        );
+        navigate(`/${organization_data}/employee/employee-listing`);
       } else {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
@@ -2720,20 +2722,20 @@ export default function AddEditEmployeeProfile() {
     {
       name: 'Home',
       label: 'home',
-      link: `/${organization}/dashboard`,
+      link: `/${organization_data}/dashboard`,
     },
     {
       name: 'Employee Listing',
       label: 'employee_listing',
-      link: `/${organization}/employee/employee-listing`,
+      link: `/${organization_data}/employee/employee-listing`,
     },
     {
       name: moduleType == 'edit' ? 'Edit Profile' : 'Add Employee',
       label: 'employee-profile',
       link:
         moduleType == 'edit'
-          ? `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/${moduleType}/${employee_id}`
-          : `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/${moduleType}`,
+          ? `/${organization_data}/employee/${moduleType}/${employee_id}`
+          : `/${organization_data}/employee/${moduleType}`,
     },
   ];
   return (
@@ -2856,7 +2858,7 @@ export default function AddEditEmployeeProfile() {
               />
             ) : (
               <Link
-                to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/employee-listing`}
+                to={`/${organization_data}/employee/employee-listing`}
                 className='text-[var(--them-green-color)] py-2.5 px-14 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 transition-all w-fit'
               >
                 Cancel

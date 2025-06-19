@@ -61,7 +61,12 @@ function App() {
     useEffectRef.current = true;
     (async () => {
       const response = await verifyUsersLoginStatus();
-      if (!response?.success) {
+
+      if (
+        !response?.success &&
+        response?.status_code &&
+        response?.status_code !== 429
+      ) {
         handelNotification(response, 'top-right');
         setShowGlobalLoader(false);
         clearLocalSessionStorage();

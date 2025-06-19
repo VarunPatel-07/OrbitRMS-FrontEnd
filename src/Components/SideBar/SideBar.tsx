@@ -70,13 +70,17 @@ function SideBar() {
                     {item.name}
                   </span>
                 </Link>
-                {/* Tooltip */}
-                {item.showToolTip && (
-                  <Tooltip
-                    id={item.label}
-                    opacity={'100'}
-                    className='z-[50] bg-white'
-                  />
+                {collapsed && (
+                  <>
+                    {/* Tooltip */}
+                    {item.showToolTip && (
+                      <Tooltip
+                        id={item.label}
+                        opacity={'100'}
+                        className='z-[50] bg-white'
+                      />
+                    )}
+                  </>
                 )}
               </li>
             ))}

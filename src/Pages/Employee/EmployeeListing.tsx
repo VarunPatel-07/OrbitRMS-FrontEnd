@@ -22,6 +22,7 @@ import {
 } from '../../Context/globalState/GlobalStateContectApi';
 import { FilterFieldsTypeEnums } from '../../enums/enums';
 import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
+import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
 import {
   EmployeeEmployeeInfo,
@@ -52,8 +53,10 @@ function EmployeeListing() {
 
   const [queryParameter] = useSearchParams();
 
+  const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_slug;
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
 
   const useEffectRef = useRef(false);
   const [data, setData] = useState<EmployeeFieldInterface[]>([]);
@@ -223,7 +226,7 @@ function EmployeeListing() {
             />
             <div className='w-fit'>
               <Link
-                to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${data?.reporting_to_id}/employee-details`}
+                to={`/${organization}/employee-profile/${data?.reporting_to_id}/employee-details`}
                 className='flex items-center justify-start gap-1 text-black hover:text-[#3538CD]'
                 target='_blank'
               >
@@ -360,7 +363,7 @@ function EmployeeListing() {
     // Then navigate after the state updates are complete
     setTimeout(() => {
       navigate(
-        `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/employee-listing?${queryString}`
+        `/${organization}/employee/employee-listing?${queryString}`
       );
     }, 0);
   };
@@ -427,7 +430,7 @@ function EmployeeListing() {
             <>
               <TableInfoHeader
                 moduleName='Employees'
-                badgeValue={`${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length} of  ${metaData?.total_data}  Employee`}
+                badgeValue={`${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length * selectedPage} of  ${metaData?.total_data}  Employee`}
                 buttonsArray={optionsButtonArray}
               />
               <TableFilterSearchBar

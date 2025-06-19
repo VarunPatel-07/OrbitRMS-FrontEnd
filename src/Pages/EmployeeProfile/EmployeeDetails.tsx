@@ -10,7 +10,11 @@ import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
-import { formateDate } from '../../Helper/HelperFunctions';
+import {
+  classNames,
+  formateDate,
+  getDataFromLocalStorage,
+} from '../../Helper/HelperFunctions';
 import {
   AddressModuleInterface,
   UserProfileInformationInterface,
@@ -58,6 +62,11 @@ function EmployeeDetails(props: {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
+
+  const localStorageData = getDataFromLocalStorage('organization-info');
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
   // This are The Bunch Of Function That Help To Render The components
   // * ------ Start Of The Function That Help In The Rendering -----
   //
@@ -116,7 +125,7 @@ function EmployeeDetails(props: {
                   </span>
                   {data?.employee_info?.reporting_manager?.first_name ? (
                     <Link
-                      to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${data?.employee_info?.reporting_manager?.id}/employee-details`}
+                      to={`/${organization}/employee-profile/${data?.employee_info?.reporting_manager?.id}/employee-details`}
                       className='text-base text-black font-inter font-medium block hover:text-[#3538CD]'
                       target='_blank'
                     >
@@ -464,19 +473,38 @@ function EmployeeDetails(props: {
           <div className='p-6 w-full'>
             {RenderTheAddressFieldDynamically(data.current_address)}
           </div>
-          <div className='py-3 px-6 w-full bg-gray-50 border-t border-t-black/10  rounded-b-xl'>
-            <div className='w-full flex items-center justify-start gap-1.5'>
-              <p className='text-black capitalize font-inter text-sm'>
+          <div className='py-3 w-full bg-gray-50 border-t border-t-black/10  rounded-b-xl'>
+            <div
+              className={classNames(
+                'w-full flex items-center justify-start gap-1.5 px-6',
+                {
+                  'border-b border-b-black/20 pb-3': !data?.same_as_current_address,
+                }
+              )}
+            >
+              <p
+                className={classNames(
+                  'text-black capitalize font-inter w-full',
+                  {
+                    'text-lg font-semibold': !data?.same_as_current_address,
+                    'text-sm': data?.same_as_current_address,
+                  }
+                )}
+              >
                 permanent address
               </p>
-              <p className='text-black capitalize font-inter text-sm'>-</p>
-              <p className='text-indigo-600 capitalize font-inter text-sm'>
-                same as current address
-              </p>
+              {data?.same_as_current_address && (
+                <>
+                  <p className='text-black capitalize font-inter text-sm'>-</p>
+                  <p className='text-indigo-600 capitalize font-inter text-sm'>
+                    same as current address
+                  </p>
+                </>
+              )}
             </div>
 
             {!data?.same_as_current_address ? (
-              <div className='pb-3 mt-6 transition-all'>
+              <div className='pb-3 mt-6 transition-all px-6'>
                 {RenderTheAddressFieldDynamically(data.permanent_address)}
               </div>
             ) : null}

@@ -6,14 +6,19 @@ import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../../Context/globalState/GlobalStateContectApi';
+import { getDataFromLocalStorage } from '../../../Helper/HelperFunctions';
 import { ApiManagerSidebarList } from '../../config/ConfigSidebar/ApiManagerSidebarList';
 
 function ApiManagerSideBar() {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
+
+  const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_slug;
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
+
   const navigation = useLocation();
 
   const ApiManagerSidebarArray = ApiManagerSidebarList(organization || '');
