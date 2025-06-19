@@ -30,6 +30,7 @@ export interface verifyUsersLoginStatusResponse {
   success: boolean;
   message: string;
   data: GlobalContextStore | null;
+  status_code?: number;
 }
 
 // * The Function That Are HelpFull For Sign-IN And Sign-UP

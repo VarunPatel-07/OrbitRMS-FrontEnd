@@ -25,7 +25,10 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../Helper/api/multipleAPI';
-import { formateDate } from '../../../Helper/HelperFunctions';
+import {
+  formateDate,
+  getDataFromLocalStorage,
+} from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
 import { DesignationConfig } from '../../../interface/interface';
 import {
@@ -70,8 +73,11 @@ function Designations() {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
+
+  const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_slug;
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
 
   const BreadcrumbsObjects = [
     { name: 'Home', label: 'home', link: '/home' },

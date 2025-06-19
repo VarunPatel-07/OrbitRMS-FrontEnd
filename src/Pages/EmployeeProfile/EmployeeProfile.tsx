@@ -9,7 +9,11 @@ import {
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
 import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
-import { classNames, getTotalExperience } from '../../Helper/HelperFunctions';
+import {
+  classNames,
+  getDataFromLocalStorage,
+  getTotalExperience,
+} from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
 import { useDebounce } from '../../Hooks/useDebounce';
 import {
@@ -120,8 +124,10 @@ function EmployeeProfile() {
     GlobalStateContext
   ) as GlobalStateContextApiProps;
 
+  const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_slug;
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
 
   const BreadcrumbsObjects = [
     {
@@ -142,7 +148,7 @@ function EmployeeProfile() {
   ];
   const EmployeeProfileActionArray: EmployeeProfileActionArrayInterface[] = [
     {
-      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${employee_id}/employee-details`,
+      link: `/${organization}/employee-profile/${employee_id}/employee-details`,
       classNames:
         'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
       label: 'employee_details',
@@ -151,7 +157,7 @@ function EmployeeProfile() {
     ...(employee_id === GlobalStateProvider?.user?.personal_info?.user_id
       ? [
           {
-            link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${employee_id}/logged-in-device`,
+            link: `/${organization}/employee-profile/${employee_id}/logged-in-device`,
             classNames:
               'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
             label: 'logged_in_device',
@@ -387,7 +393,7 @@ function EmployeeProfile() {
                           <Skeleton height={35} width={140} borderRadius={6} />
                         ) : (
                           <Link
-                            to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee/edit/${GlobalStateProvider?.user?.personal_info?.user_id}`}
+                            to={`/${organization}/employee/edit/${GlobalStateProvider?.user?.personal_info?.user_id}`}
                             className='font-inter capitalize text-sm px-3 py-1.5 h-full inline-block rounded-md text-white font-medium bg-[var(--them-green-color)]'
                           >
                             Edit Profile

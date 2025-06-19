@@ -6,7 +6,10 @@ import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
-import { classNames } from '../../Helper/HelperFunctions';
+import {
+  classNames,
+  getDataFromLocalStorage,
+} from '../../Helper/HelperFunctions';
 import EmployeeProfilePicture from '../EmployeeProfilePicture';
 
 interface NavbarProfileDropDownInterface {
@@ -24,24 +27,30 @@ function Navbar() {
   const dropDownModalRef = useRef<HTMLDivElement>(null);
 
   const [showNavBarDropDown, setShowNavBarDropDown] = useState<boolean>(false);
+
+  const localStorageData = getDataFromLocalStorage('organization-info');
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
+    
   const NavbarProfileDropDown: NavbarProfileDropDownInterface[] = [
     {
       icon: null,
       label: 'my-profile',
       name: 'My Profile',
-      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/employee-details`,
+      link: `/${organization}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/employee-details`,
     },
     {
       icon: null,
       label: 'logged-in-devices',
       name: 'Logged In Devices',
-      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/logged-in-device`,
+      link: `/${organization}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/logged-in-device`,
     },
     {
       icon: null,
       label: 'raise-issue',
       name: 'Raise Issue',
-      link: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}`,
+      link: `/${organization}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}`,
     },
   ];
 

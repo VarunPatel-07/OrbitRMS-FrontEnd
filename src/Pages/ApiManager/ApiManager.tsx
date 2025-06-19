@@ -5,6 +5,7 @@ import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
+import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
 import ClientInquiryApiManager from './ApiManagerPages/ClientInquiryApiManager';
 import ApiManagerSideBar from './ApiManagerSideBar/ApiManagerSideBar';
@@ -16,8 +17,11 @@ function ApiManager() {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
+
+  const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_slug;
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
 
   useEffect(() => {
     if (location.pathname == `/${organization}/api-manager`) {
