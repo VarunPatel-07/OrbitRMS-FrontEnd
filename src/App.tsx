@@ -27,6 +27,7 @@ import Config from './Pages/config/Config';
 import EmployeeListing from './Pages/Employee/EmployeeListing';
 import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile';
 import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
+import OrganizationSettings from './Pages/OrganizationSettings/OrganizationSettings';
 
 export const HandelPathFunction = () => {
   const _data = getDataFromLocalStorage('organization-info');
@@ -143,6 +144,12 @@ function App() {
                   <Route
                     path='/api-manager/*'
                     element={<ProtectedRoute element={<ApiManager />} />}
+                  />
+                  <Route
+                    path='/organization-settings/*'
+                    element={
+                      <ProtectedRoute element={<OrganizationSettings />} />
+                    }
                   />
                   {/* <Route path='*' element={<PageNotFound />} /> */}
                   <Route path='*' element={<HandelPathFunction />} />

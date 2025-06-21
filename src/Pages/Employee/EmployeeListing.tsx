@@ -362,9 +362,7 @@ function EmployeeListing() {
 
     // Then navigate after the state updates are complete
     setTimeout(() => {
-      navigate(
-        `/${organization}/employee/employee-listing?${queryString}`
-      );
+      navigate(`/${organization}/employee/employee-listing?${queryString}`);
     }, 0);
   };
 
@@ -476,7 +474,9 @@ function EmployeeListing() {
                       notFoundMessage={
                         'No matching employee found. Try refining your search or add a new employee.'
                       }
-                      notFoundOptionsButtonsArray={[]}
+                      notFoundOptionsButtonsArray={
+                        queryParameter ? [] : optionsButtonArray
+                      }
                     />
                   )}
                 </>

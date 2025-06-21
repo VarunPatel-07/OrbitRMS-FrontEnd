@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
 import { FaProjectDiagram, FaUser } from 'react-icons/fa';
 import { IoSettings } from 'react-icons/io5';
+import { LuBuilding2 } from 'react-icons/lu';
 import { MdAssignment, MdSpaceDashboard } from 'react-icons/md';
 
 export interface SidebarMenuItemInterface {
@@ -62,9 +63,19 @@ export const SidebarMenuItems = (
     name: 'Api Manager',
     icon: <FaProjectDiagram className='w-6 h-6' />,
     label: 'data-tooltip-api-manager',
-    link: `/${organization}/api-manager`,
+    link: `/${organization}/api-manager/client-inquiry`,
     protected: true,
     showToolTip: true,
     ToolTipValue: 'Api Manager',
+  },
+  {
+    id: 6,
+    name: 'Organization Settings',
+    icon: <LuBuilding2 className='w-6 h-6' />,
+    label: 'data-tooltip-organization-setting',
+    link: `/${organization}/organization-settings`,
+    protected: true,
+    showToolTip: true,
+    ToolTipValue: 'Organization Settings',
   },
 ];

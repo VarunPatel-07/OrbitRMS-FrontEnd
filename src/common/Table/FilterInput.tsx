@@ -236,6 +236,7 @@ function FilterInput({
     setShowCurrentOperatorDropdown(false);
     setShowCurrentOptionDropdown(false);
     setCurrentFilterId('');
+    setInputValue('');
 
     if (handelApplyFilterFunc) {
       handelApplyFilterFunc([]);
