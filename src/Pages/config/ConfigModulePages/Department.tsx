@@ -400,7 +400,7 @@ export default function AttachmentTypes() {
         modalTitle={
           modalType == 'add' ? 'Add Attachment Type' : 'Edit Attachment Type'
         }
-        labelFieldName='Attachment Type'
+        labelFieldName='Department Name'
         showColorPicker={false}
         showPreview={false}
         showModal={showModal}

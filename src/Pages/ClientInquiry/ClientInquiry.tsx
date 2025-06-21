@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useContext, useEffect, useRef, useState } from 'react';
 import { IoEye } from 'react-icons/io5';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
+import { FilterObjectInterface } from '../../common/Table/FilterInput';
 import Table from '../../common/Table/Table';
 import TableFilterSearchBar from '../../common/Table/TableFilterSearchBar';
 import TableInfoHeader from '../../common/Table/TableInfoHeader';
@@ -14,6 +15,13 @@ import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoad
 import DeleteModal from '../../Components/Modal/DeleteModal';
 import { dropdownMenuArray } from '../../constant/constant';
 import {
+  Contains,
+  EndsWith,
+  Equals,
+  Is,
+  StartsWith,
+} from '../../constant/FilterOperator';
+import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
@@ -21,13 +29,20 @@ import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../Context/Notification/NotificationContextApi';
+import { FilterFieldsTypeEnums } from '../../enums/enums';
 import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
 import HelmetSeo from '../../Helper/HelmetSeo';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
 import { ClientInquiryFormSchemaInterface } from '../../interface/ClientInquiry';
-import { Column, MetaDataInterface } from '../../interface/propsInterface';
-import { clientInquiryFiltersArray } from './ClientInquiryFilters';
+import {
+  Column,
+  MetaDataInterface,
+  SearchBarFilterOptionsInterface,
+  UrlEncodedFilterQueryInterface,
+} from '../../interface/propsInterface';
+
+// import { clientInquiryFiltersArray } from './ClientInquiryFilters';
 
 const initialMetadata: MetaDataInterface = {
   total_data: 0,
@@ -61,6 +76,8 @@ function ClientInquiry() {
 
   const useEffectRef = useRef(false);
 
+  const navigate = useNavigate();
+
   const [queryParameter] = useSearchParams();
 
   const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
@@ -70,6 +87,15 @@ function ClientInquiry() {
   const [loadingClientData, setLoadingClientData] = useState(true);
   const [data, setData] = useState([]);
   const [isFetchingData, setIsFetchingData] = useState<boolean>(false);
+
+  const [urlDecodedFilterQuery, setUrlDecodedFilterQuery] = useState<
+    UrlEncodedFilterQueryInterface[]
+  >([]);
+
+  const [clientInquiryFiltersArray, setClientInquiryFiltersArray] = useState<
+    SearchBarFilterOptionsInterface[]
+  >([]);
+
   const [columns, setColumns] = useState<Column[]>([
     {
       key: 'action',
@@ -108,13 +134,17 @@ function ClientInquiry() {
 
   const fetchAllClientInquiryWithDebounce = useDebounce(
     async (queryString: string, page: number = 1, limit: number = 10) => {
-      const endPointArrOne: endpointObject[] = [
+      // const endPointArrOne: endpointObject[] = [
+      //   {
+      //     endPoint: 'config/client_form_schema/fetch',
+      //     protected: true,
+      //   },
+      // ];
+      const endPointArr: endpointObject[] = [
         {
           endPoint: 'config/client_form_schema/fetch',
           protected: true,
         },
-      ];
-      const endPointArr: endpointObject[] = [
         {
           endPoint:
             queryString == undefined || queryString?.trim() == ''
@@ -123,64 +153,109 @@ function ClientInquiry() {
           protected: true,
         },
       ];
-      let formSchemaResponse;
-      if (columns?.length == 1) {
-        const responseOne = await multipleFetchApi(endPointArrOne);
-        formSchemaResponse = responseOne[0];
-      } else {
-        formSchemaResponse = {
-          success: true,
-          data: columns?.filter((item) => item.key !== 'action'),
-        };
-      }
 
       const response = await multipleFetchApi(endPointArr);
+      const formSchemaResponse = response[0];
 
-      const res = response[0];
+      const res = response[1];
 
       if (formSchemaResponse?.success) {
         const columnsArray: Array<Column> = [];
 
+        const clientFilterArray: SearchBarFilterOptionsInterface[] = [];
+
         formSchemaResponse?.data?.map(
           (data: ClientInquiryFormSchemaInterface) => {
-            if (!['string', 'number'].includes(data?.type)) return;
-            const columnObject: Column = {
-              key: data?.field_name,
-              title: data?.field_name
-                ?.replace(/_/g, ' ')
-                ?.split(' ')
-                .map(
-                  (item) =>
-                    item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
-                )
-                ?.join(' '),
-              isSortable: true,
-              isSticky: false,
-              canToggleVisibility: true,
-              renderContent: (data: any) => (
-                <div className='w-fit'>
-                  <span className='font-inter text-sm font-medium text-nowrap text-black'>
-                    {data || <span>-</span>}
-                  </span>
-                </div>
-              ),
-            };
-
-            columnsArray.push(columnObject);
+            if (['string', 'number'].includes(data?.type)) {
+              const columnObject: Column = {
+                key: data?.field_name,
+                title: data?.field_name
+                  ?.replace(/_/g, ' ')
+                  ?.split(' ')
+                  .map(
+                    (item) =>
+                      item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
+                  )
+                  ?.join(' '),
+                isSortable: true,
+                isSticky: false,
+                canToggleVisibility: true,
+                renderContent: (data: any) => (
+                  <div className='w-fit'>
+                    <span className='font-inter text-sm font-medium text-nowrap text-black'>
+                      {data || <span>-</span>}
+                    </span>
+                  </div>
+                ),
+              };
+              columnsArray.push(columnObject);
+            }
+            if (['string', 'number', 'boolean'].includes(data?.type)) {
+              const FilterObject: SearchBarFilterOptionsInterface = {
+                id: data?.field_name,
+                value: data?.field_name
+                  ?.replace(/_/g, ' ')
+                  ?.split(' ')
+                  .map(
+                    (item) =>
+                      item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
+                  )
+                  ?.join(' '),
+                label: (
+                  <div className='flex items-start'>
+                    <span className='icon-mail-05 text-gray-600 text-lg pe-2' />
+                    <span>
+                      {data?.field_name
+                        ?.replace(/_/g, ' ')
+                        ?.split(' ')
+                        .map(
+                          (item) =>
+                            item.charAt(0).toUpperCase() +
+                            item.slice(1).toLowerCase()
+                        )
+                        ?.join(' ')}
+                    </span>
+                  </div>
+                ),
+                optionType: data?.type == 'boolean' ? 'select' : 'text',
+                operator:
+                  data?.type == 'boolean'
+                    ? [Is]
+                    : [Equals, Contains, StartsWith, EndsWith],
+                options:
+                  data?.type == 'boolean'
+                    ? [
+                        {
+                          label: 'active',
+                          value: 'Active',
+                          type: FilterFieldsTypeEnums[2],
+                        },
+                        {
+                          label: 'inactive',
+                          value: 'Inactive',
+                          type: FilterFieldsTypeEnums[2],
+                        },
+                      ]
+                    : [], // No options for text filters
+              };
+              clientFilterArray.push(FilterObject);
+            }
           }
         );
 
         setColumns((perValue) => [...columnsArray, ...perValue]);
+        setClientInquiryFiltersArray(clientFilterArray);
 
         if (res?.success) {
           setData(res?.data);
           setMetaData(res?.metadata);
         } else {
-          console.log(res);
           handelNotification(res, 'top-right');
         }
-        setIsFetchingData(false);
+      } else {
+        handelNotification(formSchemaResponse, 'top-right');
       }
+      setIsFetchingData(false);
       setLoadingClientData(false);
     },
     100
@@ -217,12 +292,60 @@ function ClientInquiry() {
 
   const handelDelete = () => {};
 
+  const handelApplyFilterClientInquiry = async (
+    filterArray: FilterObjectInterface[]
+  ) => {
+    setIsFetchingData(true);
+    let queryString = '';
+    if (filterArray?.length > 0) {
+      const queryFilterArray = filterArray?.map((queryObj) => {
+        const obj: UrlEncodedFilterQueryInterface = {
+          field_name: '',
+          operator: '',
+          value: '',
+        };
+        queryObj?.moduleValue?.forEach((moduleValue) => {
+          if (moduleValue?.type === FilterFieldsTypeEnums[0]) {
+            obj.field_name = moduleValue?.label;
+          }
+          if (moduleValue?.type === FilterFieldsTypeEnums[1]) {
+            obj.operator = moduleValue?.label;
+          }
+          if (moduleValue?.type === FilterFieldsTypeEnums[2]) {
+            obj.value = moduleValue?.value;
+          }
+        });
+        return obj;
+      });
+
+      queryString = `filter=${encodeURIComponent(JSON.stringify(queryFilterArray))}`;
+    }
+
+    // First update the state and fetch data
+    await fetchAllClientInquiryWithDebounce(queryString);
+
+    // Then navigate after the state updates are complete
+    setTimeout(() => {
+      navigate(`/${organization}/client-inquiry?${queryString}`);
+    }, 0);
+  };
+
   useEffect(() => {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
 
-    fetchAllClientInquiryWithDebounce();
-  }, [fetchAllClientInquiryWithDebounce]);
+    const filterQuery = queryParameter.get('filter');
+    let queryString = '';
+    if (filterQuery) {
+      const decodeQuery = decodeURIComponent(filterQuery);
+      const parsedFilter = JSON.parse(decodeQuery);
+
+      setUrlDecodedFilterQuery(parsedFilter);
+      queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
+    }
+
+    fetchAllClientInquiryWithDebounce(queryString);
+  }, [fetchAllClientInquiryWithDebounce, queryParameter]);
 
   return (
     <>
@@ -245,7 +368,8 @@ function ClientInquiry() {
                 />
                 <TableFilterSearchBar
                   filterColumnsArray={clientInquiryFiltersArray}
-                  handelApplyFilterFunc={() => {}}
+                  handelApplyFilterFunc={handelApplyFilterClientInquiry}
+                  urlDecodedFilterQuery={urlDecodedFilterQuery}
                 />
                 {isFetchingData ? (
                   <TableSkeletonLoader
@@ -281,9 +405,9 @@ function ClientInquiry() {
                         tableWrapperClass={
                           'max-h-[calc(100%-150px)] rounded-b-lg'
                         }
-                        notFoundTitle={'No Employees Found'}
+                        notFoundTitle={'No Inquiry Found'}
                         notFoundMessage={
-                          'No matching employee found. Try refining your search or add a new employee.'
+                          'We couldn’t find any inquiries that match your criteria. Please try adjusting your filters or search terms.'
                         }
                         notFoundOptionsButtonsArray={[]}
                       />

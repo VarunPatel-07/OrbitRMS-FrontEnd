@@ -1,3 +1,10 @@
+import {
+  Contains,
+  EndsWith,
+  Equals,
+  Is,
+  StartsWith,
+} from '../../constant/FilterOperator';
 import { FilterFieldsTypeEnums } from '../../enums/enums';
 import { SearchBarFilterOptionsInterface } from '../../interface/propsInterface';
 
@@ -14,28 +21,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
       </div>
     ),
     optionType: 'text',
-    operator: [
-      {
-        label: 'equals',
-        value: 'Equals',
-        type: FilterFieldsTypeEnums[1],
-      },
-      {
-        label: 'contains',
-        value: 'Contains',
-        type: FilterFieldsTypeEnums[1],
-      },
-      {
-        label: 'starts_with',
-        value: 'Starts With',
-        type: FilterFieldsTypeEnums[1],
-      },
-      {
-        label: 'ends_with',
-        value: 'Ends With',
-        type: FilterFieldsTypeEnums[1],
-      },
-    ],
+    operator: [Equals, Contains, StartsWith, EndsWith],
     options: [], // No options for text filters
   },
   {
@@ -50,13 +36,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
       </div>
     ),
     optionType: 'select',
-    operator: [
-      {
-        label: 'equals',
-        value: 'Equals',
-        type: FilterFieldsTypeEnums[1],
-      },
-    ],
+    operator: [Is],
     options: [
       {
         label: 'active',
@@ -82,13 +62,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
       </div>
     ),
     optionType: 'select',
-    operator: [
-      {
-        label: 'equals',
-        value: 'Equals',
-        type: FilterFieldsTypeEnums[1],
-      },
-    ],
+    operator: [Equals],
     options: [
       {
         label: 'technical',
@@ -124,28 +98,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
       </div>
     ),
     optionType: 'text',
-    operator: [
-      {
-        label: 'equals',
-        value: 'Equals',
-        type: FilterFieldsTypeEnums[1],
-      },
-      {
-        label: 'contains',
-        value: 'Contains',
-        type: FilterFieldsTypeEnums[1],
-      },
-      {
-        label: 'starts_with',
-        value: 'Starts With',
-        type: FilterFieldsTypeEnums[1],
-      },
-      {
-        label: 'ends_with',
-        value: 'Ends With',
-        type: FilterFieldsTypeEnums[1],
-      },
-    ],
+    operator: [Equals, Contains, StartsWith, EndsWith],
     options: [], // No options for text filters
   },
 ];

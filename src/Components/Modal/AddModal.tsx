@@ -197,7 +197,7 @@ function AddModal(props: AddModalProps) {
                           position='bottom'
                           emptyDataMessage=''
                           showSearchBar={false}
-                          labelFieldName='Gender'
+                          labelFieldName='Type'
                           isRequiredField
                           selectedValue={fieldType}
                           setSelectedValue={setFieldType}
