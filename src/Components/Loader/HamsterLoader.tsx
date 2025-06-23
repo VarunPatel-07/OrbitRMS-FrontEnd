@@ -24,7 +24,9 @@ function HamsterLoader({ theme }: { theme: 'light' | 'dark' }) {
           <div className='hamster__tail'></div>
         </div>
       </div>
-      <div className={`spoke ${theme === 'dark' ? 'spoke-dark' : 'spoke-light'}`}></div>
+      <div
+        className={`spoke ${theme === 'dark' ? 'spoke-dark' : 'spoke-light'}`}
+      ></div>
     </div>
   );
 }

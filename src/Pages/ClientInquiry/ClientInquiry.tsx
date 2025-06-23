@@ -34,7 +34,7 @@ import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
 import HelmetSeo from '../../Helper/HelmetSeo';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
-import { ClientInquiryFormSchemaInterface } from '../../interface/ClientInquiry';
+import { ClientInquiryFormSchemaInterface } from '../../interface/ClientInquiryInterFace';
 import {
   Column,
   MetaDataInterface,
@@ -87,6 +87,9 @@ function ClientInquiry() {
   const [loadingClientData, setLoadingClientData] = useState(true);
   const [data, setData] = useState([]);
   const [isFetchingData, setIsFetchingData] = useState<boolean>(false);
+  const [clientFormSchema, setClientFormSchema] = useState<
+    ClientInquiryFormSchemaInterface[]
+  >([]);
 
   const [urlDecodedFilterQuery, setUrlDecodedFilterQuery] = useState<
     UrlEncodedFilterQueryInterface[]
@@ -132,19 +135,111 @@ function ClientInquiry() {
     },
   ]);
 
+  const fetchClientFormSchema = async () => {
+    const endPointArr: endpointObject[] = [
+      {
+        endPoint: 'config/client_form_schema/fetch',
+        protected: true,
+      },
+    ];
+
+    const response = await multipleFetchApi(endPointArr);
+
+    const res = response[0];
+    if (res?.success) return { success: true, data: res?.data };
+    return { success: false, data: [] };
+  };
+
+  const handelGeneratingDynamicClientColumn = (
+    columnData: ClientInquiryFormSchemaInterface[]
+  ) => {
+    const columnsArray: Array<Column> = [];
+
+    const clientFilterArray: SearchBarFilterOptionsInterface[] = [];
+
+    columnData?.map((data: ClientInquiryFormSchemaInterface) => {
+      if (['string', 'number'].includes(data?.type)) {
+        const columnObject: Column = {
+          key: data?.field_name,
+          title: data?.field_name
+            ?.replace(/_/g, ' ')
+            ?.split(' ')
+            .map(
+              (item) =>
+                item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
+            )
+            ?.join(' '),
+          isSortable: true,
+          isSticky: false,
+          canToggleVisibility: true,
+          renderContent: (data: any) => (
+            <div className='w-fit'>
+              <span className='font-inter text-sm font-medium text-nowrap text-black'>
+                {data || <span>-</span>}
+              </span>
+            </div>
+          ),
+        };
+        columnsArray.push(columnObject);
+      }
+      if (['string', 'number', 'boolean'].includes(data?.type)) {
+        const FilterObject: SearchBarFilterOptionsInterface = {
+          id: data?.field_name,
+          value: data?.field_name
+            ?.replace(/_/g, ' ')
+            ?.split(' ')
+            .map(
+              (item) =>
+                item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
+            )
+            ?.join(' '),
+          label: (
+            <div className='flex items-start'>
+              <span className='icon-mail-05 text-gray-600 text-lg pe-2' />
+              <span>
+                {data?.field_name
+                  ?.replace(/_/g, ' ')
+                  ?.split(' ')
+                  .map(
+                    (item) =>
+                      item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
+                  )
+                  ?.join(' ')}
+              </span>
+            </div>
+          ),
+          optionType: data?.type == 'boolean' ? 'select' : 'text',
+          operator:
+            data?.type == 'boolean'
+              ? [Is]
+              : [Equals, Contains, StartsWith, EndsWith],
+          options:
+            data?.type == 'boolean'
+              ? [
+                  {
+                    label: 'active',
+                    value: 'Active',
+                    type: FilterFieldsTypeEnums[2],
+                  },
+                  {
+                    label: 'inactive',
+                    value: 'Inactive',
+                    type: FilterFieldsTypeEnums[2],
+                  },
+                ]
+              : [], // No options for text filters
+        };
+        clientFilterArray.push(FilterObject);
+      }
+    });
+
+    setColumns((perValue) => [...columnsArray, ...perValue]);
+    setClientInquiryFiltersArray(clientFilterArray);
+  };
+
   const fetchAllClientInquiryWithDebounce = useDebounce(
     async (queryString: string, page: number = 1, limit: number = 10) => {
-      // const endPointArrOne: endpointObject[] = [
-      //   {
-      //     endPoint: 'config/client_form_schema/fetch',
-      //     protected: true,
-      //   },
-      // ];
       const endPointArr: endpointObject[] = [
-        {
-          endPoint: 'config/client_form_schema/fetch',
-          protected: true,
-        },
         {
           endPoint:
             queryString == undefined || queryString?.trim() == ''
@@ -155,106 +250,32 @@ function ClientInquiry() {
       ];
 
       const response = await multipleFetchApi(endPointArr);
-      const formSchemaResponse = response[0];
 
-      const res = response[1];
+      const res = response[0];
 
-      if (formSchemaResponse?.success) {
-        const columnsArray: Array<Column> = [];
-
-        const clientFilterArray: SearchBarFilterOptionsInterface[] = [];
-
-        formSchemaResponse?.data?.map(
-          (data: ClientInquiryFormSchemaInterface) => {
-            if (['string', 'number'].includes(data?.type)) {
-              const columnObject: Column = {
-                key: data?.field_name,
-                title: data?.field_name
-                  ?.replace(/_/g, ' ')
-                  ?.split(' ')
-                  .map(
-                    (item) =>
-                      item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
-                  )
-                  ?.join(' '),
-                isSortable: true,
-                isSticky: false,
-                canToggleVisibility: true,
-                renderContent: (data: any) => (
-                  <div className='w-fit'>
-                    <span className='font-inter text-sm font-medium text-nowrap text-black'>
-                      {data || <span>-</span>}
-                    </span>
-                  </div>
-                ),
-              };
-              columnsArray.push(columnObject);
-            }
-            if (['string', 'number', 'boolean'].includes(data?.type)) {
-              const FilterObject: SearchBarFilterOptionsInterface = {
-                id: data?.field_name,
-                value: data?.field_name
-                  ?.replace(/_/g, ' ')
-                  ?.split(' ')
-                  .map(
-                    (item) =>
-                      item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
-                  )
-                  ?.join(' '),
-                label: (
-                  <div className='flex items-start'>
-                    <span className='icon-mail-05 text-gray-600 text-lg pe-2' />
-                    <span>
-                      {data?.field_name
-                        ?.replace(/_/g, ' ')
-                        ?.split(' ')
-                        .map(
-                          (item) =>
-                            item.charAt(0).toUpperCase() +
-                            item.slice(1).toLowerCase()
-                        )
-                        ?.join(' ')}
-                    </span>
-                  </div>
-                ),
-                optionType: data?.type == 'boolean' ? 'select' : 'text',
-                operator:
-                  data?.type == 'boolean'
-                    ? [Is]
-                    : [Equals, Contains, StartsWith, EndsWith],
-                options:
-                  data?.type == 'boolean'
-                    ? [
-                        {
-                          label: 'active',
-                          value: 'Active',
-                          type: FilterFieldsTypeEnums[2],
-                        },
-                        {
-                          label: 'inactive',
-                          value: 'Inactive',
-                          type: FilterFieldsTypeEnums[2],
-                        },
-                      ]
-                    : [], // No options for text filters
-              };
-              clientFilterArray.push(FilterObject);
-            }
-          }
-        );
-
-        setColumns((perValue) => [...columnsArray, ...perValue]);
-        setClientInquiryFiltersArray(clientFilterArray);
-
-        if (res?.success) {
-          setData(res?.data);
-          setMetaData(res?.metadata);
+      if (clientFormSchema.length == 0) {
+        const data = await fetchClientFormSchema();
+        if (data?.success) {
+          setClientFormSchema(data?.data);
+          handelGeneratingDynamicClientColumn(data?.data);
         } else {
           handelNotification(res, 'top-right');
         }
-      } else {
-        handelNotification(formSchemaResponse, 'top-right');
       }
+
+      // if (columns.length == 1 || clientInquiryFiltersArray.length == 0) {
+        console.log(columns, clientInquiryFiltersArray);
+
+      //   handelGeneratingDynamicClientColumn(clientFormSchema);
+      // }
+
+      if (res?.success) {
+        setData(res?.data);
+        setMetaData(res?.metadata);
+      } else {
+        handelNotification(res, 'top-right');
+      }
+
       setIsFetchingData(false);
       setLoadingClientData(false);
     },
@@ -387,7 +408,7 @@ function ClientInquiry() {
                           columns={columns}
                           data={data}
                           tableWrapperClass={
-                            'overflow-auto max-h-[calc(100vh-345px)]'
+                            'overflow-auto max-h-[calc(100vh-345px)] h-full bg-white'
                           }
                           stickyHeaderClass='sticky top-0'
                         />

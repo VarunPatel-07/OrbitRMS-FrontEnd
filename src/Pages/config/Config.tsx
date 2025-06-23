@@ -25,7 +25,8 @@ function Config() {
   ) as GlobalStateContextApiProps;
   const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_slug || JSON.parse(localStorageData)?.portal_slug;
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
 
   useEffect(() => {
     if (location.pathname == `/${organization}/config`) {

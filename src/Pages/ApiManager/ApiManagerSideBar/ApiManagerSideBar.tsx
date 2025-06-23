@@ -7,7 +7,7 @@ import {
   GlobalStateContextApiProps,
 } from '../../../Context/globalState/GlobalStateContectApi';
 import { getDataFromLocalStorage } from '../../../Helper/HelperFunctions';
-import { ApiManagerSidebarList } from '../../config/ConfigSidebar/ApiManagerSidebarList';
+import { ApiManagerSidebarList } from './ApiManagerSidebarList';
 
 function ApiManagerSideBar() {
   const { GlobalStateProvider } = useContext(

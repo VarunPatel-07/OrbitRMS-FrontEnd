@@ -32,7 +32,7 @@ function Navbar() {
   const organization =
     GlobalStateProvider?.organization?.general_info?.portal_slug ||
     JSON.parse(localStorageData)?.portal_slug;
-    
+
   const NavbarProfileDropDown: NavbarProfileDropDownInterface[] = [
     {
       icon: null,

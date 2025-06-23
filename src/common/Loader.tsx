@@ -1,6 +1,12 @@
 import { classNames } from '../Helper/HelperFunctions';
 
-function Loader({ loaderText }: { loaderText: string }) {
+function Loader({
+  loaderText,
+  theme = 'light',
+}: {
+  loaderText: string;
+  theme?: 'dark' | 'light';
+}) {
   return (
     <span
       className={classNames('flex items-center justify-center', {
@@ -8,7 +14,10 @@ function Loader({ loaderText }: { loaderText: string }) {
       })}
     >
       <svg
-        className='-ml-1 size-5 animate-spin text-white'
+        className={classNames('-ml-1 size-5 animate-spin', {
+          'text-black': theme == 'dark',
+          'text-white': theme == 'light',
+        })}
         xmlns='http://www.w3.org/2000/svg'
         fill='none'
         viewBox='0 0 24 24'

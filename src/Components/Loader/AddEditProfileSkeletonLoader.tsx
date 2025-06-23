@@ -157,7 +157,10 @@ function AddEditProfileSkeletonLoader(
             {showSocialLinkField && (
               <>
                 {Array.from({ length: 1 }).map((_, index) => (
-                  <div className='flex items-center justify-start gap-3' key={index}>
+                  <div
+                    className='flex items-center justify-start gap-3'
+                    key={index}
+                  >
                     <div className='flex flex-col items-start justify-start'>
                       <Skeleton
                         width={100}
