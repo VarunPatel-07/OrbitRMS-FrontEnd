@@ -478,7 +478,8 @@ function EmployeeDetails(props: {
               className={classNames(
                 'w-full flex items-center justify-start gap-1.5 px-6',
                 {
-                  'border-b border-b-black/20 pb-3': !data?.same_as_current_address,
+                  'border-b border-b-black/20 pb-3':
+                    !data?.same_as_current_address,
                 }
               )}
             >

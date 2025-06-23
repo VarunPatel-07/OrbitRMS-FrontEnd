@@ -11,7 +11,6 @@ function ProtectedRoute({ element }: { element: React.ReactElement }) {
     getDataFromLocalStorage('authenticationToken') ||
     getDataFromTheSessionStorage('authenticationToken');
 
-
   return typeof isAuthenticated === 'string' &&
     isAuthenticated.trim() !== '' ? (
     element

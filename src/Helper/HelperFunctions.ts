@@ -392,3 +392,18 @@ export const compareTwoNestedObject = (objOne: any, objTwo: any): boolean => {
 
   return true;
 };
+
+export const CompareTwoArrayOfString = (
+  arrayOne: Array<string>,
+  arrayTwo: Array<string>
+) => {
+  if (arrayOne?.length !== arrayTwo?.length) return false;
+  arrayOne.forEach((item, index) => {
+    if (
+      item?.trim()?.toLocaleLowerCase() !==
+      arrayTwo[index]?.trim()?.toLocaleLowerCase()
+    )
+      return false;
+  });
+  return true;
+};

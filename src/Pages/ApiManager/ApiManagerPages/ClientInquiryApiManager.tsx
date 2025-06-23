@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AiOutlineRedo } from 'react-icons/ai';
 import { FaEye, FaEyeSlash, FaStarOfLife } from 'react-icons/fa';
-import { MdDelete, MdEdit } from 'react-icons/md';
+import { MdContentCopy, MdDelete, MdEdit } from 'react-icons/md';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 import Breadcrumbs from '../../../common/Breadcrumbs';
@@ -20,9 +20,12 @@ import {
   multipleFetchApi,
   multiplePutApi,
 } from '../../../Helper/api/multipleAPI';
-import { getDataFromLocalStorage } from '../../../Helper/HelperFunctions';
+import {
+  CompareTwoArrayOfString,
+  getDataFromLocalStorage,
+} from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
-import { ClientInquiry } from '../../../interface/ClientInquiry';
+import { ClientInquiry } from '../../../interface/ClientInquiryInterFace';
 
 function ClientInquiryApiManager() {
   const { GlobalStateProvider } = useContext(
@@ -50,10 +53,18 @@ function ClientInquiryApiManager() {
     api_secrete: boolean;
   }>({ api_key: false, api_secrete: false });
 
-  const [receiveEmail, setIsReceiveEmail] = useState<boolean>(false);
+  const [isReceiveEmail, setIsReceiveEmail] = useState<boolean>(false);
   const [receivingAuthorityMail, setReceivingAuthorityMail] = useState<
     Array<string>
   >(['']);
+  const [dummyReceivingAuthorityMail, setDummyReceivingAuthorityMail] =
+    useState<Array<string>>(['']);
+  const [receivingEmailLoader, setReceivingEmailLoader] =
+    useState<boolean>(false);
+  const [
+    saveReceivingAuthorityMailLoader,
+    setSaveReceivingAuthorityMailLoader,
+  ] = useState<boolean>(false);
 
   const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
@@ -88,11 +99,14 @@ function ClientInquiryApiManager() {
     const res = response[0];
     if (res?.success) {
       setFormData(res?.data);
+      setIsReceiveEmail(res?.data?.email_notification);
+      setReceivingAuthorityMail(res?.data?.authorized_recipient_emails);
+      setDummyReceivingAuthorityMail(res?.data?.authorized_recipient_emails);
       setLoading(false);
     } else {
       setLoading(false);
     }
-  }, 1000);
+  }, 100);
 
   const handelEnableDisableWithDebounce = useDebounce(async () => {
     const endpointArr: endpointObject[] = [
@@ -145,6 +159,29 @@ function ClientInquiryApiManager() {
     handelReGenerateApiCredentialWithDebounce(id, field_name);
   };
 
+  const handelEnableMailNotificationWithDebounce = useDebounce(
+    async (id: string) => {
+      const endpointArr: endpointObject[] = [
+        {
+          endPoint: `client-inquires/enable-mail-notification?id=${id}`,
+          protected: true,
+        },
+      ];
+      const response = await multiplePutApi(endpointArr);
+      const res = response[0];
+      if (res?.success) {
+        setReceivingEmailLoader(false);
+        setIsReceiveEmail(res?.email_notification);
+      }
+    },
+    1000
+  );
+
+  const handelEnableMailNotification = (id: string) => {
+    setReceivingEmailLoader(true);
+    handelEnableMailNotificationWithDebounce(id);
+  };
+
   const handelOnEditButton = () => {
     setReceivingAuthorityMail((perValue) => {
       if (perValue.every((item) => item?.trim() !== '')) {
@@ -165,6 +202,66 @@ function ClientInquiryApiManager() {
     const finalArray = dummyArray.filter((_, i) => i !== index);
     setReceivingAuthorityMail(finalArray);
   };
+
+  const handelClickOnCopyButton = () => {
+    const metaUrl = `${BACKEND_API_BASEURL}/app/v1/app/v1/client-inquires/submit?api_key=YOUR_API_KEY&api_secret=YOUR_API_SECRET`;
+    window.navigator.clipboard
+      .writeText(metaUrl)
+      .then(() => {
+        const data = { success: true, message: 'Url Copied Successfully' };
+        handelNotification(data, 'center');
+      })
+      .catch(() => {
+        console.error('Failed to copy');
+      });
+  };
+
+  const handelAddRecipientEmailWithDebounce = useDebounce(
+    async (id: string) => {
+      const endpointArr: endpointObject[] = [
+        {
+          endPoint: `client-inquires/add-authorized-recipient?id=${id}`,
+          protected: true,
+          data: { authorized_recipient: receivingAuthorityMail },
+        },
+      ];
+      const response = await multiplePutApi(endpointArr);
+      const res = response[0];
+      if (res?.success) {
+        setSaveReceivingAuthorityMailLoader(false);
+        setReceivingAuthorityMail(res?.authorized_recipient_email);
+        setDummyReceivingAuthorityMail(res?.authorized_recipient_email);
+      }
+    }
+  );
+  const handelClickOnSaveButton = () => {
+    const isValid = CompareTwoArrayOfString(
+      receivingAuthorityMail,
+      dummyReceivingAuthorityMail
+    );
+    if (!isValid && formData?.id) {
+      setSaveReceivingAuthorityMailLoader(true);
+      handelAddRecipientEmailWithDebounce(formData?.id);
+    }
+  };
+
+  const handelResetReceivingAuthorityMail = () => {
+    setReceivingAuthorityMail(dummyReceivingAuthorityMail);
+  };
+
+  useEffect(() => {
+    const handelKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (formData?.id) handelClickOnSaveButton();
+      }
+    };
+
+    window.addEventListener('keydown', handelKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handelKeyDown);
+    };
+  });
 
   useEffect(() => {
     if (useEffectRef.current) return;
@@ -342,7 +439,10 @@ function ClientInquiryApiManager() {
                               }
                             >
                               {reGenerateCredentialLoader?.api_key ? (
-                                <Loader loaderText='ReGenerating...' />
+                                <Loader
+                                  loaderText='ReGenerating...'
+                                  theme='dark'
+                                />
                               ) : (
                                 <>
                                   {' '}
@@ -395,7 +495,10 @@ function ClientInquiryApiManager() {
                               disabled={reGenerateCredentialLoader?.api_secrete}
                             >
                               {reGenerateCredentialLoader?.api_secrete ? (
-                                <Loader loaderText='ReGenerating...' />
+                                <Loader
+                                  loaderText='ReGenerating...'
+                                  theme='dark'
+                                />
                               ) : (
                                 <>
                                   {' '}
@@ -413,64 +516,141 @@ function ClientInquiryApiManager() {
                               received.
                             </p>
 
-                            <button
-                              className={`w-10 h-[18px] rounded-full relative transition-all duration-200 border border-transparent disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:border-black/20 ${receiveEmail ? 'bg-green-500' : 'bg-red-500'}`}
-                              onClick={() => setIsReceiveEmail(!receiveEmail)}
-                            >
-                              <span
-                                className={`w-3.5 h-3.5 bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${receiveEmail ? 'left-[22px]' : 'left-0.5'}`}
-                              ></span>
-                            </button>
+                            {receivingEmailLoader ? (
+                              <Loader loaderText=' ' theme='dark' />
+                            ) : (
+                              <button
+                                className={`w-10 h-[18px] rounded-full relative transition-all duration-200 border border-transparent disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:border-black/20 ${isReceiveEmail ? 'bg-green-500' : 'bg-red-500'}`}
+                                onClick={() =>
+                                  handelEnableMailNotification(formData?.id)
+                                }
+                              >
+                                <span
+                                  className={`w-3.5 h-3.5 bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${isReceiveEmail ? 'left-[22px]' : 'left-0.5'}`}
+                                ></span>
+                              </button>
+                            )}
                           </div>
                           <div className='p-4'>
-                            <div className='w-full pb-3 border-b border-b-black/10'>
+                            <div className='w-full pb-3 border-b border-b-black/10 flex items-center justify-between'>
                               <p className='font-inter text-black/80 font-medium text-base w-fit flex items-center'>
                                 Add the recipient's email for client inquiry
                                 alerts.
                               </p>
+                              <div className='flex items-center justify-end gap-2'>
+                                <button
+                                  className='font-inter text-black font-medium border border-black/20 px-4 py-1.5 text-sm rounded-lg disabled:opacity-70 disabled:cursor-not-allowed'
+                                  onClick={handelResetReceivingAuthorityMail}
+                                  disabled={CompareTwoArrayOfString(
+                                    receivingAuthorityMail,
+                                    dummyReceivingAuthorityMail
+                                  )}
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  className='font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-sm rounded-lg disabled:opacity-70 disabled:cursor-not-allowed'
+                                  onClick={handelClickOnSaveButton}
+                                  disabled={
+                                    CompareTwoArrayOfString(
+                                      receivingAuthorityMail,
+                                      dummyReceivingAuthorityMail
+                                    ) || saveReceivingAuthorityMailLoader
+                                  }
+                                >
+                                  {saveReceivingAuthorityMailLoader ? (
+                                    <Loader loaderText='Saving...' />
+                                  ) : (
+                                    'Save'
+                                  )}
+                                </button>
+                              </div>
                             </div>
                             <div className='flex items-stretch flex-col justify-between pt-7 gap-4'>
-                              {receivingAuthorityMail?.map((item, index) => (
-                                <div
-                                  className='flex items-stretch justify-between gap-4'
-                                  key={index}
-                                >
-                                  <div className='flex-grow'>
-                                    <Input
-                                      name='text'
-                                      className='border border-black/45'
-                                      value={item}
-                                      disabled={!receiveEmail}
-                                      onChange={(e) =>
-                                        handelInputFieldOnChange(e, index)
-                                      }
-                                    />
-                                  </div>
-                                  <div className='flex items-center justify-end gap-2 w-fit'>
-                                    {receivingAuthorityMail.length ==
-                                      index + 1 && (
-                                      <button
-                                        className='text-black text-lg p-2 bg-white hover:bg-gray-100 h-full min-w-[40px] flex items-center justify-center border border-black/15 rounded-lg'
-                                        onClick={handelOnEditButton}
+                              {saveReceivingAuthorityMailLoader ? (
+                                <>
+                                  {Array.from({ length: 3 })?.map(
+                                    (_, index) => (
+                                      <div
+                                        className='flex items-stretch justify-between gap-4'
+                                        key={index}
                                       >
-                                        <MdEdit />
-                                      </button>
-                                    )}
-                                    {(receivingAuthorityMail.length !==
-                                      index + 1 ||
-                                      index !== 0) && (
-                                      <button
-                                        className='text-black text-lg p-2 bg-white hover:bg-gray-100 h-full min-w-[40px] flex items-center justify-center border border-black/15 rounded-lg'
-                                        onClick={() =>
-                                          handelDeleteButton(index)
-                                        }
+                                        <div className='flex-grow'>
+                                          <Skeleton
+                                            width={'100%'}
+                                            height={40}
+                                            className='inline-block'
+                                            borderRadius={8}
+                                          />
+                                        </div>
+                                        <div className='flex items-center justify-end gap-2 w-fit'>
+                                          <Skeleton
+                                            width={40}
+                                            height={40}
+                                            className='inline-block'
+                                            borderRadius={8}
+                                          />
+                                          <Skeleton
+                                            width={40}
+                                            height={40}
+                                            className='inline-block'
+                                            borderRadius={8}
+                                          />
+                                        </div>
+                                      </div>
+                                    )
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  {receivingAuthorityMail?.map(
+                                    (item, index) => (
+                                      <div
+                                        className='flex items-stretch justify-between gap-4'
+                                        key={index}
                                       >
-                                        <MdDelete />
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
+                                        <div className='flex-grow'>
+                                          <Input
+                                            name='ReceivingAuthorityMail'
+                                            type='email'
+                                            className='border border-black/45'
+                                            value={item}
+                                            disabled={!isReceiveEmail}
+                                            onChange={(e) =>
+                                              handelInputFieldOnChange(e, index)
+                                            }
+                                          />
+                                        </div>
+                                        <div className='flex items-center justify-end gap-2 w-fit'>
+                                          {receivingAuthorityMail.length ==
+                                            index + 1 && (
+                                            <button
+                                              className='text-black text-lg p-2 bg-white hover:bg-gray-100 h-full min-w-[40px] flex items-center justify-center border border-black/15 rounded-lg disabled:opacity-65 disabled:bg-white disabled:cursor-not-allowed'
+                                              onClick={handelOnEditButton}
+                                              disabled={!isReceiveEmail}
+                                            >
+                                              <MdEdit />
+                                            </button>
+                                          )}
+                                          {(receivingAuthorityMail.length !==
+                                            index + 1 ||
+                                            index !== 0) && (
+                                            <button
+                                              className='text-black text-lg p-2 bg-white hover:bg-gray-100 h-full min-w-[40px] flex items-center justify-center border border-black/15 rounded-lg disabled:opacity-65 disabled:bg-white disabled:cursor-not-allowed'
+                                              onClick={() =>
+                                                handelDeleteButton(index)
+                                              }
+                                              disabled={!isReceiveEmail}
+                                            >
+                                              <MdDelete />
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )
+                                  )}
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -496,7 +676,7 @@ function ClientInquiryApiManager() {
                               as query parameters for authentication.
                             </p>
 
-                            <div className='bg-black p-2 rounded'>
+                            <div className='bg-black p-2 rounded relative group'>
                               <span className='font-inter text-white/85 font-medium'>
                                 {BACKEND_API_BASEURL}
                                 /app/v1/client-inquires/submit?api_key=
@@ -508,6 +688,12 @@ function ClientInquiryApiManager() {
                                   YOUR_API_SECRET
                                 </span>
                               </span>
+                              <button
+                                className='absolute top-1/2 -translate-y-1/2 right-2 invisible group-hover:visible'
+                                onClick={handelClickOnCopyButton}
+                              >
+                                <MdContentCopy />
+                              </button>
                             </div>
 
                             <p className='font-inter text-sm text-black/70'>
