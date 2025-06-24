@@ -414,6 +414,7 @@ function Designations() {
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
         handelDelete={handelDeleteItem}
+        name='Designation'
       />
     </>
   );

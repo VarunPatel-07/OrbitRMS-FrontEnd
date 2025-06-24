@@ -64,3 +64,9 @@ export interface EmployeeFieldInterface {
   account_status: boolean;
   organization_id: string;
 }
+
+export type EmployeeStatusInterface =
+  | 'Intern'
+  | 'Trainee'
+  | 'Probation'
+  | 'Confirmed';

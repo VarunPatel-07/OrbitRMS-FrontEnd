@@ -10,6 +10,7 @@ import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
+import { BeautifulAccountStatusRenderer, InfoField } from '../../Helper/Helper';
 import {
   classNames,
   formateDate,
@@ -19,39 +20,11 @@ import {
   AddressModuleInterface,
   UserProfileInformationInterface,
 } from '../../interface/AddEditUserProfileInterFace';
+import { EmployeeStatusInterface } from '../../interface/EmployeeInterface';
 import { InterFaceModuleData } from '../../interface/interface';
 import { Organization } from '../../interface/UserProfileInterface';
 
-interface InfoFieldProps {
-  label: string;
-  value: string | number | null | undefined;
-  renderDate?: boolean;
-  default_dateformat?: string;
-}
-const InfoField = ({
-  label,
-  value,
-  renderDate = false,
-  default_dateformat,
-}: InfoFieldProps) => (
-  <div className='w-full'>
-    {label?.trim() !== '' && (
-      <span className='text-base font-inter font-medium text-black pb-1 inline-block'>
-        {label}
-      </span>
-    )}
 
-    {renderDate && default_dateformat ? (
-      <p className='text-sm text-black/65 font-inter font-medium'>
-        {value ? formateDate(value as string, default_dateformat, false) : '-'}
-      </p>
-    ) : (
-      <p className='text-sm text-black/65 font-medium font-inter'>
-        {value || '-'}
-      </p>
-    )}
-  </div>
-);
 
 function EmployeeDetails(props: {
   data: UserProfileInformationInterface;
@@ -232,9 +205,9 @@ function EmployeeDetails(props: {
                       Status
                     </span>
 
-                    <p className='text-sm text-black/60 font-inter font-medium'>
-                      {data.employee_info?.status || '-'}
-                    </p>
+                    {BeautifulAccountStatusRenderer(
+                      data.employee_info?.status as EmployeeStatusInterface
+                    )}
                   </div>
                 </div>
                 <div className='w-full'>
@@ -485,7 +458,7 @@ function EmployeeDetails(props: {
             >
               <p
                 className={classNames(
-                  'text-black capitalize font-inter w-full',
+                  'text-black capitalize font-inter w-fit',
                   {
                     'text-lg font-semibold': !data?.same_as_current_address,
                     'text-sm': data?.same_as_current_address,

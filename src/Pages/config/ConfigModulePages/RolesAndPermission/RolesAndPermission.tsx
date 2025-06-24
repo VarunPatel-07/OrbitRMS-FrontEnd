@@ -496,6 +496,7 @@ function RolesAndPermission() {
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
         handelDelete={handelDeleteItem}
+        name='Role'
       />
     </>
   );

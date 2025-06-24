@@ -8,7 +8,7 @@ function EmployeeProfilePicture(props: EmployeeProfilePictureInterface) {
   return (
     <div className='w-full flex items-center justify-center'>
       <div
-        className='w-full h-full rounded-full overflow-hidden bg-black/50'
+        className='w-full h-full rounded-full overflow-hidden outline outline-1 outline-black/10 bg-black/50'
         style={{
           minWidth: `${width}px`,
           minHeight: `${height}px`,

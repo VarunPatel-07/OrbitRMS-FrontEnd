@@ -394,7 +394,7 @@ function Onboarding() {
 
     const response = await multipleFetchApi(endPointArr);
     if (response[0].success) {
-      setCitiesOptionsArray(response[0].cities_array);
+      setCitiesOptionsArray(response[0]?.data?.cities_array);
     }
     setLoading(false);
   };
@@ -414,7 +414,7 @@ function Onboarding() {
     const response = await multipleFetchApi(endpointArray);
     if (response) {
       if (response[0]?.success) {
-        setStateOptionArray(response[0].states);
+        setStateOptionArray(response[0]?.data?.states);
       }
       if (response[1]?.success) {
         setFormData((prevValue) => ({
@@ -422,8 +422,8 @@ function Onboarding() {
 
           organization_settings: {
             ...prevValue.organization_settings,
-            default_dateformat: response[1]?.country_date_formate,
-            default_timezone: response[1]?.timeZones[0],
+            default_dateformat: response[1]?.data?.country_date_formate,
+            default_timezone: response[1]?.data?.timeZones[0],
           },
         }));
       }

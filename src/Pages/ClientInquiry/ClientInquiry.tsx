@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useContext, useEffect, useRef, useState } from 'react';
 import { IoEye } from 'react-icons/io5';
+import { MdDelete } from 'react-icons/md';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
@@ -12,6 +13,7 @@ import TableInfoHeader from '../../common/Table/TableInfoHeader';
 import TableNoDataFound from '../../common/Table/TableNoDataFound';
 import TablePagination from '../../common/Table/TablePagination';
 import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoader';
+import ClientInquirySliderModal from '../../Components/Modal/ClientInquirySliderModal';
 import DeleteModal from '../../Components/Modal/DeleteModal';
 import { dropdownMenuArray } from '../../constant/constant';
 import {
@@ -30,7 +32,11 @@ import {
   NotificationContextApiProps,
 } from '../../Context/Notification/NotificationContextApi';
 import { FilterFieldsTypeEnums } from '../../enums/enums';
-import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
+import {
+  endpointObject,
+  multipleDeleteApi,
+  multipleFetchApi,
+} from '../../Helper/api/multipleAPI';
 import HelmetSeo from '../../Helper/HelmetSeo';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
@@ -90,6 +96,14 @@ function ClientInquiry() {
   const [clientFormSchema, setClientFormSchema] = useState<
     ClientInquiryFormSchemaInterface[]
   >([]);
+  const [isDeletingClientInquiry, setIsDeletingClientInquiry] =
+    useState<boolean>(false);
+  const [deleteClientInquiryId, setDeleteClientInquiryId] =
+    useState<string>('');
+
+  const [clientInquiryData, setClientInquiryData] = useState<any>({});
+  const [showClientInquiryDetail, setShowClientInquiryDetail] =
+    useState<boolean>(false);
 
   const [urlDecodedFilterQuery, setUrlDecodedFilterQuery] = useState<
     UrlEncodedFilterQueryInterface[]
@@ -106,25 +120,34 @@ function ClientInquiry() {
       isSortable: false,
       isSticky: true,
       canToggleVisibility: true,
-      renderContent: () => {
+      renderContent: (data) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
             <button
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='project_status_view_profile_button'
-              data-tooltip-content='View Profile'
+              data-tooltip-id='client_inquiry_view_button'
+              data-tooltip-content='View Inquiry'
+              onClick={() => handelClickOnViewInquiryButton(data)}
             >
               <IoEye className='text-[22px]' />
             </button>
+            <button
+              className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
+              data-tooltip-id='client_inquiry_view_button'
+              data-tooltip-content='Delete Inquiry'
+              onClick={() => handelClickOnDeleteButton(data)}
+            >
+              <MdDelete className='text-[22px]' />
+            </button>
             <Tooltip
-              id='project_status_edit_button'
+              id='client_inquiry_view_button'
               opacity={'100'}
               className='z-[15] bg-white'
               place='left'
             />
 
             <Tooltip
-              id='project_status_view_profile_button'
+              id='client_inquiry_delete_button'
               opacity={'100'}
               className='z-[15] bg-white'
               place='left'
@@ -134,6 +157,15 @@ function ClientInquiry() {
       },
     },
   ]);
+
+  const handelClickOnViewInquiryButton = (data: any) => {
+    setShowClientInquiryDetail(true);
+    setClientInquiryData(data);
+  };
+  const handelClickOnDeleteButton = (data: any) => {
+    setDeleteClientInquiryId(data?.id);
+    setShowDeleteModal(true);
+  };
 
   const fetchClientFormSchema = async () => {
     const endPointArr: endpointObject[] = [
@@ -263,15 +295,11 @@ function ClientInquiry() {
         }
       }
 
-      // if (columns.length == 1 || clientInquiryFiltersArray.length == 0) {
-        console.log(columns, clientInquiryFiltersArray);
-
-      //   handelGeneratingDynamicClientColumn(clientFormSchema);
-      // }
-
       if (res?.success) {
         setData(res?.data);
         setMetaData(res?.metadata);
+        setSelectedPage(res?.metadata?.current_page);
+        setRecordsPerPage(res?.metadata?.record_per_page);
       } else {
         handelNotification(res, 'top-right');
       }
@@ -311,7 +339,43 @@ function ClientInquiry() {
     fetchAllClientInquiryWithDebounce(queryString, value, recordsPerPage);
   };
 
-  const handelDelete = () => {};
+  const handelDeleteClientInquiryWithDebounce = useDebounce(async () => {
+    const endPointArr: endpointObject[] = [
+      {
+        endPoint: `client-inquires/delete-inquire?id=${deleteClientInquiryId}`,
+        protected: true,
+      },
+    ];
+
+    const response = await multipleDeleteApi(endPointArr);
+
+    const res = response[0];
+
+    if (res?.success) {
+      setIsDeletingClientInquiry(false);
+      setShowDeleteModal(false);
+      setLoadingClientData(true);
+      const filterQuery = queryParameter.get('filter');
+      let queryString = '';
+      if (filterQuery) {
+        const decodeQuery = decodeURIComponent(filterQuery);
+        const parsedFilter = JSON.parse(decodeQuery);
+
+        setUrlDecodedFilterQuery(parsedFilter);
+        queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
+      }
+      fetchAllClientInquiryWithDebounce(queryString, 1, recordsPerPage);
+    } else {
+      setIsDeletingClientInquiry(false);
+      handelNotification(res, 'top-right');
+      setShowDeleteModal(false);
+    }
+  }, 100);
+
+  const handelDelete = () => {
+    setIsDeletingClientInquiry(true);
+    handelDeleteClientInquiryWithDebounce();
+  };
 
   const handelApplyFilterClientInquiry = async (
     filterArray: FilterObjectInterface[]
@@ -385,7 +449,7 @@ function ClientInquiry() {
               <div className='w-full h-full'>
                 <TableInfoHeader
                   moduleName='Client Inquiry'
-                  badgeValue={`${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length * selectedPage} of  ${metaData?.total_data}  Inquiry`}
+                  badgeValue={`${(metaData?.current_page - 1) * Number(metaData?.record_per_page) + 1} - ${Math.min(metaData?.current_page * metaData?.record_per_page, metaData?.total_data)} of  ${metaData?.total_data}  Inquiry`}
                 />
                 <TableFilterSearchBar
                   filterColumnsArray={clientInquiryFiltersArray}
@@ -444,7 +508,13 @@ function ClientInquiry() {
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
         handelDelete={handelDelete}
-        loading={false}
+        loading={isDeletingClientInquiry}
+        name='Inquiry'
+      />
+      <ClientInquirySliderModal
+        clientInquiryData={clientInquiryData}
+        showClientInquiryDetail={showClientInquiryDetail}
+        setShowClientInquiryDetail={setShowClientInquiryDetail}
       />
     </>
   );

@@ -176,7 +176,7 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
         setCroppedImagePreview('');
         return;
       }
-      setImageUrl(res?.url);
+      setImageUrl(res?.data?.url);
 
       const successData = {
         success: true,

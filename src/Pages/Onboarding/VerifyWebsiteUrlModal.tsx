@@ -91,13 +91,13 @@ export default function VerifyWebsiteUrlModal({
       handelNotification(
         {
           success: true,
-          message: res?.match
+          message: res?.data?.match
             ? 'Website Verified Successfully'
             : 'Verification completed using an existing meta tag.',
         },
         'top-right'
       );
-      setMetaTag(res?.actual_value);
+      setMetaTag(res?.data?.actual_value);
       addWebsiteUrlFunction(websiteUrl, 'orbitrms', metaTag, res?.success);
       if (res?.success) {
         setShowModal(false);
@@ -105,7 +105,7 @@ export default function VerifyWebsiteUrlModal({
     } else {
       handelNotification(
         {
-          success: res?.match,
+          success: res?.data?.match,
           message: 'Unable To Find Meta Tag',
         },
         'top-right'

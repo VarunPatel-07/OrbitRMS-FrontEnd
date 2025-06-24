@@ -20,6 +20,13 @@ export interface URLObject {
   data?: object;
   header?: object;
 }
+export interface ApiReturnInterface {
+  message: string;
+  success: boolean;
+  data?: any;
+  metadata?: any;
+  current_session_id?: string;
+}
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 
@@ -27,7 +34,9 @@ const defaultHeader = {
   'Content-Type': 'application/json',
 };
 
-export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
+export const multipleFetchApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
       const _localToken = getDataFromLocalStorage('authenticationToken');
@@ -101,7 +110,9 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
   return await Promise.all(promises);
 };
 
-export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
+export const multiplePostApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
       const _localToken = getDataFromLocalStorage('authenticationToken');
@@ -183,7 +194,9 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
 
 // todo we need to add put api helper for editing api
 
-export const multiplePutApi = async (endPointArr: Array<endpointObject>) => {
+export const multiplePutApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
       const _localToken = getDataFromLocalStorage('authenticationToken');
@@ -254,7 +267,9 @@ export const multiplePutApi = async (endPointArr: Array<endpointObject>) => {
   return await Promise.all(promises);
 };
 
-export const multipleDeleteApi = async (endPointArr: Array<endpointObject>) => {
+export const multipleDeleteApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
       const _localToken = getDataFromLocalStorage('authenticationToken');

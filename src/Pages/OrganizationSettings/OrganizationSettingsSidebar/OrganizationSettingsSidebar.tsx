@@ -32,7 +32,7 @@ function OrganizationSettingsSidebar() {
       <div className='w-full h-full flex flex-col items-start justify-start'>
         <div className='w-full bg-[#7fab98]/15 px-3.5 py-6 border-b border-b-black/15'>
           <h2 className='text-xl text-black font-inter font-semibold'>
-            Organization Setting
+            Organization Settings
           </h2>
         </div>
         <ul className='w-full h-full overflow-hidden'>
