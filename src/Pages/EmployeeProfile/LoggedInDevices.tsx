@@ -47,7 +47,7 @@ function LoggedInDevices(props: { organizationInfo: Organization }) {
     if (res?.success) {
       setLoading(false);
       setData(res?.data);
-      setCurrentSessionId(res?.current_session_id);
+      if (res?.current_session_id) setCurrentSessionId(res?.current_session_id);
     } else {
       setLoading(false);
     }

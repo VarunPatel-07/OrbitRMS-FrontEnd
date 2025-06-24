@@ -416,6 +416,7 @@ export default function AttachmentTypes() {
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
         handelDelete={handelDeleteItem}
+        name='Department'
       />
     </>
   );

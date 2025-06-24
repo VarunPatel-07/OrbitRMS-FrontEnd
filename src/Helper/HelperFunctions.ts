@@ -50,6 +50,7 @@ export const ErrorHandler = (error: Error | AxiosError) => {
     const errorData = {
       success: error?.response?.data?.detail?.success ?? false,
       message: error?.response?.data?.detail?.message ?? 'something went wrong',
+      data: null,
     };
     return errorData;
   } else {

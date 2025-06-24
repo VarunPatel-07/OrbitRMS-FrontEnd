@@ -22,12 +22,14 @@ import {
 } from '../../Context/globalState/GlobalStateContectApi';
 import { FilterFieldsTypeEnums } from '../../enums/enums';
 import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
+import { BeautifulAccountStatusRenderer } from '../../Helper/Helper';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
 import {
   EmployeeEmployeeInfo,
   EmployeeFieldInterface,
   EmployeePersonalInfo,
+  EmployeeStatusInterface,
 } from '../../interface/EmployeeInterface';
 import {
   Column,
@@ -146,8 +148,24 @@ function EmployeeListing() {
       ),
     },
     {
-      key: 'account_status',
+      key: 'employee_info',
       title: 'Status',
+      isSortable: true,
+      isSticky: false,
+      canToggleVisibility: true,
+      renderContent: (data: EmployeeEmployeeInfo) => (
+        <div className='w-fit'>
+          <span className='font-inter text-sm font-medium text-nowrap text-black'>
+            {BeautifulAccountStatusRenderer(
+              data?.status as EmployeeStatusInterface
+            )}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: 'account_status',
+      title: 'Account Status',
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,

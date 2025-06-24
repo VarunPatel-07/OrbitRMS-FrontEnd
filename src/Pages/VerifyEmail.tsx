@@ -24,7 +24,7 @@ export default function VerifyEmail() {
       const response = await multipleFetchApi(endpointArray);
       const res = response[0];
       if (res.success) {
-        setAlreadyVerified(res?.alreadyVerified);
+        setAlreadyVerified(res?.data?.alreadyVerified);
         setShowGlobalLoader(false);
       }
     }

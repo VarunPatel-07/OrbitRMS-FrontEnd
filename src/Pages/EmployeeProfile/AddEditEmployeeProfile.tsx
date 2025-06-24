@@ -728,7 +728,7 @@ export default function AddEditEmployeeProfile() {
       if (response[0]?.success) {
         setStateOptionArray((perValue) => ({
           ...perValue,
-          [module_name]: response[0]?.states,
+          [module_name]: response[0]?.data?.states,
         }));
       }
     }
@@ -780,7 +780,7 @@ export default function AddEditEmployeeProfile() {
     if (response[0].success) {
       setCitiesOptionsArray((perValue) => ({
         ...perValue,
-        [module_name]: response[0].cities_array,
+        [module_name]: response[0]?.data?.cities_array,
       }));
     }
     setLoading(false);
@@ -2539,7 +2539,7 @@ export default function AddEditEmployeeProfile() {
           },
         ];
         const currentAddressResponse = await multipleFetchApi(endpointArray);
-        const currentAddressRes = currentAddressResponse[0];
+        const currentAddressRes = currentAddressResponse[0]?.data;
         if (res?.success) {
           setSelectedCountryInfoForCurrentAddress((perValue) => ({
             ...perValue,

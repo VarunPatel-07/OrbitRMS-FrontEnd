@@ -74,3 +74,5 @@ export const unauthorizedStatusCodes = [
   403, // Forbidden (authenticated but not authorized for the resource)
   407, // Proxy Authentication Required (rare, but still access-related)
 ];
+
+export const NotAllowedObjectField = ['client_inquire_id' , 'id']

@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 //? -------------------------- This Is The Start Of The Onboarding Form InterFace -------------------------
+
+import React, { SetStateAction } from 'react';
 
 //? -------------------------- Start Of The Onboarding Form InterFace Utility -------------------------
 
@@ -167,15 +170,22 @@ export interface EmployeeRoleModuleInterface {
   updated_by: string | null;
 }
 
+type InterFaceModuleLabelType =
+  | 'employee_general_info'
+  | 'personal_information'
+  | 'employee_information'
+  | 'personal_contact_information'
+  | 'family_info'
+  | 'address'
+  | 'social_link'
+  | 'organization_general_info'
+  | 'organization_address'
+  | 'organization_contact_info'
+  | 'organization_about_info'
+  | 'organization_organization_settings';
+
 export interface InterFaceModuleData {
-  label:
-    | 'employee_general_info'
-    | 'personal_information'
-    | 'employee_information'
-    | 'personal_contact_information'
-    | 'family_info'
-    | 'address'
-    | 'social_link';
+  label: InterFaceModuleLabelType;
   title: string;
   module: React.ReactElement;
   id: number;
@@ -186,4 +196,17 @@ export interface EmployeeProfilePictureInterface {
   height: number;
   profilePicture?: string;
   isLoading?: boolean;
+}
+
+export interface InfoFieldProps {
+  label: string;
+  value: string | number | null | undefined;
+  renderDate?: boolean;
+  default_dateformat?: string;
+}
+
+export interface ClientInquirySidebarModelInterface {
+  clientInquiryData: any;
+  showClientInquiryDetail: boolean;
+  setShowClientInquiryDetail: React.Dispatch<SetStateAction<boolean>>;
 }

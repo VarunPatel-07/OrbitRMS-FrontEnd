@@ -418,6 +418,7 @@ function ProjectStatus() {
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
         handelDelete={handelDeleteItem}
+        name='Project Status'
       />
     </>
   );

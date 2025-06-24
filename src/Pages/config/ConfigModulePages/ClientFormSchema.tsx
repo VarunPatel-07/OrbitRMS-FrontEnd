@@ -455,6 +455,7 @@ function ClientFormSchema() {
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
         handelDelete={handelDeleteItem}
+        name='Form Field'
       />
     </>
   );

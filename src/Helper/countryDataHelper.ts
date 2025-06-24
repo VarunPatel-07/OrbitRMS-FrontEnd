@@ -23,7 +23,7 @@ export const countryDataApiHelper = async (): Promise<
       return;
     }
 
-    const country_Data = response[0];
+    const country_Data = response[0]?.data;
 
     return country_Data;
   } catch (error) {

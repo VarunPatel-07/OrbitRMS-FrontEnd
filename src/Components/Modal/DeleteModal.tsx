@@ -9,11 +9,13 @@ function DeleteModal({
   setShowDeleteModal,
   loading,
   handelDelete,
+  name,
 }: {
   showDeleteModal: boolean;
   setShowDeleteModal: React.Dispatch<SetStateAction<boolean>>;
   loading: boolean;
   handelDelete: () => void;
+  name?: string;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
 
@@ -65,16 +67,16 @@ function DeleteModal({
           <div className='relative z-10 w-full h-full flex flex-col items-start justify-end pb-5 gap-7'>
             <div className='flex flex-col items-start justify-start gap-1'>
               <h4 className='text-[26px] text-slate-950 font-bold font-inter'>
-                Delete This
+                Delete {name}
               </h4>
               <p className='text-base text-slate-950 font-inter'>
-                Are you sure you want to delete this? This action is
-                irreversible.
+                Are you sure you want to delete {name?.toLocaleLowerCase()}?
+                This action is irreversible.
               </p>
             </div>
             <div className='grid grid-cols-2 w-full gap-x-2'>
               <button
-                className='text-[var(--them-green-color)] w-full py-2.5 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 hover:text-white transition-all'
+                className='text-[var(--them-green-color)] w-full py-2.5 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 hover:text-black transition-all'
                 onClick={() => setShowDeleteModal(false)}
               >
                 Cancel

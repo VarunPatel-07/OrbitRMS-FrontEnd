@@ -7,7 +7,7 @@ import {
 } from '../../Context/globalState/GlobalStateContectApi';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
-import ProjectStatus from '../config/ConfigModulePages/ProjectStatus';
+import GeneralInfo from './OrganizationSettingsPages/GeneralInfoPages/GeneralInfo';
 import OrganizationSettingsSidebar from './OrganizationSettingsSidebar/OrganizationSettingsSidebar';
 
 function OrganizationSettings() {
@@ -38,8 +38,8 @@ function OrganizationSettings() {
         <div className='flex-1 overflow-auto'>
           <Routes>
             <Route
-              path='/project-status'
-              element={<ProtectedRoute element={<ProjectStatus />} />}
+              path='/general-info'
+              element={<ProtectedRoute element={<GeneralInfo />} />}
             />
           </Routes>
         </div>

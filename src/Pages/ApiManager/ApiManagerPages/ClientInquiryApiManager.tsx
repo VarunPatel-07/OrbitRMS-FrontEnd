@@ -171,7 +171,7 @@ function ClientInquiryApiManager() {
       const res = response[0];
       if (res?.success) {
         setReceivingEmailLoader(false);
-        setIsReceiveEmail(res?.email_notification);
+        setIsReceiveEmail(res?.data?.email_notification);
       }
     },
     1000
@@ -229,8 +229,8 @@ function ClientInquiryApiManager() {
       const res = response[0];
       if (res?.success) {
         setSaveReceivingAuthorityMailLoader(false);
-        setReceivingAuthorityMail(res?.authorized_recipient_email);
-        setDummyReceivingAuthorityMail(res?.authorized_recipient_email);
+        setReceivingAuthorityMail(res?.data?.authorized_recipient_email);
+        setDummyReceivingAuthorityMail(res?.data?.authorized_recipient_email);
       }
     }
   );
