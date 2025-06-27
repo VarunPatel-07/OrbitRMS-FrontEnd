@@ -55,7 +55,7 @@ function ViewPermissions() {
     )[1];
 
   const BreadcrumbsObjects = [
-    { name: 'Home', label: 'home', link: '/home' },
+    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
     { name: 'Config', label: 'config-module', link: '/config/project-status' },
     {
       name: 'Roles',

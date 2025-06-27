@@ -46,7 +46,7 @@ export interface DragDropUploaderProps {
 }
 
 export interface commonDatePickerProps {
-  selectedValue: Date;
+  selectedValue: Date | null;
   onChange: (date: Date | null) => void;
   labelFieldName?: string;
   isRequiredField?: boolean;
@@ -67,6 +67,7 @@ export interface commonDatePickerProps {
     | 'top-start';
   showError?: boolean;
   errorMessage?: string;
+  year?: number;
 }
 
 export interface TextAreaProps {
@@ -162,6 +163,9 @@ export interface TableInfoHeaderInterface {
   moduleName: string;
   badgeValue: string;
   buttonsArray?: Array<TableInfoHeaderInterfaceButtonArrayObject>;
+  renderDateSelector?: boolean;
+  year?: number;
+  handelYearButton?: (type: 'increment' | 'decrement') => void;
 }
 
 export interface ClonedRolePermissionInterface {

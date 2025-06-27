@@ -1,6 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import EmployeeProfilePicture from '../../../../Components/EmployeeProfilePicture';
+import OrganizationSettingLoader from '../../../../Components/Loader/OrganizationSettingLoader';
+import {
+  NotificationContext,
+  NotificationContextApiProps,
+} from '../../../../Context/Notification/NotificationContextApi';
 import {
   endpointObject,
   multipleFetchApi,
@@ -76,13 +81,17 @@ const initialData: OrganizationSettingsInterface = {
 };
 
 function GeneralInfo() {
+  const { handelNotification } = useContext(
+    NotificationContext
+  ) as NotificationContextApiProps;
   const useEffectRef = useRef(false);
 
   const [data, setData] = useState<OrganizationSettingsInterface>(initialData);
+  const [loading, setLoading] = useState<boolean>(true);
   const fetchOrganizationInfoWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
       {
-        endPoint: 'organization/fetch-info',
+        endPoint: 'org-setting/fetch-info',
         protected: true,
       },
     ];
@@ -91,7 +100,10 @@ function GeneralInfo() {
 
     if (res?.success) {
       setData(res?.data);
+    } else {
+      handelNotification(res, 'top-right');
     }
+    setLoading(false);
   }, 100);
 
   const organizationGeneralInfo = () => {
@@ -195,6 +207,7 @@ function GeneralInfo() {
                   <InfoField
                     label='Website Url'
                     value={data?.general_info?.website_url}
+                    isLink
                   />
                 </div>
               </div>
@@ -419,13 +432,17 @@ function GeneralInfo() {
 
   return (
     <div className='w-full h-[calc(100vh-60px)] overflow-auto hide-scrollbar pt-5 px-5'>
-      <div className='w-full flex flex-col gap-6 pb-5'>
-        {UserInformationDataModules?.map((section) => (
-          <div className='w-full' key={section?.id}>
-            {section?.module}
-          </div>
-        ))}
-      </div>
+      {loading ? (
+        <OrganizationSettingLoader />
+      ) : (
+        <div className='w-full flex flex-col gap-6 pb-5'>
+          {UserInformationDataModules?.map((section) => (
+            <div className='w-full' key={section?.id}>
+              {section?.module}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

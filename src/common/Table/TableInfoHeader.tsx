@@ -1,5 +1,6 @@
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { GrExpand } from 'react-icons/gr';
+import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
 
 import {
   TableInfoHeaderInterface,
@@ -7,7 +8,14 @@ import {
 } from '../../interface/propsInterface';
 
 function TableInfoHeader(props: TableInfoHeaderInterface) {
-  const { moduleName, badgeValue, buttonsArray } = props;
+  const {
+    moduleName,
+    badgeValue,
+    buttonsArray,
+    renderDateSelector = false,
+    year,
+    handelYearButton,
+  } = props;
 
   const renderOptionsButtonArray = (
     OptionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject>
@@ -35,6 +43,28 @@ function TableInfoHeader(props: TableInfoHeaderInterface) {
             {badgeValue}
           </span>
         </div>
+        {renderDateSelector && handelYearButton && (
+          <div className='flex items-stretch justify-between gap-2'>
+            <button
+              className='w-9 h-9 flex items-center justify-center border border-black/20 rounded-lg'
+              onClick={() => handelYearButton('decrement')}
+            >
+              <RiArrowLeftSLine className='text-slate-900 text-2xl' />
+            </button>
+            <div className='border border-black/20 px-3 rounded-md flex items-center justify-center'>
+              <span className='text-slate-900 text-sm inline-block'>
+                {year}
+              </span>
+            </div>
+            <button
+              className='w-9 h-9 flex items-center justify-center border border-black/20 rounded-lg'
+              onClick={() => handelYearButton('increment')}
+            >
+              <RiArrowRightSLine className='text-slate-900 text-2xl' />
+            </button>
+          </div>
+        )}
+
         <div className='flex items-center justify-end gap-3'>
           {buttonsArray ? (
             renderOptionsButtonArray(buttonsArray)

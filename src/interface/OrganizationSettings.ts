@@ -70,3 +70,22 @@ export interface OrganizationSettingsInterface {
   organization_settings: OrganizationSettings;
   about_info: OrganizationAboutInfo;
 }
+
+export interface OrganizationHolidays {
+  id: string;
+  holiday_name: string;
+  date: Date | null;
+  year: number;
+  config_module_id: string;
+  created_at: string;
+  created_by: object | null;
+  source_type: string;
+  updated_at: object | null;
+  updated_by: string | null;
+}
+
+export interface HolidayFormData {
+  holiday_name: string;
+  date: Date | null;
+  year: number;
+}

@@ -69,7 +69,7 @@ function ProjectStatus() {
   };
 
   const BreadcrumbsObjects = [
-    { name: 'Home', label: 'home', link: '/home' },
+    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
     { name: 'Config', label: 'config-module', link: `/${organization}/config` },
     {
       name: 'Project Status',

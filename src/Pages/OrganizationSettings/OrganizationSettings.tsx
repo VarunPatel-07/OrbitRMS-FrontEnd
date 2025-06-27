@@ -8,6 +8,7 @@ import {
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
 import GeneralInfo from './OrganizationSettingsPages/GeneralInfoPages/GeneralInfo';
+import Holidays from './OrganizationSettingsPages/Holidays/Holidays';
 import OrganizationSettingsSidebar from './OrganizationSettingsSidebar/OrganizationSettingsSidebar';
 
 function OrganizationSettings() {
@@ -40,6 +41,10 @@ function OrganizationSettings() {
             <Route
               path='/general-info'
               element={<ProtectedRoute element={<GeneralInfo />} />}
+            />
+            <Route
+              path='/holiday'
+              element={<ProtectedRoute element={<Holidays />} />}
             />
           </Routes>
         </div>

@@ -18,6 +18,7 @@ function CommonDatePicker(props: commonDatePickerProps) {
     datePickerPosition = 'left-start',
     showError,
     errorMessage,
+    year,
   } = props;
 
   const CustomInput = forwardRef(
@@ -38,7 +39,7 @@ function CommonDatePicker(props: commonDatePickerProps) {
           type='text'
           value={value}
           readOnly
-          className='w-full bg-transparent text-black focus:ring-0 focus:shadow-none focus:outline-none cursor-pointer'
+          className='w-full bg-transparent text-black focus:ring-0 focus:shadow-none focus:outline-none cursor-pointer text-base'
         />
         <FaCalendarAlt className='absolute right-3 text-black/60' />
       </div>
@@ -69,6 +70,7 @@ function CommonDatePicker(props: commonDatePickerProps) {
         yearDropdownItemNumber={50}
         dateFormat='dd/MM/yyyy'
         customInput={<CustomInput />}
+        openToDate={year ? new Date(`${year}-01-01`) : new Date()}
       />
       {showError && errorMessage && (
         <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>

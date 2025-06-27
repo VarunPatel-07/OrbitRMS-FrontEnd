@@ -399,12 +399,25 @@ export const CompareTwoArrayOfString = (
   arrayTwo: Array<string>
 ) => {
   if (arrayOne?.length !== arrayTwo?.length) return false;
-  arrayOne.forEach((item, index) => {
-    if (
-      item?.trim()?.toLocaleLowerCase() !==
-      arrayTwo[index]?.trim()?.toLocaleLowerCase()
-    )
+  // arrayOne.map((item, index) => {
+  //   if (
+  //     arrayTwo[index]?.trim()?.toLocaleLowerCase() !=
+  //     item?.trim()?.toLocaleLowerCase()
+  //   )
+  //     console.log(
+  //       item?.trim()?.toLocaleLowerCase(),
+  //       arrayTwo[index]?.trim()?.toLocaleLowerCase()
+  //     );
+
+  //   return false;
+  // });
+  for (let i = 0; i < arrayOne.length; i++) {
+    const itemOne = arrayOne[i]?.trim()?.toLowerCase();
+    const itemTwo = arrayTwo[i]?.trim()?.toLowerCase();
+    if (itemOne !== itemTwo) {
+      console.log(itemOne, itemTwo);
       return false;
-  });
+    }
+  }
   return true;
 };

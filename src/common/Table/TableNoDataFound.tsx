@@ -1,5 +1,6 @@
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
+import DefaultLotiAnimation from '../../assets/lottie/DefaultAnimation.lottie';
 import { TableInfoHeaderInterfaceButtonArrayObject } from '../../interface/propsInterface';
 
 function TableNoDataFound({
@@ -7,11 +8,13 @@ function TableNoDataFound({
   notFoundTitle,
   notFoundMessage,
   notFoundOptionsButtonsArray,
+  defaultAnimation,
 }: {
   tableWrapperClass: string;
   notFoundTitle: string;
   notFoundMessage: string;
   notFoundOptionsButtonsArray: Array<TableInfoHeaderInterfaceButtonArrayObject>;
+  defaultAnimation?: React.ReactElement;
 }) {
   const renderOptionsButtonArray = (
     OptionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject>
@@ -34,15 +37,20 @@ function TableNoDataFound({
     >
       <div className='w-full h-full flex items-center justify-center'>
         <div className='flex flex-col items-center justify-center gap-5 max-w-[450px]'>
-          <span className='bg-gradient-to-b from-[#f5f7f7] to-[#eaedf0] p-2 flex items-center justify-center max-w-[90px] max-h-[90px] rounded-full'>
-            <DotLottieReact
-              src='https://lottie.host/b8387a72-e1df-4d93-b58b-6e8b867551df/if9rYDkN1u.lottie'
-              loop
-              autoplay
-              height={75}
-              width={75}
-            />
-          </span>
+          {defaultAnimation ? (
+            defaultAnimation
+          ) : (
+            <span className='bg-gradient-to-b from-[#f5f7f7] to-[#eaedf0] p-2 flex items-center justify-center max-w-[90px] max-h-[90px] overflow-hidden rounded-full'>
+              <DotLottieReact
+                src={DefaultLotiAnimation}
+                loop
+                autoplay
+                height={75}
+                width={75}
+              />
+            </span>
+          )}
+
           <div className='flex items-center justify-center gap-1.5 flex-col'>
             <h6 className='text-lg font-semibold font-inter text-black/90 text-center'>
               {notFoundTitle}

@@ -18,4 +18,12 @@ export const OrganizationSettingsSidebarList = (
     showToolTip: false,
     ToolTipValue: 'General Info',
   },
+  {
+    id: 2,
+    name: 'Holiday',
+    label: 'holiday-info-tooltip',
+    link: `/${organization}/organization-settings/holiday`,
+    showToolTip: false,
+    ToolTipValue: 'Holiday',
+  },
 ];

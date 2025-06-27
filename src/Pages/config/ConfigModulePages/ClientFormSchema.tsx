@@ -85,7 +85,7 @@ function ClientFormSchema() {
     JSON.parse(localStorageData)?.portal_slug;
 
   const BreadcrumbsObjects = [
-    { name: 'Home', label: 'home', link: '/home' },
+    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
     {
       name: 'Config',
       label: 'config-module',
