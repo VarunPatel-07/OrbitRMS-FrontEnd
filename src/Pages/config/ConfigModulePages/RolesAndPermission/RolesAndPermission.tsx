@@ -97,7 +97,7 @@ function RolesAndPermission() {
   ];
 
   const BreadcrumbsObjects = [
-    { name: 'Home', label: 'home', link: '/home' },
+    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
     {
       name: 'Config',
       label: 'config-module',

@@ -38,6 +38,7 @@ export const InfoField = ({
   value,
   renderDate = false,
   default_dateformat,
+  isLink = false,
 }: InfoFieldProps) => (
   <div className='w-full'>
     {label?.trim() !== '' && (
@@ -46,14 +47,30 @@ export const InfoField = ({
       </span>
     )}
 
-    {renderDate && default_dateformat ? (
-      <p className='text-xs lg:text-sm text-black/65 font-inter font-medium w-full text-ellipsis overflow-hidden text-nowrap'>
-        {value ? formateDate(value as string, default_dateformat, false) : '-'}
-      </p>
-    ) : (
-      <p className='text-xs lg:text-sm text-black/65 font-medium font-inter w-full text-ellipsis overflow-hidden text-nowrap'>
+    {isLink && typeof value == 'string' && (
+      <a
+        href={value}
+        target='_blank'
+        className='text-xs lg:text-sm text-blue-600 font-medium font-inter w-full text-ellipsis overflow-hidden text-nowrap inline-block'
+      >
         {value || '-'}
-      </p>
+      </a>
+    )}
+
+    {!isLink && (
+      <>
+        {renderDate && default_dateformat ? (
+          <p className='text-xs lg:text-sm text-black/65 font-inter font-medium w-full text-ellipsis overflow-hidden text-nowrap'>
+            {value
+              ? formateDate(value as string, default_dateformat, false)
+              : '-'}
+          </p>
+        ) : (
+          <p className='text-xs lg:text-sm text-black/65 font-medium font-inter w-full text-ellipsis overflow-hidden text-nowrap'>
+            {value || '-'}
+          </p>
+        )}
+      </>
     )}
   </div>
 );

@@ -203,6 +203,7 @@ export interface InfoFieldProps {
   value: string | number | null | undefined;
   renderDate?: boolean;
   default_dateformat?: string;
+  isLink?: boolean;
 }
 
 export interface ClientInquirySidebarModelInterface {
