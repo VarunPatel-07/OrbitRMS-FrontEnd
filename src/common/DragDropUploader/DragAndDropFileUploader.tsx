@@ -64,6 +64,16 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    multiple: false,
+    onDropRejected: (fileRejections) => {
+      if (fileRejections.length > 0) {
+        const res = {
+          message: 'Upload limit exceeded: only one image is permitted.',
+          success: false,
+        };
+        handelNotification(res, 'top-right');
+      }
+    },
   });
 
   const onCropDone = (croppedArea: Area, rotation: number) => {

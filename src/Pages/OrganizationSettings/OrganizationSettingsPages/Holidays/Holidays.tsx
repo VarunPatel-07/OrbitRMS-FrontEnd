@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
@@ -11,8 +11,6 @@ import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
-import AddEditHoliday from '../../../../Components/Modal/AddEditHoliday';
-import DeleteModal from '../../../../Components/Modal/DeleteModal';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -38,6 +36,14 @@ import {
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../../interface/propsInterface';
 
+const DeleteModal = React.lazy(
+  () => import('../../../../Components/Modal/DeleteModal')
+);
+
+const AddEditHoliday = React.lazy(
+  () => import('../../../../Components/Modal/AddEditHoliday')
+);
+
 function Holidays() {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
@@ -53,14 +59,14 @@ function Holidays() {
   const BreadcrumbsObjects = [
     { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
     {
-      name: 'Config',
-      label: 'config-module',
-      link: `/${organization}/config/project-status`,
+      name: 'Organization Settings',
+      label: 'organization-settings',
+      link: `/${organization}/organization-settings/general-info`,
     },
     {
-      name: 'Department',
-      label: 'department',
-      link: `/${organization}/config/department`,
+      name: 'Holiday',
+      label: 'holiday',
+      link: `/${organization}/organization-settings/holiday`,
     },
   ];
 
@@ -99,7 +105,7 @@ function Holidays() {
     }
     const endPointArr: endpointObject[] = [
       {
-        endPoint: `org-setting/holiday/fetch?year=${current_year}`,
+        endPoint: `org-setting/holiday/fetch?year=${current_year}&order=desc&field_name=date`,
         protected: true,
       },
     ];
@@ -144,7 +150,7 @@ function Holidays() {
       isSticky: false,
       canToggleVisibility: true,
       renderContent: (data: any) => (
-        <span className='w-fit font-inter text-sm font-medium inline-block'>
+        <span className='w-fit font-inter text-sm font-medium inline-block text-nowrap text-ellipsis overflow-hidden max-w-[300px]'>
           {data}
         </span>
       ),
@@ -160,7 +166,8 @@ function Holidays() {
           {formateDate(
             data,
             GlobalStateProvider?.organization?.organization_settings
-              ?.default_dateformat
+              ?.default_dateformat,
+            false
           )}
         </span>
       ),
@@ -402,7 +409,7 @@ function Holidays() {
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
                   data={data}
-                  search_key='department_name'
+                  search_key='holiday_name'
                   setData={setFilterData}
                 />
                 {reFetchingData ? (

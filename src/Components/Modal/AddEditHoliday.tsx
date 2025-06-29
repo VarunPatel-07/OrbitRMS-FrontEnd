@@ -107,16 +107,14 @@ function AddEditHoliday(props: AddEditHolidayModalProps) {
   useEffect(() => {
     if (showModal) {
       setIsMounted(true);
-      // Small delay to allow CSS transition
       setTimeout(() => {
         setIsVisible(true);
       }, 10);
     } else {
-      setIsVisible(false); // Start fade-out
-      // After transition, unmount
+      setIsVisible(false);
       setTimeout(() => {
         setIsMounted(false);
-      }, 300); // Match CSS duration
+      }, 300);
     }
   }, [showModal]);
   if (!isMounted) return null;
