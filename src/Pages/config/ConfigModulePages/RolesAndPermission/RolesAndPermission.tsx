@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { MdDelete, MdModeEdit, MdOutlineRemoveRedEye } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
@@ -10,7 +10,6 @@ import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
-import DeleteModal from '../../../../Components/Modal/DeleteModal';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -33,7 +32,13 @@ import {
   RolesPermissionInterface,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../../interface/propsInterface';
-import AddEditRolePermission from './AddEditRolePermission';
+
+const AddEditRolePermission = React.lazy(
+  () => import('./AddEditRolePermission')
+);
+const DeleteModal = React.lazy(
+  () => import('../../../../Components/Modal/DeleteModal')
+);
 
 const initialState = {
   role_name: '',
@@ -52,6 +57,10 @@ function RolesAndPermission() {
     NotificationContext
   ) as NotificationContextApiProps;
 
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+
   const useEffectReference = useRef(false);
 
   const [data, setData] = useState<RolesPermissionInterface[]>([]);
@@ -69,9 +78,6 @@ function RolesAndPermission() {
   const [deleteItemId, setDeleteItemId] = useState<string>('');
   const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
 
-  const { GlobalStateProvider } = useContext(
-    GlobalStateContext
-  ) as GlobalStateContextApiProps;
   const organization =
     GlobalStateProvider?.organization?.general_info?.portal_url.split(
       'https://orbitrms.com/'
@@ -306,6 +312,8 @@ function RolesAndPermission() {
 
     if (res?.success) {
       setData(res?.data);
+      setFilterData([]);
+      setShowSearchFilterData(false);
       setIsFetchingData(false);
     } else {
       setIsFetchingData(false);

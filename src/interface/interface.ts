@@ -211,3 +211,23 @@ export interface ClientInquirySidebarModelInterface {
   showClientInquiryDetail: boolean;
   setShowClientInquiryDetail: React.Dispatch<SetStateAction<boolean>>;
 }
+
+export interface AddEditPostModalInterface {
+  showClientInquiryDetail: boolean;
+  setShowClientInquiryDetail: React.Dispatch<SetStateAction<boolean>>;
+}
+
+export interface SelectedFileArrayObjInterface {
+  id: string;
+  file: File;
+}
+export interface SelectedFileForCrop {
+  id: string;
+  file: File;
+  previewUrl: string;
+}
+
+export interface DragAndDropCropImageInterface {
+  previewUrl: string;
+  id: string;
+}

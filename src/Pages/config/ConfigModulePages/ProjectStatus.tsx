@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
@@ -9,8 +9,6 @@ import TableInfoHeader from '../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../common/Table/TableNoDataFound';
 import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
-import AddModal from '../../../Components/Modal/AddModal';
-import DeleteModal from '../../../Components/Modal/DeleteModal';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -31,6 +29,11 @@ import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
+
+const AddModal = React.lazy(() => import('../../../Components/Modal/AddModal'));
+const DeleteModal = React.lazy(
+  () => import('../../../Components/Modal/DeleteModal')
+);
 
 function ProjectStatus() {
   const { handelNotification } = useContext(
@@ -168,6 +171,8 @@ function ProjectStatus() {
       const res = response[0];
       if (res?.success) {
         setData(res?.data);
+        setFilterData([]);
+        setShowSearchFilterData(false);
         setIsFetchingData(false);
       } else {
         setIsFetchingData(false);

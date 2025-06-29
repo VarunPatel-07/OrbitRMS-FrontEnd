@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { IoEye } from 'react-icons/io5';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -14,7 +14,6 @@ import TableNoDataFound from '../../common/Table/TableNoDataFound';
 import TablePagination from '../../common/Table/TablePagination';
 import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoader';
 import ClientInquirySliderModal from '../../Components/Modal/ClientInquirySliderModal';
-import DeleteModal from '../../Components/Modal/DeleteModal';
 import { dropdownMenuArray } from '../../constant/constant';
 import {
   Contains,
@@ -48,7 +47,9 @@ import {
   UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
 
-// import { clientInquiryFiltersArray } from './ClientInquiryFilters';
+const DeleteModal = React.lazy(
+  () => import('../../Components/Modal/DeleteModal')
+);
 
 const initialMetadata: MetaDataInterface = {
   total_data: 0,

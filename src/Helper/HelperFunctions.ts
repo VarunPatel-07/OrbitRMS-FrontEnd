@@ -399,18 +399,6 @@ export const CompareTwoArrayOfString = (
   arrayTwo: Array<string>
 ) => {
   if (arrayOne?.length !== arrayTwo?.length) return false;
-  // arrayOne.map((item, index) => {
-  //   if (
-  //     arrayTwo[index]?.trim()?.toLocaleLowerCase() !=
-  //     item?.trim()?.toLocaleLowerCase()
-  //   )
-  //     console.log(
-  //       item?.trim()?.toLocaleLowerCase(),
-  //       arrayTwo[index]?.trim()?.toLocaleLowerCase()
-  //     );
-
-  //   return false;
-  // });
   for (let i = 0; i < arrayOne.length; i++) {
     const itemOne = arrayOne[i]?.trim()?.toLowerCase();
     const itemTwo = arrayTwo[i]?.trim()?.toLowerCase();
@@ -418,6 +406,31 @@ export const CompareTwoArrayOfString = (
       console.log(itemOne, itemTwo);
       return false;
     }
+  }
+  return true;
+};
+
+export const generateTimeBasedGreeting = (): string => {
+  const date = new Date();
+  const time = date?.getHours();
+
+  if (time < 12) return 'Good Morning';
+  if (time < 17) return 'Good Afternoon';
+  return 'Good Evening';
+};
+
+export const compareDates = (date: Date) => {
+  const currentDate = new Date();
+  const currentDay = currentDate?.getDate();
+  const currentMonth = currentDate?.getMonth();
+
+  const holidayDate = new Date(date);
+  const holidayDay = holidayDate?.getDate();
+  const holidayMonth = holidayDate?.getMonth();
+
+  if (holidayMonth <= currentMonth) {
+    if (holidayDay < currentDay) return false;
+    return true;
   }
   return true;
 };

@@ -1,7 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import ComingSoon from './Components/ComingSoon';
 import MainSuspenseLoader from './Components/Loader/MainSuspenseLoader';
 import Navbar from './Components/Navbar/Navbar';
 import SideBar from './Components/SideBar/SideBar';
@@ -24,6 +23,7 @@ import ProtectedRoute from './Helper/ProtectedRoute';
 import ApiManager from './Pages/ApiManager/ApiManager';
 import ClientInquiry from './Pages/ClientInquiry/ClientInquiry';
 import Config from './Pages/config/Config';
+import Dashboard from './Pages/Dashboard/Dashboard';
 import EmployeeListing from './Pages/Employee/EmployeeListing';
 import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile';
 import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
@@ -34,10 +34,7 @@ export const HandelPathFunction = () => {
   const _isAuthenticated = getDataFromLocalStorage('authenticationToken');
   if (_data && _isAuthenticated) {
     return (
-      <Navigate
-        to={`/${JSON.parse(_data)?.portal_slug}/config/project-status`}
-        replace
-      />
+      <Navigate to={`/${JSON.parse(_data)?.portal_slug}/dashboard`} replace />
     );
   } else {
     clearLocalSessionStorage();
@@ -118,7 +115,7 @@ function App() {
                   />
                   <Route
                     path='/dashboard'
-                    element={<ProtectedRoute element={<ComingSoon />} />}
+                    element={<ProtectedRoute element={<Dashboard />} />}
                   />
 
                   <Route

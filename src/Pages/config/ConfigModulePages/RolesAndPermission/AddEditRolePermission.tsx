@@ -130,7 +130,7 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
   return (
     <div
       className={classNames(
-        'w-full h-screen bg-black/30 fixed z-40 top-0 left-0 overflow-hidden transition-all duration-100',
+        'w-full h-screen bg-black/30 fixed z-50 top-0 left-0 overflow-hidden transition-all duration-100',
         {
           'opacity-0 invisible': !showModal,
           'opacity-100 visible': showModal,

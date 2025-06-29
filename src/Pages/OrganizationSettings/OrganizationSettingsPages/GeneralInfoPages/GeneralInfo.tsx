@@ -1,7 +1,12 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 
+import Breadcrumbs from '../../../../common/Breadcrumbs';
 import EmployeeProfilePicture from '../../../../Components/EmployeeProfilePicture';
 import OrganizationSettingLoader from '../../../../Components/Loader/OrganizationSettingLoader';
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../../../Context/globalState/GlobalStateContectApi';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -84,6 +89,11 @@ function GeneralInfo() {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
+
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+
   const useEffectRef = useRef(false);
 
   const [data, setData] = useState<OrganizationSettingsInterface>(initialData);
@@ -105,6 +115,23 @@ function GeneralInfo() {
     }
     setLoading(false);
   }, 100);
+
+  const organization =
+    GlobalStateProvider.organization.general_info.portal_slug;
+
+  const BreadcrumbsObjects = [
+    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
+    {
+      name: 'Organization Settings',
+      label: 'organization-settings',
+      link: `/${organization}/organization-settings`,
+    },
+    {
+      name: 'General Info',
+      label: 'general-info',
+      link: `/${organization}/organization-settings/general-info`,
+    },
+  ];
 
   const organizationGeneralInfo = () => {
     return (
@@ -431,18 +458,21 @@ function GeneralInfo() {
   }, [fetchOrganizationInfoWithDebounce]);
 
   return (
-    <div className='w-full h-[calc(100vh-60px)] overflow-auto hide-scrollbar pt-5 px-5'>
-      {loading ? (
-        <OrganizationSettingLoader />
-      ) : (
-        <div className='w-full flex flex-col gap-6 pb-5'>
-          {UserInformationDataModules?.map((section) => (
-            <div className='w-full' key={section?.id}>
-              {section?.module}
-            </div>
-          ))}
-        </div>
-      )}
+    <div className='w-full h-full relative'>
+      <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+      <div className='w-full h-[calc(100vh-60px)] overflow-auto hide-scrollbar pt-[60px] px-5'>
+        {loading ? (
+          <OrganizationSettingLoader />
+        ) : (
+          <div className='w-full flex flex-col gap-6 pb-5'>
+            {UserInformationDataModules?.map((section) => (
+              <div className='w-full' key={section?.id}>
+                {section?.module}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

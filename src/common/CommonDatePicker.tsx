@@ -70,7 +70,7 @@ function CommonDatePicker(props: commonDatePickerProps) {
         yearDropdownItemNumber={50}
         dateFormat='dd/MM/yyyy'
         customInput={<CustomInput />}
-        openToDate={year ? new Date(`${year}-01-01`) : new Date()}
+        openToDate={year ? new Date(new Date().setFullYear(year)) : new Date()}
       />
       {showError && errorMessage && (
         <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
