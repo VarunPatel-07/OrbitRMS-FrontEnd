@@ -7,16 +7,19 @@ import { FaCloudUploadAlt } from 'react-icons/fa';
 import {
   NotificationContext,
   NotificationContextApiProps,
-} from '../../Context/Notification/NotificationContextApi';
-import { endpointObject, multiplePostApi } from '../../Helper/api/multipleAPI';
+} from '../../../Context/Notification/NotificationContextApi';
+import {
+  endpointObject,
+  multiplePostApi,
+} from '../../../Helper/api/multipleAPI';
 import {
   createImageUtilFunction,
   dataUrlToFileConvertor,
   getBoundingBox,
   getRadianAngle,
-} from '../../Helper/HelperFunctions';
-import { useDebounce } from '../../Hooks/useDebounce';
-import { DragDropUploaderProps } from '../../interface/propsInterface';
+} from '../../../Helper/HelperFunctions';
+import { useDebounce } from '../../../Hooks/useDebounce';
+import { DragDropUploaderProps } from '../../../interface/propsInterface';
 import ImageCropper from './ImageCropper';
 
 function DragAndDropFileUploader(props: DragDropUploaderProps) {
@@ -65,10 +68,21 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
+    maxSize: 3 * 1024 * 1024,
     onDropRejected: (fileRejections) => {
-      if (fileRejections.length > 0) {
+      const isLarge = fileRejections?.some(
+        (item) => item?.file?.size > 3 * 1024 * 1024
+      );
+      if (isLarge) {
         const res = {
-          message: 'Upload limit exceeded: only one image is permitted.',
+          message: 'File too large! Keep it under 2MB',
+          success: false,
+        };
+        handelNotification(res, 'top-right');
+      }
+      if (fileRejections.length > 0 && !isLarge) {
+        const res = {
+          message: 'Too many files! Max 5 at a time',
           success: false,
         };
         handelNotification(res, 'top-right');

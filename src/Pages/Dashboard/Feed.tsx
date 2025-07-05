@@ -1,14 +1,22 @@
 import { FaFilter } from 'react-icons/fa';
 import { FaPenToSquare } from 'react-icons/fa6';
 
-function Feed() {
+import { OrganizationFeedPropsInterface } from '../../interface/interface';
+
+function Feed(props: OrganizationFeedPropsInterface) {
+  const { setShowAddEditPostModal } = props;
   return (
     <div className='w-full h-full bg-white'>
       {/* Header Section */}
       <div className='w-full  flex items-stretch justify-between px-3.5 py-3 border-b border-b-black/15 h-[60px]'>
-        <p className='text-xl text-black font-inter font-semibold flex flex-col items-center justify-center'>Feed</p>
+        <p className='text-xl text-black font-inter font-semibold flex flex-col items-center justify-center'>
+          Feed
+        </p>
         <div className='flex items-stretch justify-end gap-2'>
-          <button className='font-inter text-white font-medium bg-[var(--them-green-color)] px-3 py-1 text-base rounded-md flex items-center justify-between gap-2'>
+          <button
+            className='font-inter text-white font-medium bg-[var(--them-green-color)] px-3 py-1 text-base rounded-md flex items-center justify-between gap-2'
+            onClick={() => setShowAddEditPostModal(true)}
+          >
             <FaPenToSquare />
             <span>Publish</span>
           </button>

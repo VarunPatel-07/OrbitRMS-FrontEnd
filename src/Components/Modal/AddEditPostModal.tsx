@@ -1,68 +1,209 @@
-import React, { useEffect, useRef } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useRef, useState } from 'react';
+import { IoClose, IoCloseCircle } from 'react-icons/io5';
 
+import RichTextEditor from '../../common/RichTextEditor/RichTextEditor';
+import { multipleFetchApi } from '../../Helper/api/multipleAPI';
 import { classNames } from '../../Helper/HelperFunctions';
-import { AddEditPostModalInterface } from '../../interface/interface';
+import { useMentionSearchDebounce } from '../../Hooks/useMentionSearchDebounce';
+import { AddEditPostFormdataInterface } from '../../interface/Dashboard';
+import {
+  AddEditPostModalInterface,
+  SelectedFileArrayObjInterface,
+} from '../../interface/interface';
+import { RichTextEditorApiResponseInterface } from '../../interface/propsInterface';
+
+const initialData: AddEditPostFormdataInterface = {
+  description: '',
+  images: [],
+  isCommentDisabled: false,
+  isLikeDisabled: false,
+};
 
 const MultipleDragAndDropFileUploader = React.lazy(
-  () => import('../../common/DragDropUploader/MultipleDragDropFileUploader')
+  () =>
+    import(
+      '../../common/DragDropUploader/MultipleFileUploader/MultipleDragDropFileUploader'
+    )
 );
 
 function AddEditPostModal(props: AddEditPostModalInterface) {
-  const { showClientInquiryDetail, setShowClientInquiryDetail } =
+  const { showAddEditPostModal, setShowAddEditPostModal, GlobalStateProvider } =
     props as AddEditPostModalInterface;
   const modalBoxRef = useRef<HTMLDivElement>(null);
 
-  const handelProfileUploadation = (url: string) => {
-    console.log(url);
+  const [isImageCropperActive, setIsImageCropperActive] =
+    useState<boolean>(false);
+
+  const [formData, setFormData] =
+    useState<AddEditPostFormdataInterface>(initialData);
+
+  const handelUploadImage = (data: SelectedFileArrayObjInterface[]) => {
+    setFormData((pervData) => ({
+      ...pervData,
+      images: [...pervData.images, ...data],
+    }));
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalBoxRef.current &&
-        !modalBoxRef.current.contains(event.target as Node)
-      ) {
-        setShowClientInquiryDetail(false);
+  const handelOnUpdateFunction = (data: string) => {
+    setFormData((pervData) => ({ ...pervData, description: data }));
+  };
+
+  const handelApiCallingFunction = useMentionSearchDebounce(
+    async (query: string) => {
+      const response = await multipleFetchApi([
+        {
+          endPoint: `employee/fetch-employee?query=${query}`,
+          protected: true,
+        },
+      ]);
+
+      if (!response[0]?.success) throw new Error('Failed to fetch');
+
+      const data = await response[0]?.data;
+
+      if (data?.length !== 0) {
+        return data.map((item: RichTextEditorApiResponseInterface) => ({
+          id: item.id,
+          label: `${item?.full_name ? item?.full_name : item?.first_name + ' ' + item?.middle_name + ' ' + item?.last_name}`,
+          employeeCode: `(<span className="text-blue-600">${item?.employee_code}</span>)`,
+          success: true,
+        }));
+      } else {
+        return [
+          {
+            id: '',
+            label: '',
+            employeeCode: '',
+            success: false,
+            message: 'No matches found.',
+          },
+        ];
       }
-    };
+    },
+    400
+  );
 
-    if (showClientInquiryDetail) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+  const handelClickOnTheDeleteBtn = (id: string) => {
+    const _filterData = formData?.images?.filter((item) => item?.id !== id);
 
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [setShowClientInquiryDetail, showClientInquiryDetail]);
+    setFormData((pervValue) => ({ ...pervValue, images: _filterData }));
+  };
+
+  const renderMultipleDragDropUploader = () => (
+    <MultipleDragAndDropFileUploader
+      name='general_info.organization_profile_picture'
+      type='file'
+      RequiredFileTypeArray={['image/png', 'image/jpeg', 'image/webp']}
+      showDropFileScreenInFullScreen={true}
+      cropShape='rect'
+      maxCropHeight={350}
+      maxCropWidth={350}
+      isImageCropperActive={isImageCropperActive}
+      setIsImageCropperActive={setIsImageCropperActive}
+      handelUploadImage={handelUploadImage}
+      asPlusIcon={formData.images.length !== 0}
+    />
+  );
+
   return (
     <div
       className={classNames(
         'bg-black/30 backdrop-blur-[1px] fixed top-0 left-0 h-full w-full z-50 overflow-hidden transition-all duration-300',
         {
-          'opacity-0 pointer-events-none invisible': !showClientInquiryDetail,
-          'opacity-100 visible': showClientInquiryDetail,
+          'opacity-0 pointer-events-none invisible': !showAddEditPostModal,
+          'opacity-100 visible': showAddEditPostModal,
         }
       )}
     >
       <div
         className={classNames(
-          'w-full bg-white max-w-[500px] h-full ml-auto transition-all duration-300',
+          'w-full bg-white max-w-[600px] h-full ml-auto transition-all duration-300',
           {
-            'translate-x-full': !showClientInquiryDetail,
-            'translate-x-0': showClientInquiryDetail,
+            'translate-x-full': !showAddEditPostModal,
+            'translate-x-0': showAddEditPostModal,
           }
         )}
         ref={modalBoxRef}
       >
-        <div className='w-full h-full p-5'>
-          <MultipleDragAndDropFileUploader
-            name='general_info.organization_profile_picture'
-            type='file'
-            RequiredFileTypeArray={['image/png', 'image/jpeg', 'image/webp']}
-            showDropFileScreenInFullScreen={true}
-            cropShape='rect'
-            maxCropHeight={350}
-            maxCropWidth={350}
-            setImageUrl={handelProfileUploadation}
-          />
+        <div className='w-full h-full relative'>
+          <div className='w-full px-5 py-4 border-b border-b-black/20 absolute top-0 left-0 bg-white'>
+            <div className='w-full flex items-center justify-between'>
+              {' '}
+              <h2 className='text-black capitalize font-inter font-bold text-xl'>
+                Create Post
+              </h2>
+              <button
+                className='bg-transparent border-0'
+                onClick={() => setShowAddEditPostModal(false)}
+              >
+                <IoClose className='text-black text-3xl' />
+              </button>
+            </div>
+          </div>
+          <div className='grid grid-cols-1 px-5 gap-5 pt-[80px] pb-10 max-h-[calc(100%-60px)] overflow-auto hide-scrollbar'>
+            <div className='w-full'>
+              <label
+                htmlFor=''
+                className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
+              >
+                <span className='flex gap-1'>
+                  <span className='font-inter'>Images (Max: 3MB)</span>
+                </span>
+              </label>
+              {formData?.images?.length !== 0 ? (
+                <div className='w-full flex items-center justify-start overflow-auto gap-3 p-3'>
+                  {formData?.images?.map((file) => {
+                    const previewUrl = file?.croppedImagePreview;
+
+                    return (
+                      <div
+                        className='min-w-[80px] max-w-[80px] max-h-[80px] min-h-[80px] rounded-lg border border-black/20 relative'
+                        key={file?.id}
+                      >
+                        <button
+                          className='min-w-5 min-h-5 max-w-5 max-h-5 absolute -top-1.5 -left-1.5 text-black rounded-full bg-white'
+                          onClick={() => handelClickOnTheDeleteBtn(file?.id)}
+                        >
+                          <IoCloseCircle className='min-w-5 min-h-5 max-w-5 max-h-5' />
+                        </button>
+                        <img
+                          src={previewUrl}
+                          alt='Drag Drop Preview Url'
+                          width={76}
+                          height={76}
+                          loading='lazy'
+                          className='w-full h-full aspect-square p-1 object-cover rounded-lg'
+                        />
+                      </div>
+                    );
+                  })}
+
+                  {renderMultipleDragDropUploader()}
+                </div>
+              ) : (
+                <div className='w-full'>{renderMultipleDragDropUploader()}</div>
+              )}
+            </div>
+            <div className='w-full rich-text-editor-wrapper text-black'>
+              <RichTextEditor
+                name='text-editor'
+                labelFieldName='Description'
+                isRequiredField
+                handelApiCallingFunction={handelApiCallingFunction}
+                GlobalStateProvider={GlobalStateProvider}
+                handelOnUpdateFunction={handelOnUpdateFunction}
+              />
+            </div>
+          </div>
+          <div className='py-2 w-full border-t px-5 border-t-black/20 grid grid-cols-2 gap-3 items-center justify-center absolute bottom-0 left-0'>
+            <button className='bg-white border border-black/20 rounded-md text-black font-inter px-5 py-2'>
+              Cancel
+            </button>
+            <button className='bg-[var(--them-green-color)] rounded-md text-white font-inter px-5 py-2'>
+              Submit
+            </button>
+          </div>
         </div>
       </div>
     </div>

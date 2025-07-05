@@ -21,8 +21,8 @@ function Dashboard() {
   const useEffectReference = useRef(false);
 
   const [holidayData, setHolidayData] = useState<OrganizationHolidays[]>([]);
-  const [showClientInquiryDetail, setShowClientInquiryDetail] =
-    useState<boolean>(false);
+  const [showAddEditPostModal, setShowAddEditPostModal] =
+    useState<boolean>(true);
 
   const fetchInitialDataWithDebounce = useDebounce(async () => {
     const date = new Date();
@@ -77,13 +77,14 @@ function Dashboard() {
             />
           </div>
           <div className='w-1/2 max-w-[500px] min-w-[200px] border-l border-l-black/15'>
-            <Feed />
+            <Feed setShowAddEditPostModal={setShowAddEditPostModal} />
           </div>
         </div>
       </div>
       <AddEditPostModal
-        showClientInquiryDetail={showClientInquiryDetail}
-        setShowClientInquiryDetail={setShowClientInquiryDetail}
+        showAddEditPostModal={showAddEditPostModal}
+        setShowAddEditPostModal={setShowAddEditPostModal}
+        GlobalStateProvider={GlobalStateProvider}
       />
     </>
   );

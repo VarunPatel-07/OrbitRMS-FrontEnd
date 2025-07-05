@@ -1,26 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import React, { useEffect, useState } from 'react';
+import React, { SetStateAction, useEffect, useState } from 'react';
 import Cropper, { Area } from 'react-easy-crop';
 import { BiSolidZoomIn, BiSolidZoomOut } from 'react-icons/bi';
 import { FaRotateLeft, FaRotateRight } from 'react-icons/fa6';
-import { IoClose } from 'react-icons/io5';
+import { IoClose, IoCloseCircle } from 'react-icons/io5';
 
-import HamsterLoader from '../../Components/Loader/HamsterLoader';
+import HamsterLoader from '../../../Components/Loader/HamsterLoader';
 import {
   classNames,
   createImageUtilFunction,
   dataUrlToFileConvertor,
   getBoundingBox,
   getRadianAngle,
-} from '../../Helper/HelperFunctions';
-import { useDebounce } from '../../Hooks/useDebounce';
+} from '../../../Helper/HelperFunctions';
+import { useDebounce } from '../../../Hooks/useDebounce';
 import {
-  DragAndDropCropImageInterface,
   SelectedFileArrayObjInterface,
   SelectedFileForCrop,
-} from '../../interface/interface';
-import Loader from '../Loader';
+} from '../../../interface/interface';
+import Loader from '../../Loader';
 
 function MultipleImageCropper({
   DroppedFilesArray,
@@ -29,6 +28,7 @@ function MultipleImageCropper({
   maxCropHeight,
   maxCropWidth,
   handelImageUploadation,
+  setIsImageCropperActive,
 }: {
   DroppedFilesArray: SelectedFileArrayObjInterface[];
   setDroppedFilesArray: React.Dispatch<
@@ -38,8 +38,10 @@ function MultipleImageCropper({
   maxCropHeight: number;
   maxCropWidth: number;
   handelImageUploadation: (fieData: SelectedFileArrayObjInterface[]) => void;
+  setIsImageCropperActive?: React.Dispatch<SetStateAction<boolean>>;
 }) {
   const [loading, setLoading] = useState<boolean>(false);
+  const [renderingImage, setRenderingImage] = useState<boolean>(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
@@ -54,9 +56,6 @@ function MultipleImageCropper({
   const [finalSelectedImageArray, setFinalSelectedImageArray] = useState<
     SelectedFileArrayObjInterface[]
   >([]);
-
-  const [croppedImagePreview, setCroppedImagePreview] =
-    useState<DragAndDropCropImageInterface | null>(null);
 
   const onCropDone = (croppedArea: Area, rotation: number) => {
     setLoading(true);
@@ -119,13 +118,53 @@ function MultipleImageCropper({
 
       const dataUrl = croppedImageCanvas.toDataURL('image/jpeg');
 
+      setSelectedFileObj((pervItem) => {
+        if (!pervItem) return null;
+        return { ...pervItem, croppedImagePreview: dataUrl };
+      });
+
+      setDroppedFilesArray((fileArray) => {
+        if (!fileArray) return fileArray;
+
+        const exists = fileArray?.some(
+          (item) => item?.id == selectedFileObj?.id
+        );
+
+        if (!exists) return fileArray;
+
+        return fileArray?.map((item) =>
+          item?.id === selectedFileObj?.id
+            ? { ...item, croppedImagePreview: dataUrl }
+            : item
+        );
+      });
+
       setLoading(false);
-      setCroppedImagePreview({ id: selectedFileObj?.id, previewUrl: dataUrl });
     },
     100
   );
-  const handelTryAgainButton = () => {
-    setCroppedImagePreview(null);
+  const handelTryAgainButton = (selectedFileObj: SelectedFileForCrop) => {
+    if (!selectedFileObj) return;
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setDroppedFilesArray((fileArray) => {
+      if (!fileArray) return fileArray;
+
+      const exists = fileArray?.some((item) => item?.id == selectedFileObj?.id);
+
+      if (!exists) return fileArray;
+
+      return fileArray?.map((item) =>
+        item?.id === selectedFileObj?.id
+          ? { ...item, croppedImagePreview: '' }
+          : item
+      );
+    });
+
+    setSelectedFileObj((pervValue) => {
+      if (!pervValue) return pervValue;
+      return { ...pervValue, croppedImagePreview: '' };
+    });
   };
 
   const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
@@ -147,23 +186,33 @@ function MultipleImageCropper({
   };
 
   const handelClickOnImage = (file: SelectedFileArrayObjInterface) => {
-    setCroppedImagePreview(null);
-    const previewUrl = URL.createObjectURL(file?.file);
-    setSelectedFileObj({
-      id: file?.id,
-      file: file?.file,
-      previewUrl: previewUrl,
-    });
+    setRenderingImage(true);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setTimeout(() => {
+      const previewUrl = URL.createObjectURL(file?.file);
+      setSelectedFileObj({
+        id: file?.id,
+        file: file?.file,
+        previewUrl: previewUrl,
+        croppedImagePreview: file?.croppedImagePreview,
+      });
+      setRenderingImage(false);
+    }, 150);
   };
 
   const onCropCancel = () => {
-    setCroppedImagePreview(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
     setDroppedFilesArray([]);
+    if (setIsImageCropperActive) setIsImageCropperActive(false);
   };
 
-  const handelClickOnSaveButton = (data: DragAndDropCropImageInterface) => {
+  const handelClickOnSaveButton = (data: SelectedFileForCrop) => {
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
     const file = dataUrlToFileConvertor(
-      data.previewUrl,
+      data.croppedImagePreview,
       `image-${Math.random()}.png`
     );
 
@@ -171,7 +220,13 @@ function MultipleImageCropper({
       const exists = prevData?.some((item) => item?.id === data?.id);
       if (exists) {
         return prevData?.map((item) =>
-          item?.id === data?.id ? { ...item, file } : item
+          item?.id === data?.id
+            ? {
+                id: data?.id,
+                croppedImagePreview: data?.croppedImagePreview,
+                file: file,
+              }
+            : item
         );
       }
       return [...(prevData || []), { ...data, file }];
@@ -187,30 +242,59 @@ function MultipleImageCropper({
 
     if (filteredData?.length >= 1) {
       const previewUrl = URL.createObjectURL(filteredData[0]?.file);
-      setCroppedImagePreview(null);
       setSelectedFileObj({
         id: filteredData[0]?.id,
         file: filteredData[0]?.file,
         previewUrl: previewUrl,
+        croppedImagePreview: filteredData[0]?.croppedImagePreview,
       });
     }
   };
 
+  const handelClickOnTheDeleteBtn = (id: string) => {
+    setRenderingImage(true);
+    const updatedDroppedFiles =
+      DroppedFilesArray?.filter((item) => item?.id !== id) || [];
+
+    setDroppedFilesArray(updatedDroppedFiles);
+
+    const updatedFinalArray =
+      finalSelectedImageArray?.filter((item) => item?.id !== id) || [];
+
+    setFinalSelectedImageArray(updatedFinalArray);
+
+    const isSelected = selectedFileObj?.id === id;
+
+    setTimeout(() => {
+      if (isSelected) {
+        setSelectedFileObj(null);
+        if (updatedDroppedFiles?.length > 0) {
+          const file = updatedDroppedFiles[0];
+          const previewUrl = URL.createObjectURL(file.file);
+
+          setSelectedFileObj({
+            id: file?.id,
+            file: file?.file,
+            previewUrl: previewUrl,
+            croppedImagePreview: file.croppedImagePreview || '',
+          });
+        }
+      }
+      setRenderingImage(false);
+    }, 300);
+  };
+
   useEffect(() => {
     if (!selectedFileObj && DroppedFilesArray?.length !== 0) {
-      setCroppedImagePreview(null);
       const previewUrl = URL.createObjectURL(DroppedFilesArray[0]?.file);
       setSelectedFileObj({
         id: DroppedFilesArray[0]?.id,
         file: DroppedFilesArray[0]?.file,
         previewUrl: previewUrl,
+        croppedImagePreview: DroppedFilesArray[0]?.croppedImagePreview,
       });
     }
   }, [DroppedFilesArray, selectedFileObj]);
-
-  //   const imageUrl = URL.createObjectURL(file[0]);
-
-  // console.log('finalSelectedImageArray', finalSelectedImageArray);
 
   return (
     <div className='fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/25 z-[999] transition-all duration-200'>
@@ -231,56 +315,80 @@ function MultipleImageCropper({
           )}
           {selectedFileObj && (
             <>
-              {croppedImagePreview ? (
-                <div className='w-full h-full flex items-center justify-center bg-black/10 rounded-md overflow-hidden'>
-                  <img
-                    src={croppedImagePreview?.previewUrl}
-                    className={`w-full h-full m-auto ${cropShape === 'round' ? 'rounded-full' : 'rounded-md'}`}
-                    alt='cropped Image Preview'
-                    loading='lazy'
-                    style={{ maxWidth: maxCropWidth, maxHeight: maxCropHeight }}
-                  />
+              {renderingImage ? (
+                <div className='w-full h-full flex items-center justify-center border border-black/15 backdrop-blur-md absolute top-0 left-0 z-20 transition-all duration-200'>
+                  <HamsterLoader theme='light' />
                 </div>
               ) : (
-                <Cropper
-                  image={selectedFileObj?.previewUrl}
-                  crop={crop}
-                  zoom={zoom}
-                  rotation={rotation}
-                  onCropChange={setCrop}
-                  onCropComplete={onCropComplete}
-                  onZoomChange={setZoom}
-                  onRotationChange={setRotation}
-                  cropSize={{ width: maxCropWidth, height: maxCropHeight }}
-                  restrictPosition={false}
-                  cropShape={cropShape}
-                  objectFit='contain'
-                  style={{ containerStyle: { backgroundColor: 'transparent' } }}
-                />
+                <>
+                  {selectedFileObj?.croppedImagePreview ? (
+                    <div className='w-full h-full flex items-center justify-center bg-black/10 rounded-md overflow-hidden'>
+                      <img
+                        src={selectedFileObj?.croppedImagePreview}
+                        className={`w-full h-full m-auto ${cropShape === 'round' ? 'rounded-full' : 'rounded-md'}`}
+                        alt='cropped Image Preview'
+                        loading='lazy'
+                        style={{
+                          maxWidth: maxCropWidth,
+                          maxHeight: maxCropHeight,
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <Cropper
+                      image={selectedFileObj?.previewUrl}
+                      crop={crop}
+                      zoom={zoom}
+                      rotation={rotation}
+                      onCropChange={setCrop}
+                      onCropComplete={onCropComplete}
+                      onZoomChange={setZoom}
+                      onRotationChange={setRotation}
+                      cropSize={{ width: maxCropWidth, height: maxCropHeight }}
+                      restrictPosition={false}
+                      cropShape={cropShape}
+                      objectFit='contain'
+                      style={{
+                        containerStyle: { backgroundColor: 'transparent' },
+                      }}
+                    />
+                  )}
+                </>
               )}
             </>
           )}
         </div>
-        <div className='flex items-center justify-start overflow-auto hide-scrollbar flex-nowrap gap-4 pt-6 border-t border-black/20'>
+        <div className='flex items-center justify-start overflow-auto hide-scrollbar flex-nowrap gap-4 pt-6 px-3 border-t border-black/20'>
           {DroppedFilesArray?.map((file) => {
-            const previewUrl = URL.createObjectURL(file?.file);
+            const previewUrl = file?.croppedImagePreview
+              ? file?.croppedImagePreview
+              : URL.createObjectURL(file?.file);
 
             return (
               <div
                 className={classNames(
-                  'min-w-[80px] max-w-[80px] max-h-[80px] min-h-[80px] overflow-hidden rounded-lg border border-black/20',
-                  { 'border-2 border-blue-500': file?.id === selectedFileObj?.id }
+                  'min-w-[80px] max-w-[80px] max-h-[80px] min-h-[80px] rounded-lg border border-black/20 relative',
+                  {
+                    'border-2 border-blue-500':
+                      file?.id === selectedFileObj?.id,
+                  }
                 )}
                 onClick={() => handelClickOnImage(file)}
                 key={file?.id}
               >
+                <button
+                  className='min-w-5 min-h-5 max-w-5 max-h-5 absolute -top-1.5 -left-1.5 text-black rounded-full bg-white'
+                  onClick={() => handelClickOnTheDeleteBtn(file?.id)}
+                >
+                  <IoCloseCircle className='min-w-5 min-h-5 max-w-5 max-h-5' />
+                </button>
                 <img
                   src={previewUrl}
                   alt='Drag Drop Preview Url'
                   width={76}
                   height={76}
                   loading='lazy'
-                  className='w-full h-full aspect-square p-1 object-cover'
+                  className='w-full h-full aspect-square p-1 object-cover rounded-lg'
                 />
               </div>
             );
@@ -320,12 +428,12 @@ function MultipleImageCropper({
             </div>
           </div>
           <div className='flex items-center gap-2 justify-end'>
-            {croppedImagePreview ? (
+            {selectedFileObj?.croppedImagePreview ? (
               <button
                 className='bg-transparent text-black border border-black/60 px-4 py-1.5 capitalize font-inter text-base font-semibold rounded-lg h-full'
-                onClick={handelTryAgainButton}
+                onClick={() => handelTryAgainButton(selectedFileObj)}
               >
-                Try Again
+                Crop Again
               </button>
             ) : (
               <button
@@ -345,10 +453,10 @@ function MultipleImageCropper({
               </button>
             ) : (
               <>
-                {croppedImagePreview ? (
+                {selectedFileObj?.croppedImagePreview ? (
                   <button
                     className='bg-[var(--them-green-color)] text-white px-4 py-1.5 capitalize font-inter text-base font-semibold rounded-lg h-full disabled:opacity-70 disabled:cursor-not-allowed'
-                    onClick={() => handelClickOnSaveButton(croppedImagePreview)}
+                    onClick={() => handelClickOnSaveButton(selectedFileObj)}
                     disabled={loading}
                   >
                     {loading ? (

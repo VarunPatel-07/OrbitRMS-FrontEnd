@@ -56,7 +56,7 @@ function SignIn() {
         navigate(`/onboarding?organization_id=${res?.organization_id}`);
       } else {
         navigate(
-          `/${res?.organization_general_info?.portal_url?.split('https://orbitrms.com/')[1]}/config/project-status`
+          `/${res?.organization_general_info?.portal_slug}/dashboard`
         );
       }
     } else {
@@ -93,7 +93,7 @@ function SignIn() {
           clearLocalSessionStorage();
         } else {
           navigate(
-            `/${response?.data?.organization?.general_info?.portal_slug}/config/project-status`
+            `/${response?.data?.organization?.general_info?.portal_slug}/dashboard`
           );
         }
       } finally {

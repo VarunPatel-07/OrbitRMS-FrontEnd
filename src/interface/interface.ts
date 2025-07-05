@@ -3,6 +3,8 @@
 
 import React, { SetStateAction } from 'react';
 
+import { GlobalContextStore } from './UserProfileInterface';
+
 //? -------------------------- Start Of The Onboarding Form InterFace Utility -------------------------
 
 export interface CountryInfo {
@@ -213,21 +215,28 @@ export interface ClientInquirySidebarModelInterface {
 }
 
 export interface AddEditPostModalInterface {
-  showClientInquiryDetail: boolean;
-  setShowClientInquiryDetail: React.Dispatch<SetStateAction<boolean>>;
+  showAddEditPostModal: boolean;
+  setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;
+  GlobalStateProvider: GlobalContextStore;
 }
 
 export interface SelectedFileArrayObjInterface {
   id: string;
   file: File;
+  croppedImagePreview: string;
 }
 export interface SelectedFileForCrop {
   id: string;
   file: File;
   previewUrl: string;
+  croppedImagePreview: string;
 }
 
 export interface DragAndDropCropImageInterface {
   previewUrl: string;
   id: string;
+}
+
+export interface OrganizationFeedPropsInterface {
+  setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;
 }
