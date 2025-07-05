@@ -25,7 +25,9 @@ function HolidayCard(props: HolidayedPropsInterFace) {
       <div className='w-full h-full relative'>
         <div className='absolute top-0 left-0 w-full px-4 py-3 z-10'>
           <div className='flex items-center justify-between'>
-            <p className='text-lg text-black font-inter font-medium'>Holiday</p>
+            <p className='text-lg text-black font-inter font-semibold'>
+              Holiday
+            </p>
             <div className='flex items-center justify-end gap-2'>
               <button
                 className='w-6 h-6 flex items-center justify-center border border-black/20 rounded bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
@@ -73,13 +75,14 @@ function HolidayCard(props: HolidayedPropsInterFace) {
                     key={holiday?.id}
                     className={classNames('w-full h-full', {
                       'bg-gray-300': !isItUpcoming,
+                      'bg-white': isItUpcoming,
                     })}
                   >
                     <div className='flex flex-col items-start justify-end p-4 w-full h-full'>
                       <p className='text-xl text-black font-semibold text-nowrap text-ellipsis overflow-hidden w-[65%]'>
                         {holiday?.holiday_name}
                       </p>
-                      <p className='text-base text-black/80'>
+                      <p className='text-base text-black'>
                         {formateDate(
                           new Date(holiday?.date)?.toString(),
                           GlobalStateProvider?.organization

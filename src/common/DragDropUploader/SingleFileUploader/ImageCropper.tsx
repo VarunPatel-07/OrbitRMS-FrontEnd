@@ -6,8 +6,8 @@ import { BiSolidZoomIn, BiSolidZoomOut } from 'react-icons/bi';
 import { FaRotateLeft, FaRotateRight } from 'react-icons/fa6';
 import { IoClose } from 'react-icons/io5';
 
-import HamsterLoader from '../../Components/Loader/HamsterLoader';
-import Loader from '../Loader';
+import HamsterLoader from '../../../Components/Loader/HamsterLoader';
+import Loader from '../../Loader';
 
 function ImageCropper({
   file,

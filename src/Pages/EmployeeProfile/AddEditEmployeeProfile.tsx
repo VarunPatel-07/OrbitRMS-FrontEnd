@@ -12,7 +12,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
 import CommonDatePicker from '../../common/CommonDatePicker';
-import DragAndDropFileUploader from '../../common/DragDropUploader/DragAndDropFileUploader';
+import DragAndDropFileUploader from '../../common/DragDropUploader/SingleFileUploader/DragAndDropFileUploader';
 import IconPicker from '../../common/IconPicker';
 import Input from '../../common/Input';
 import Loader from '../../common/Loader';
@@ -1040,6 +1040,14 @@ export default function AddEditEmployeeProfile() {
             </p>
           </div>
           <div className='p-6 w-full'>
+            <label
+              htmlFor=''
+              className='text-sm font-inter font-normal text-black/65 pb-2.5 inline-block'
+            >
+              <span className='flex gap-1'>
+                <span className='font-inter'>Profile Picture (Max: 3MB)</span>
+              </span>
+            </label>
             <div className='grid grid-cols-1 gap-6'>
               {formData?.personal_info?.profile_picture?.trim() == '' ? (
                 <div className='w-full'>

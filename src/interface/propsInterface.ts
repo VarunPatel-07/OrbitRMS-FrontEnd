@@ -1,6 +1,8 @@
 import React, { SetStateAction } from 'react';
 
 import { countryObject } from '../Helper/countryDataHelper';
+import { SelectedFileArrayObjInterface } from './interface';
+import { GlobalContextStore } from './UserProfileInterface';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface BreadcrumbsProps {
@@ -45,6 +47,20 @@ export interface DragDropUploaderProps {
   setImageUrl: (url: string) => void;
 }
 
+export interface MultipleImageUploaderPropsInterface {
+  name: string;
+  type: 'file' | 'image';
+  RequiredFileTypeArray: Array<string>;
+  showDropFileScreenInFullScreen: boolean;
+  cropShape: 'round' | 'rect';
+  maxCropHeight: number;
+  maxCropWidth: number;
+  isImageCropperActive?: boolean;
+  setIsImageCropperActive?: React.Dispatch<SetStateAction<boolean>>;
+  handelUploadImage: (data: SelectedFileArrayObjInterface[]) => void;
+  asPlusIcon?: boolean;
+}
+
 export interface commonDatePickerProps {
   selectedValue: Date | null;
   onChange: (date: Date | null) => void;
@@ -82,6 +98,42 @@ export interface TextAreaProps {
   isRequiredField?: boolean;
   showError?: boolean;
   errorMessage?: string;
+}
+
+export interface RichTextEditorApiCallIngReturnInterface {
+  id: string;
+  label: string;
+  employeeCode: string;
+  success: boolean;
+  message: string;
+}
+export interface RichTextEditorApiResponseInterface {
+  account_status: boolean;
+  employee_code: string;
+  first_name: string;
+  full_name: string;
+  id: string;
+  last_name: string;
+  middle_name: string;
+  organization_id: string;
+}
+export interface RichTextEditorInterface {
+  name: string;
+  className?: string;
+  cols?: number;
+  rows?: number;
+  value?: string;
+  setValue?: React.Dispatch<SetStateAction<string>>;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  labelFieldName?: string;
+  isRequiredField?: boolean;
+  showError?: boolean;
+  errorMessage?: string;
+  handelApiCallingFunction: (
+    query: string
+  ) => Promise<RichTextEditorApiCallIngReturnInterface[]>;
+  GlobalStateProvider: GlobalContextStore;
+  handelOnUpdateFunction: (data: string) => void;
 }
 
 export interface SearchDropProps {

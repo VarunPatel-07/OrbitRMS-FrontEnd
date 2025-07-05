@@ -403,7 +403,6 @@ export const CompareTwoArrayOfString = (
     const itemOne = arrayOne[i]?.trim()?.toLowerCase();
     const itemTwo = arrayTwo[i]?.trim()?.toLowerCase();
     if (itemOne !== itemTwo) {
-      console.log(itemOne, itemTwo);
       return false;
     }
   }
@@ -427,6 +426,8 @@ export const compareDates = (date: Date) => {
   const holidayDate = new Date(date);
   const holidayDay = holidayDate?.getDate();
   const holidayMonth = holidayDate?.getMonth();
+
+  if (currentMonth > holidayMonth) return false;
 
   if (holidayMonth <= currentMonth) {
     if (holidayDay < currentDay) return false;

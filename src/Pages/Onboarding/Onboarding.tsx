@@ -15,7 +15,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import signInGradientBgImage from '../../assets/Images/gradient-bg.webp';
 import orbitLogo from '../../assets/Images/orbitrms-white-transperent-logo.webp';
 import CommonDatePicker from '../../common/CommonDatePicker';
-import DragAndDropFileUploader from '../../common/DragDropUploader/DragAndDropFileUploader';
+import DragAndDropFileUploader from '../../common/DragDropUploader/SingleFileUploader/DragAndDropFileUploader';
 import Input from '../../common/Input';
 import Loader from '../../common/Loader';
 import SearchDrop from '../../common/SearchDrop';
