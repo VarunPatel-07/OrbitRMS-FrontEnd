@@ -144,14 +144,8 @@ export const multiplePostApi = async (
         const res = await axios(config);
         return res?.data;
       } catch (error: any) {
-        // Handle error (e.g., return an error object or log it)
-        // console.error(
-        //   `Error fetching data from ${eachEndPoint.endPoint}`,
-        //   error
-        // );
         if (unauthorizedStatusCodes.includes(error?.status)) {
           const status = error?.response?.status || error?.status;
-
           if (unauthorizedStatusCodes.includes(status)) {
             window.location.href = '/auth/sign-in';
             return;

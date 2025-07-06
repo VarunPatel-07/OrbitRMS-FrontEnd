@@ -6,7 +6,7 @@ import { EmployeeProfilePictureInterface } from '../interface/interface';
 function EmployeeProfilePicture(props: EmployeeProfilePictureInterface) {
   const { width, height, profilePicture = '', isLoading } = props;
   return (
-    <div className='w-full flex items-center justify-center'>
+    <div className='w-fit flex items-center justify-center'>
       <div
         className='w-full h-full rounded-full overflow-hidden outline outline-1 outline-black/10 bg-black/50'
         style={{

@@ -413,9 +413,10 @@ export const generateTimeBasedGreeting = (): string => {
   const date = new Date();
   const time = date?.getHours();
 
-  if (time < 12) return 'Good Morning';
-  if (time < 17) return 'Good Afternoon';
-  return 'Good Evening';
+  if (time >= 5 && time < 12) return 'Good Morning';
+  if (time >= 12 && time < 17) return 'Good Afternoon';
+  if (time >= 17 && time < 20) return 'Good Evening';
+  return 'Good Night';
 };
 
 export const compareDates = (date: Date) => {
@@ -434,4 +435,14 @@ export const compareDates = (date: Date) => {
     return true;
   }
   return true;
+};
+
+export const isRichTextEditorIsEmpty = (htmlString: string) => {
+  const text = htmlString
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, '')
+    .replace(/"/g, '')
+    .trim();
+
+  return text === '';
 };

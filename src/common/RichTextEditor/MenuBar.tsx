@@ -186,7 +186,7 @@ function MenuBar({ editor }: { editor: Editor | null }) {
 
   return (
     <div className='control-group'>
-      <div className='button-group flex flex-wrap gap-2 border border-black/20 p-2 rounded-t-lg'>
+      <div className='button-group flex flex-wrap gap-2 border-b border-b-black/20 p-2 rounded-t-lg'>
         {menuItems.map((item, index) => (
           <button
             key={index}

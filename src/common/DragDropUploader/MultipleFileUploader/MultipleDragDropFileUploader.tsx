@@ -69,7 +69,7 @@ function MultipleDragAndDropFileUploader(
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxFiles: 5,
-    maxSize: 3 * 1024 * 1024,
+    maxSize: 2 * 1024 * 1024,
     onDropRejected: (fileRejections) => {
       if (fileRejections?.some((item) => item?.file?.size > 3 * 1024 * 1024)) {
         const res = {

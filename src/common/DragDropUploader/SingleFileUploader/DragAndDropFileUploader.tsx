@@ -68,7 +68,7 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
-    maxSize: 3 * 1024 * 1024,
+    maxSize: 2 * 1024 * 1024,
     onDropRejected: (fileRejections) => {
       const isLarge = fileRejections?.some(
         (item) => item?.file?.size > 3 * 1024 * 1024

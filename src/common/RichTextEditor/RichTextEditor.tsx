@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect } from 'react';
 import { FaStarOfLife } from 'react-icons/fa';
 import Bold from '@tiptap/extension-bold';
 import Document from '@tiptap/extension-document';
@@ -10,11 +11,20 @@ import Paragraph from '@tiptap/extension-paragraph';
 import Strike from '@tiptap/extension-strike';
 import Text from '@tiptap/extension-text';
 import TextAlign from '@tiptap/extension-text-align';
-import { EditorContent, mergeAttributes, useEditor } from '@tiptap/react';
+import {
+  Editor,
+  EditorContent,
+  mergeAttributes,
+  useEditor,
+} from '@tiptap/react';
 
 import { RichTextEditorInterface } from '../../interface/propsInterface';
 import MenuBar from './MenuBar';
 import { mentionSuggestion } from './RichTextEditorMentions/Suggestions';
+
+export const clearEditor = (editor: Editor) => {
+  editor?.commands.clearContent();
+};
 
 function RichTextEditor(props: RichTextEditorInterface) {
   const {
@@ -23,6 +33,9 @@ function RichTextEditor(props: RichTextEditorInterface) {
     handelApiCallingFunction,
     GlobalStateProvider,
     handelOnUpdateFunction,
+    showError,
+    errorMessage,
+    onEditorReady,
   } = props;
   const editor = useEditor({
     extensions: [
@@ -158,7 +171,7 @@ function RichTextEditor(props: RichTextEditorInterface) {
     editorProps: {
       attributes: {
         class:
-          'text-black border border-black/20 rounded-lg px-3 py-1.5 outline-none min-h-[350px] rounded-t-none border-t-0 outline-t-none',
+          'text-black rounded-lg px-3 py-1.5 outline-none min-h-[350px] rounded-t-none border-t-0 outline-t-none',
       },
     },
     onUpdate: ({ editor }) => {
@@ -166,6 +179,13 @@ function RichTextEditor(props: RichTextEditorInterface) {
       handelOnUpdateFunction(JSON.stringify(_data));
     },
   });
+
+  useEffect(() => {
+    if (editor && onEditorReady) {
+      onEditorReady(editor);
+    }
+  }, [editor, onEditorReady]);
+
   return (
     <>
       <div className='w-full'>
@@ -182,12 +202,25 @@ function RichTextEditor(props: RichTextEditorInterface) {
             </span>
           </label>
         )}
-        <div className='tiptap'>
+        <div
+          className='tiptap rounded-lg'
+          style={{
+            border:
+              showError && errorMessage
+                ? '1px solid red'
+                : '1px solid rgb(0,0,0,0.2)',
+          }}
+        >
           <MenuBar editor={editor} />
           <div className='relative'>
             <EditorContent editor={editor} />
           </div>
         </div>
+        {showError && errorMessage && (
+          <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
+            {errorMessage}
+          </span>
+        )}
       </div>
     </>
   );
