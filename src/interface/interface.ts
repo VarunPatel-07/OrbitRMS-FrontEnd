@@ -2,7 +2,9 @@
 //? -------------------------- This Is The Start Of The Onboarding Form InterFace -------------------------
 
 import React, { SetStateAction } from 'react';
+import { Editor } from '@tiptap/react';
 
+import { AddEditPostFormdataInterface } from './Dashboard';
 import { GlobalContextStore } from './UserProfileInterface';
 
 //? -------------------------- Start Of The Onboarding Form InterFace Utility -------------------------
@@ -218,6 +220,12 @@ export interface AddEditPostModalInterface {
   showAddEditPostModal: boolean;
   setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;
   GlobalStateProvider: GlobalContextStore;
+  handelOnSubmit: () => void;
+  onEditorReady?: (editor: Editor) => void;
+  formData: AddEditPostFormdataInterface;
+  setFormData: React.Dispatch<SetStateAction<AddEditPostFormdataInterface>>;
+  loading: boolean;
+  setLoading: React.Dispatch<SetStateAction<boolean>>;
 }
 
 export interface SelectedFileArrayObjInterface {
@@ -235,8 +243,4 @@ export interface SelectedFileForCrop {
 export interface DragAndDropCropImageInterface {
   previewUrl: string;
   id: string;
-}
-
-export interface OrganizationFeedPropsInterface {
-  setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;
 }

@@ -1,4 +1,5 @@
 import React, { SetStateAction } from 'react';
+import { Editor } from '@tiptap/react';
 
 import { countryObject } from '../Helper/countryDataHelper';
 import { SelectedFileArrayObjInterface } from './interface';
@@ -134,6 +135,7 @@ export interface RichTextEditorInterface {
   ) => Promise<RichTextEditorApiCallIngReturnInterface[]>;
   GlobalStateProvider: GlobalContextStore;
   handelOnUpdateFunction: (data: string) => void;
+  onEditorReady?: (editor: Editor) => void;
 }
 
 export interface SearchDropProps {

@@ -1,44 +1,64 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { IoClose, IoCloseCircle } from 'react-icons/io5';
 
+import MultipleDragAndDropFileUploader from '../../common/DragDropUploader/MultipleFileUploader/MultipleDragDropFileUploader';
+import Loader from '../../common/Loader';
 import RichTextEditor from '../../common/RichTextEditor/RichTextEditor';
+import {
+  NotificationContext,
+  NotificationContextApiProps,
+} from '../../Context/Notification/NotificationContextApi';
 import { multipleFetchApi } from '../../Helper/api/multipleAPI';
-import { classNames } from '../../Helper/HelperFunctions';
+import {
+  classNames,
+  isRichTextEditorIsEmpty,
+} from '../../Helper/HelperFunctions';
 import { useMentionSearchDebounce } from '../../Hooks/useMentionSearchDebounce';
-import { AddEditPostFormdataInterface } from '../../interface/Dashboard';
 import {
   AddEditPostModalInterface,
   SelectedFileArrayObjInterface,
 } from '../../interface/interface';
 import { RichTextEditorApiResponseInterface } from '../../interface/propsInterface';
 
-const initialData: AddEditPostFormdataInterface = {
-  description: '',
-  images: [],
-  isCommentDisabled: false,
-  isLikeDisabled: false,
-};
-
-const MultipleDragAndDropFileUploader = React.lazy(
-  () =>
-    import(
-      '../../common/DragDropUploader/MultipleFileUploader/MultipleDragDropFileUploader'
-    )
-);
-
 function AddEditPostModal(props: AddEditPostModalInterface) {
-  const { showAddEditPostModal, setShowAddEditPostModal, GlobalStateProvider } =
-    props as AddEditPostModalInterface;
+  const {
+    showAddEditPostModal,
+    setShowAddEditPostModal,
+    GlobalStateProvider,
+    handelOnSubmit,
+    onEditorReady,
+    formData,
+    setFormData,
+    loading,
+    setLoading,
+  } = props as AddEditPostModalInterface;
+
+  const { handelNotification } = useContext(
+    NotificationContext
+  ) as NotificationContextApiProps;
+
   const modalBoxRef = useRef<HTMLDivElement>(null);
 
   const [isImageCropperActive, setIsImageCropperActive] =
     useState<boolean>(false);
 
-  const [formData, setFormData] =
-    useState<AddEditPostFormdataInterface>(initialData);
+  const [showError, setShowError] = useState<boolean>(false);
 
   const handelUploadImage = (data: SelectedFileArrayObjInterface[]) => {
+    const totalImages = formData.images.length + data.length;
+
+    if (totalImages > 5) {
+      handelNotification(
+        {
+          message: 'Too many files! Max 5 images allowed.',
+          success: false,
+        },
+        'top-right'
+      );
+      return;
+    }
+
     setFormData((pervData) => ({
       ...pervData,
       images: [...pervData.images, ...data],
@@ -90,6 +110,18 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
     setFormData((pervValue) => ({ ...pervValue, images: _filterData }));
   };
 
+  const handelClickOnTheSubmitButton = () => {
+    if (
+      isRichTextEditorIsEmpty(formData?.description) &&
+      formData.images?.length == 0
+    ) {
+      setShowError(true);
+    }
+    setLoading(true);
+
+    handelOnSubmit();
+  };
+
   const renderMultipleDragDropUploader = () => (
     <MultipleDragAndDropFileUploader
       name='general_info.organization_profile_picture'
@@ -127,7 +159,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
         ref={modalBoxRef}
       >
         <div className='w-full h-full relative'>
-          <div className='w-full px-5 py-4 border-b border-b-black/20 absolute top-0 left-0 bg-white'>
+          <div className='w-full px-5 py-4 border-b border-b-black/20 absolute top-0 left-0 z-20 bg-white'>
             <div className='w-full flex items-center justify-between'>
               {' '}
               <h2 className='text-black capitalize font-inter font-bold text-xl'>
@@ -148,7 +180,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
                 className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
               >
                 <span className='flex gap-1'>
-                  <span className='font-inter'>Images (Max: 3MB)</span>
+                  <span className='font-inter'>Images (Max: 2MB)</span>
                 </span>
               </label>
               {formData?.images?.length !== 0 ? (
@@ -179,7 +211,11 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
                     );
                   })}
 
-                  {renderMultipleDragDropUploader()}
+                  <div
+                    className={`${formData?.images?.length >= 5 ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''}`}
+                  >
+                    {renderMultipleDragDropUploader()}
+                  </div>
                 </div>
               ) : (
                 <div className='w-full'>{renderMultipleDragDropUploader()}</div>
@@ -193,15 +229,70 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
                 handelApiCallingFunction={handelApiCallingFunction}
                 GlobalStateProvider={GlobalStateProvider}
                 handelOnUpdateFunction={handelOnUpdateFunction}
+                showError={showError}
+                onEditorReady={onEditorReady}
+                errorMessage={
+                  showError
+                    ? isRichTextEditorIsEmpty(formData?.description)
+                      ? 'This Is An Required Field'
+                      : ''
+                    : ''
+                }
               />
+            </div>
+            <div className='w-full flex flex-col gap-4'>
+              <div className='flex items-center justify-between gap-3'>
+                <p className='text-black font-inter font-medium capitalize'>
+                  Disable Commenting
+                </p>
+                <button
+                  className={`w-[52px] h-[22px] rounded-full relative transition-all duration-200 ${formData.isCommentDisabled ? 'bg-green-500' : 'bg-red-500'}`}
+                  onClick={() =>
+                    setFormData((pervData) => ({
+                      ...pervData,
+                      isCommentDisabled: !pervData?.isCommentDisabled,
+                    }))
+                  }
+                >
+                  <span
+                    className={`w-[18px] h-[18px] bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${formData.isCommentDisabled ? 'left-8' : 'left-[3px]'}`}
+                  ></span>
+                </button>
+              </div>
+              <div className='flex items-center justify-between gap-3'>
+                <p className='text-black font-inter font-medium capitalize'>
+                  Disable Liking
+                </p>
+                <button
+                  className={`w-[52px] h-[22px] rounded-full relative transition-all duration-200 ${formData.isLikeDisabled ? 'bg-green-500' : 'bg-red-500'}`}
+                  onClick={() =>
+                    setFormData((pervData) => ({
+                      ...pervData,
+                      isLikeDisabled: !pervData?.isLikeDisabled,
+                    }))
+                  }
+                >
+                  <span
+                    className={`w-[18px] h-[18px] bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${formData.isLikeDisabled ? 'left-8' : 'left-[3px]'}`}
+                  ></span>
+                </button>
+              </div>
             </div>
           </div>
           <div className='py-2 w-full border-t px-5 border-t-black/20 grid grid-cols-2 gap-3 items-center justify-center absolute bottom-0 left-0'>
             <button className='bg-white border border-black/20 rounded-md text-black font-inter px-5 py-2'>
               Cancel
             </button>
-            <button className='bg-[var(--them-green-color)] rounded-md text-white font-inter px-5 py-2'>
-              Submit
+            <button
+              className='bg-[var(--them-green-color)] rounded-md text-white font-inter px-5 py-2 disabled:opacity-45 disabled:cursor-not-allowed'
+              onClick={handelClickOnTheSubmitButton}
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader loaderText='Submitting...' />
+              ) : (
+                <span>Submit</span>
+              )}
             </button>
           </div>
         </div>

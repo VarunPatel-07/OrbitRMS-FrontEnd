@@ -1,14 +1,21 @@
 import { FaFilter } from 'react-icons/fa';
 import { FaPenToSquare } from 'react-icons/fa6';
 
-import { OrganizationFeedPropsInterface } from '../../interface/interface';
+import FeedPostCard from '../../Components/FeedPostCard';
+import FeedPostLoader from '../../Components/Loader/FeedPostLoader';
+import { OrganizationFeedPropsInterface } from '../../interface/Dashboard';
 
 function Feed(props: OrganizationFeedPropsInterface) {
-  const { setShowAddEditPostModal } = props;
+  const {
+    setShowAddEditPostModal,
+    feedPostData,
+    GlobalStateProvider,
+    loading,
+  } = props;
   return (
-    <div className='w-full h-full bg-white'>
+    <div className='w-full bg-white relative flex flex-col items-start justify-start max-h-[calc(100vh-60px)] overflow-auto'>
       {/* Header Section */}
-      <div className='w-full  flex items-stretch justify-between px-3.5 py-3 border-b border-b-black/15 h-[60px]'>
+      <div className='w-full  flex items-stretch justify-between px-3.5 py-3 border-b border-b-black/15 min-h-[60px] h-[60px] sticky top-0 left-0 bg-white z-20'>
         <p className='text-xl text-black font-inter font-semibold flex flex-col items-center justify-center'>
           Feed
         </p>
@@ -25,6 +32,21 @@ function Feed(props: OrganizationFeedPropsInterface) {
           </button>
         </div>
       </div>
+      {loading ? (
+        <FeedPostLoader />
+      ) : (
+        <div className='w-full'>
+          <div className='w-full flex flex-col items-start justify-start gap-4 px-4 py-4'>
+            {feedPostData?.map((item) => (
+              <FeedPostCard
+                data={item}
+                key={item?.id}
+                GlobalStateProvider={GlobalStateProvider}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
