@@ -136,6 +136,7 @@ export interface RichTextEditorInterface {
   GlobalStateProvider: GlobalContextStore;
   handelOnUpdateFunction: (data: string) => void;
   onEditorReady?: (editor: Editor) => void;
+  feedContent: string;
 }
 
 export interface SearchDropProps {

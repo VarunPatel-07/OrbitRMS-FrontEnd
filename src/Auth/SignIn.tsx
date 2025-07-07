@@ -55,9 +55,7 @@ function SignIn() {
       if (!res?.organization_created) {
         navigate(`/onboarding?organization_id=${res?.organization_id}`);
       } else {
-        navigate(
-          `/${res?.organization_general_info?.portal_slug}/dashboard`
-        );
+        navigate(`/${res?.organization_general_info?.portal_slug}/dashboard`);
       }
     } else {
       setLoading(false);
@@ -79,6 +77,18 @@ function SignIn() {
       signInApiHandlerFunction(); // Await the API call
     } else {
       setShowError(true);
+    }
+  };
+
+  const handelKeyPress = (e: React.KeyboardEvent) => {
+    e.preventDefault();
+    if (e.key === 'Enter') {
+      if (isFormValid) {
+        setLoading(true); // Set loading state immediately
+        signInApiHandlerFunction(); // Await the API call
+      } else {
+        setShowError(true);
+      }
     }
   };
 
@@ -146,7 +156,10 @@ function SignIn() {
           </div>
           <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10'>
             <div className='login-form w-full h-full relative z-20 flex items-center justify-center'>
-              <div className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0'>
+              <form
+                className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0'
+                onKeyDown={handelKeyPress}
+              >
                 <div className='flex flex-col items-start justify-start gap-2'>
                   <h1 className='font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black'>
                     Sign In to{' '}
@@ -246,7 +259,7 @@ function SignIn() {
                     </Link>
                   </p>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>

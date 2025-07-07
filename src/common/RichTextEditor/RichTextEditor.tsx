@@ -36,6 +36,7 @@ function RichTextEditor(props: RichTextEditorInterface) {
     showError,
     errorMessage,
     onEditorReady,
+    feedContent,
   } = props;
   const editor = useEditor({
     extensions: [
@@ -176,9 +177,15 @@ function RichTextEditor(props: RichTextEditorInterface) {
     },
     onUpdate: ({ editor }) => {
       const _data = editor.getHTML();
-      handelOnUpdateFunction(JSON.stringify(_data));
+      handelOnUpdateFunction(_data);
     },
   });
+
+  useEffect(() => {
+    if (editor) {
+      editor.commands.setContent(feedContent || '<p></p>');
+    }
+  }, [feedContent, editor]);
 
   useEffect(() => {
     if (editor && onEditorReady) {
