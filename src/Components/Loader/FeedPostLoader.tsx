@@ -28,10 +28,10 @@ function FeedPostLoader() {
             </div>
 
             <div className='px-3.5 pb-3.5 text-black'>
-              <Skeleton height={15} width={'100%'} key={index} />
-              <Skeleton height={15} width={'90%'} key={index} />
-              <Skeleton height={15} width={'80%'} key={index} />
-              <Skeleton height={15} width={'70%'} key={index} />
+              <Skeleton height={15} width={'100%'} />
+              <Skeleton height={15} width={'90%'} />
+              <Skeleton height={15} width={'80%'} />
+              <Skeleton height={15} width={'70%'} />
             </div>
           </div>
         ))}

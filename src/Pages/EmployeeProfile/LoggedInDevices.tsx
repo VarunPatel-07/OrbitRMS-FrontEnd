@@ -33,6 +33,7 @@ function LoggedInDevices(props: { organizationInfo: Organization }) {
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [signOutLoader, setSignOutLoader] = useState<boolean>(false);
+  const [deletingSessionId, setDeletingSessionsId] = useState<string>('');
 
   const fetchLoggedInDeviceWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
@@ -67,6 +68,7 @@ function LoggedInDevices(props: { organizationInfo: Organization }) {
       handelNotification(res, 'top-right');
       setSignOutLoader(false);
       setLoading(true);
+      setDeletingSessionsId('');
       fetchLoggedInDeviceWithDebounce();
     } else {
       setSignOutLoader(false);
@@ -75,6 +77,7 @@ function LoggedInDevices(props: { organizationInfo: Organization }) {
 
   const handelSignOutButton = (session_id: string) => {
     setSignOutLoader(true);
+    setDeletingSessionsId(session_id);
     deleteSessionWithDebounce(session_id);
   };
 
@@ -140,9 +143,11 @@ function LoggedInDevices(props: { organizationInfo: Organization }) {
                       <button
                         className='px-3.5 py-2 font-inter text-base text-black/70 font-medium border border-black/20 rounded-md hover:bg-black hover:text-white transition-all duration-150 disabled:bg-black disabled:cursor-not-allowed disabled:opacity-85'
                         onClick={() => handelSignOutButton(info?.id)}
-                        disabled={signOutLoader}
+                        disabled={
+                          signOutLoader && deletingSessionId == info?.id
+                        }
                       >
-                        {signOutLoader ? (
+                        {signOutLoader && deletingSessionId == info?.id ? (
                           <span className='w-6 h-5 flex items-center justify-center ml-1'>
                             <Loader loaderText='' />
                           </span>

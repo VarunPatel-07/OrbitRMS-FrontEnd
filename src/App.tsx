@@ -1,5 +1,11 @@
-import { useContext, useEffect, useRef, useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import React, {
+  SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 
 import MainSuspenseLoader from './Components/Loader/MainSuspenseLoader';
 import Navbar from './Components/Navbar/Navbar';
@@ -13,6 +19,7 @@ import {
   NotificationContextApiProps,
 } from './Context/Notification/NotificationContextApi';
 import { verifyUsersLoginStatus } from './Helper/api/api';
+import { endpointObject, multiplePostApi } from './Helper/api/multipleAPI';
 import HelmetSeo from './Helper/HelmetSeo';
 import {
   clearLocalSessionStorage,
@@ -20,6 +27,7 @@ import {
   storeDataInLocalStorage,
 } from './Helper/HelperFunctions';
 import ProtectedRoute from './Helper/ProtectedRoute';
+import { useDebounce } from './Hooks/useDebounce';
 import ApiManager from './Pages/ApiManager/ApiManager';
 import ClientInquiry from './Pages/ClientInquiry/ClientInquiry';
 import Config from './Pages/config/Config';
@@ -47,12 +55,37 @@ function App() {
     NotificationContext
   ) as NotificationContextApiProps;
 
+  const navigate = useNavigate();
+
   const { setGlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
 
   const useEffectRef = useRef(false);
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
+
+  const handelLogoutButtonWithDebounce = useDebounce(
+    async (setLoading: React.Dispatch<SetStateAction<boolean>>) => {
+      const endPointArr: endpointObject[] = [
+        {
+          endPoint: 'auth/logout',
+          protected: true,
+        },
+      ];
+
+      const response = await multiplePostApi(endPointArr);
+      const res = response[0];
+      setLoading(true);
+      handelNotification(res, 'top-right');
+      if (res?.success) {
+        clearLocalSessionStorage();
+        setTimeout(() => {
+          navigate('/auth/sign-in');
+        }, 100);
+      }
+    },
+    10000
+  );
 
   useEffect(() => {
     if (useEffectRef.current) return;
@@ -100,7 +133,7 @@ function App() {
       {!showGlobalLoader && (
         <div className='w-full h-screen bg-white'>
           <div className='w-full flex flex-col h-full'>
-            <Navbar />
+            <Navbar handelLogout={handelLogoutButtonWithDebounce} />
             <div className='w-full h-full flex-grow flex justify-stretch'>
               <div className='w-fit'>
                 <SideBar />

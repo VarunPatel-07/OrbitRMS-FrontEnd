@@ -24,7 +24,7 @@ import { RichTextEditorApiResponseInterface } from '../../interface/propsInterfa
 function AddEditPostModal(props: AddEditPostModalInterface) {
   const {
     showAddEditPostModal,
-    setShowAddEditPostModal,
+
     GlobalStateProvider,
     handelOnSubmit,
     onEditorReady,
@@ -32,6 +32,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
     setFormData,
     loading,
     setLoading,
+    handelCancelButton,
   } = props as AddEditPostModalInterface;
 
   const { handelNotification } = useContext(
@@ -46,7 +47,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
   const [showError, setShowError] = useState<boolean>(false);
 
   const handelUploadImage = (data: SelectedFileArrayObjInterface[]) => {
-    const totalImages = formData.images.length + data.length;
+    const totalImages = formData.new_images.length + data.length;
 
     if (totalImages > 5) {
       handelNotification(
@@ -61,7 +62,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
 
     setFormData((pervData) => ({
       ...pervData,
-      images: [...pervData.images, ...data],
+      new_images: [...pervData.new_images, ...data],
     }));
   };
 
@@ -105,17 +106,29 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
   );
 
   const handelClickOnTheDeleteBtn = (id: string) => {
-    const _filterData = formData?.images?.filter((item) => item?.id !== id);
+    const _filterData = formData?.new_images?.filter((item) => item?.id !== id);
 
-    setFormData((pervValue) => ({ ...pervValue, images: _filterData }));
+    setFormData((pervValue) => ({ ...pervValue, new_images: _filterData }));
+  };
+
+  const handelClickOnTheExistingButtonClick = (id: number) => {
+    const _filterData = formData?.existing_images?.filter(
+      (_, index) => index !== id
+    );
+
+    setFormData((pervValue) => ({
+      ...pervValue,
+      existing_images: _filterData,
+    }));
   };
 
   const handelClickOnTheSubmitButton = () => {
     if (
       isRichTextEditorIsEmpty(formData?.description) &&
-      formData.images?.length == 0
+      formData.new_images?.length == 0
     ) {
       setShowError(true);
+      return;
     }
     setLoading(true);
 
@@ -134,9 +147,19 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
       isImageCropperActive={isImageCropperActive}
       setIsImageCropperActive={setIsImageCropperActive}
       handelUploadImage={handelUploadImage}
-      asPlusIcon={formData.images.length !== 0}
+      asPlusIcon={
+        formData?.new_images?.length !== 0 ||
+        formData?.existing_images?.length !== 0
+      }
     />
   );
+
+  const handelKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      handelClickOnTheSubmitButton();
+    }
+  };
 
   return (
     <div
@@ -158,7 +181,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
         )}
         ref={modalBoxRef}
       >
-        <div className='w-full h-full relative'>
+        <form className='w-full h-full relative' onKeyDown={handelKeyDown}>
           <div className='w-full px-5 py-4 border-b border-b-black/20 absolute top-0 left-0 z-20 bg-white'>
             <div className='w-full flex items-center justify-between'>
               {' '}
@@ -167,7 +190,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
               </h2>
               <button
                 className='bg-transparent border-0'
-                onClick={() => setShowAddEditPostModal(false)}
+                onClick={() => handelCancelButton()}
               >
                 <IoClose className='text-black text-3xl' />
               </button>
@@ -183,9 +206,33 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
                   <span className='font-inter'>Images (Max: 2MB)</span>
                 </span>
               </label>
-              {formData?.images?.length !== 0 ? (
+              {formData?.new_images?.length !== 0 ||
+              formData?.existing_images?.length !== 0 ? (
                 <div className='w-full flex items-center justify-start overflow-auto gap-3 p-3'>
-                  {formData?.images?.map((file) => {
+                  {formData?.existing_images?.map((img, index) => (
+                    <div
+                      className='min-w-[80px] max-w-[80px] max-h-[80px] min-h-[80px] rounded-lg border border-black/20 relative'
+                      key={index}
+                    >
+                      <button
+                        className='min-w-5 min-h-5 max-w-5 max-h-5 absolute -top-1.5 -left-1.5 text-black rounded-full bg-white'
+                        onClick={() =>
+                          handelClickOnTheExistingButtonClick(index)
+                        }
+                      >
+                        <IoCloseCircle className='min-w-5 min-h-5 max-w-5 max-h-5' />
+                      </button>
+                      <img
+                        src={img}
+                        alt='Drag Drop Preview Url'
+                        width={76}
+                        height={76}
+                        loading='lazy'
+                        className='w-full h-full aspect-square p-1 object-cover rounded-lg'
+                      />
+                    </div>
+                  ))}
+                  {formData?.new_images?.map((file) => {
                     const previewUrl = file?.croppedImagePreview;
 
                     return (
@@ -212,7 +259,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
                   })}
 
                   <div
-                    className={`${formData?.images?.length >= 5 ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''}`}
+                    className={`${formData?.new_images?.length >= 5 ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''}`}
                   >
                     {renderMultipleDragDropUploader()}
                   </div>
@@ -238,6 +285,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
                       : ''
                     : ''
                 }
+                feedContent={formData?.description}
               />
             </div>
             <div className='w-full flex flex-col gap-4'>
@@ -280,7 +328,10 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
             </div>
           </div>
           <div className='py-2 w-full border-t px-5 border-t-black/20 grid grid-cols-2 gap-3 items-center justify-center absolute bottom-0 left-0'>
-            <button className='bg-white border border-black/20 rounded-md text-black font-inter px-5 py-2'>
+            <button
+              className='bg-white border border-black/20 rounded-md text-black font-inter px-5 py-2'
+              onClick={handelCancelButton}
+            >
               Cancel
             </button>
             <button
@@ -295,7 +346,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
               )}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

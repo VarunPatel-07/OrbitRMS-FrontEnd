@@ -216,9 +216,13 @@ export interface ClientInquirySidebarModelInterface {
   setShowClientInquiryDetail: React.Dispatch<SetStateAction<boolean>>;
 }
 
+export interface NavbarPropsInterface {
+  handelLogout: (setLoading: React.Dispatch<SetStateAction<boolean>>) => void;
+}
+
 export interface AddEditPostModalInterface {
   showAddEditPostModal: boolean;
-  setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;
+
   GlobalStateProvider: GlobalContextStore;
   handelOnSubmit: () => void;
   onEditorReady?: (editor: Editor) => void;
@@ -226,6 +230,7 @@ export interface AddEditPostModalInterface {
   setFormData: React.Dispatch<SetStateAction<AddEditPostFormdataInterface>>;
   loading: boolean;
   setLoading: React.Dispatch<SetStateAction<boolean>>;
+  handelCancelButton: () => void;
 }
 
 export interface SelectedFileArrayObjInterface {

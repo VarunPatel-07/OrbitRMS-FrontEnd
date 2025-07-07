@@ -14,10 +14,11 @@ export interface HolidayedPropsInterFace {
 }
 
 export interface AddEditPostFormdataInterface {
-  images: SelectedFileArrayObjInterface[];
+  new_images: SelectedFileArrayObjInterface[];
   description: string;
   isCommentDisabled: boolean;
   isLikeDisabled: boolean;
+  existing_images: string[];
 }
 
 export interface FeedPostDataPropsInterface {
@@ -49,4 +50,6 @@ export interface OrganizationFeedPropsInterface {
   feedPostData: FeedPostDataPropsInterface[];
   GlobalStateProvider: GlobalContextStore;
   loading: boolean;
+  editPostHandler: (feedData: FeedPostDataPropsInterface) => void;
+  handelClickOnDeleteButton: (id: string) => void;
 }

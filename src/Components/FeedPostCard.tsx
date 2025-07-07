@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { BsThreeDotsVertical } from 'react-icons/bs';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { Navigation } from 'swiper/modules';
@@ -12,15 +13,52 @@ import EmployeeProfilePicture from './EmployeeProfilePicture';
 interface propsInterface {
   data: FeedPostDataPropsInterface;
   GlobalStateProvider: GlobalContextStore;
+  editPostHandler: (feedData: FeedPostDataPropsInterface) => void;
+  handelClickOnDeleteButton: (id: string) => void;
 }
 
 function FeedPostCard(props: propsInterface) {
-  const { data, GlobalStateProvider } = props;
+  const {
+    data,
+    GlobalStateProvider,
+    editPostHandler,
+    handelClickOnDeleteButton,
+  } = props;
   const prevRef = useRef(null);
   const nextRef = useRef(null);
+  const postWrapperDivRef = useRef<HTMLDivElement>(null);
+
+  const [showMenu, setShowMenu] = useState(false);
+
+  const toggleMenu = () => setShowMenu((prev) => !prev);
+
+  const handelClickOnEditPost = (feedData: FeedPostDataPropsInterface) => {
+    editPostHandler(feedData);
+    setShowMenu(false);
+  };
+
+  useEffect(() => {
+    const handelClickOutSideTheBox = (event: MouseEvent) => {
+      if (
+        postWrapperDivRef.current &&
+        !postWrapperDivRef.current.contains(event.target as Node)
+      ) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handelClickOutSideTheBox);
+
+    return () => {
+      document.addEventListener('mouseup', handelClickOutSideTheBox);
+    };
+  }, [setShowMenu]);
+
   return (
-    <div className='w-full border border-black/10 rounded-lg overflow-hidden'>
-      <div className='w-full flex items-center justify-between px-3.5 py-2 bg-[var(--main-white-color)] border-b border-b-black/10'>
+    <div
+      className='w-full border border-black/10 rounded-lg'
+      ref={postWrapperDivRef}
+    >
+      <div className='w-full flex items-center justify-between px-3.5 py-2 bg-[var(--main-white-color)] border-b border-b-black/10 rounded-t-lg'>
         <div className='flex items-center justify-start gap-3'>
           <EmployeeProfilePicture
             profilePicture={data?.publisher?.profile_picture}
@@ -63,6 +101,31 @@ function FeedPostCard(props: propsInterface) {
               )}
             </p>
           </div>
+        </div>
+        <div className='relative'>
+          <button onClick={toggleMenu} className='text-black'>
+            <BsThreeDotsVertical />
+          </button>
+
+          {showMenu && (
+            <ul
+              className={classNames(
+                'flex flex-col items-start justify-start bg-white shadow-xl absolute top-full z-10 rounded overflow-hidden right-0 transition-all border border-black/15',
+                { 'opacity-0': !showMenu, 'opacity-100': showMenu }
+              )}
+            >
+              <li className='px-3 w-full py-2 text-black text-nowrap border-b border-b-black/15 hover:bg-gray-50'>
+                <button onClick={() => handelClickOnEditPost(data)}>
+                  Edit Post
+                </button>
+              </li>
+              <li className='px-3 w-full py-2 text-black text-nowrap hover:bg-gray-50'>
+                <button onClick={() => handelClickOnDeleteButton(data?.id)}>
+                  Delete Post
+                </button>
+              </li>
+            </ul>
+          )}
         </div>
       </div>
       {JSON.parse(data?.images)?.length > 0 && (
@@ -112,6 +175,7 @@ function FeedPostCard(props: propsInterface) {
                         width={'100%'}
                         height={'100%'}
                         className='object-cover w-full h-full aspect-video'
+                        loading='lazy'
                       />
                     </picture>
                   </div>
@@ -126,9 +190,7 @@ function FeedPostCard(props: propsInterface) {
           'pt-3.5': JSON.parse(data?.images)?.length == 0,
         })}
       >
-        <div
-          dangerouslySetInnerHTML={{ __html: JSON.parse(data?.description) }}
-        ></div>
+        <div dangerouslySetInnerHTML={{ __html: data?.description }}></div>
       </div>
     </div>
   );

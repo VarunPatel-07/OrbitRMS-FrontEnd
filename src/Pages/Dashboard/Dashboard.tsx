@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { MdOutlineDashboard } from 'react-icons/md';
 import { Editor } from '@tiptap/react';
 
@@ -13,6 +13,7 @@ import {
 } from '../../Context/Notification/NotificationContextApi';
 import {
   endpointObject,
+  multipleDeleteApi,
   multipleFetchApi,
   multiplePostApi,
 } from '../../Helper/api/multipleAPI';
@@ -26,11 +27,16 @@ import { OrganizationHolidays } from '../../interface/OrganizationSettings';
 import DashboardPlayground from './DashboardPlayground';
 import Feed from './Feed';
 
+const DeleteModal = React.lazy(
+  () => import('../../Components/Modal/DeleteModal')
+);
+
 const initialData: AddEditPostFormdataInterface = {
   description: '',
-  images: [],
+  new_images: [],
   isCommentDisabled: false,
   isLikeDisabled: false,
+  existing_images: [],
 };
 
 function Dashboard() {
@@ -57,8 +63,50 @@ function Dashboard() {
   const [formData, setFormData] =
     useState<AddEditPostFormdataInterface>(initialData);
   const [formSubmitLoader, setFormSubmitLoader] = useState<boolean>(false);
-  const [feedPostLoader, setFeedPostLoader] = useState<boolean>(false);
+  const [feedPostLoader, setFeedPostLoader] = useState<boolean>(true);
+  const [editPostId, setEditPostId] = useState<string>('');
+  const [type, setType] = useState<'add' | 'edit'>('add');
+  const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [deletePostId, setDeletePostId] = useState<string>('');
 
+  //
+  //
+  // * The Api That Help To Delete a Specific Post
+  //
+  //
+  //
+  const deletePostWithDebounce = useDebounce(async () => {
+    const endPointArr: endpointObject[] = [
+      {
+        endPoint: `feed/delete-post?id=${deletePostId}`,
+        protected: true,
+      },
+    ];
+    const response = await multipleDeleteApi(endPointArr);
+    const res = response[0];
+    setIsDeleteLoading(false);
+
+    if (res?.success) {
+      setFeedPostLoader(true);
+      setDeletePostId('');
+      setShowDeleteModal(false);
+      fetchTheFeedPostsWithDebounce();
+    } else {
+      handelNotification(res, 'top-right');
+    }
+  }, 100);
+
+  const handelClickOnDeleteButton = (id: string) => {
+    setDeletePostId(id);
+    setShowDeleteModal(true);
+  };
+  //
+  //
+  // * The Api That Help To Fetch The Post Data
+  //
+  //
+  //
   const fetchTheFeedPostsWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
       {
@@ -75,7 +123,16 @@ function Dashboard() {
       handelNotification(res, 'top-right');
     }
     setFeedPostLoader(false);
-  });
+    setType('add');
+    setEditPostId('');
+  }, 100);
+
+  //
+  //
+  //* The Api That Help To Fetch The Initial Data Like Data For The Holiday Card
+  //
+  //
+  //
 
   const fetchInitialDataWithDebounce = useDebounce(async () => {
     const date = new Date();
@@ -97,15 +154,21 @@ function Dashboard() {
     }
   }, 100);
 
-  const handleEditorReady = (editor: Editor) => {
-    editorRef.current = editor;
-  };
+  //
+  //
+  //* The Api That Help To Post The Feed As Well As For The Editing
+  //
+  //
+  //
 
   const handelSubmitApiCallingWithDebounce = useDebounce(async () => {
     const multipartFormData = new FormData();
     multipartFormData.append('description', formData.description);
-    formData?.images?.map((item) => {
+    formData?.new_images?.map((item) => {
       multipartFormData.append('new_images', item?.file);
+    });
+    formData.existing_images?.map((item) => {
+      multipartFormData.append('existing_images', item);
     });
 
     multipartFormData.append(
@@ -119,7 +182,10 @@ function Dashboard() {
 
     const endPointArr: endpointObject[] = [
       {
-        endPoint: `feed/add-edit?type=add`,
+        endPoint:
+          type == 'add'
+            ? `feed/add-edit?type=${type}`
+            : `feed/add-edit?type=${type}&id=${editPostId}`,
         protected: true,
         data: multipartFormData,
         header: multipartHeader,
@@ -139,12 +205,39 @@ function Dashboard() {
     }
   }, 100);
 
+  const editPostHandler = (feedData: FeedPostDataPropsInterface) => {
+    setType('edit');
+    setEditPostId(feedData?.id);
+    setShowAddEditPostModal(true);
+    setFormData({
+      description: feedData?.description,
+      existing_images: feedData?.images ? JSON.parse(feedData?.images) : [],
+      isCommentDisabled: feedData?.isCommentDisabled,
+      isLikeDisabled: feedData?.isLikeDisabled,
+      new_images: [],
+    });
+  };
+
+  const handleEditorReady = (editor: Editor) => {
+    editorRef.current = editor;
+  };
+
+  const handelCancelButton = () => {
+    setShowAddEditPostModal(false);
+    setFormData(initialData);
+  };
+
+  const handelDeleteItem = () => {
+    setIsDeleteLoading(true);
+    deletePostWithDebounce();
+  };
+
   useEffect(() => {
     if (useEffectReference.current) return;
     useEffectReference.current = true;
     fetchInitialDataWithDebounce();
     fetchTheFeedPostsWithDebounce();
-  }, [fetchInitialDataWithDebounce]);
+  }, [fetchInitialDataWithDebounce, fetchTheFeedPostsWithDebounce]);
 
   return (
     <>
@@ -173,19 +266,20 @@ function Dashboard() {
               GlobalStateProvider={GlobalStateProvider}
             />
           </div>
-          <div className='w-1/2 max-w-[500px] min-w-[200px] h-full border-l border-l-black/15'>
+          <div className='w-1/2 max-w-[500px] bg-white min-w-[200px] h-full border-l border-l-black/15'>
             <Feed
               setShowAddEditPostModal={setShowAddEditPostModal}
               feedPostData={feedPostData}
               GlobalStateProvider={GlobalStateProvider}
               loading={feedPostLoader}
+              editPostHandler={editPostHandler}
+              handelClickOnDeleteButton={handelClickOnDeleteButton}
             />
           </div>
         </div>
       </div>
       <AddEditPostModal
         showAddEditPostModal={showAddEditPostModal}
-        setShowAddEditPostModal={setShowAddEditPostModal}
         GlobalStateProvider={GlobalStateProvider}
         handelOnSubmit={handelSubmitApiCallingWithDebounce}
         onEditorReady={handleEditorReady}
@@ -193,6 +287,14 @@ function Dashboard() {
         setFormData={setFormData}
         loading={formSubmitLoader}
         setLoading={setFormSubmitLoader}
+        handelCancelButton={handelCancelButton}
+      />
+      <DeleteModal
+        loading={isDeleteLoading}
+        showDeleteModal={showDeleteModal}
+        setShowDeleteModal={setShowDeleteModal}
+        handelDelete={handelDeleteItem}
+        name='Post'
       />
     </>
   );

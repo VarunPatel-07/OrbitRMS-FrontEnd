@@ -11,6 +11,8 @@ function Feed(props: OrganizationFeedPropsInterface) {
     feedPostData,
     GlobalStateProvider,
     loading,
+    editPostHandler,
+    handelClickOnDeleteButton,
   } = props;
   return (
     <div className='w-full bg-white relative flex flex-col items-start justify-start max-h-[calc(100vh-60px)] overflow-auto'>
@@ -37,13 +39,18 @@ function Feed(props: OrganizationFeedPropsInterface) {
       ) : (
         <div className='w-full'>
           <div className='w-full flex flex-col items-start justify-start gap-4 px-4 py-4'>
-            {feedPostData?.map((item) => (
-              <FeedPostCard
-                data={item}
-                key={item?.id}
-                GlobalStateProvider={GlobalStateProvider}
-              />
-            ))}
+            {feedPostData?.map((item) => {
+              return (
+                <div key={item?.id} className='w-full'>
+                  <FeedPostCard
+                    data={item}
+                    GlobalStateProvider={GlobalStateProvider}
+                    editPostHandler={editPostHandler}
+                    handelClickOnDeleteButton={handelClickOnDeleteButton}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
