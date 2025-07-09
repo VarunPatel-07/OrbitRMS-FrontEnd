@@ -7,7 +7,6 @@ import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
 import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
-import AuthLottieAnimation from '../Components/Animation/AuthLottieAnimation';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import {
   NotificationContext,
@@ -20,6 +19,10 @@ import {
   isValidEmail,
 } from '../Helper/HelperFunctions';
 import { useDebounce } from '../Hooks/useDebounce';
+
+const AuthLottieAnimation = React.lazy(
+  () => import('../Components/Animation/AuthLottieAnimation')
+);
 
 function SignIn() {
   const { handelNotification } = useContext(
@@ -80,17 +83,17 @@ function SignIn() {
     }
   };
 
-  const handelKeyPress = (e: React.KeyboardEvent) => {
-    e.preventDefault();
-    if (e.key === 'Enter') {
-      if (isFormValid) {
-        setLoading(true); // Set loading state immediately
-        signInApiHandlerFunction(); // Await the API call
-      } else {
-        setShowError(true);
-      }
-    }
-  };
+  // const handelKeyPress = (e: React.KeyboardEvent) => {
+  //   e.preventDefault();
+  //   if (e.key === 'Enter') {
+  //     if (isFormValid) {
+  //       setLoading(true); // Set loading state immediately
+  //       signInApiHandlerFunction(); // Await the API call
+  //     } else {
+  //       setShowError(true);
+  //     }
+  //   }
+  // };
 
   useEffect(() => {
     if (useEffectRef.current) return;
@@ -156,10 +159,7 @@ function SignIn() {
           </div>
           <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10'>
             <div className='login-form w-full h-full relative z-20 flex items-center justify-center'>
-              <form
-                className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0'
-                onKeyDown={handelKeyPress}
-              >
+              <div className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0'>
                 <div className='flex flex-col items-start justify-start gap-2'>
                   <h1 className='font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black'>
                     Sign In to{' '}
@@ -259,7 +259,7 @@ function SignIn() {
                     </Link>
                   </p>
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>

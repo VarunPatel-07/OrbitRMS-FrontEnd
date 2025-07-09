@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useContext, useEffect, useRef, useState } from 'react';
 import { FaRegCircleCheck } from 'react-icons/fa6';
 import { IoCloseCircleOutline, IoEye } from 'react-icons/io5';

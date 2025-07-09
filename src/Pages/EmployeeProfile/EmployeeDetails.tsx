@@ -24,8 +24,6 @@ import { EmployeeStatusInterface } from '../../interface/EmployeeInterface';
 import { InterFaceModuleData } from '../../interface/interface';
 import { Organization } from '../../interface/UserProfileInterface';
 
-
-
 function EmployeeDetails(props: {
   data: UserProfileInformationInterface;
   isFetching: boolean;

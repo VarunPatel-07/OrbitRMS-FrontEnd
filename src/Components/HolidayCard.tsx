@@ -20,6 +20,39 @@ function HolidayCard(props: HolidayedPropsInterFace) {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const sortedHolidayData = [...holidayData]?.sort((a, b) => {
+    const aDate = new Date(a?.date + 'Z');
+    const bDate = new Date(b?.date + 'Z');
+    const aTime = new Date(
+      aDate.getFullYear(),
+      aDate.getMonth(),
+      aDate.getDate()
+    ).getTime();
+    const bTime = new Date(
+      bDate.getFullYear(),
+      bDate.getMonth(),
+      bDate.getDate()
+    ).getTime();
+    const todayTime = today.getTime();
+
+    const isAToday = aTime === todayTime;
+    const isBToday = bTime === todayTime;
+
+    if (isAToday && !isBToday) return -1;
+    if (!isAToday && isBToday) return 1;
+
+    const isAFuture = aTime > todayTime;
+    const isBFuture = bTime > todayTime;
+
+    if (isAFuture && !isBFuture) return -1;
+    if (isBFuture && !isAFuture) return 1;
+
+    return aTime - bTime;
+  });
+
   return (
     <div className='w-full bg-white border border-black/15 rounded-lg h-auto min-h-[200px] overflow-hidden max-h-[200px]'>
       <div className='w-full h-full relative'>
@@ -66,7 +99,7 @@ function HolidayCard(props: HolidayedPropsInterFace) {
             allowTouchMove={false}
             className='w-full h-full  px-4 py-5'
           >
-            {holidayData?.map((holiday) => {
+            {sortedHolidayData?.map((holiday) => {
               if (holiday?.date) {
                 const isItUpcoming = compareDates(holiday?.date);
 

@@ -34,7 +34,7 @@ function Notification() {
         <div
           key={direction}
           className={classNames(
-            `w-fit h-auto max-h-screen overflow-y-auto hide-scrollbar absolute z-50 bg-transparent ${notificationInfoArray?.length == 0 ? 'invisible hidden' : ''}`,
+            `w-fit h-auto max-h-screen overflow-y-auto hide-scrollbar absolute z-[100] bg-transparent ${notificationInfoArray?.length == 0 ? 'invisible hidden' : ''}`,
             {
               'top-0 left-1/2 -translate-x-1/2': direction === 'center',
               'top-0 right-0': direction === 'top-right',

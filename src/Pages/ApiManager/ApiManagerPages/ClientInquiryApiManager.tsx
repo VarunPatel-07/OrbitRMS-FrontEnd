@@ -93,15 +93,21 @@ function ClientInquiryApiManager() {
 
   const fetchApiStatusWithDebounce = useDebounce(async () => {
     const endpointArr: endpointObject[] = [
-      { endPoint: 'client-inquires/status/fetch', protected: true },
+      { endPoint: 'api-manager/client-inquiry/status/fetch', protected: true },
     ];
     const response = await multipleFetchApi(endpointArr);
     const res = response[0];
     if (res?.success) {
       setFormData(res?.data);
       setIsReceiveEmail(res?.data?.email_notification);
-      setReceivingAuthorityMail(res?.data?.authorized_recipient_emails);
-      setDummyReceivingAuthorityMail(res?.data?.authorized_recipient_emails);
+      if (res?.data?.authorized_recipient_emails?.length >= 1) {
+        setReceivingAuthorityMail(res?.data?.authorized_recipient_emails);
+        setDummyReceivingAuthorityMail(res?.data?.authorized_recipient_emails);
+      } else {
+        setReceivingAuthorityMail(['']);
+        setDummyReceivingAuthorityMail(['']);
+      }
+
       setLoading(false);
     } else {
       setLoading(false);
@@ -110,7 +116,7 @@ function ClientInquiryApiManager() {
 
   const handelEnableDisableWithDebounce = useDebounce(async () => {
     const endpointArr: endpointObject[] = [
-      { endPoint: 'client-inquires/enable-api', protected: true },
+      { endPoint: 'api-manager/client-inquiry/enable-api', protected: true },
     ];
     const response = await multiplePutApi(endpointArr);
     const res = response[0];
@@ -130,7 +136,7 @@ function ClientInquiryApiManager() {
     async (id: string, field_name: 'api_secrete' | 'api_key') => {
       const endpointArr: endpointObject[] = [
         {
-          endPoint: `client-inquires/re-generate?id=${id}&field_name=${field_name}`,
+          endPoint: `api-manager/client-inquiry/re-generate?id=${id}&field_name=${field_name}`,
           protected: true,
         },
       ];
@@ -163,7 +169,7 @@ function ClientInquiryApiManager() {
     async (id: string) => {
       const endpointArr: endpointObject[] = [
         {
-          endPoint: `client-inquires/enable-mail-notification?id=${id}`,
+          endPoint: `api-manager/client-inquiry/enable-mail-notification?id=${id}`,
           protected: true,
         },
       ];
@@ -220,7 +226,7 @@ function ClientInquiryApiManager() {
     async (id: string) => {
       const endpointArr: endpointObject[] = [
         {
-          endPoint: `client-inquires/add-authorized-recipient?id=${id}`,
+          endPoint: `api-manager/client-inquiry/add-authorized-recipient?id=${id}`,
           protected: true,
           data: { authorized_recipient: receivingAuthorityMail },
         },
@@ -303,7 +309,7 @@ function ClientInquiryApiManager() {
               </div>
             )}
             {/* Body */}
-            <div className='w-full h-[calc(100vh-240px)] overflow-auto hide-scrollbar bg-white border border-black/15 relative'>
+            <div className='w-full h-[calc(100vh-245px)] overflow-auto hide-scrollbar bg-white border border-black/15 relative'>
               {loading ? (
                 <div className='w-full h-full bg-white p-5'>
                   <div className='flex flex-col items-start justify-start gap-5 w-full'>

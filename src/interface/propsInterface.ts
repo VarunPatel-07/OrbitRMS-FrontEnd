@@ -60,6 +60,8 @@ export interface MultipleImageUploaderPropsInterface {
   setIsImageCropperActive?: React.Dispatch<SetStateAction<boolean>>;
   handelUploadImage: (data: SelectedFileArrayObjInterface[]) => void;
   asPlusIcon?: boolean;
+  disabled?: boolean;
+  remainingImages?: number;
 }
 
 export interface commonDatePickerProps {

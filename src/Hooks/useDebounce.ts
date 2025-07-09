@@ -6,7 +6,7 @@ export const useDebounce = (
   delay: number = 500
 ) => {
   const callbackRef = useRef(callback);
-  const timerRef = useRef<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   React.useLayoutEffect(() => {
     callbackRef.current = callback;

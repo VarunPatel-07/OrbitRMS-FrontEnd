@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { AxiosError } from 'axios';
 import Cleave from 'cleave.js';
 import CryptoJS from 'crypto-js';
@@ -114,7 +115,9 @@ export const getDataFromLocalStorage = (
     return null;
   }
 };
-
+export const removeDataFromLocalStorage = (key: string) => {
+  localStorage.removeItem(key);
+};
 // * to clear local storage all the value form it
 export const clearLocalSessionStorage = () => {
   localStorage.clear();
@@ -414,19 +417,19 @@ export const generateTimeBasedGreeting = (): string => {
   const time = date?.getHours();
 
   if (time >= 5 && time < 12) return 'Good Morning';
-  if (time >= 12 && time < 17) return 'Good Afternoon';
-  if (time >= 17 && time < 20) return 'Good Evening';
+  if (time >= 12 && time < 16) return 'Good Afternoon';
+  if (time >= 16 && time < 20) return 'Good Evening';
   return 'Good Night';
 };
 
 export const compareDates = (date: Date) => {
   const currentDate = new Date();
   const currentDay = currentDate?.getDate();
-  const currentMonth = currentDate?.getMonth();
+  const currentMonth = currentDate?.getMonth() + 1;
 
-  const holidayDate = new Date(date);
+  const holidayDate = new Date(date + 'Z');
   const holidayDay = holidayDate?.getDate();
-  const holidayMonth = holidayDate?.getMonth();
+  const holidayMonth = holidayDate?.getMonth() + 1;
 
   if (currentMonth > holidayMonth) return false;
 
@@ -445,4 +448,16 @@ export const isRichTextEditorIsEmpty = (htmlString: string) => {
     .trim();
 
   return text === '';
+};
+
+// * This Function Help you to get the counter
+
+export const convertToTitleCase = (field_name: string) => {
+  return field_name
+    ?.split('_')
+    .map(
+      (word) =>
+        word?.charAt(0)?.toUpperCase() + word?.slice(1)?.toLocaleLowerCase()
+    )
+    .join(' ');
 };

@@ -13,7 +13,6 @@ import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
 import AlertModal from '../common/AlertModal';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
-import AuthLottieAnimation from '../Components/Animation/AuthLottieAnimation';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import { signUpApiFunction, verifyUsersLoginStatus } from '../Helper/api/api';
 import {
@@ -80,6 +79,10 @@ const initialAlertModalPropsInfo = {
   alertModelInfo: 'string',
   optionsButtonArray: alertModalSuccessButtonArray,
 };
+
+const AuthLottieAnimation = React.lazy(
+  () => import('../Components/Animation/AuthLottieAnimation')
+);
 
 function SignUp() {
   const useEffectRef = useRef(false);

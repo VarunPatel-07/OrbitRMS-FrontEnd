@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { MdOutlineDashboard } from 'react-icons/md';
 import { Editor } from '@tiptap/react';
 
-import AddEditPostModal from '../../Components/Modal/AddEditPostModal';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -26,6 +25,10 @@ import {
 import { OrganizationHolidays } from '../../interface/OrganizationSettings';
 import DashboardPlayground from './DashboardPlayground';
 import Feed from './Feed';
+
+const AddEditPostModal = React.lazy(
+  () => import('../../Components/Modal/AddEditPostModal')
+);
 
 const DeleteModal = React.lazy(
   () => import('../../Components/Modal/DeleteModal')
