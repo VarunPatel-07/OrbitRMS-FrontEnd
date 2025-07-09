@@ -84,7 +84,7 @@ function App() {
         }, 100);
       }
     },
-    10000
+    100
   );
 
   useEffect(() => {
@@ -92,12 +92,9 @@ function App() {
     useEffectRef.current = true;
     (async () => {
       const response = await verifyUsersLoginStatus();
+      console.log(response);
 
-      if (
-        !response?.success &&
-        response?.status_code &&
-        response?.status_code !== 429
-      ) {
+      if (!response?.success) {
         handelNotification(response, 'top-right');
         setShowGlobalLoader(false);
         clearLocalSessionStorage();

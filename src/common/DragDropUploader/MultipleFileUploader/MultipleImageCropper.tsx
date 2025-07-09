@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import React, { SetStateAction, useEffect, useState } from 'react';
 import Cropper, { Area } from 'react-easy-crop';
 import { BiSolidZoomIn, BiSolidZoomOut } from 'react-icons/bi';

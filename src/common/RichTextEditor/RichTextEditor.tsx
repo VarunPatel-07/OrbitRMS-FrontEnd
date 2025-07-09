@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react';
 import { FaStarOfLife } from 'react-icons/fa';
 import Bold from '@tiptap/extension-bold';
@@ -11,20 +10,11 @@ import Paragraph from '@tiptap/extension-paragraph';
 import Strike from '@tiptap/extension-strike';
 import Text from '@tiptap/extension-text';
 import TextAlign from '@tiptap/extension-text-align';
-import {
-  Editor,
-  EditorContent,
-  mergeAttributes,
-  useEditor,
-} from '@tiptap/react';
+import { EditorContent, mergeAttributes, useEditor } from '@tiptap/react';
 
 import { RichTextEditorInterface } from '../../interface/propsInterface';
 import MenuBar from './MenuBar';
 import { mentionSuggestion } from './RichTextEditorMentions/Suggestions';
-
-export const clearEditor = (editor: Editor) => {
-  editor?.commands.clearContent();
-};
 
 function RichTextEditor(props: RichTextEditorInterface) {
   const {
@@ -155,11 +145,10 @@ function RichTextEditor(props: RichTextEditorInterface) {
         suggestion: mentionSuggestion(handelApiCallingFunction),
         renderHTML({ options, node }) {
           return [
-            'a',
+            'span',
             mergeAttributes(
               {
-                href: `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${node.attrs.id}/employee-details`,
-                target: '_blank',
+                onclick: `window.open('/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${node.attrs.id}/employee-details', '_blank')`,
               },
               options.HTMLAttributes
             ),

@@ -13,6 +13,7 @@ export const mentionSuggestion = (
   return {
     char: '@',
     startOfLine: false,
+
     items: async ({ query }: { query: string }) => {
       try {
         if (query?.length <= 2)
@@ -25,6 +26,7 @@ export const mentionSuggestion = (
               employeeCode: '',
             },
           ];
+
         const data = await fetchMentions(query);
 
         return data.map((item) => ({
@@ -39,6 +41,8 @@ export const mentionSuggestion = (
         return [];
       }
     },
+
+    // ✅ render stays the same
     render: () => {
       let component: any;
       let popup: any;
@@ -50,9 +54,7 @@ export const mentionSuggestion = (
             editor: props.editor,
           });
 
-          if (!props.clientRect) {
-            return;
-          }
+          if (!props.clientRect) return;
 
           popup = tippy('body', {
             getReferenceClientRect: props.clientRect,
@@ -62,16 +64,14 @@ export const mentionSuggestion = (
             interactive: true,
             trigger: 'manual',
             placement: 'bottom-start',
-            theme: 'light', // Add this
-            arrow: false, // Add this
+            theme: 'light',
+            arrow: false,
           });
         },
         onUpdate(props: any) {
           component.updateProps(props);
 
-          if (!props.clientRect) {
-            return;
-          }
+          if (!props.clientRect) return;
 
           popup[0].setProps({
             getReferenceClientRect: props.clientRect,

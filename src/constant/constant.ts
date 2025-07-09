@@ -75,4 +75,6 @@ export const unauthorizedStatusCodes = [
   407, // Proxy Authentication Required (rare, but still access-related)
 ];
 
-export const NotAllowedObjectField = ['client_inquire_id' , 'id']
+export const NotAllowedObjectField = ['client_inquire_id', 'id'];
+
+export const PASSWORD_RESET_KEY = 'expiry_time';

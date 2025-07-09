@@ -103,11 +103,12 @@
 }
 
 .mention {
-  background-color: #e0e0e0;
+  background-color: transparent;
   border-radius: 4px;
   padding: 0 2px;
-  color: #2563eb !important;
+  color: #4f46e5 !important;
   text-decoration: none;
   font-family: 'Inter', serif;
   font-weight: 600;
+  cursor: pointer;
 }

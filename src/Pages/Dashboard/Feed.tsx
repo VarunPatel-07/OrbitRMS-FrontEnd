@@ -15,7 +15,7 @@ function Feed(props: OrganizationFeedPropsInterface) {
     handelClickOnDeleteButton,
   } = props;
   return (
-    <div className='w-full bg-white relative flex flex-col items-start justify-start max-h-[calc(100vh-60px)] overflow-auto'>
+    <div className='w-full bg-white relative flex flex-col items-start justify-start max-h-[calc(100vh-60px)] overflow-auto hide-scrollbar'>
       {/* Header Section */}
       <div className='w-full  flex items-stretch justify-between px-3.5 py-3 border-b border-b-black/15 min-h-[60px] h-[60px] sticky top-0 left-0 bg-white z-20'>
         <p className='text-xl text-black font-inter font-semibold flex flex-col items-center justify-center'>

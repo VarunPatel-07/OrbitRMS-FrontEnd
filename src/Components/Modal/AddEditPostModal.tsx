@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { IoClose, IoCloseCircle } from 'react-icons/io5';
 
 import MultipleDragAndDropFileUploader from '../../common/DragDropUploader/MultipleFileUploader/MultipleDragDropFileUploader';
@@ -21,7 +20,9 @@ import {
 } from '../../interface/interface';
 import { RichTextEditorApiResponseInterface } from '../../interface/propsInterface';
 
-function AddEditPostModal(props: AddEditPostModalInterface) {
+const AddEditPostModal = React.memo(function AddEditPostModal(
+  props: AddEditPostModalInterface
+) {
   const {
     showAddEditPostModal,
 
@@ -47,7 +48,12 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
   const [showError, setShowError] = useState<boolean>(false);
 
   const handelUploadImage = (data: SelectedFileArrayObjInterface[]) => {
-    const totalImages = formData.new_images.length + data.length;
+    const totalImages =
+      formData.new_images.length +
+      formData?.existing_images?.length +
+      data.length;
+
+    console.log(totalImages);
 
     if (totalImages > 5) {
       handelNotification(
@@ -151,15 +157,15 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
         formData?.new_images?.length !== 0 ||
         formData?.existing_images?.length !== 0
       }
+      disabled={
+        formData?.new_images?.length >= 5 ||
+        formData?.existing_images?.length >= 5
+      }
+      remainingImages={
+        5 - (formData?.new_images?.length + formData?.existing_images?.length)
+      }
     />
   );
-
-  const handelKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-      e.preventDefault();
-      handelClickOnTheSubmitButton();
-    }
-  };
 
   return (
     <div
@@ -181,7 +187,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
         )}
         ref={modalBoxRef}
       >
-        <form className='w-full h-full relative' onKeyDown={handelKeyDown}>
+        <div className='w-full h-full relative'>
           <div className='w-full px-5 py-4 border-b border-b-black/20 absolute top-0 left-0 z-20 bg-white'>
             <div className='w-full flex items-center justify-between'>
               {' '}
@@ -208,7 +214,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
               </label>
               {formData?.new_images?.length !== 0 ||
               formData?.existing_images?.length !== 0 ? (
-                <div className='w-full flex items-center justify-start overflow-auto gap-3 p-3'>
+                <div className='w-full flex items-center justify-start overflow-auto gap-3 p-3 hide-scrollbar'>
                   {formData?.existing_images?.map((img, index) => (
                     <div
                       className='min-w-[80px] max-w-[80px] max-h-[80px] min-h-[80px] rounded-lg border border-black/20 relative'
@@ -267,6 +273,7 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
               ) : (
                 <div className='w-full'>{renderMultipleDragDropUploader()}</div>
               )}
+              <span>Max 5 Images Are Allowed</span>
             </div>
             <div className='w-full rich-text-editor-wrapper text-black'>
               <RichTextEditor
@@ -346,10 +353,10 @@ function AddEditPostModal(props: AddEditPostModalInterface) {
               )}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
-}
+});
 
 export default AddEditPostModal;

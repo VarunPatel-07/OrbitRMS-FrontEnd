@@ -224,7 +224,7 @@ function EmployeeProfile() {
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       <div className='w-full h-full'>
         <div className='w-full h-full flex items-stretch justify-start'>
-          <div className='w-[30%] max-w-[300px] bg-white border-r border-r-black/20 overflow-auto max-h-[calc(100vh-60px)] hide-scrollbar'>
+          <div className='w-[30%] max-w-[350px] bg-white border-r border-r-black/20 overflow-auto max-h-[calc(100vh-60px)] hide-scrollbar'>
             <div className='w-full h-full pt-10 pb-4'>
               <div className='w-full h-full flex flex-col items-center justify-between'>
                 <div className='w-full flex flex-col'>
@@ -276,7 +276,7 @@ function EmployeeProfile() {
                       </button>
                     )}
                   </div>
-                  <div className='px-2.5 py-5 border-b border-b-black/20'>
+                  <div className='px-4 py-5 border-b border-b-black/20'>
                     <div className='flex items-center justify-between'>
                       <p className='text-black text-sm font-medium font-inter'>
                         Account Status:
@@ -292,7 +292,7 @@ function EmployeeProfile() {
                       )}
                     </div>
                   </div>
-                  <div className='px-2.5 py-5 border-b border-b-black/20'>
+                  <div className='px-4 py-5 border-b border-b-black/20'>
                     <div className='flex items-center justify-between'>
                       <p className='text-black text-sm font-medium font-inter'>
                         Experience In {data?.employee_info?.organization_name}:
@@ -302,7 +302,7 @@ function EmployeeProfile() {
                       </span>
                     </div>
                   </div>
-                  <div className='px-2.5 py-5'>
+                  <div className='px-4 py-5'>
                     <div className='flex items-center justify-between'>
                       <p className='text-black text-sm font-medium font-inter'>
                         Employee Type:
@@ -313,7 +313,7 @@ function EmployeeProfile() {
                     </div>
                   </div>
                 </div>
-                <div className='w-full py-4 border-t border-t-black/20 px-3 flex-grow'>
+                <div className='w-full py-4 border-t border-t-black/20 px-4 flex-grow'>
                   <p className='text-sm text-black/60 font-inter font-medium pb-2'>
                     Social Links
                   </p>
