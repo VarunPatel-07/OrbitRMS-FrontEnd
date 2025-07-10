@@ -461,3 +461,9 @@ export const convertToTitleCase = (field_name: string) => {
     )
     .join(' ');
 };
+
+export const MaxLimitCountDownTimeFormatter = (seconds: number) => {
+  const mins = Math.floor((seconds % (1000 * 60 * 60)) / (1000 * 60));
+  const secs = Math.floor((seconds % (1000 * 60)) / 1000);
+  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+};

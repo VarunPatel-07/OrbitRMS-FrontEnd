@@ -5,7 +5,7 @@ export function useMentionSearchDebounce<
   T extends (...args: any[]) => Promise<any>,
 >(callback: T, delay: number = 500): T {
   const callbackRef = useRef(callback);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useLayoutEffect(() => {
     callbackRef.current = callback;

@@ -20,8 +20,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
-    
+    "noUncheckedSideEffectImports": true,
+    "types": []
   },
   "include": ["src", "src/types"]
 }

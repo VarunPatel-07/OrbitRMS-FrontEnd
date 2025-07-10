@@ -78,3 +78,5 @@ export const unauthorizedStatusCodes = [
 export const NotAllowedObjectField = ['client_inquire_id', 'id'];
 
 export const PASSWORD_RESET_KEY = 'expiry_time';
+
+export const MAX_SIGN_IN_ATTEMPT = 'sign_in_attempt';

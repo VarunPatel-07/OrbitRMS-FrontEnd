@@ -1,4 +1,4 @@
-import { SetStateAction } from 'react';
+import React, { SetStateAction } from 'react';
 
 import { SelectedFileArrayObjInterface } from './interface';
 import { OrganizationHolidays } from './OrganizationSettings';
@@ -7,6 +7,7 @@ import { GlobalContextStore } from './UserProfileInterface';
 export interface DashboardPlaygroundPropsInterface {
   holidayData: OrganizationHolidays[];
   GlobalStateProvider: GlobalContextStore;
+  isLoadingHoliday: boolean;
 }
 export interface HolidayedPropsInterFace {
   holidayData: OrganizationHolidays[];
@@ -52,4 +53,8 @@ export interface OrganizationFeedPropsInterface {
   loading: boolean;
   editPostHandler: (feedData: FeedPostDataPropsInterface) => void;
   handelClickOnDeleteButton: (id: string) => void;
+}
+
+export interface EmptyFeedAnimationPropsInterface {
+  CTAButton?: React.ReactElement;
 }

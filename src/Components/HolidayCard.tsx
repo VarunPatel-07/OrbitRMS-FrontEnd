@@ -54,7 +54,7 @@ function HolidayCard(props: HolidayedPropsInterFace) {
   });
 
   return (
-    <div className='w-full bg-white border border-black/15 rounded-lg h-auto min-h-[200px] overflow-hidden max-h-[200px]'>
+    <div className='w-full h-full'>
       <div className='w-full h-full relative'>
         <div className='absolute top-0 left-0 w-full px-4 py-3 z-10'>
           <div className='flex items-center justify-between'>
