@@ -57,18 +57,23 @@ export const signInApiFunction = async (
       data: payload,
     };
     const response = await axios(config);
-    setLoader(true);
-    if (data?.rememberMe) {
-      storeDataInLocalStorage(
-        response?.data?.authenticationToken,
-        'authenticationToken'
-      );
-    } else {
-      storeDataInSessionStorage(
-        response?.data?.authenticationToken,
-        'authenticationToken'
-      );
+    const res = response?.data;
+
+    if (res?.success) {
+      setLoader(true);
+      if (data?.rememberMe) {
+        storeDataInLocalStorage(
+          response?.data?.data?.authenticationToken,
+          'authenticationToken'
+        );
+      } else {
+        storeDataInSessionStorage(
+          response?.data?.data?.authenticationToken,
+          'authenticationToken'
+        );
+      }
     }
+
     return response?.data;
   } catch (error: any) {
     return ErrorHandler(error);

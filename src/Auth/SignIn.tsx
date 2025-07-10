@@ -8,6 +8,7 @@ import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
+import { MAX_SIGN_IN_ATTEMPT } from '../constant/constant';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -16,7 +17,12 @@ import { signInApiFunction, verifyUsersLoginStatus } from '../Helper/api/api';
 import HelmetSeo from '../Helper/HelmetSeo';
 import {
   clearLocalSessionStorage,
+  getDataFromLocalStorage,
+  getDataFromTheSessionStorage,
   isValidEmail,
+  MaxLimitCountDownTimeFormatter,
+  removeDataFromLocalStorage,
+  storeDataInLocalStorage,
 } from '../Helper/HelperFunctions';
 import { useDebounce } from '../Hooks/useDebounce';
 
@@ -32,12 +38,16 @@ function SignIn() {
   const useEffectRef = useRef(false);
   const navigate = useNavigate();
 
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
   const [loading, setLoading] = useState<boolean>(false);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<string>('');
   const [showError, setShowError] = useState<boolean>(false);
+  const [countDown, setCountDown] = useState<number>();
+  const [expiryTimeUTCString, setExpiryTimeUTCString] = useState<string>('');
 
   const signInApiHandlerFunction = useDebounce(async () => {
     const data = {
@@ -52,17 +62,24 @@ function SignIn() {
       'POST',
       setLoading
     );
+
     if (res?.success) {
       setLoading(false);
       handelNotification(res, 'top-right');
-      if (!res?.organization_created) {
-        navigate(`/onboarding?organization_id=${res?.organization_id}`);
+      if (!res?.data?.organization_created) {
+        navigate(`/onboarding?organization_id=${res?.data?.organization_id}`);
       } else {
-        navigate(`/${res?.organization_general_info?.portal_slug}/dashboard`);
+        navigate(
+          `/${res?.data?.organization_general_info?.portal_slug}/dashboard`
+        );
       }
     } else {
       setLoading(false);
       handelNotification(res, 'top-right');
+      if (res?.data?.expiry_time) {
+        setExpiryTimeUTCString(res?.data?.expiry_time);
+        storeDataInLocalStorage(res?.data?.expiry_time, MAX_SIGN_IN_ATTEMPT);
+      }
     }
   }, 300);
 
@@ -83,23 +100,46 @@ function SignIn() {
     }
   };
 
-  // const handelKeyPress = (e: React.KeyboardEvent) => {
-  //   e.preventDefault();
-  //   if (e.key === 'Enter') {
-  //     if (isFormValid) {
-  //       setLoading(true); // Set loading state immediately
-  //       signInApiHandlerFunction(); // Await the API call
-  //     } else {
-  //       setShowError(true);
-  //     }
-  //   }
-  // };
+  const handelCountDownFunction = (utcString: string) => {
+    if (intervalRef?.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    intervalRef.current = setInterval(() => {
+      const expiryDate = new Date(utcString);
+      const currentDate = new Date();
+      const difference = expiryDate.getTime() - currentDate.getTime();
+      if (difference <= 0) {
+        setCountDown(0);
+        removeDataFromLocalStorage(MAX_SIGN_IN_ATTEMPT);
+        clearInterval(intervalRef.current!);
+        intervalRef.current = null;
+      } else {
+        setCountDown(difference);
+      }
+    }, 1000);
+  };
 
   useEffect(() => {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
     (async () => {
       try {
+        const _localToken = getDataFromLocalStorage('authenticationToken');
+        const _sessionToken = getDataFromTheSessionStorage(
+          'authenticationToken'
+        );
+
+        const authToken = `Bearer ${_localToken || _sessionToken}`;
+        const tokenValue = authToken.split('Bearer')[1]?.trim();
+
+        if (
+          !tokenValue ||
+          tokenValue === 'null' ||
+          tokenValue === 'undefined'
+        ) {
+          return;
+        }
         const response = await verifyUsersLoginStatus();
         if (!response?.success) {
           handelNotification(response, 'top-right');
@@ -120,6 +160,16 @@ function SignIn() {
       }
     })();
   }, [handelNotification, navigate]);
+
+  useEffect(() => {
+    const localData = getDataFromLocalStorage(MAX_SIGN_IN_ATTEMPT);
+
+    const data = localData || expiryTimeUTCString;
+
+    if (data) {
+      handelCountDownFunction(data);
+    }
+  }, [expiryTimeUTCString]);
 
   return (
     <>
@@ -228,6 +278,7 @@ function SignIn() {
                           Remember Me
                         </span>
                       </div>
+
                       <Link
                         to={'/auth/forgot-password'}
                         className='text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer'
@@ -241,7 +292,7 @@ function SignIn() {
                   <button
                     type='button'
                     className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed'
-                    disabled={loading}
+                    disabled={loading || countDown ? true : false}
                     onClick={handleFormSubmit}
                   >
                     {loading ? (
@@ -250,14 +301,28 @@ function SignIn() {
                       <span>Submit</span>
                     )}
                   </button>
-                  <p className='text-center font-inter w-full text-sm text-black'>
-                    Don’t have an account?{' '}
-                    <Link to='/auth/sign-up'>
-                      <span className=' text-[var(--them-orange-color)] cursor-pointer underline  font-bold'>
-                        Sign Up
-                      </span>
-                    </Link>
-                  </p>
+
+                  <div className='w-full flex flex-col items-center justify-center gap-2'>
+                    <p className='text-center font-inter w-full text-sm text-black'>
+                      Don’t have an account?{' '}
+                      <Link to='/auth/sign-up'>
+                        <span className=' text-[var(--them-orange-color)] cursor-pointer underline  font-bold'>
+                          Sign Up
+                        </span>
+                      </Link>
+                    </p>
+
+                    {countDown ? (
+                      <p className='text-red-600 flex items-center gap-1 justify-center text-sm mt-1'>
+                        <span className='inline-block'>Try Again After:</span>
+                        <span className='inline-block'>
+                          {MaxLimitCountDownTimeFormatter(countDown)}
+                        </span>
+                      </p>
+                    ) : (
+                      ''
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
-import defaultProfilePicture from '../assets/SVG-Images/default-profile-image.svg';
+import defaultProfilePicture from '../assets/svg/default-profile-image.svg';
 import { EmployeeProfilePictureInterface } from '../interface/interface';
 
 function EmployeeProfilePicture(props: EmployeeProfilePictureInterface) {

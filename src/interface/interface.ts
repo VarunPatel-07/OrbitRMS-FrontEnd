@@ -249,3 +249,7 @@ export interface DragAndDropCropImageInterface {
   previewUrl: string;
   id: string;
 }
+
+export interface NoHolidayCardPropsInterface {
+  portalSlug: string;
+}

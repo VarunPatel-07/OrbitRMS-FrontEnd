@@ -24,6 +24,7 @@ import HelmetSeo from '../Helper/HelmetSeo';
 import {
   getDataFromLocalStorage,
   isValidEmail,
+  MaxLimitCountDownTimeFormatter,
   removeDataFromLocalStorage,
   storeDataInLocalStorage,
 } from '../Helper/HelperFunctions';
@@ -52,7 +53,7 @@ function ForgotPassword() {
 
   const useEffectRef = useRef(false);
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
   const [loading, setLoading] = useState<boolean>(false);
@@ -159,12 +160,6 @@ function ForgotPassword() {
     setLoading(true);
     setShowError(false);
     handelFormSubmitWithDebounce();
-  };
-
-  const formateCountDownTime = (seconds: number) => {
-    const mins = Math.floor((seconds % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((seconds % (1000 * 60)) / 1000);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   const handelCountDownFunction = (utcString: string) => {
@@ -299,7 +294,7 @@ function ForgotPassword() {
                       <p className='text-red-600 flex items-center gap-1 justify-end text-sm mt-1'>
                         <span className='inline-block'>Try Again After:</span>
                         <span className='inline-block'>
-                          {formateCountDownTime(countDown)}
+                          {MaxLimitCountDownTimeFormatter(countDown)}
                         </span>
                       </p>
                     ) : (

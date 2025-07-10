@@ -72,6 +72,7 @@ function Dashboard() {
   const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [deletePostId, setDeletePostId] = useState<string>('');
+  const [isLoadingHoliday, setIsLoadingHoliday] = useState<boolean>(true);
 
   //
   //
@@ -155,6 +156,7 @@ function Dashboard() {
     } else {
       handelNotification(res, 'top-right');
     }
+    setIsLoadingHoliday(false);
   }, 100);
 
   //
@@ -267,6 +269,7 @@ function Dashboard() {
             <DashboardPlayground
               holidayData={holidayData}
               GlobalStateProvider={GlobalStateProvider}
+              isLoadingHoliday={isLoadingHoliday}
             />
           </div>
           <div className='w-1/2 max-w-[500px] bg-white min-w-[200px] h-full border-l border-l-black/15'>
