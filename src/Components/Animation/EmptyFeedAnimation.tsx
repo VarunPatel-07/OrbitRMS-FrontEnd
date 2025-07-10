@@ -1,6 +1,6 @@
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
-import EmptyFeedLottieAnimation from '../../assets/lottie/emptyFeedAnimation.lottie';
+import EmptyFeedLottieAnimation from '../../assets/lottie/EmptyFeedAnimation.lottie';
 import { EmptyFeedAnimationPropsInterface } from '../../interface/Dashboard';
 
 function EmptyFeedAnimation(props: EmptyFeedAnimationPropsInterface) {
