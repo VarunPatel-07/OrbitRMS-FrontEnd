@@ -92,7 +92,6 @@ function App() {
     useEffectRef.current = true;
     (async () => {
       const response = await verifyUsersLoginStatus();
-      console.log(response);
 
       if (!response?.success) {
         handelNotification(response, 'top-right');
