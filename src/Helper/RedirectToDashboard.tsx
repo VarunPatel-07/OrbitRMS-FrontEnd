@@ -11,7 +11,7 @@ const RedirectToDashboard = () => {
     if (_data) {
       return (
         <Navigate
-          to={`${JSON.parse(_data)?.portal_slug}/config/project-status`}
+          to={`${JSON.parse(_data)?.portal_slug}/dashboard`}
           replace
         />
       );
