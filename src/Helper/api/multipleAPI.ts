@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
+import { unauthorizedStatusCodes } from '../../constant/constant';
 import {
   ErrorHandler,
   getDataFromLocalStorage,
@@ -19,6 +20,13 @@ export interface URLObject {
   data?: object;
   header?: object;
 }
+export interface ApiReturnInterface {
+  message: string;
+  success: boolean;
+  data?: any;
+  metadata?: any;
+  current_session_id?: string;
+}
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 
@@ -26,7 +34,9 @@ const defaultHeader = {
   'Content-Type': 'application/json',
 };
 
-export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
+export const multipleFetchApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
       const _localToken = getDataFromLocalStorage('authenticationToken');
@@ -56,12 +66,16 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
         const res = await axios(config);
         return res?.data;
       } catch (error: any) {
-        // Handle error (e.g., return an error object or log it)
-        // console.error(
-        //   `Error fetching data from ${eachEndPoint.endPoint}`,
-        //   error
-        // );
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
@@ -78,7 +92,16 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
         //   `Error fetching data from ${eachEndPoint.endPoint}`,
         //   error
         // );
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     }
   });
@@ -87,7 +110,9 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
   return await Promise.all(promises);
 };
 
-export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
+export const multiplePostApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
       const _localToken = getDataFromLocalStorage('authenticationToken');
@@ -119,12 +144,15 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
         const res = await axios(config);
         return res?.data;
       } catch (error: any) {
-        // Handle error (e.g., return an error object or log it)
-        // console.error(
-        //   `Error fetching data from ${eachEndPoint.endPoint}`,
-        //   error
-        // );
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
@@ -141,7 +169,16 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
       } catch (error: any) {
         // Handle error (e.g., return an error object or log it)
 
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     }
   });
@@ -149,7 +186,84 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
   return await Promise.all(promises);
 };
 
-export const multipleDeleteApi = async (endPointArr: Array<endpointObject>) => {
+// todo we need to add put api helper for editing api
+
+export const multiplePutApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
+  const promises = endPointArr.map(async (eachEndPoint) => {
+    if (eachEndPoint.protected) {
+      const _localToken = getDataFromLocalStorage('authenticationToken');
+      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
+      const authToken = `Bearer ${_localToken || _sessionToken}`;
+
+      const headers: Record<string, string> = eachEndPoint.header
+        ? (eachEndPoint.header as Record<string, string>)
+        : {
+            'Content-Type': 'application/json',
+            Authorization: authToken,
+          };
+
+      if (!headers.Authorization) {
+        headers.Authorization = authToken;
+      }
+
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
+
+      const config = {
+        method: 'PUT',
+        url,
+        headers,
+        data: eachEndPoint.data,
+      };
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error: any) {
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
+      }
+    } else {
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
+
+      const config = {
+        method: 'PUT',
+        url,
+        headers: eachEndPoint?.header ? eachEndPoint.header : defaultHeader,
+        data: eachEndPoint.data,
+      };
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error: any) {
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
+      }
+    }
+  });
+
+  return await Promise.all(promises);
+};
+
+export const multipleDeleteApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
       const _localToken = getDataFromLocalStorage('authenticationToken');
@@ -186,13 +300,22 @@ export const multipleDeleteApi = async (endPointArr: Array<endpointObject>) => {
         //   `Error fetching data from ${eachEndPoint.endPoint}`,
         //   error
         // );
-        return ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
+
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
 
       const config = {
-        method: 'POST',
+        method: 'DELETE',
         url,
         headers: eachEndPoint?.header ? eachEndPoint.header : defaultHeader,
         data: eachEndPoint.data,
@@ -202,8 +325,16 @@ export const multipleDeleteApi = async (endPointArr: Array<endpointObject>) => {
         return res?.data;
       } catch (error: any) {
         // Handle error (e.g., return an error object or log it)
+        if (unauthorizedStatusCodes.includes(error?.status)) {
+          const status = error?.response?.status || error?.status;
 
-        return ErrorHandler(error);
+          if (unauthorizedStatusCodes.includes(status)) {
+            window.location.href = '/auth/sign-in';
+            return;
+          }
+        } else {
+          return ErrorHandler(error);
+        }
       }
     }
   });

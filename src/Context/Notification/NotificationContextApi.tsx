@@ -1,4 +1,10 @@
-import React, { createContext, ReactNode, useState } from 'react';
+import React, {
+  createContext,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -47,51 +53,59 @@ const NotificationContextApiProvider: React.FC<{ children: ReactNode }> = ({
     Array<NotificationObject>
   >([]);
 
-  const handelNotification = (
-    data: NotificationFunctionParamsInterface,
-    direction?:
-      | 'top-right'
-      | 'top-left'
-      | 'bottom-right'
-      | 'bottom-left'
-      | 'center',
-    timeOut?: number
-  ) => {
-    const notificationId = uuidv4();
-    setNotificationInfoArray((previous) => [
-      ...previous,
-      {
-        id: notificationId,
-        success: data.success,
-        message: data.message,
-        notificationDirection: direction || 'top-right',
-        showNotification: true,
-      },
-    ]);
+  const handelNotification = useCallback(
+    (
+      data: NotificationFunctionParamsInterface,
+      direction?:
+        | 'top-right'
+        | 'top-left'
+        | 'bottom-right'
+        | 'bottom-left'
+        | 'center',
+      timeOut?: number
+    ) => {
+      if (!data?.message) return;
+      const notificationId = uuidv4();
+      setNotificationInfoArray((previous) => [
+        ...previous,
+        {
+          id: notificationId,
+          success: data.success,
+          message: data.message,
+          notificationDirection: direction || 'top-right',
+          showNotification: true,
+        },
+      ]);
 
-    setTimeout(() => {
-      const element = document.getElementById(notificationId);
-      if (element) {
-        element.classList.remove(
-          getEnterAnimationClass[direction || 'top-right']
-        );
-        element.classList.add(getExitAnimationClass[direction || 'top-right']);
-        const onAnimationEnd = () => {
-          setNotificationInfoArray((previous) =>
-            previous.filter((item) => item.id !== notificationId)
+      setTimeout(() => {
+        const element = document.getElementById(notificationId);
+        if (element) {
+          element.classList.remove(
+            getEnterAnimationClass[direction || 'top-right']
           );
-          element.removeEventListener('animationend', onAnimationEnd);
-        };
+          element.classList.add(
+            getExitAnimationClass[direction || 'top-right']
+          );
+          const onAnimationEnd = () => {
+            setNotificationInfoArray((previous) =>
+              previous.filter((item) => item.id !== notificationId)
+            );
+            element.removeEventListener('animationend', onAnimationEnd);
+          };
 
-        element.addEventListener('animationend', onAnimationEnd);
-      }
-    }, timeOut || 3000);
-  };
+          element.addEventListener('animationend', onAnimationEnd);
+        }
+      }, timeOut || 3000);
+    },
+    []
+  );
 
-  const NotificationContextValue = {
-    notificationInfoArray,
-    handelNotification,
-  };
+  const NotificationContextValue = useMemo(() => {
+    return {
+      notificationInfoArray,
+      handelNotification,
+    };
+  }, [notificationInfoArray, handelNotification]);
   return (
     <NotificationContext.Provider value={NotificationContextValue}>
       {children}

@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
-import OrbitRMSTransparentLogo from '../../assets/Images/OrbitRMS-Final-Logo-transperent.png';
+import OrbitRMSTransparentLogo from '../../assets/Images/orbitrms-final-logo-transperent.webp';
 import { classNames } from '../../Helper/HelperFunctions';
 
-function MainSuspenseLoader({ loading }: { loading: boolean }) {
+function MainSuspenseLoader({
+  loading,
+  time,
+}: {
+  loading: boolean;
+  time?: number;
+}) {
   const [renderLoaderContent, setRenderLoaderContent] = useState(loading);
   const [fadeOut, setFadeOut] = useState(false);
   const loadingElementRef = useRef<HTMLDivElement>(null);
@@ -12,12 +18,12 @@ function MainSuspenseLoader({ loading }: { loading: boolean }) {
   useEffect(() => {
     let timer = null;
     if (!loading) {
-      timer = setTimeout(() => setFadeOut(true), 200);
+      timer = setTimeout(() => setFadeOut(true), time || 200);
     }
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [loading]);
+  }, [loading, time]);
 
   useEffect(() => {
     const handelAnimationEnd = () => {
@@ -41,7 +47,7 @@ function MainSuspenseLoader({ loading }: { loading: boolean }) {
       <div
         ref={loadingElementRef}
         className={classNames(
-          'w-screen h-screen bg-slate-50 backdrop-blur-sm fixed top-0 left-0 z-40',
+          'w-screen h-screen bg-slate-50 backdrop-blur-sm fixed top-0 left-0 z-[99999999]',
           {
             'fade-out': fadeOut,
           }
@@ -52,7 +58,8 @@ function MainSuspenseLoader({ loading }: { loading: boolean }) {
             <img
               src={OrbitRMSTransparentLogo}
               className='w-80 animate-pulse'
-              alt='Logo'
+              alt='OrbitRMS Logo'
+              loading='lazy'
             />
           </div>
           {loading && (

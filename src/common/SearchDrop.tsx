@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FaStarOfLife } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { FixedSizeList as VirtualList } from 'react-window';
 import clsx from 'clsx';
 
 import { classNames } from '../Helper/HelperFunctions';
@@ -28,11 +29,18 @@ export default function SearchDrop(props: SearchDropProps) {
 
   const boxRef = useRef<HTMLDivElement>(null);
   const inputFieldRef = useRef<HTMLInputElement>(null);
+  const dropDownRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const virtualListRef = useRef<VirtualList>(null);
+
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
-  const [highlightIndex, setHighlightIndex] = useState<number>(-1);
+  const [highlightIndex, setHighlightIndex] = useState<number>(0);
+  const [dynamicPosition, setDynamicPosition] = useState<'bottom' | 'top'>(
+    position || 'bottom'
+  );
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
@@ -74,6 +82,28 @@ export default function SearchDrop(props: SearchDropProps) {
   };
 
   useEffect(() => {
+    const adjustPosition = () => {
+      if (dropDownRef.current && buttonRef.current) {
+        const pickerHeight = dropDownRef.current.offsetHeight;
+        const buttonRect = buttonRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - buttonRect.bottom;
+        const spaceAbove = buttonRect.top;
+
+        // If not enough space below but enough space above, move picker to top
+        if (spaceBelow < pickerHeight && spaceAbove > pickerHeight) {
+          setDynamicPosition('top');
+        } else {
+          setDynamicPosition('bottom');
+        }
+      }
+    };
+
+    adjustPosition();
+    window.addEventListener('resize', adjustPosition);
+    return () => window.removeEventListener('resize', adjustPosition);
+  }, []);
+
+  useEffect(() => {
     const handelClickOutSideTheBox = (event: MouseEvent) => {
       if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -110,15 +140,10 @@ export default function SearchDrop(props: SearchDropProps) {
   };
 
   useEffect(() => {
-    if (listRef.current && highlightIndex !== -1) {
-      const highlightItem = listRef.current.children[
-        highlightIndex
-      ] as HTMLElement;
-      if (highlightItem) {
-        highlightItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+    if (isOpen && virtualListRef.current && highlightIndex !== -1) {
+      virtualListRef.current.scrollToItem(highlightIndex, 'smart');
     }
-  }, [highlightIndex]);
+  }, [highlightIndex, isOpen]);
 
   return (
     <div className='w-full' ref={boxRef}>
@@ -137,13 +162,14 @@ export default function SearchDrop(props: SearchDropProps) {
         <button
           onClick={handleToggle}
           onKeyDown={handelKeyPress}
+          ref={buttonRef}
           className={clsx(
             'px-2.5 py-2.5 bg-white border border-black/45 rounded-lg w-full flex justify-between items-center',
             className
           )}
           style={{ border: showError && errorMessage ? '1px solid red' : '' }}
         >
-          <span className='text-black font-inter text-sm capitalize'>
+          <span className='text-black font-inter text-sm capitalize text-nowrap text-ellipsis overflow-hidden'>
             {selectedValue
               ? selectedValue
               : placeHolderName
@@ -157,17 +183,18 @@ export default function SearchDrop(props: SearchDropProps) {
 
         {isOpen && (
           <div
+            ref={dropDownRef}
             className={classNames('absolute w-full z-50 transition-all', {
-              'bottom-0': position == 'top',
-              'top-0': position == 'bottom',
+              'bottom-0': dynamicPosition == 'top',
+              'top-0': dynamicPosition == 'bottom',
             })}
           >
             <div
               className={classNames(
                 'flex items-center justify-center gap-1.5',
                 {
-                  'flex-col-reverse': position == 'top',
-                  'flex-col': position == 'bottom',
+                  'flex-col-reverse': dynamicPosition == 'top',
+                  'flex-col': dynamicPosition == 'bottom',
                 }
               )}
             >
@@ -185,35 +212,51 @@ export default function SearchDrop(props: SearchDropProps) {
 
               <ul
                 ref={listRef}
-                className='max-h-[150px] h-full overflow-auto py-1 w-full bg-gray-100 shadow-md rounded-lg'
+                className='max-h-[130px] h-full overflow-auto w-full bg-gray-100 shadow-md rounded-lg hide-scrollbar'
               >
                 {!loading ? (
                   filteredOptions.length > 0 ? (
-                    filteredOptions.map((option, index) => {
-                      const val =
-                        typeof option === 'object'
-                          ? (option as Record<string, string>)[searchKey]
-                          : option;
-                      return (
-                        <li
-                          key={index}
-                          className={classNames(
-                            'px-3 py-2 cursor-pointer w-full text-black',
-                            {
-                              'bg-gray-300/70': selectedValue == val,
-                              'hover:bg-gray-200/70':
-                                selectedValue != val || highlightIndex != index,
-                              'bg-gray-200/70': highlightIndex == index,
-                            }
-                          )}
-                          onClick={() => handleOnClick(option)}
-                        >
-                          {typeof option === 'object'
+                    <VirtualList
+                      ref={virtualListRef}
+                      height={
+                        filteredOptions?.length >= 4
+                          ? 130
+                          : filteredOptions?.length * 40
+                      }
+                      itemCount={filteredOptions?.length}
+                      itemSize={40}
+                      width={'100%'}
+                      className='hide-scrollbar'
+                    >
+                      {({ index, style }) => {
+                        const option = filteredOptions[index];
+                        const val =
+                          typeof option === 'object'
                             ? (option as Record<string, string>)[searchKey]
-                            : option}
-                        </li>
-                      );
-                    })
+                            : option;
+                        return (
+                          <li
+                            style={style}
+                            key={index}
+                            className={classNames(
+                              'px-3 py-2 cursor-pointer w-full text-black text-nowrap text-ellipsis overflow-hidden',
+                              {
+                                'bg-gray-300': selectedValue == val,
+                                'hover:bg-gray-200/70':
+                                  selectedValue != val ||
+                                  highlightIndex != index,
+                                'bg-gray-300/90': highlightIndex == index,
+                              }
+                            )}
+                            onClick={() => handleOnClick(option)}
+                          >
+                            {typeof option === 'object'
+                              ? (option as Record<string, string>)[searchKey]
+                              : option}
+                          </li>
+                        );
+                      }}
+                    </VirtualList>
                   ) : (
                     <li className='px-3 py-2 text-gray-500 text-sm'>
                       {options.length == 0

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { AxiosError } from 'axios';
 import Cleave from 'cleave.js';
 import CryptoJS from 'crypto-js';
@@ -50,12 +51,14 @@ export const ErrorHandler = (error: Error | AxiosError) => {
     const errorData = {
       success: error?.response?.data?.detail?.success ?? false,
       message: error?.response?.data?.detail?.message ?? 'something went wrong',
+      data: null,
     };
     return errorData;
   } else {
     const errorData = {
       success: false,
       message: 'An unknown error occurred',
+      data: null,
     };
     return errorData;
   }
@@ -112,7 +115,9 @@ export const getDataFromLocalStorage = (
     return null;
   }
 };
-
+export const removeDataFromLocalStorage = (key: string) => {
+  localStorage.removeItem(key);
+};
 // * to clear local storage all the value form it
 export const clearLocalSessionStorage = () => {
   localStorage.clear();
@@ -187,6 +192,27 @@ export const formateAndVerifyPhoneNumber = (
   // Prevent retention of formatting when clearing
   return cleave.getFormattedValue();
 };
+
+export const verifyPhoneNumberLength = (
+  phoneNumber: string,
+  countryCode: string
+): boolean => {
+  if (!countryCode) return false;
+
+  const upperCountryCode = countryCode.toUpperCase();
+  const format = phoneFormats[upperCountryCode];
+
+  if (!format) return true;
+
+  // Extract lengths from format like 'XXX-XXX-XXXX' or '3-3-4'
+  const blocks = format.split('-').map((block) => block.length);
+  const expectedLength = blocks.reduce((sum, len) => sum + len, 0);
+  const number = formateAndVerifyPhoneNumber(phoneNumber, countryCode);
+  const rowPhoneNumber = number.replace(/-/g, '');
+
+  return rowPhoneNumber.length == expectedLength ? true : false;
+};
+
 export const getRadianAngle = (rotation: number) => {
   return (rotation * Math.PI) / 180;
 };
@@ -245,21 +271,199 @@ export const hexToRgb = (hex: string) => {
   return `${r}, ${g}, ${b}`;
 };
 
-export const formateDate = (UTCString: string, showTime: boolean = true) => {
+export const formateDate = (
+  UTCString: string,
+  default_dateformat: string,
+  showTime: boolean = true
+): string => {
   const date = new Date(UTCString + 'Z');
   const year = date.getFullYear();
-  const month = date.getMonth() + 1;
+  const twoDigitYear = year % 100;
+  const month = date.getMonth(); // 0-based
   const day = date.getDate();
-  const formattedDay = day <= 9 ? `0${day}` : day;
-  const formattedMonth = month <= 9 ? `0${month}` : month;
 
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  const monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  const replacements: Record<string, string> = {
+    YYYY: `${year}`,
+    MMM: monthNames[month],
+    YY: twoDigitYear <= 9 ? `0${twoDigitYear}` : `${twoDigitYear}`,
+    MM: month + 1 <= 9 ? `0${month + 1}` : `${month + 1}`,
+    Y: `${year}`,
+    DD: day <= 9 ? `0${day}` : `${day}`,
+    D: `${day}`,
+    M: `${month + 1}`,
+  };
+
+  // Replace tokens in order from longest to shortest to avoid partial replacements
+  const tokenOrder = ['YYYY', 'MMM', 'YY', 'MM', 'Y', 'DD', 'D', 'M'];
+
+  let formattedDate = default_dateformat;
+
+  for (const token of tokenOrder) {
+    // Replace exact tokens only (use \b boundaries or match whole token)
+    const regex = new RegExp(`\\b${token}\\b`, 'g');
+    formattedDate = formattedDate.replace(regex, replacements[token]);
+  }
 
   if (showTime) {
-    return `${formattedDay}-${formattedMonth}-${year}, ${hours}:${formattedMinutes}`;
-  } else {
-    return `${formattedDay}-${formattedMonth}-${year}`;
+    const creationTime = date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+    formattedDate += `, ${creationTime.toUpperCase()}`;
   }
+
+  return formattedDate;
+};
+
+export const getTotalExperience = (dateString: string) => {
+  const joiningDate = new Date(dateString);
+  const currentDate = new Date();
+
+  let year = currentDate?.getFullYear() - joiningDate?.getFullYear();
+
+  let months = currentDate?.getMonth() - joiningDate?.getMonth();
+
+  let day = currentDate?.getDate() - joiningDate?.getDate();
+
+  if (day < 0) {
+    months--;
+    const previousMonth = new Date(
+      currentDate?.getFullYear(),
+      currentDate?.getMonth(),
+      0
+    );
+
+    day += previousMonth?.getDate();
+  }
+
+  if (months < 0) {
+    year--;
+    months += 12;
+  }
+
+  return `${year}Y ${months}M ${day}D`;
+};
+
+export const compareTwoNestedObject = (objOne: any, objTwo: any): boolean => {
+  if (objOne === objTwo) return true;
+
+  if (
+    typeof objOne !== 'object' ||
+    typeof objTwo !== 'object' ||
+    objOne == null ||
+    objTwo == null
+  )
+    return false;
+
+  const objOneKeys = Object.keys(objOne);
+  const objTwoKeys = Object.keys(objTwo);
+
+  if (objOneKeys.length !== objTwoKeys.length) return false;
+
+  for (const key of objOneKeys) {
+    if (!objTwoKeys.includes(key)) return false;
+    const valOne = objOne[key];
+    const valTwo = objTwo[key];
+
+    const areObjects =
+      typeof valOne === 'object' &&
+      valOne !== null &&
+      typeof valTwo === 'object' &&
+      valTwo !== null;
+
+    if (areObjects) {
+      if (!compareTwoNestedObject(valOne, valTwo)) return false;
+    } else {
+      if (valOne !== valTwo) return false;
+    }
+  }
+
+  return true;
+};
+
+export const CompareTwoArrayOfString = (
+  arrayOne: Array<string>,
+  arrayTwo: Array<string>
+) => {
+  if (arrayOne?.length !== arrayTwo?.length) return false;
+  for (let i = 0; i < arrayOne.length; i++) {
+    const itemOne = arrayOne[i]?.trim()?.toLowerCase();
+    const itemTwo = arrayTwo[i]?.trim()?.toLowerCase();
+    if (itemOne !== itemTwo) {
+      return false;
+    }
+  }
+  return true;
+};
+
+export const generateTimeBasedGreeting = (): string => {
+  const date = new Date();
+  const time = date?.getHours();
+
+  if (time >= 5 && time < 12) return 'Good Morning';
+  if (time >= 12 && time < 16) return 'Good Afternoon';
+  if (time >= 16 && time < 20) return 'Good Evening';
+  return 'Good Night';
+};
+
+export const compareDates = (date: Date) => {
+  const currentDate = new Date();
+  const currentDay = currentDate?.getDate();
+  const currentMonth = currentDate?.getMonth() + 1;
+
+  const holidayDate = new Date(date + 'Z');
+  const holidayDay = holidayDate?.getDate();
+  const holidayMonth = holidayDate?.getMonth() + 1;
+
+  if (currentMonth > holidayMonth) return false;
+
+  if (holidayMonth <= currentMonth) {
+    if (holidayDay < currentDay) return false;
+    return true;
+  }
+  return true;
+};
+
+export const isRichTextEditorIsEmpty = (htmlString: string) => {
+  const text = htmlString
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, '')
+    .replace(/"/g, '')
+    .trim();
+
+  return text === '';
+};
+
+// * This Function Help you to get the counter
+
+export const convertToTitleCase = (field_name: string) => {
+  return field_name
+    ?.split('_')
+    .map(
+      (word) =>
+        word?.charAt(0)?.toUpperCase() + word?.slice(1)?.toLocaleLowerCase()
+    )
+    .join(' ');
+};
+
+export const MaxLimitCountDownTimeFormatter = (seconds: number) => {
+  const mins = Math.floor((seconds % (1000 * 60 * 60)) / (1000 * 60));
+  const secs = Math.floor((seconds % (1000 * 60)) / 1000);
+  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 };

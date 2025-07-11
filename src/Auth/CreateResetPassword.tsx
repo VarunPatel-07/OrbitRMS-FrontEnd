@@ -1,26 +1,36 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { BsArrowLeft } from 'react-icons/bs';
 import { FiLock } from 'react-icons/fi';
 import { LiaKeySolid } from 'react-icons/lia';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 
-import signInGradientBgImage from '../assets/Images/gradient-bg.png';
-import orbitLogo from '../assets/Images/OrbitRMS-White-Transperent-Logo.png';
-import signIn3dImage from '../assets/Images/sign-in-page-3d-image.webp';
+import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
+import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import {
   NotificationContext,
   NotificationContextApiProps,
+  NotificationFunctionParamsInterface,
 } from '../Context/Notification/NotificationContextApi';
 import { verifyUsersLoginStatus } from '../Helper/api/api';
 import { endpointObject, multiplePostApi } from '../Helper/api/multipleAPI';
 import HelmetSeo from '../Helper/HelmetSeo';
 import { useDebounce } from '../Hooks/useDebounce';
 
+const AuthLottieAnimation = React.lazy(
+  () => import('../Components/Animation/AuthLottieAnimation')
+);
+
 function CreateResetPassword() {
   const useEffectRef = useRef(false);
+  const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const currentPath = location.pathname.split('/auth/')[1];
@@ -38,8 +48,12 @@ function CreateResetPassword() {
 
   const createPasswordApiHandler = useDebounce(async () => {
     const userId = searchParams.get('user-id');
-    if (!userId) {
-      const data = { success: false, message: 'user id is require' };
+    const token = searchParams.get('token');
+    if (!userId && !token) {
+      const data = {
+        success: false,
+        message: 'Invalid request. Please use the correct link.',
+      };
       handelNotification(data, 'top-right');
       setLoading(false);
       return;
@@ -50,7 +64,7 @@ function CreateResetPassword() {
 
     const endPointArray: Array<endpointObject> = [
       {
-        endPoint: `auth/create-password?user-id=${userId}`,
+        endPoint: `auth/password/set-password?user-id=${userId}&token=${token}&type=${currentPath == 'create-password' ? 'create' : 'reset'}`,
         protected: false,
         data: data,
       },
@@ -60,14 +74,23 @@ function CreateResetPassword() {
     if (res?.success) {
       setLoading(false);
       handelNotification(res, 'top-right');
+      const data: NotificationFunctionParamsInterface = {
+        success: true,
+        message: 'Redirecting To Sign In Page',
+      };
+      setTimeout(() => {
+        handelNotification(data, 'top-right');
+      }, 500);
+      setTimeout(() => {
+        navigate('/auth/sign-in');
+      }, 2000);
     } else {
       setLoading(false);
       handelNotification(res, 'top-right');
     }
-  });
+  }, 100);
 
   const createResetPasswordHandler = async () => {
-    // todo we will not hard cord the value it will totally depend to the api response
     if (
       password.trim().length < 5 ||
       conformPassword.trim().length < 5 ||
@@ -77,7 +100,7 @@ function CreateResetPassword() {
       return;
     }
     setLoading(true);
-    if (currentPath == 'create-password') {
+    if (['create-password', 'reset-password'].includes(currentPath)) {
       createPasswordApiHandler();
     }
   };
@@ -85,6 +108,18 @@ function CreateResetPassword() {
   useEffect(() => {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
+
+    const userId = searchParams.get('user-id');
+    const token = searchParams.get('token');
+
+    if (!userId && !token) {
+      const data = {
+        message: 'Access denied.',
+        success: false,
+      };
+      handelNotification(data, 'top-right');
+      navigate('/auth/sign-in');
+    }
     (async () => {
       const response = await verifyUsersLoginStatus();
       if (!response?.success) {
@@ -111,18 +146,15 @@ function CreateResetPassword() {
 
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
-        <div className='h-screen w-screen bg-[var(--them-pink-color)]'>
+        <div className='h-screen w-screen bg-[var(--them-pink-color)] overflow-hidden'>
           <div className='w-full h-full flex items-stretch justify-start relative'>
             <img
               src={signInGradientBgImage}
               className='w-2/3 h-full absolute top-0 left-0'
             />
-            <img
-              src={signIn3dImage}
-              className='w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block'
-              alt=''
-            />
-            <div className='w-1/3 relative hidden md:block'>
+            {/* Auth Lottie Animation  */}
+            <AuthLottieAnimation />
+            <div className='w-1/3 relative z-20 hidden md:block'>
               <div className='w-full h-full p-7'>
                 <div>
                   <img
@@ -138,7 +170,7 @@ function CreateResetPassword() {
                 </div>
               </div>
             </div>
-            <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10'>
+            <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-20'>
               <div className='login-form w-full h-full relative z-20 flex items-center justify-center'>
                 <div className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0'>
                   <div className='w-full flex flex-col items-center justify-center gap-7'>

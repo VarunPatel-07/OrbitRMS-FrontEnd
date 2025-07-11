@@ -3,6 +3,7 @@ import React, { SetStateAction } from 'react';
 import axios, { AxiosRequestHeaders } from 'axios';
 
 import { loginForm, signUpForm } from '../../interface/funcParamInterface';
+import { GlobalContextStore } from '../../interface/UserProfileInterface';
 import {
   ErrorHandler,
   getDataFromLocalStorage,
@@ -23,6 +24,13 @@ interface SignUpApiResponse {
   success: boolean;
   showModal: boolean;
   title: string;
+}
+
+export interface verifyUsersLoginStatusResponse {
+  success: boolean;
+  message: string;
+  data: GlobalContextStore | null;
+  status_code?: number;
 }
 
 // * The Function That Are HelpFull For Sign-IN And Sign-UP
@@ -49,18 +57,23 @@ export const signInApiFunction = async (
       data: payload,
     };
     const response = await axios(config);
-    setLoader(true);
-    if (data?.rememberMe) {
-      storeDataInLocalStorage(
-        response?.data?.authenticationToken,
-        'authenticationToken'
-      );
-    } else {
-      storeDataInSessionStorage(
-        response?.data?.authenticationToken,
-        'authenticationToken'
-      );
+    const res = response?.data;
+
+    if (res?.success) {
+      setLoader(true);
+      if (data?.rememberMe) {
+        storeDataInLocalStorage(
+          response?.data?.data?.authenticationToken,
+          'authenticationToken'
+        );
+      } else {
+        storeDataInSessionStorage(
+          response?.data?.data?.authenticationToken,
+          'authenticationToken'
+        );
+      }
     }
+
     return response?.data;
   } catch (error: any) {
     return ErrorHandler(error);
@@ -83,6 +96,7 @@ export const signUpApiFunction = async (
       primary_number: data.contactNumber,
       country_info: JSON.parse(data.countryInfo as string),
       portal_url: `${data.defaultPortalUrlSlug}${data.portalUrl}`,
+      portal_slug: data.portalUrl,
       website_url: data.websiteUrl || '',
       is_meta_verified: false,
       meta_key: '',
@@ -103,7 +117,7 @@ export const signUpApiFunction = async (
     if (response?.data?.success) {
       setLoader(false);
       return {
-        message: `We've sent a verification email to **${response.data?.organization?.primary_email}**.  
+        message: `We've sent a verification email to **${data.primaryEmail}**.  
         Please check your inbox and verify your email to activate your account.`,
         success: true,
         showModal: true,
@@ -112,7 +126,6 @@ export const signUpApiFunction = async (
     }
     setLoader(false);
   } catch (error: any) {
-    console.log(error, data);
     setLoader(false);
     const statusCode = error?.response?.status;
     const response = error?.response?.data?.detail;
@@ -141,7 +154,11 @@ export const verifyUsersLoginStatus = async () => {
     const tokenValue = authToken.split('Bearer')[1]?.trim();
 
     if (!tokenValue || tokenValue === 'null' || tokenValue === 'undefined') {
-      return { success: false };
+      return {
+        success: false,
+        message: '',
+        data: null,
+      } as verifyUsersLoginStatusResponse;
     }
 
     const headers = {
@@ -157,8 +174,8 @@ export const verifyUsersLoginStatus = async () => {
 
     const response = await axios(config);
 
-    return response?.data;
+    return response?.data as verifyUsersLoginStatusResponse;
   } catch (error) {
-    return ErrorHandler(error as Error);
+    return ErrorHandler(error as Error) as verifyUsersLoginStatusResponse;
   }
 };

@@ -7,20 +7,22 @@ export interface ConfigModuleSidebarInterface {
   ToolTipValue: string;
 }
 
-export const ConfigSidebarMenuList: ConfigModuleSidebarInterface[] = [
+export const ConfigSidebarMenuList = (
+  organization: string
+): ConfigModuleSidebarInterface[] => [
   {
     id: 1,
     name: 'Project Status',
     label: 'config-project-status-tooltip',
-    link: '/config/project-status',
+    link: `/${organization}/config/project-status`,
     showToolTip: false,
     ToolTipValue: 'Project Status',
   },
   {
     id: 2,
-    name: 'Attachment Type',
+    name: 'Department',
     label: 'config-attachment-type-tooltip',
-    link: '/config/attachment-type',
+    link: `/${organization}/config/department`,
     showToolTip: false,
     ToolTipValue: 'Attachment Type',
   },
@@ -28,7 +30,7 @@ export const ConfigSidebarMenuList: ConfigModuleSidebarInterface[] = [
     id: 3,
     name: 'Designations',
     label: 'config-designations-tooltip',
-    link: '/config/designations',
+    link: `/${organization}/config/designations`,
     showToolTip: false,
     ToolTipValue: 'Designations',
   },
@@ -36,8 +38,16 @@ export const ConfigSidebarMenuList: ConfigModuleSidebarInterface[] = [
     id: 4,
     name: 'Roles & Permission',
     label: 'config-roles-permission-tooltip',
-    link: '/config/roles-permission',
+    link: `/${organization}/config/roles-permission`,
     showToolTip: false,
     ToolTipValue: 'Roles & Permission',
+  },
+  {
+    id: 5,
+    name: 'Client Form',
+    label: 'config-client-form-tooltip',
+    link: `/${organization}/config/client-form`,
+    showToolTip: false,
+    ToolTipValue: 'Client Form',
   },
 ];

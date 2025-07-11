@@ -1,13 +1,30 @@
+import { useContext } from 'react';
 import { RiArrowRightSLine } from 'react-icons/ri';
 import { Link, useLocation } from 'react-router-dom';
 
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../../Context/globalState/GlobalStateContectApi';
+import { getDataFromLocalStorage } from '../../../Helper/HelperFunctions';
 import {
   ConfigModuleSidebarInterface,
   ConfigSidebarMenuList,
 } from './ConfigModuleSidebarList';
 
 function ConfigSidebar() {
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+
+  const localStorageData = getDataFromLocalStorage('organization-info');
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
+
   const navigation = useLocation();
+
+  const ConfigSidebarMenuArray = ConfigSidebarMenuList(organization || '');
   return (
     <div className='w-full h-full bg-white'>
       <div className='w-full h-full flex flex-col items-start justify-start'>
@@ -17,7 +34,7 @@ function ConfigSidebar() {
           </h2>
         </div>
         <ul className='w-full h-full overflow-hidden'>
-          {ConfigSidebarMenuList?.map((item: ConfigModuleSidebarInterface) => (
+          {ConfigSidebarMenuArray?.map((item: ConfigModuleSidebarInterface) => (
             <li
               key={item?.id}
               className={`border-b border-b-black/15 transition-all group ${

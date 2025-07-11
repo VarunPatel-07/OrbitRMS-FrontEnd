@@ -1,6 +1,6 @@
 function ErrorFallback() {
   return (
-    <div className='w-full h-full flex items-center justify-center'>
+    <div className='w-full h-screen flex items-center justify-center bg-white'>
       <div className='bg-white w-full max-w-[500px] p-6 rounded-lg shadow-lg text-center'>
         <h2 className='font-inter text-2xl text-red-600 font-bold'>
           ⚠️ Oops! Something Went Wrong

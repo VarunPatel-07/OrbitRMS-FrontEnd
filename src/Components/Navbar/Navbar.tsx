@@ -1,21 +1,192 @@
-import { PiDotsNineBold } from 'react-icons/pi';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import {
+  HiOutlineDeviceMobile,
+  HiOutlineLogout,
+  HiOutlineUserCircle,
+} from 'react-icons/hi';
+import { Link } from 'react-router-dom';
 
-import OrbitRMSLogo from '../../assets/Images/OrbitRMS-Final-Logo-transperent.png';
+import OrbitRMSLogo from '../../assets/Images/orbitrms-final-logo-transperent.webp';
+import Loader from '../../common/Loader';
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../Context/globalState/GlobalStateContectApi';
+import {
+  classNames,
+  getDataFromLocalStorage,
+} from '../../Helper/HelperFunctions';
+import { NavbarPropsInterface } from '../../interface/interface';
+import EmployeeProfilePicture from '../EmployeeProfilePicture';
 
-function Navbar() {
+interface NavbarProfileDropDownInterface {
+  label: string;
+  name: string;
+  link: string;
+  icon: React.ReactElement;
+  className: string;
+  type: 'link' | 'button';
+}
+
+function Navbar(props: NavbarPropsInterface) {
+  const { handelLogout } = props as NavbarPropsInterface;
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+
+  const dropDownModalRef = useRef<HTMLDivElement>(null);
+
+  const [showNavBarDropDown, setShowNavBarDropDown] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const localStorageData = getDataFromLocalStorage('organization-info');
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
+
+  const handelClickOnLogoutButton = () => {
+    setLoading(true);
+    handelLogout(setLoading);
+  };
+
+  const NavbarProfileDropDown: NavbarProfileDropDownInterface[] = [
+    {
+      icon: <HiOutlineUserCircle className='text-2xl' />,
+      label: 'my-profile',
+      name: 'My Profile',
+      link: `/${organization}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/employee-details`,
+      className: '',
+      type: 'link',
+    },
+    {
+      icon: <HiOutlineDeviceMobile className='text-2xl' />,
+      label: 'logged-in-devices',
+      name: 'Logged In Devices',
+      link: `/${organization}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/logged-in-device`,
+      className: '',
+      type: 'link',
+    },
+    {
+      icon: <HiOutlineLogout className='text-2xl' />,
+      label: 'log-out',
+      name: 'Log Out',
+      link: `/${organization}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}`,
+      className: 'text-red-600',
+      type: 'button',
+    },
+  ];
+
+  useEffect(() => {
+    const handelClickOutSide = (event: MouseEvent) => {
+      if (
+        dropDownModalRef.current &&
+        !dropDownModalRef.current.contains(event.target as Node)
+      ) {
+        setShowNavBarDropDown(false);
+      }
+    };
+    document.addEventListener('mousedown', handelClickOutSide);
+    return () => {
+      document.removeEventListener('mousedown', handelClickOutSide);
+    };
+  });
+
   return (
-    <div className='w-full h-14 flex items-center justify-between border-b border-b-slate-100'>
+    <div className='w-full min-h-14 flex items-center justify-between border-b border-b-black/20'>
       <div className='h-full flex w-fit gap-3'>
-        <button className='w-[57px] h-full border-r border-r-slate-300 flex items-center justify-center'>
-          <PiDotsNineBold className='text-black w-7 h-7' />
-        </button>
-        <div className='w-fit pl-2.5'>
-          <img src={OrbitRMSLogo} width={150} className='w-36' alt='' />
+        <div className='w-fit pl-4 flex items-center justify-center'>
+          <img
+            src={OrbitRMSLogo}
+            width={150}
+            className='w-36 h-10 object-cover'
+            alt=''
+          />
         </div>
       </div>
-      <div>
+
+      <div className='w-fit relative'>
         <div className='profile-picture pr-4'>
-          <div className='w-12 h-12 bg-blue-500 rounded-full'></div>
+          <button
+            className='flex'
+            onClick={() => setShowNavBarDropDown(!showNavBarDropDown)}
+          >
+            <EmployeeProfilePicture
+              width={40}
+              height={40}
+              profilePicture={
+                GlobalStateProvider?.user?.personal_info?.profile_picture
+              }
+            />
+          </button>
+        </div>
+
+        <div
+          className={classNames(
+            'absolute top-full right-0 z-50 mr-4 mt-2.5 transition-all duration-150 origin-top',
+            {
+              'scale-y-0 opacity-0': !showNavBarDropDown,
+              'scale-y-100 opacity-100': showNavBarDropDown,
+            }
+          )}
+          ref={dropDownModalRef}
+        >
+          <ul className='w-full h-full bg-white border border-black/15 shadow-xl rounded-lg overflow-hidden'>
+            {NavbarProfileDropDown.map((item, index) => (
+              <li className='w-full' key={index}>
+                {item?.type == 'link' ? (
+                  <Link
+                    className={classNames(
+                      'text-black inline-block whitespace-nowrap px-3 py-2 hover:bg-slate-50 w-full',
+                      {
+                        'border-b border-b-black/15':
+                          index + 1 != NavbarProfileDropDown.length,
+                      }
+                    )}
+                    to={item?.link}
+                    onClick={() => setShowNavBarDropDown(!showNavBarDropDown)}
+                  >
+                    <span
+                      className={`flex items-center justify-start gap-3 ${item?.className}`}
+                    >
+                      {item?.icon}
+                      <span className='font-inter text-sm font-medium'>
+                        {item?.name}
+                      </span>
+                    </span>
+                  </Link>
+                ) : (
+                  <button
+                    className={classNames(
+                      'text-black inline-block whitespace-nowrap px-3 py-2 hover:bg-slate-50 w-full disabled:opacity-65',
+                      {
+                        'border-b border-b-black/15':
+                          index + 1 != NavbarProfileDropDown.length,
+                      }
+                    )}
+                    onClick={handelClickOnLogoutButton}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span
+                        className={`w-fit flex items-start justify-start ${item?.className}`}
+                      >
+                        <Loader loaderText='Logging Out...' theme='dark' />
+                      </span>
+                    ) : (
+                      <span
+                        className={`flex items-center justify-start gap-3 ${item?.className}`}
+                      >
+                        {item?.icon}
+                        <span className='font-inter text-sm font-medium'>
+                          {item?.name}
+                        </span>
+                      </span>
+                    )}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>

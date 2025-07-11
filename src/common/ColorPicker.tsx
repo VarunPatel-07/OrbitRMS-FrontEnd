@@ -1,5 +1,5 @@
 import { SetStateAction, useEffect, useRef, useState } from 'react';
-import { SketchPicker } from 'react-color';
+import { HexColorPicker } from 'react-colorful';
 
 interface propsInterface {
   color: string;
@@ -68,16 +68,25 @@ const ColorPicker = (prop: propsInterface) => {
 
       <div
         ref={pickerRef}
-        className={`absolute left-0 z-10 transition-all duration-75 transform ${position === 'top' ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'} ${
+        className={`absolute left-0 z-10 transition-all duration-150 transform p-5 bg-white border border-black/20 rounded-lg ${position === 'top' ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'} ${
           showColorPickerModal
             ? 'scale-y-100 opacity-100'
             : 'opacity-0 scale-y-0 pointer-events-none'
         }`}
       >
-        <SketchPicker
-          color={color}
-          onChange={(updatedColor) => setColor(updatedColor.hex)}
-        />
+        <div className='flex items-center justify-center w-full flex-col gap-4'>
+          <HexColorPicker
+            color={color || '#ff0000'}
+            onChange={(updatedColor) => setColor(updatedColor)}
+          />
+          <input
+            type='text'
+            className='bg-transparent caret-black  autofill:!text-black
+              !text-black  w-full h-full text-base focus:outline-none focus:ring-0 py-1.5 px-1.5 font-inter resize-none disabled:bg-[#7fab98]/15 disabled:border disabled:border-[#7fab98] border border-black/20 rounded-md focus:border-[var(--them-pink-color)] focus:outline focus:outline-3 focus:outline-[rgba(215,139,159,0.2)]'
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,39 +1,54 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
-import ComingSoon from '../../Components/ComingSoon';
+import PageNotFound from '../../Components/PageNotFound';
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../Context/globalState/GlobalStateContectApi';
+import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
-import AttachmentTypes from './ConfigModulePages/AttachmentTypes';
+import ClientFormSchema from './ConfigModulePages/ClientFormSchema';
+import AttachmentTypes from './ConfigModulePages/Department';
 import Designations from './ConfigModulePages/Designations';
 import ProjectStatus from './ConfigModulePages/ProjectStatus';
+import RolesAndPermission from './ConfigModulePages/RolesAndPermission/RolesAndPermission';
+import ViewPermissions from './ConfigModulePages/RolesAndPermission/ViewPermissions';
 import ConfigSidebar from './ConfigSidebar/ConfigSidebar';
-import PageNotFound from '../../Components/PageNotFound';
 
 function Config() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+  const localStorageData = getDataFromLocalStorage('organization-info');
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
+
   useEffect(() => {
-    if (location.pathname === '/config') {
-      navigate('/config/project-status');
+    if (location.pathname == `/${organization}/config`) {
+      navigate(`/${organization}/config/project-status`);
     }
-  }, [location.pathname]);
+  }, [location.pathname, navigate, organization]);
 
   return (
     <div className='w-full h-full'>
       <div className='w-full h-full flex items-stretch justify-start'>
-        <div className='w-[30%] max-w-[300px]'>
+        <div className='w-[30%] max-w-[300px] border-r border-r-black/15'>
           <ConfigSidebar />
         </div>
 
-        <div className='w-full p-4 2xl:p-5'>
+        <div className='flex-1 overflow-auto'>
           <Routes>
             <Route
               path='/project-status'
               element={<ProtectedRoute element={<ProjectStatus />} />}
             />
             <Route
-              path='/attachment-type'
+              path='/department'
               element={<ProtectedRoute element={<AttachmentTypes />} />}
             />
             <Route
@@ -42,7 +57,15 @@ function Config() {
             />
             <Route
               path='/roles-permission'
-              element={<ProtectedRoute element={<ComingSoon />} />}
+              element={<ProtectedRoute element={<RolesAndPermission />} />}
+            />
+            <Route
+              path='/roles-permission/:id'
+              element={<ProtectedRoute element={<ViewPermissions />} />}
+            />
+            <Route
+              path='/client-form'
+              element={<ProtectedRoute element={<ClientFormSchema />} />}
             />
             <Route path='*' element={<PageNotFound />} />
           </Routes>

@@ -12,15 +12,16 @@ import {
 } from 'react-icons/md';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import signInGradientBgImage from '../../assets/Images/gradient-bg.png';
-import orbitLogo from '../../assets/Images/OrbitRMS-White-Transperent-Logo.png';
+import signInGradientBgImage from '../../assets/Images/gradient-bg.webp';
+import orbitLogo from '../../assets/Images/orbitrms-white-transperent-logo.webp';
 import CommonDatePicker from '../../common/CommonDatePicker';
-import DragAndDropFileUploader from '../../common/DragDropUploader/DragAndDropFileUploader';
+import DragAndDropFileUploader from '../../common/DragDropUploader/SingleFileUploader/DragAndDropFileUploader';
 import Input from '../../common/Input';
 import Loader from '../../common/Loader';
 import SearchDrop from '../../common/SearchDrop';
 import TextArea from '../../common/TextArea';
 import MainSuspenseLoader from '../../Components/Loader/MainSuspenseLoader';
+import { bloodGroupArray, GenderArray } from '../../constant/constant';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -39,7 +40,10 @@ import {
   formateAndVerifyPhoneNumber,
 } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
-import { OnboardingFormInterface } from '../../interface/interface';
+import {
+  CountryDataInterface,
+  OnboardingFormInterface,
+} from '../../interface/interface';
 import VerifyWebsiteUrlModal from './VerifyWebsiteUrlModal';
 
 const initialState = {
@@ -49,6 +53,7 @@ const initialState = {
     primary_number: '',
     country_info: null,
     portal_url: '',
+    portal_slug: '',
     website_url: '',
     is_meta_verified: false,
     meta_key: '',
@@ -132,19 +137,6 @@ const SideBarArray = [
   },
 ];
 
-const bloodGroupArray = [
-  'A+',
-  'A-',
-  'B+',
-  'B-',
-  'AB+',
-  'AB-',
-  'O+',
-  'O-',
-  'Bombay (hh)',
-  'Rh-null',
-];
-
 const initialCountryInfo = {
   country_code: '',
   country_name: '',
@@ -198,7 +190,9 @@ function Onboarding() {
   const [stateOptionArray, setStateOptionArray] = useState<
     Array<string | object>
   >([]);
-  const [countryData, setCountryData] = useState<Array<object>>([]);
+  const [countryData, setCountryData] = useState<Array<CountryDataInterface>>(
+    []
+  );
   const [isFetchingCountryData, setIsFetchingCountryData] =
     useState<boolean>(false);
   const [citiesOptionsArray, setCitiesOptionsArray] = useState<Array<string>>(
@@ -363,8 +357,12 @@ function Onboarding() {
       if (res?.success) {
         handelNotification(res, 'top-right');
         setIsSubmitting(false);
-        navigate('/config');
+        const organization = formData?.general_info?.portal_slug;
+        navigate(`/${organization}/config/project-status`);
       }
+    } else {
+      setIsSubmitting(false);
+      handelNotification(res, 'top-right');
     }
   }, 300);
 
@@ -372,7 +370,6 @@ function Onboarding() {
     const { validated } = onboardingFormValidation[SideBarArray.length - 1];
 
     if (!validated()) {
-      console.log('not validated');
       return;
     }
     setIsSubmitting(true);
@@ -397,7 +394,7 @@ function Onboarding() {
 
     const response = await multipleFetchApi(endPointArr);
     if (response[0].success) {
-      setCitiesOptionsArray(response[0].cities_array);
+      setCitiesOptionsArray(response[0]?.data?.cities_array);
     }
     setLoading(false);
   };
@@ -410,14 +407,14 @@ function Onboarding() {
         protected: false,
       },
       {
-        endPoint: `country-info/getFormats?country_code=${country_code}`,
+        endPoint: `country-info/getFormats?country-code=${country_code}`,
         protected: false,
       },
     ];
     const response = await multipleFetchApi(endpointArray);
     if (response) {
       if (response[0]?.success) {
-        setStateOptionArray(response[0].states);
+        setStateOptionArray(response[0]?.data?.states);
       }
       if (response[1]?.success) {
         setFormData((prevValue) => ({
@@ -425,8 +422,8 @@ function Onboarding() {
 
           organization_settings: {
             ...prevValue.organization_settings,
-            default_dateformat: response[1]?.country_date_formate,
-            default_timezone: response[1]?.timeZones[0],
+            default_dateformat: response[1]?.data?.country_date_formate,
+            default_timezone: response[1]?.data?.timeZones[0],
           },
         }));
       }
@@ -599,7 +596,6 @@ function Onboarding() {
   };
 
   const handelProfileUploadation = (url: string) => {
-    console.log('url', url);
     setFormData((pervValue) => ({
       ...pervValue,
       general_info: {
@@ -729,6 +725,7 @@ function Onboarding() {
             ...perData.general_info,
             organization_name: res?.data?.general_info?.organization_name ?? '',
             portal_url: res?.data?.general_info?.portal_url ?? '',
+            portal_slug: res?.data?.general_info?.portal_slug ?? '',
             primary_email: res?.data?.general_info?.primary_email ?? '',
             primary_number: res?.data?.general_info?.primary_number ?? '',
             country_info:
@@ -750,14 +747,14 @@ function Onboarding() {
               '@' + res?.data?.general_info?.primary_email.split('@')[1],
           },
         }));
+        setShowGlobalLoader(false);
       } else {
         handelNotification(res, 'top-right');
         setTimeout(() => {
           navigate('/auth/sign-in');
         }, 200);
+        setShowGlobalLoader(false);
       }
-
-      setShowGlobalLoader(false);
     })();
   }, []);
 
@@ -1206,7 +1203,7 @@ function Onboarding() {
                                 formData?.about_info
                                   ?.established_science as Date
                               }
-                              name='established_science'
+                              name='established_xscience'
                               labelFieldName='Established Science'
                               isRequiredField={true}
                               showError={
@@ -1552,7 +1549,7 @@ function Onboarding() {
                         <div className='grid grid-cols-2 gap-4'>
                           <div className='w-full'>
                             <SearchDrop
-                              options={['Male', 'Female', 'Other']}
+                              options={GenderArray}
                               searchKey=''
                               position='bottom'
                               emptyDataMessage=''

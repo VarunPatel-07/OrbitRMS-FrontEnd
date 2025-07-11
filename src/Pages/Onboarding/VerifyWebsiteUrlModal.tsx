@@ -77,7 +77,7 @@ export default function VerifyWebsiteUrlModal({
     };
     const endpointArray: Array<endpointObject> = [
       {
-        endPoint: 'organization/verify-meta-tag',
+        endPoint: 'auth/verify-meta-tag',
         protected: false,
         data,
       },
@@ -90,24 +90,27 @@ export default function VerifyWebsiteUrlModal({
     if (res?.success) {
       handelNotification(
         {
-          success: res?.match,
-          message: res?.match
+          success: true,
+          message: res?.data?.match
             ? 'Website Verified Successfully'
-            : 'Oops! Meta tag mismatch!',
+            : 'Verification completed using an existing meta tag.',
         },
         'top-right'
       );
-      addWebsiteUrlFunction(websiteUrl, 'orbitrms', metaTag, res?.match);
-      setShowModal(false);
+      setMetaTag(res?.data?.actual_value);
+      addWebsiteUrlFunction(websiteUrl, 'orbitrms', metaTag, res?.success);
+      if (res?.success) {
+        setShowModal(false);
+      }
     } else {
       handelNotification(
         {
-          success: res?.match,
+          success: res?.data?.match,
           message: 'Unable To Find Meta Tag',
         },
         'top-right'
       );
-      addWebsiteUrlFunction(websiteUrl, 'orbitrms', metaTag, res?.match);
+      addWebsiteUrlFunction(websiteUrl, 'orbitrms', metaTag, res?.success);
       setShowModal(false);
     }
 
@@ -138,7 +141,7 @@ export default function VerifyWebsiteUrlModal({
         setIsCopied(true);
         setTimeout(() => {
           setIsCopied(false);
-        }, 300);
+        }, 500);
       })
       .catch((err) => {
         console.error('Failed to copy:', err);

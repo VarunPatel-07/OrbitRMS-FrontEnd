@@ -37,6 +37,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const updateValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = e.target.value;
       const basicRegex = /^[^|+=:;?]*$/;
+
       if (!setValue) return;
       switch (type) {
         case 'url':
@@ -56,6 +57,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         case 'password':
           setValue(val);
           break;
+
         default:
           if (basicRegex.test(val)) {
             setValue(val);
@@ -75,6 +77,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               styleDropdownButton='h-full bg-slate-100/[50] rounded-l-lg rounded-r-none border border-black/45  border-r-0'
               dropdownPosition={countryDropDownPosition}
               maxHeight={countryDropDownMaxHeight || 100}
+              minWidth={300}
             />
           )}
           <div
@@ -82,7 +85,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               'bg-transparent rounded-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden !text-black',
               className
             )}
-            style={{ border: showError && errorMessage ? '1px solid red' : '' }}
+            style={{
+              border:
+                showError && errorMessage
+                  ? '1px solid red'
+                  : disabled
+                    ? '1px solid #7fab98'
+                    : '',
+            }}
           >
             <input
               name={name}
@@ -91,7 +101,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               onChange={setValue ? updateValue : onChange}
               placeholder={placeHolder}
               className={`bg-transparent caret-black  autofill:!text-black
-              !text-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter resize-none disabled:bg-[#7fab98]/15 disabled:border disabled:border-[#7fab98] ${
+              !text-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter resize-none disabled:bg-[#7fab98]/15 rounded-lg ${
                 viewPasswordBtn ? 'pl-4 pr-10' : 'px-4'
               } placeholder:${placeholderColor}`}
               style={{

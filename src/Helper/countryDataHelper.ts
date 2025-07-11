@@ -1,40 +1,29 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { multiUrlFetcher, URLObject } from './api/multipleAPI';
+import { endpointObject, multipleFetchApi } from './api/multipleAPI';
 
 export interface countryObject {
   country_flag: string;
   country_name: string;
   country_code: string;
+  country_number_code: string;
 }
 export const countryDataApiHelper = async (): Promise<
   Array<countryObject> | undefined
 > => {
-  const endpointArr: Array<URLObject> = [
+  const endpointArr: Array<endpointObject> = [
     {
-      url: 'https://restcountries.com/v3.1/all',
-      Method: 'GET',
+      endPoint: 'country-info/fetchAll',
+      protected: true,
     },
   ];
 
   try {
-    const response = await multiUrlFetcher(endpointArr);
+    const response = await multipleFetchApi(endpointArr);
     if (!response || !Array.isArray(response) || response.length === 0) {
       console.error('Invalid or empty response from API:', response);
       return;
     }
 
-    const country_Data = response[0].map((item: any) => {
-      const country_flag = item?.flag || '';
-      const country_name = item?.name?.common || '';
-      const country_code = item?.cca2;
-      let country_number_code = item?.idd?.root || '';
-
-      if (item?.idd?.suffixes?.[0]) {
-        country_number_code += item?.idd?.suffixes[0];
-      }
-
-      return { country_flag, country_name, country_code, country_number_code };
-    });
+    const country_Data = response[0]?.data;
 
     return country_Data;
   } catch (error) {
@@ -57,13 +46,20 @@ export const fetchUsersPosition = async (): Promise<string> => {
 
 export const fetchFormattedCountryData = async (
   selectedCountryName?: string
-) => {
+): Promise<{
+  success: boolean;
+  message: string;
+  filteredCountry: countryObject | undefined;
+  countryOptionsData: countryObject[];
+}> => {
   try {
     const country_Data = await countryDataApiHelper();
     if (!country_Data) {
       return {
         success: false,
         message: 'No Data Available',
+        filteredCountry: undefined,
+        countryOptionsData: [],
       };
     }
     const response = await fetchUsersPosition();
@@ -77,6 +73,7 @@ export const fetchFormattedCountryData = async (
         success: true,
         filteredCountry: data,
         countryOptionsData: country_Data,
+        message: '',
       };
     } else {
       const data = country_Data.find(
@@ -88,54 +85,16 @@ export const fetchFormattedCountryData = async (
         success: true,
         filteredCountry: data,
         countryOptionsData: country_Data,
+        message: '',
       };
     }
   } catch (error) {
     console.error('Error fetching country data:', error);
+    return {
+      success: false,
+      message: 'Failed to fetch country data',
+      filteredCountry: undefined,
+      countryOptionsData: [],
+    };
   }
 };
-
-// useEffect(() => {
-//   (async () => {
-//     if (
-//       setDropDownSelectedValue &&
-//       type == 'number' &&
-//       countryData.length == 0
-//     ) {
-//       const country_Data = await FetchCountryData();
-
-//       if (country_Data) {
-//         const response = await fetchUsersPosition();
-
-//         if (selectedCountryName) {
-//           const data = country_Data.find(
-//             (item: countryObject) =>
-//               item?.country_name?.toLocaleLowerCase() ===
-//               selectedCountryName?.toLocaleLowerCase()
-//           );
-
-//           if (!data) return;
-
-//           setDropDownSelectedValue(JSON.stringify(data));
-//         } else {
-//           const data = country_Data.find(
-//             (item: countryObject) =>
-//               item?.country_name?.toLocaleLowerCase() ===
-//               response?.toLocaleLowerCase()
-//           );
-
-//           if (!data) return;
-
-//           setDropDownSelectedValue(JSON.stringify(data));
-//         }
-
-//         setCountryData(country_Data);
-//       }
-//     }
-//   })();
-// }, [
-//   countryData.length,
-//   selectedCountryName,
-//   setDropDownSelectedValue,
-//   type,
-// ]);

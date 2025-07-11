@@ -1,7 +1,8 @@
 import { ReactElement } from 'react';
-import { HiUsers } from 'react-icons/hi2';
+import { FaProjectDiagram, FaUser } from 'react-icons/fa';
 import { IoSettings } from 'react-icons/io5';
-import { MdSpaceDashboard } from 'react-icons/md';
+import { LuBuilding2 } from 'react-icons/lu';
+import { MdAssignment, MdSpaceDashboard } from 'react-icons/md';
 
 export interface SidebarMenuItemInterface {
   id: number;
@@ -14,36 +15,67 @@ export interface SidebarMenuItemInterface {
   ToolTipValue: string;
 }
 
-export const SidebarMenuItems: SidebarMenuItemInterface[] = [
+export const SidebarMenuItems = (
+  organization: string
+): SidebarMenuItemInterface[] => [
   {
     id: 1,
     name: 'Dashboard',
     icon: <MdSpaceDashboard className='w-6 h-6' />,
     label: 'data-tooltip-dashboard',
-    link: '/dashboard',
+    link: `/${organization}/dashboard`,
     protected: true,
     showToolTip: true,
     ToolTipValue: 'Dashboard',
   },
-
   {
     id: 2,
+    name: 'Employees',
+    icon: <FaUser className='w-5 h-5 mx-auto' />,
+    label: 'data-tooltip-employee-listing',
+    link: `/${organization}/employee/employee-listing`,
+    protected: true,
+    showToolTip: true,
+    ToolTipValue: 'Employees',
+  },
+  {
+    id: 3,
     name: 'Client Inquiry',
-    icon: <HiUsers className='w-6 h-6' />,
+    icon: <MdAssignment className='w-6 h-6' />,
     label: 'data-tooltip-client-inquiry',
-    link: '/client-inquiry',
+    link: `/${organization}/client-inquiry`,
     protected: true,
     showToolTip: true,
     ToolTipValue: 'Client Inquiry',
   },
   {
-    id: 3,
+    id: 4,
     name: 'Config',
     icon: <IoSettings className='w-6 h-6' />,
     label: 'data-tooltip-settings',
-    link: '/config/project-status',
+    link: `/${organization}/config/project-status`,
     protected: true,
     showToolTip: true,
     ToolTipValue: 'Config',
+  },
+  {
+    id: 5,
+    name: 'Api Manager',
+    icon: <FaProjectDiagram className='w-6 h-6' />,
+    label: 'data-tooltip-api-manager',
+    link: `/${organization}/api-manager/client-inquiry`,
+    protected: true,
+    showToolTip: true,
+    ToolTipValue: 'Api Manager',
+  },
+  {
+    id: 6,
+    name: 'Organization Settings',
+    icon: <LuBuilding2 className='w-6 h-6' />,
+    label: 'data-tooltip-organization-setting',
+    link: `/${organization}/organization-settings`,
+    protected: true,
+    showToolTip: true,
+    ToolTipValue: 'Organization Settings',
   },
 ];

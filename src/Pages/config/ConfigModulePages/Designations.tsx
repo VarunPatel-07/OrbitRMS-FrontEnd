@@ -1,15 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
+import Breadcrumbs from '../../../common/Breadcrumbs';
 import Table from '../../../common/Table/Table';
 import TableInfoHeader from '../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../common/Table/TableNoDataFound';
 import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
-import AddModal from '../../../Components/Modal/AddModal';
-import DeleteModal from '../../../Components/Modal/DeleteModal';
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../../Context/globalState/GlobalStateContectApi';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -20,12 +23,21 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../Helper/api/multipleAPI';
-import { formateDate } from '../../../Helper/HelperFunctions';
+import {
+  formateDate,
+  getDataFromLocalStorage,
+} from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
+import { DesignationConfig } from '../../../interface/interface';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
+
+const AddModal = React.lazy(() => import('../../../Components/Modal/AddModal'));
+const DeleteModal = React.lazy(
+  () => import('../../../Components/Modal/DeleteModal')
+);
 
 function Designations() {
   const { handelNotification } = useContext(
@@ -40,8 +52,8 @@ function Designations() {
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const [value, setValue] = useState<string>('');
-  const [data, setData] = useState<Array<any>>([]);
-  const [filterData, setFilterData] = useState<Array<any>>([]);
+  const [data, setData] = useState<Array<DesignationConfig>>([]);
+  const [filterData, setFilterData] = useState<Array<DesignationConfig>>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -61,6 +73,29 @@ function Designations() {
     setEditId(data?.id);
   };
 
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
+
+  const localStorageData = getDataFromLocalStorage('organization-info');
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
+
+  const BreadcrumbsObjects = [
+    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
+    {
+      name: 'Config',
+      label: 'config-module',
+      link: `${organization}/config/project-status`,
+    },
+    {
+      name: 'Designations',
+      label: 'designations',
+      link: `/${organization}/config/designations`,
+    },
+  ];
+
   const fetchDesignationsTypesWithDebounce = useDebounce(async () => {
     const endPointArr: Array<endpointObject> = [
       {
@@ -75,12 +110,14 @@ function Designations() {
 
     if (res?.success) {
       setData(res?.data);
+      setFilterData([]);
+      setShowSearchFilterData(false);
       setIsFetchingData(false);
     } else {
       setIsFetchingData(false);
       handelNotification(res, 'top-right');
     }
-  }, 200);
+  }, 50);
 
   const fetchDesignationsTypes = () => {
     setIsFetchingData(true);
@@ -91,7 +128,7 @@ function Designations() {
     {
       buttonTitle: 'Add Designations',
       classNames:
-        'font-inter text-white font-medium bg-[#3538CD] px-4 py-1.5 text-base rounded-lg',
+        'font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg',
       onclickFunction: handelShowModal,
     },
   ];
@@ -163,7 +200,7 @@ function Designations() {
     } catch (error) {
       console.error('Error fetching project status:', error);
     }
-  }, 200);
+  }, 50);
 
   const handelDeleteItem = () => {
     setIsDeleteLoading(true);
@@ -195,7 +232,11 @@ function Designations() {
           <div className='flex flex-col w-full'>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>{`${JSON.parse(data).first_name} ${JSON.parse(data).last_name}`}</span>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(childKeyData)}
+              {formateDate(
+                childKeyData,
+                GlobalStateProvider?.organization?.organization_settings
+                  ?.default_dateformat
+              )}
             </span>
           </div>
         ) : (
@@ -204,7 +245,11 @@ function Designations() {
               system
             </span>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(childKeyData)}
+              {formateDate(
+                childKeyData,
+                GlobalStateProvider?.organization?.organization_settings
+                  ?.default_dateformat
+              )}
             </span>
           </div>
         );
@@ -222,7 +267,11 @@ function Designations() {
           <div className='flex flex-col w-full'>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>{`${JSON.parse(data).first_name} ${JSON.parse(data).last_name}`}</span>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(childKeyData)}
+              {formateDate(
+                childKeyData,
+                GlobalStateProvider?.organization?.organization_settings
+                  ?.default_dateformat
+              )}
             </span>
           </div>
         ) : (
@@ -234,13 +283,13 @@ function Designations() {
       key: 'action',
       title: 'Action',
       isSortable: false,
-      isSticky: false,
+      isSticky: true,
       canToggleVisibility: true,
       renderContent: (data: any) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
             <button
-              className='text-black/85 p-1.5'
+              className='text-black/80 p-1.5'
               data-tooltip-id='project_status_edit_button'
               data-tooltip-content='Edit'
               onClick={() => handelEditButtonClick(data)}
@@ -248,9 +297,10 @@ function Designations() {
               <MdModeEdit className='text-[22px]' />
             </button>
             <button
-              className='text-black/85 p-1.5'
+              className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
               data-tooltip-id='project_status_delete_button'
               data-tooltip-content='Delete'
+              disabled={data?.source_type == 'default'}
               onClick={() => {
                 setShowDeleteModal(true);
                 setDeleteItemId(data?.id);
@@ -264,12 +314,14 @@ function Designations() {
               className='z-[15] bg-white'
               place='left'
             />
-            <Tooltip
-              id='project_status_delete_button'
-              opacity={'100'}
-              className='z-[15] bg-white'
-              place='left'
-            />
+            {data?.source_type != 'default' && (
+              <Tooltip
+                id='project_status_delete_button'
+                opacity={'100'}
+                className='z-[15] bg-white'
+                place='left'
+              />
+            )}
           </div>
         );
       },
@@ -284,58 +336,67 @@ function Designations() {
   }, []);
   return (
     <>
-      <div className='w-full h-full'>
-        {isFetchingData ? (
-          <div className='w-full h-full overflow-hidden'>
-            <TableSkeletonLoader
-              tableHeaderCount={5}
-              tableValueCount={13}
-              maxHeight='calc(-300px + 100vh)'
-            />
-          </div>
-        ) : (
-          <>
-            <TableInfoHeader
-              moduleName='Designations'
-              badgeValue={data?.length.toString()}
-              buttonsArray={optionsButtonArray}
-            />
-            <TableLocalSearchBar
-              setShowSearchFilterData={setShowSearchFilterData}
-              data={data}
-              search_key='status_name'
-              setData={setFilterData}
-            />
-            {(data?.length > 0 && !showSearchFilterData) ||
-            (showSearchFilterData && filterData?.length > 0) ? (
-              <Table
-                columns={columns}
-                data={showSearchFilterData ? filterData : data}
-                tableWrapperClass={
-                  'overflow-auto max-h-[calc(100vh-170px)] rounded-b-lg'
-                }
-                stickyHeaderClass='sticky top-0'
-              />
+      <div className='w-full h-full relative'>
+        <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+        <div className='w-full h-full pt-9'>
+          <div className='w-full h-full p-4 2xl:p-5'>
+            {isFetchingData ? (
+              <div className='w-full h-full overflow-hidden'>
+                <TableSkeletonLoader
+                  tableHeaderCount={5}
+                  tableValueCount={13}
+                  maxHeight='calc(-350px + 100vh)'
+                />
+              </div>
             ) : (
-              <TableNoDataFound
-                tableWrapperClass={'max-h-[calc(100%-140px)] rounded-b-lg'}
-                notFoundTitle={
-                  showSearchFilterData
-                    ? 'No Data Found For Related Search'
-                    : 'You haven’t added any Projects Status yet'
-                }
-                notFoundMessage={
-                  showSearchFilterData
-                    ? 'No matching project status found. Try refining your search or adding a new project status.'
-                    : 'Add Projects Status manually by clicking Add Projects Status button.'
-                }
-                notFoundOptionsButtonsArray={
-                  showSearchFilterData ? [] : optionsButtonArray
-                }
-              />
+              <>
+                <TableInfoHeader
+                  moduleName='Designations'
+                  badgeValue={
+                    showSearchFilterData
+                      ? filterData.length?.toString()
+                      : data.length?.toString()
+                  }
+                  buttonsArray={optionsButtonArray}
+                />
+                <TableLocalSearchBar
+                  setShowSearchFilterData={setShowSearchFilterData}
+                  data={data}
+                  search_key='designations_name'
+                  setData={setFilterData}
+                />
+                {(data?.length > 0 && !showSearchFilterData) ||
+                (showSearchFilterData && filterData?.length > 0) ? (
+                  <Table
+                    columns={columns}
+                    data={showSearchFilterData ? filterData : data}
+                    tableWrapperClass={
+                      'overflow-auto max-h-[calc(100vh-280px)] rounded-b-lg'
+                    }
+                    stickyHeaderClass='sticky top-0'
+                  />
+                ) : (
+                  <TableNoDataFound
+                    tableWrapperClass={'max-h-[calc(100%-140px)] rounded-b-lg'}
+                    notFoundTitle={
+                      showSearchFilterData
+                        ? 'No Data Found For Related Search'
+                        : 'You haven’t added any Projects Status yet'
+                    }
+                    notFoundMessage={
+                      showSearchFilterData
+                        ? 'No matching designation found. Try refining your search or adding a new designation.'
+                        : 'Add Designation manually by clicking Add Designation button.'
+                    }
+                    notFoundOptionsButtonsArray={
+                      showSearchFilterData ? [] : optionsButtonArray
+                    }
+                  />
+                )}
+              </>
             )}
-          </>
-        )}
+          </div>
+        </div>
       </div>
 
       <AddModal
@@ -358,6 +419,7 @@ function Designations() {
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
         handelDelete={handelDeleteItem}
+        name='Designation'
       />
     </>
   );

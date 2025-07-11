@@ -6,11 +6,10 @@ import { BsArrowLeft } from 'react-icons/bs';
 import { FaStarOfLife } from 'react-icons/fa';
 import { GrPowerReset } from 'react-icons/gr';
 import { HiOutlineArrowLeft } from 'react-icons/hi2';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-import signInGradientBgImage from '../assets/Images/gradient-bg.png';
-import orbitLogo from '../assets/Images/OrbitRMS-White-Transperent-Logo.png';
-import signIn3dImage from '../assets/Images/sign-in-page-3d-image.webp';
+import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
+import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
 import AlertModal from '../common/AlertModal';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
@@ -22,9 +21,10 @@ import {
 } from '../Helper/countryDataHelper';
 import HelmetSeo from '../Helper/HelmetSeo';
 import {
-  classNames,
+  clearLocalSessionStorage,
   formateAndVerifyPhoneNumber,
   isValidEmail,
+  verifyPhoneNumberLength,
 } from '../Helper/HelperFunctions';
 import { signUpForm } from '../interface/funcParamInterface';
 
@@ -80,8 +80,14 @@ const initialAlertModalPropsInfo = {
   optionsButtonArray: alertModalSuccessButtonArray,
 };
 
-function SignIn() {
+const AuthLottieAnimation = React.lazy(
+  () => import('../Components/Animation/AuthLottieAnimation')
+);
+
+function SignUp() {
   const useEffectRef = useRef(false);
+  const CountryDataRef = useRef(false);
+  const navigate = useNavigate();
 
   const [showGlobalLoader, setShowGlobalLoader] = useState(true);
   const [showError, setShowError] = useState<boolean>(false);
@@ -101,9 +107,9 @@ function SignIn() {
   const [countryOptionsDataArray, setCountryOptionsDataArray] = useState<
     Array<countryObject>
   >([]);
+  const [mobileVerified, setMobileVerified] = useState<boolean>(true);
 
-  const handleMoveToNextPage = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const handleMoveToNextPage = () => {
     if (formData?.organizationName?.trim() === '') {
       setShowError(true);
       setLoading(false);
@@ -113,9 +119,20 @@ function SignIn() {
   };
 
   const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    console.log('click');
     e.preventDefault();
-    if (formData.contactNumber?.trim() != '' && termsAccepted == 'true') {
+    const is_verified = verifyPhoneNumberLength(
+      formData.contactNumber?.trim(),
+      dropDownSelectedValue
+        ? JSON.parse(dropDownSelectedValue as string)?.country_code
+        : 'IN'
+    );
+    if (!is_verified) {
+      setMobileVerified(false);
+    } else {
+      setMobileVerified(true);
+    }
+
+    if (is_verified && termsAccepted == 'true') {
       setLoading(true);
       const data: signUpForm = {
         organizationName: formData.organizationName,
@@ -128,9 +145,8 @@ function SignIn() {
         websiteUrl: formData.websiteUrl,
       };
 
-      console.log('in the if');
       const response = await signUpApiFunction(
-        'organization/sign-up',
+        'auth/sign-up',
         data,
         'POST',
         setLoading
@@ -160,33 +176,201 @@ function SignIn() {
     setCurrentPage(1);
   };
 
+  const SignUpFormFirstPage = () => {
+    return (
+      <div className='grid grid-cols-1 gap-y-5  w-full min-w-full px-5 transition-all duration-100 min-h-[256px]'>
+        <div className='w-full'>
+          <Input
+            name='organizationName'
+            className='border border-black/[.65] text-black'
+            labelFieldName='Organization Name'
+            isRequiredField={true}
+            type='text'
+            value={formData?.organizationName}
+            onChange={(e) => handelInputFieldChange(e)}
+            showError={showError && formData?.organizationName?.trim() === ''}
+            errorMessage='This field is required.'
+          />
+        </div>
+        <div className='w-full'>
+          <Input
+            name='primaryEmail'
+            className='border border-black/[.65] text-black'
+            labelFieldName='Primary Email'
+            isRequiredField={true}
+            value={formData.primaryEmail}
+            type='email'
+            onChange={(e) => handelInputFieldChange(e)}
+            showError={showError}
+            errorMessage={
+              showError
+                ? formData.primaryEmail?.trim() === ''
+                  ? 'This field is required.'
+                  : !isValidEmail(formData?.primaryEmail)
+                    ? 'Please enter a valid email address.'
+                    : ''
+                : ''
+            }
+          />
+        </div>
+        <div className='w-full'>
+          <label
+            htmlFor=''
+            className='text-sm font-inter font-normal text-black/[.65] pb-2 inline-block'
+          >
+            <span className='flex gap-1'>
+              <span>Portal Url</span>
+              <FaStarOfLife className='w-1.5 text-red-700' />
+            </span>
+          </label>
+          <div className='relative w-full flex items-stretch justify-start'>
+            <div className='flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-l-lg text-[14px] px-5'>
+              {formData.defaultPortalUrlSlug}
+            </div>
+            <Input
+              name='portalUrl'
+              className='border border-black/[.65] border-l-0 rounded-l-none text-black w-full'
+              type='text'
+              value={portalUrl?.toLocaleLowerCase()}
+              setValue={setPortalUrl}
+            />
+          </div>
+          {showError && portalUrl.trim() === '' && (
+            <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
+              This field is required.
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const SignUpFormSecondPage = () => {
+    return (
+      <div className='flex flex-col gap-y-5 justify-between w-full min-w-full px-5 transition-all duration-100 min-h-[256px]'>
+        <div className='w-full'>
+          <Input
+            name='websiteUrl'
+            className='border border-black/[.65] text-black'
+            labelFieldName='Website URL'
+            type='text'
+            value={formData?.websiteUrl}
+            onChange={(e) => handelInputFieldChange(e)}
+          />
+        </div>
+        <div className='w-full'>
+          <Input
+            type='number'
+            name='contactNumber'
+            className='border border-black/[.65] text-black rounded-lg rounded-l-none'
+            labelFieldName='Contact Number'
+            isRequiredField={true}
+            value={formateAndVerifyPhoneNumber(
+              formData?.contactNumber,
+              dropDownSelectedValue
+                ? JSON.parse(dropDownSelectedValue as string)?.country_code
+                : 'IN'
+            )}
+            onChange={(e) => handelInputFieldChange(e)}
+            showError={
+              (showErrorPageTwo && formData.contactNumber?.trim() == '') ||
+              !mobileVerified
+            }
+            countryDropDownPosition='bottom'
+            dropDownSelectedValue={
+              dropDownSelectedValue
+                ? JSON.parse(dropDownSelectedValue as string)
+                    ?.country_number_code
+                : '+91'
+            }
+            setDropDownSelectedValue={setDropDownSelectedValue}
+            errorMessage={
+              showErrorPageTwo && mobileVerified
+                ? formData?.contactNumber?.trim() === ''
+                  ? 'This field is required.'
+                  : ''
+                : !mobileVerified
+                  ? 'Please Enter valid Phone No'
+                  : ''
+            }
+            countryOptionsData={countryOptionsDataArray}
+          />
+        </div>
+        <div className='w-full'>
+          <div className='w-full flex items-center justify-start gap-3.5 relative z-[25]'>
+            <Input
+              type='checkbox'
+              name='termsAccepted'
+              value={termsAccepted}
+              setValue={setTermsAccepted}
+            />
+            <div>
+              <p className='font-inter font-semibold text-sm text-black'>
+                I agree to the terms and conditions
+              </p>
+              <p className='font-inter font-normal text-xs text-black'>
+                Please read the Terms and Conditions before proceeding.
+              </p>
+            </div>
+          </div>
+          {showErrorPageTwo && termsAccepted != 'true' && (
+            <span className='text-rose-600  text-xs  mt-1.5 block px-1.5 font-inter'>
+              This field is required.
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   useEffect(() => {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
     (async () => {
-      const response = await verifyUsersLoginStatus();
-      if (!response?.success) {
-        setShowGlobalLoader(false);
-      } else {
-        setShowGlobalLoader(false);
+      try {
+        const response = await verifyUsersLoginStatus();
+        if (!response?.success) {
+          clearLocalSessionStorage();
+        } else {
+          navigate(
+            `/${response?.data?.organization?.general_info?.portal_url.split('https://orbitrms.com/')[1]}/config/project-status`
+          );
+        }
+      } finally {
+        if (document.readyState === 'complete') {
+          setShowGlobalLoader(false);
+        } else {
+          window.addEventListener('load', () => {
+            setShowGlobalLoader(false);
+          });
+        }
       }
     })();
   }, []);
 
   useEffect(() => {
-    setPortalUrl(formData.organizationName?.toLocaleLowerCase());
+    setPortalUrl(
+      formData.organizationName
+        ?.toLocaleLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+    );
   }, [formData.organizationName]);
 
   useEffect(() => {
-    (async () => {
-      if (countryOptionsDataArray.length == 0) {
+    const loadCountryData = async () => {
+      if (CountryDataRef.current) return;
+      CountryDataRef.current = true;
+      if (countryOptionsDataArray.length === 0) {
         const response = await fetchFormattedCountryData();
-        if (response?.success && response?.countryOptionsData) {
+        if (response?.success) {
           setCountryOptionsDataArray(response?.countryOptionsData);
-          setDropDownSelectedValue(JSON.stringify(response?.filteredCountry));
+          setDropDownSelectedValue(JSON.stringify(response.filteredCountry));
         }
       }
-    })();
+    };
+    loadCountryData();
   }, []);
 
   return (
@@ -197,263 +381,108 @@ function SignIn() {
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />
-      {!showGlobalLoader && (
-        <div className='h-screen w-screen bg-[var(--them-pink-color)]'>
-          <div className='w-full h-full flex items-stretch justify-start relative'>
-            <img
-              src={signInGradientBgImage}
-              className='w-2/3 h-full absolute top-0 left-0'
-            />
-            <img
-              src={signIn3dImage}
-              className='w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block'
-              alt=''
-            />
-            <div className='w-1/3 relative hidden md:block'>
-              <div className='w-full h-full p-7'>
-                <div>
-                  <img
-                    src={orbitLogo}
-                    className='max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]'
-                    alt=''
-                  />
-                </div>
-                <div className='pt-7 '>
-                  <h1 className='font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5'>
-                    OrbitRMS: Simplify, Streamline, Succeed.
-                  </h1>
-                </div>
+      <div className='h-screen w-screen bg-[var(--them-pink-color)] overflow-hidden'>
+        <div className='w-full h-full flex items-stretch justify-start relative'>
+          <img
+            src={signInGradientBgImage}
+            className='w-2/3 h-full absolute top-0 left-0'
+            alt='Gradient Background'
+            loading='lazy'
+          />
+          {/* Auth Lottie Animation  */}
+          <AuthLottieAnimation />
+
+          <div className='w-1/3 relative hidden md:block'>
+            <div className='w-full h-full p-7'>
+              <div>
+                <img
+                  src={orbitLogo}
+                  className='max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]'
+                  alt='OrbitRMS Logo'
+                  loading='lazy'
+                />
+              </div>
+              <div className='pt-7 '>
+                <h1 className='font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5'>
+                  OrbitRMS: Simplify, Streamline, Succeed.
+                </h1>
               </div>
             </div>
-            <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px]  z-10 overflow-hidden'>
-              <div className='login-form w-full h-full  z-20 flex items-center justify-center'>
-                <div className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[480px] py-8 relative'>
-                  {currentPage == 2 && (
-                    <button
-                      className='font-medium text-[var(--them-orange-color)] cursor-pointer text-sm transition-all absolute top-0 left-5'
-                      onClick={handelBackPage}
-                    >
-                      <span className='flex items-center text-black/[0.65] justify-center gap-2'>
-                        <BsArrowLeft className='w-5 h-5' />
-                        <span>Back</span>
+          </div>
+          <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px]  z-10 overflow-hidden'>
+            <div className='login-form w-full h-full  z-20 flex items-center justify-center'>
+              <div className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[480px] py-8 relative'>
+                {currentPage == 2 && (
+                  <button
+                    className='font-medium text-[var(--them-orange-color)] cursor-pointer text-sm transition-all absolute top-0 left-5'
+                    onClick={handelBackPage}
+                  >
+                    <span className='flex items-center text-black/[0.65] justify-center gap-2'>
+                      <BsArrowLeft className='w-5 h-5' />
+                      <span>Back</span>
+                    </span>
+                  </button>
+                )}
+                <div className={'w-full px-5 transition-all'}>
+                  <div className='flex flex-col items-start justify-start gap-2'>
+                    <h1 className='font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black'>
+                      Sign Up for{' '}
+                      <span className='text-[var(--them-orange-color)]'>
+                        OrbitRMS!
                       </span>
-                    </button>
-                  )}
-                  <div className={'w-full px-5 transition-all'}>
-                    <div className='flex flex-col items-start justify-start gap-2'>
-                      <h1 className='font-inter text-2xl md:text-3xl lg:text-4xl font-bold text-black'>
-                        Sign Up for{' '}
-                        <span className='text-[var(--them-orange-color)]'>
-                          OrbitRMS!
-                        </span>
-                      </h1>
-                      <p className='text-black text-sm font-normal font-inter'>
-                        Join now and bring all your resources into one orbit!
-                      </p>
-                    </div>
-                  </div>
-                  <div className='w-full'>
-                    <div
-                      className={classNames('w-full flex transition-all', {
-                        'translate-x-0': currentPage == 1,
-                        '-translate-x-full': currentPage == 2,
-                      })}
-                    >
-                      <div
-                        className={classNames(
-                          'grid grid-cols-1 gap-y-5  w-full min-w-full px-5 transition-all duration-100',
-                          {
-                            'invisible , opacity-0': currentPage == 2,
-                          }
-                        )}
-                      >
-                        <div className='w-full'>
-                          <Input
-                            name='organizationName'
-                            className='border border-black/[.65] text-black'
-                            labelFieldName='Organization Name'
-                            isRequiredField={true}
-                            type='text'
-                            value={formData?.organizationName}
-                            onChange={(e) => handelInputFieldChange(e)}
-                            showError={
-                              showError &&
-                              formData?.organizationName?.trim() === ''
-                            }
-                            errorMessage='This field is required.'
-                          />
-                        </div>
-                        <div className='w-full'>
-                          <Input
-                            name='primaryEmail'
-                            className='border border-black/[.65] text-black'
-                            labelFieldName='Primary Email'
-                            isRequiredField={true}
-                            value={formData.primaryEmail}
-                            type='email'
-                            onChange={(e) => handelInputFieldChange(e)}
-                            showError={showError}
-                            errorMessage={
-                              showError
-                                ? formData.primaryEmail?.trim() === ''
-                                  ? 'This field is required.'
-                                  : !isValidEmail(formData?.primaryEmail)
-                                    ? 'Please enter a valid email address.'
-                                    : ''
-                                : ''
-                            }
-                          />
-                        </div>
-                        <div className='w-full'>
-                          <label
-                            htmlFor=''
-                            className='text-sm font-inter font-normal text-black/[.65] pb-2 inline-block'
-                          >
-                            <span className='flex gap-1'>
-                              <span>Portal Url</span>
-                              <FaStarOfLife className='w-1.5 text-red-700' />
-                            </span>
-                          </label>
-                          <div className='relative w-full flex items-stretch justify-start'>
-                            <div className='flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-l-lg text-[14px] px-5'>
-                              {formData.defaultPortalUrlSlug}
-                            </div>
-                            <Input
-                              name='portalUrl'
-                              className='border border-black/[.65] border-l-0 rounded-l-none text-black w-full'
-                              type='text'
-                              value={portalUrl?.toLocaleLowerCase()}
-                              setValue={setPortalUrl}
-                            />
-                          </div>
-                          {showError && portalUrl.trim() === '' && (
-                            <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
-                              This field is required.
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div
-                        className={classNames(
-                          'flex flex-col gap-y-5 justify-between w-full min-w-full px-5 transition-all duration-100',
-                          {
-                            'invisible opacity-0': currentPage == 1,
-                          }
-                        )}
-                      >
-                        <div className='w-full'>
-                          <Input
-                            name='websiteUrl'
-                            className='border border-black/[.65] text-black'
-                            labelFieldName='Website URL'
-                            type='text'
-                            value={formData?.websiteUrl}
-                            onChange={(e) => handelInputFieldChange(e)}
-                          />
-                        </div>
-                        <div className='w-full'>
-                          <Input
-                            type='number'
-                            name='contactNumber'
-                            className='border border-black/[.65] text-black rounded-lg rounded-l-none'
-                            labelFieldName='Contact Number'
-                            isRequiredField={true}
-                            value={formateAndVerifyPhoneNumber(
-                              formData?.contactNumber,
-                              dropDownSelectedValue
-                                ? JSON.parse(dropDownSelectedValue as string)
-                                    ?.country_code
-                                : 'IN'
-                            )}
-                            onChange={(e) => handelInputFieldChange(e)}
-                            showError={
-                              showErrorPageTwo &&
-                              formData.contactNumber?.trim() == ''
-                            }
-                            countryDropDownPosition='bottom'
-                            dropDownSelectedValue={
-                              dropDownSelectedValue
-                                ? JSON.parse(dropDownSelectedValue as string)
-                                    ?.country_number_code
-                                : '+91'
-                            }
-                            setDropDownSelectedValue={setDropDownSelectedValue}
-                            errorMessage={
-                              showErrorPageTwo
-                                ? formData?.contactNumber?.trim() === ''
-                                  ? 'This field is required.'
-                                  : ''
-                                : ''
-                            }
-                            countryOptionsData={countryOptionsDataArray}
-                          />
-                        </div>
-                        <div className='w-full'>
-                          <div className='w-full flex items-center justify-start gap-3.5 relative z-[25]'>
-                            <Input
-                              type='checkbox'
-                              name='termsAccepted'
-                              value={termsAccepted}
-                              setValue={setTermsAccepted}
-                            />
-                            <div>
-                              <p className='font-inter font-semibold text-sm text-black'>
-                                I agree to the terms and conditions
-                              </p>
-                              <p className='font-inter font-normal text-xs text-black'>
-                                Please read the Terms and Conditions before
-                                proceeding.
-                              </p>
-                            </div>
-                          </div>
-                          {showErrorPageTwo && termsAccepted != 'true' && (
-                            <span className='text-rose-600  text-xs  mt-1.5 block px-1.5 font-inter'>
-                              This field is required.
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className='w-full grid grid-cols-1 gap-y-8 px-5'>
-                    {currentPage == 1 ? (
-                      <button
-                        type='button'
-                        className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all'
-                        disabled={loading}
-                        onClick={handleMoveToNextPage}
-                      >
-                        <span>Next</span>
-                      </button>
-                    ) : (
-                      <button
-                        type='button'
-                        className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed'
-                        disabled={loading}
-                        onClick={handleFormSubmit}
-                      >
-                        {loading ? (
-                          <Loader loaderText='Submitting...' />
-                        ) : (
-                          <span>Submit</span>
-                        )}
-                      </button>
-                    )}
-                    <p className='text-center font-inter w-full text-sm text-black'>
-                      Already have an account?{' '}
-                      <Link to='/auth/sign-in'>
-                        <span className=' text-[var(--them-orange-color)] cursor-pointer underline  font-bold'>
-                          Sign In
-                        </span>
-                      </Link>
+                    </h1>
+                    <p className='text-black text-sm font-normal font-inter'>
+                      Join now and bring all your resources into one orbit!
                     </p>
                   </div>
+                </div>
+                <div className='w-full'>
+                  <div className='w-full flex transition-all'>
+                    {/* First Page */}
+                    {currentPage == 1
+                      ? SignUpFormFirstPage()
+                      : SignUpFormSecondPage()}
+                    {/* Second Page */}
+                  </div>
+                </div>
+                <div className='w-full grid grid-cols-1 gap-y-8 px-5'>
+                  {currentPage == 1 ? (
+                    <button
+                      type='button'
+                      className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all'
+                      disabled={loading}
+                      onClick={handleMoveToNextPage}
+                    >
+                      <span>Next</span>
+                    </button>
+                  ) : (
+                    <button
+                      type='button'
+                      className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all disabled:opacity-75 disabled:cursor-not-allowed'
+                      disabled={loading}
+                      onClick={handleFormSubmit}
+                    >
+                      {loading ? (
+                        <Loader loaderText='Submitting...' />
+                      ) : (
+                        <span>Submit</span>
+                      )}
+                    </button>
+                  )}
+                  <p className='text-center font-inter w-full text-sm text-black'>
+                    Already have an account?{' '}
+                    <Link to='/auth/sign-in'>
+                      <span className=' text-[var(--them-orange-color)] cursor-pointer underline  font-bold'>
+                        Sign In
+                      </span>
+                    </Link>
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
       <AlertModal
         ModalInfo={alertModalPropsInfo}
         showAlertModal={showAlertModal}
@@ -463,4 +492,4 @@ function SignIn() {
   );
 }
 
-export default SignIn;
+export default React.memo(SignUp);

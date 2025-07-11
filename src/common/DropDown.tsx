@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { SetStateAction, useEffect, useRef, useState } from 'react';
 import { IoIosArrowDown } from 'react-icons/io';
+import { FixedSizeList as VirtualList } from 'react-window';
 import clsx from 'clsx';
 
 import { countryObject } from '../Helper/countryDataHelper';
@@ -14,6 +14,7 @@ interface DropDownProps {
   children?: React.ReactNode;
   dropdownPosition?: 'top' | 'bottom'; // New prop for dropdown position
   maxHeight: number;
+  minWidth?: number;
 }
 
 function DropDown({
@@ -24,6 +25,7 @@ function DropDown({
   children,
   dropdownPosition = 'bottom',
   maxHeight,
+  minWidth = 200,
 }: DropDownProps) {
   const refBox = useRef<HTMLDivElement>(null);
   const [showDropDownMenu, setShowDropDownMenu] = useState(false);
@@ -87,16 +89,9 @@ function DropDown({
   };
 
   const renderMenuItem = (
-    value:
-      | string
-      | number
-      | {
-          country_flag: string;
-          country_name: string;
-          country_number_code: string;
-          country_code: string | number;
-        },
-    index: number
+    value: string | number | countryObject,
+    index: number,
+    style: React.CSSProperties
   ) => {
     if (typeof value === 'object' && 'country_code' in value) {
       return (
@@ -104,6 +99,7 @@ function DropDown({
           key={index}
           className='w-full'
           ref={(el) => (itemRefs.current[index] = el)}
+          style={style}
         >
           <button
             className={classNames(
@@ -117,7 +113,9 @@ function DropDown({
             onClick={() => handelDropdownValueChange(value)}
           >
             <span>{value?.country_flag}</span>
-            <span className='text-nowrap'>{value.country_name}</span>
+            <span className='text-nowrap text-ellipsis overflow-hidden'>
+              {value.country_name}
+            </span>
             <span className='text-black/[0.5] font-medium'>
               ({value.country_code})
             </span>
@@ -130,6 +128,7 @@ function DropDown({
           key={index}
           className='w-full'
           ref={(el) => (itemRefs.current[index] = el)}
+          style={style}
         >
           <button
             className={classNames('w-full text-left text-sm px-3 py-1', {
@@ -157,12 +156,22 @@ function DropDown({
             'top-full mt-1 origin-top': dropdownPosition === 'bottom', // Position on bottom
           }
         )}
-        style={{ maxHeight: `${maxHeight}px` }}
+        style={{ maxHeight: `${maxHeight + 50}px` }}
       >
         <ul className='w-full flex flex-col py-1'>
-          {dropdownMenuArray.map((value: any, index) =>
-            renderMenuItem(value, index)
-          )}
+          <VirtualList
+            height={maxHeight + 50 || 200}
+            itemCount={dropdownMenuArray?.length}
+            itemSize={35}
+            width={minWidth}
+            className='hide-scrollbar w-full flex flex-col py-1'
+          >
+            {({ index, style }) => {
+              const value = dropdownMenuArray[index];
+
+              return renderMenuItem(value, index, style);
+            }}
+          </VirtualList>
         </ul>
       </div>
 
