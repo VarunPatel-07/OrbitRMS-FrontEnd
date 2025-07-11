@@ -2,6 +2,7 @@ import {
   SearchBarFilterOptionsInterface,
   UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
+import Button from '../Button';
 import FilterInput, { FilterObjectInterface } from './FilterInput';
 
 interface TableFilterSearchBarInterface {
@@ -26,9 +27,13 @@ export default function TableFilterSearchBar(
           />
         </div>
         <div className=''>
-          <button className='font-inter font-semibold bg-[#EEF4FF] border border-[#C7D7FE] text-[#3538CD] text-base h-full px-5 py-2 rounded-lg capitalize'>
+          <Button
+            Type='button'
+            className='font-inter font-semibold bg-[#EEF4FF] border border-[#C7D7FE] text-[#3538CD] text-base h-full px-5 py-2 rounded-lg capitalize'
+            disabled
+          >
             filter
-          </button>
+          </Button>
         </div>
       </div>
     </div>

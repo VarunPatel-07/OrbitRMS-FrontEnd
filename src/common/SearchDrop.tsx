@@ -243,12 +243,12 @@ export default function SearchDrop(props: SearchDropProps) {
                             className={classNames(
                               'px-3 py-2 cursor-pointer w-full text-black text-nowrap text-ellipsis overflow-hidden',
                               {
-                                'bg-indigo-600 text-white !hover:bg-indigo-500':
+                                'bg-[var(--them-green-color)] text-white !hover:bg-[var(--them-green-color)]':
                                   selectedValue === val,
-                                'hover:bg-indigo-100':
+                                'hover:bg-[#7fab98]/20 hover:text-black':
                                   selectedValue !== val &&
                                   highlightIndex !== index,
-                                'bg-indigo-200 text-black':
+                                'bg-[#7fab98]/20 text-black':
                                   highlightIndex === index &&
                                   selectedValue !== val,
                               }
