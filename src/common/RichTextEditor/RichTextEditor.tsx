@@ -171,8 +171,11 @@ function RichTextEditor(props: RichTextEditorInterface) {
   });
 
   useEffect(() => {
-    if (editor) {
-      editor.commands.setContent(feedContent || '<p></p>');
+    if (!editor || !feedContent) return;
+
+    const currentContent = editor.getHTML();
+    if (currentContent !== feedContent) {
+      editor.commands.setContent(feedContent);
     }
   }, [feedContent, editor]);
 
