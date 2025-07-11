@@ -2542,7 +2542,7 @@ export default function AddEditEmployeeProfile() {
         setFetchingTheEmployeeData(false);
         const endpointArray: Array<endpointObject> = [
           {
-            endPoint: `country-info/getFormats?country-code=${data?.current_address?.country_code}`,
+            endPoint: `country-info/getFormats?country-code=${data?.current_address?.country_code || 'IN'}`,
             protected: false,
           },
         ];

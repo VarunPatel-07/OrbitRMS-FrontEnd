@@ -23,6 +23,8 @@ import HelmetSeo from '../Helper/HelmetSeo';
 import {
   clearLocalSessionStorage,
   formateAndVerifyPhoneNumber,
+  getDataFromLocalStorage,
+  getDataFromTheSessionStorage,
   isValidEmail,
   verifyPhoneNumberLength,
 } from '../Helper/HelperFunctions';
@@ -328,6 +330,21 @@ function SignUp() {
     useEffectRef.current = true;
     (async () => {
       try {
+        const _localToken = getDataFromLocalStorage('authenticationToken');
+        const _sessionToken = getDataFromTheSessionStorage(
+          'authenticationToken'
+        );
+
+        const authToken = `Bearer ${_localToken || _sessionToken}`;
+        const tokenValue = authToken.split('Bearer')[1]?.trim();
+
+        if (
+          !tokenValue ||
+          tokenValue === 'null' ||
+          tokenValue === 'undefined'
+        ) {
+          return;
+        }
         const response = await verifyUsersLoginStatus();
         if (!response?.success) {
           clearLocalSessionStorage();
