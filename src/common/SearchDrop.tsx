@@ -79,6 +79,7 @@ export default function SearchDrop(props: SearchDropProps) {
       onSelectValBtn(data);
     }
     setIsOpen(false);
+    setHighlightIndex(0);
   };
 
   useEffect(() => {
@@ -107,6 +108,7 @@ export default function SearchDrop(props: SearchDropProps) {
     const handelClickOutSideTheBox = (event: MouseEvent) => {
       if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setHighlightIndex(0);
       }
     };
     document.addEventListener('mousedown', handelClickOutSideTheBox);
@@ -241,11 +243,11 @@ export default function SearchDrop(props: SearchDropProps) {
                             className={classNames(
                               'px-3 py-2 cursor-pointer w-full text-black text-nowrap text-ellipsis overflow-hidden',
                               {
-                                'bg-gray-300': selectedValue == val,
+                                'bg-gray-400 hover:bg-gray-400': selectedValue == val,
                                 'hover:bg-gray-200/70':
                                   selectedValue != val ||
                                   highlightIndex != index,
-                                'bg-gray-300/90': highlightIndex == index,
+                                'bg-gray-300': highlightIndex == index,
                               }
                             )}
                             onClick={() => handleOnClick(option)}
