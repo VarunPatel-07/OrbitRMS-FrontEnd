@@ -243,11 +243,14 @@ export default function SearchDrop(props: SearchDropProps) {
                             className={classNames(
                               'px-3 py-2 cursor-pointer w-full text-black text-nowrap text-ellipsis overflow-hidden',
                               {
-                                'bg-gray-400 hover:bg-gray-400': selectedValue == val,
-                                'hover:bg-gray-200/70':
-                                  selectedValue != val ||
-                                  highlightIndex != index,
-                                'bg-gray-300': highlightIndex == index,
+                                'bg-indigo-600 text-white !hover:bg-indigo-500':
+                                  selectedValue === val,
+                                'hover:bg-indigo-100':
+                                  selectedValue !== val &&
+                                  highlightIndex !== index,
+                                'bg-indigo-200 text-black':
+                                  highlightIndex === index &&
+                                  selectedValue !== val,
                               }
                             )}
                             onClick={() => handleOnClick(option)}

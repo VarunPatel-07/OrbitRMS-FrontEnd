@@ -358,7 +358,7 @@ function Onboarding() {
         handelNotification(res, 'top-right');
         setIsSubmitting(false);
         const organization = formData?.general_info?.portal_slug;
-        navigate(`/${organization}/config/project-status`);
+        navigate(`/${organization}/dashboard`);
       }
     } else {
       setIsSubmitting(false);
