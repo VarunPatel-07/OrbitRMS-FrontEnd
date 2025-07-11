@@ -701,9 +701,7 @@ export default function AddEditEmployeeProfile() {
     const invalidModule = userProfileValidation.find(
       (section) => !section.validated()
     );
-    console.log(invalidModule);
-    console.log(!compareTwoNestedObject(dummyFormData, formData));
-    console.log(formData);
+
 
     if (invalidModule) {
       setShowEmptyFieldError(true);
@@ -2595,7 +2593,7 @@ export default function AddEditEmployeeProfile() {
     100
   );
 
-  console.log(formData);
+
   //
   // ? Defining The UseEffect That is Going To be Used To load the Initial Data
   //

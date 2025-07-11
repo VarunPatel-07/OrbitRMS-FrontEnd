@@ -53,8 +53,6 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
       formData?.existing_images?.length +
       data.length;
 
-    console.log(totalImages);
-
     if (totalImages > 5) {
       handelNotification(
         {
@@ -347,9 +345,9 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
               disabled={loading}
             >
               {loading ? (
-                <Loader loaderText='Submitting...' />
+                <Loader loaderText='Posting.....' />
               ) : (
-                <span>Submit</span>
+                <span>Post</span>
               )}
             </button>
           </div>
