@@ -291,6 +291,7 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
                     : ''
                 }
                 feedContent={formData?.description}
+                className='whitespace-pre-wrap'
               />
             </div>
             <div className='w-full flex flex-col gap-4'>

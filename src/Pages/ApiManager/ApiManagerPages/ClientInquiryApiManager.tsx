@@ -309,7 +309,7 @@ function ClientInquiryApiManager() {
               </div>
             )}
             {/* Body */}
-            <div className='w-full h-[calc(100vh-245px)] overflow-auto hide-scrollbar bg-white border border-black/15 relative'>
+            <div className='w-full h-[calc(100vh-250px)] overflow-auto hide-scrollbar bg-white border border-black/15 relative'>
               {loading ? (
                 <div className='w-full h-full bg-white p-5'>
                   <div className='flex flex-col items-start justify-start gap-5 w-full'>
