@@ -516,7 +516,14 @@ export default function AddEditEmployeeProfile() {
             {
               emergency_contact_name: '',
               emergency_contact_number: '',
-              emergency_contact_country_info: filteredCountry,
+              emergency_contact_country_info:
+                filteredCountry ||
+                JSON.stringify({
+                  country_code: 'IN',
+                  country_flag: '🇮🇳',
+                  country_name: 'India',
+                  country_number_code: '+91',
+                }),
               contact_id: '',
               id: '',
             },
@@ -694,9 +701,9 @@ export default function AddEditEmployeeProfile() {
     const invalidModule = userProfileValidation.find(
       (section) => !section.validated()
     );
-    console.log(invalidModule)
-    console.log(!compareTwoNestedObject(dummyFormData, formData))
-    console.log(formData)
+    console.log(invalidModule);
+    console.log(!compareTwoNestedObject(dummyFormData, formData));
+    console.log(formData);
 
     if (invalidModule) {
       setShowEmptyFieldError(true);
@@ -2470,16 +2477,40 @@ export default function AddEditEmployeeProfile() {
             },
           },
           personal_contact_info: {
-            country_info: data?.personal_contact_info?.country_info,
-            mobile_number: data?.personal_contact_info?.mobile_number,
-            personal_email: data?.personal_contact_info?.personal_email,
+            country_info:
+              data?.personal_contact_info &&
+              Object.keys(data.personal_contact_info).length > 0
+                ? data?.personal_contact_info?.country_info
+                : JSON.stringify({
+                    country_code: 'IN',
+                    country_flag: '🇮🇳',
+                    country_name: 'India',
+                    country_number_code: '+91',
+                  }),
+            mobile_number:
+              data?.personal_contact_info &&
+              Object.keys(data.personal_contact_info).length > 0
+                ? data?.personal_contact_info?.mobile_number
+                : '',
+            personal_email:
+              data?.personal_contact_info &&
+              Object.keys(data.personal_contact_info).length > 0
+                ? data?.personal_contact_info?.personal_email
+                : '',
             emergency_contacts:
               !data?.personal_contact_info ||
               !Array.isArray(data.personal_contact_info.emergency_contacts) ||
               data.personal_contact_info.emergency_contacts.length === 0
                 ? [
                     {
-                      emergency_contact_country_info: filteredCountry,
+                      emergency_contact_country_info:
+                        filteredCountry ||
+                        JSON.stringify({
+                          country_code: 'IN',
+                          country_flag: '🇮🇳',
+                          country_name: 'India',
+                          country_number_code: '+91',
+                        }),
                       emergency_contact_name: '',
                       emergency_contact_number: '',
                       contact_id: '',
@@ -2563,6 +2594,8 @@ export default function AddEditEmployeeProfile() {
     },
     100
   );
+
+  console.log(formData);
   //
   // ? Defining The UseEffect That is Going To be Used To load the Initial Data
   //
