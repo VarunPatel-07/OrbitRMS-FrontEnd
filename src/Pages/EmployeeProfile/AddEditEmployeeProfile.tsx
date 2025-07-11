@@ -694,6 +694,9 @@ export default function AddEditEmployeeProfile() {
     const invalidModule = userProfileValidation.find(
       (section) => !section.validated()
     );
+    console.log(invalidModule)
+    console.log(!compareTwoNestedObject(dummyFormData, formData))
+    console.log(formData)
 
     if (invalidModule) {
       setShowEmptyFieldError(true);
