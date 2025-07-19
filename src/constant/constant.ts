@@ -80,3 +80,10 @@ export const NotAllowedObjectField = ['client_inquire_id', 'id'];
 export const PASSWORD_RESET_KEY = 'expiry_time';
 
 export const MAX_SIGN_IN_ATTEMPT = 'sign_in_attempt';
+
+export const defaultCountryInfo = {
+  country_code: 'IN',
+  country_flag: '🇮🇳',
+  country_name: 'India',
+  country_number_code: '+91',
+};

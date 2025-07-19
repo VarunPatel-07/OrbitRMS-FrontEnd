@@ -16,6 +16,7 @@ function TextArea(props: TextAreaProps) {
     labelFieldName,
     showError,
     errorMessage,
+    disabled,
   } = props;
 
   const handelOnChangeFunction = (
@@ -41,9 +42,10 @@ function TextArea(props: TextAreaProps) {
       <textarea
         name={name}
         className={clsx(
-          'border border-black/45 bg-transparent rounded-lg w-full text-black p-2 outline-0 resize-none focus:right-0 focus:outline-none focus:outline-4 focus:outline-[rgba(215,139,159,0.2)] focus:border-[var(--them-pink-color)]',
+          'border border-black/45 bg-transparent rounded-lg w-full text-black p-2 outline-0 resize-none focus:right-0 focus:outline-none focus:outline-4 focus:outline-[rgba(215,139,159,0.2)] focus:border-[var(--them-pink-color)] disabled:border disabled:border-[#7fab98] disabled:bg-[#7fab98]/15 disabled:cursor-not-allowed',
           className
         )}
+        disabled={disabled}
         cols={cols || 10}
         rows={rows || 5}
         value={value}

@@ -87,6 +87,7 @@ export interface commonDatePickerProps {
   showError?: boolean;
   errorMessage?: string;
   year?: number;
+  disabled?: boolean;
 }
 
 export interface TextAreaProps {
@@ -101,6 +102,7 @@ export interface TextAreaProps {
   isRequiredField?: boolean;
   showError?: boolean;
   errorMessage?: string;
+  disabled?: boolean;
 }
 
 export interface RichTextEditorApiCallIngReturnInterface {
@@ -158,6 +160,7 @@ export interface SearchDropProps {
   showSearchBar?: boolean;
   showError?: boolean;
   errorMessage?: string;
+  disabled?: boolean;
 }
 
 export interface Column {

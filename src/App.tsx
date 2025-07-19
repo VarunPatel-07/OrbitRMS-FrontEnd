@@ -33,7 +33,8 @@ import ClientInquiry from './Pages/ClientInquiry/ClientInquiry';
 import Config from './Pages/config/Config';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import EmployeeListing from './Pages/Employee/EmployeeListing';
-import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile';
+// import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile-Old';
+import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile/AddEditEmployeeProfile';
 import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
 import OrganizationSettings from './Pages/OrganizationSettings/OrganizationSettings';
 

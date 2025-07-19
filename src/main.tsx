@@ -10,18 +10,17 @@ import SignIn from './Auth/SignIn';
 import SignUp from './Auth/SignUp';
 import ErrorFallBack from './common/ErrorFallBack';
 
+import './css/font.css';
 import './css/rootColors.css';
 import 'react-tooltip/dist/react-tooltip.css';
-
-import ProtectedRoute from './Helper/ProtectedRoute';
-
-import './css/font.css';
+import './css/common.css';
 
 import CreateResetPassword from './Auth/CreateResetPassword';
 import ForgotPassword from './Auth/ForgotPassword';
 import Notification from './common/Notification/Notification';
 import { GlobalStateContentApiProvider } from './Context/globalState/GlobalStateContectApi';
 import { NotificationContextApiProvider } from './Context/Notification/NotificationContextApi';
+import ProtectedRoute from './Helper/ProtectedRoute';
 import RedirectToDashboard from './Helper/RedirectToDashboard';
 import Onboarding from './Pages/Onboarding/Onboarding';
 import VerifyEmail from './Pages/VerifyEmail';

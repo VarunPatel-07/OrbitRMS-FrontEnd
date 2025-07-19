@@ -23,5 +23,5 @@
     "noUncheckedSideEffectImports": true,
     "types": []
   },
-  "include": ["src", "src/types"]
+  "include": ["src", "src/types", "src/Pages/EmployeeProfile/.tsx"]
 }
