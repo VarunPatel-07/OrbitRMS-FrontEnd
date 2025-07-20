@@ -19,6 +19,7 @@ function CommonDatePicker(props: commonDatePickerProps) {
     showError,
     errorMessage,
     year,
+    disabled = false,
   } = props;
 
   const CustomInput = forwardRef(
@@ -29,17 +30,24 @@ function CommonDatePicker(props: commonDatePickerProps) {
       <div
         ref={ref} // Attach the ref here
         className={clsx(
-          'relative w-full cursor-pointer border border-black/45 rounded-lg py-2 px-4 bg-transparent flex items-center max-h-[41.5px]',
+          `relative w-full cursor-pointer border border-black/45 rounded-lg bg-transparent flex items-center max-h-[41.5px]`,
           className
         )}
         onClick={onClick}
-        style={{ border: showError && errorMessage ? '1px solid red' : '' }}
+        style={{
+          border: disabled
+            ? '1px solid #7fab98'
+            : showError && errorMessage
+              ? '1px solid red'
+              : '',
+        }}
       >
         <input
           type='text'
           value={value}
           readOnly
-          className='w-full bg-transparent text-black focus:ring-0 focus:shadow-none focus:outline-none cursor-pointer text-base'
+          className='w-full bg-transparent text-black focus:ring-0 focus:shadow-none focus:outline-none cursor-pointer text-base disabled:bg-[#7fab98]/15 disabled:cursor-not-allowed py-2 px-4'
+          disabled={disabled}
         />
         <FaCalendarAlt className='absolute right-3 text-black/60' />
       </div>
@@ -69,6 +77,7 @@ function CommonDatePicker(props: commonDatePickerProps) {
         scrollableYearDropdown={true}
         yearDropdownItemNumber={50}
         dateFormat='dd/MM/yyyy'
+        disabled={disabled}
         customInput={<CustomInput />}
         openToDate={year ? new Date(new Date().setFullYear(year)) : new Date()}
       />

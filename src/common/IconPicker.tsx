@@ -31,6 +31,7 @@ interface IconPickerInterFace {
   position: 'bottom' | 'top';
   showError: boolean;
   errorMessage?: string;
+  disabled?: boolean;
 }
 
 const socialLinks: SocialLinksInterFace[] = [
@@ -108,6 +109,7 @@ function IconPicker(props: IconPickerInterFace) {
     position = 'top',
     errorMessage,
     showError,
+    disabled = false,
   } = props;
   const boxRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -144,7 +146,11 @@ function IconPicker(props: IconPickerInterFace) {
 
   return (
     <div className='w-full relative' ref={boxRef}>
-      <button className='w-fit' onClick={() => setIsOpen(!isOpen)}>
+      <button
+        className='w-fit disabled:cursor-not-allowed'
+        onClick={() => setIsOpen(!isOpen)}
+        disabled={disabled}
+      >
         <div
           className={classNames(
             'icon p-2 bg-gray-200 rounded-md w-10 h-10 flex items-center justify-center',

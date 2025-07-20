@@ -25,6 +25,7 @@ export default function SearchDrop(props: SearchDropProps) {
     showSearchBar = true,
     showError,
     errorMessage,
+    disabled = false,
   } = props;
 
   const boxRef = useRef<HTMLDivElement>(null);
@@ -166,10 +167,11 @@ export default function SearchDrop(props: SearchDropProps) {
           onKeyDown={handelKeyPress}
           ref={buttonRef}
           className={clsx(
-            'px-2.5 py-2.5 bg-white border border-black/45 rounded-lg w-full flex justify-between items-center',
+            'px-2.5 py-2.5 bg-white border border-black/45 rounded-lg w-full flex justify-between items-center disabled:bg-[#7fab98]/15 disabled:border disabled:border-[#7fab98] disabled:cursor-not-allowed',
             className
           )}
           style={{ border: showError && errorMessage ? '1px solid red' : '' }}
+          disabled={disabled}
         >
           <span className='text-black font-inter text-sm capitalize text-nowrap text-ellipsis overflow-hidden'>
             {selectedValue
