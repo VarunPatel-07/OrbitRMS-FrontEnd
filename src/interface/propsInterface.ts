@@ -1,4 +1,4 @@
-import React, { SetStateAction } from 'react';
+import React, { RefObject, SetStateAction } from 'react';
 import { Editor } from '@tiptap/react';
 
 import { countryObject } from '../Helper/countryDataHelper';
@@ -264,4 +264,74 @@ export interface MetaDataInterface {
   total_pages: number;
   current_page: number;
   record_per_page: number;
+}
+
+export interface ModuleValueInterface {
+  label: string;
+  value: string;
+  type: string;
+}
+
+export interface FilterObjectInterface {
+  id: string;
+  moduleValue: ModuleValueInterface[];
+}
+
+export interface handleMultiInputChangeInterface {
+  filterObject: FilterObjectInterface[];
+  selectedFilterObject: FilterObjectInterface[];
+  inputFieldRef: RefObject<HTMLInputElement>;
+  inputValue: string;
+  setInputValue: React.Dispatch<SetStateAction<string>>;
+  setShowFilterDropDownMenu: React.Dispatch<SetStateAction<boolean>>;
+  optionType: 'text' | 'select' | 'multi-select' | 'date' | undefined;
+  searchInputValue: string;
+  setSearchInputValue: React.Dispatch<SetStateAction<string>>;
+}
+
+export interface FiltersOptionsDropdownInterface {
+  showCurrentOptionDropdown: boolean;
+  filterColumnsArray: SearchBarFilterOptionsInterface[];
+  currentFilterId: string;
+  filterObject: FilterObjectInterface[];
+  setShowCurrentOperatorDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowCurrentOptionDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  updateFilterObject: (
+    newItem: ModuleValueInterface,
+    id: string,
+    callback?: (updatedArray: FilterObjectInterface[]) => void
+  ) => void;
+  setFilterObject: React.Dispatch<
+    React.SetStateAction<FilterObjectInterface[]>
+  >;
+  updateFinalFilterQuery: (newData: FilterObjectInterface[]) => void;
+  setInputValue: React.Dispatch<React.SetStateAction<string>>;
+  showFilterDropDownMenu: boolean;
+  searchInputValue: string;
+}
+
+export interface FilterInputMainFilterDropdownInterface {
+  showFilterDropDownMenu: boolean;
+  currentFilterId: string;
+  filterColumnsArray: SearchBarFilterOptionsInterface[];
+  selectedFilterObject: FilterObjectInterface[];
+  setShowFilterDropDownMenu: React.Dispatch<SetStateAction<boolean>>;
+  setCurrentFilterId: React.Dispatch<SetStateAction<string>>;
+  setFilterObject: React.Dispatch<SetStateAction<FilterObjectInterface[]>>;
+  setShowCurrentOperatorDropdown: React.Dispatch<SetStateAction<boolean>>;
+}
+
+export interface FiltersOperatorDropdownInterface {
+  showCurrentOperatorDropdown: boolean;
+  filterColumnsArray: SearchBarFilterOptionsInterface[];
+  currentFilterId: string;
+  updateFilterObject: (
+    newItem: ModuleValueInterface,
+    id: string,
+    callback?: (updatedArray: FilterObjectInterface[]) => void
+  ) => void;
+  setShowCurrentOperatorDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowCurrentOptionDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  handelInputFieldFocus: () => void;
+  showFilterDropDownMenu: boolean;
 }
