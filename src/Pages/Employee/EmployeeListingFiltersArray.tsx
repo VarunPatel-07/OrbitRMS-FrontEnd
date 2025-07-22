@@ -50,10 +50,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
       },
     ], // No options for text filters
   },
-  // 'Intern',
-  // 'Trainee',
-  // 'Probation',
-  // 'Confirmed',
+
   {
     id: 'status',
     value: 'Status',
@@ -78,7 +75,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
         value: 'Trainee',
         type: FilterFieldsTypeEnums[2],
       },
-       {
+      {
         label: 'probation',
         value: 'Probation',
         type: FilterFieldsTypeEnums[2],

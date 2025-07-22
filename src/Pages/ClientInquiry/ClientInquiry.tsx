@@ -6,7 +6,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
-import { FilterObjectInterface } from '../../common/Table/FilterInput';
 import Table from '../../common/Table/Table';
 import TableFilterSearchBar from '../../common/Table/TableFilterSearchBar';
 import TableInfoHeader from '../../common/Table/TableInfoHeader';
@@ -42,6 +41,7 @@ import { useDebounce } from '../../Hooks/useDebounce';
 import { ClientInquiryFormSchemaInterface } from '../../interface/ClientInquiryInterFace';
 import {
   Column,
+  FilterObjectInterface,
   MetaDataInterface,
   SearchBarFilterOptionsInterface,
   UrlEncodedFilterQueryInterface,
