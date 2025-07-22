@@ -123,7 +123,7 @@ function App() {
     <>
       <HelmetSeo
         Title='OrbitRMS'
-        Content='Log in to OrbitRMS and start managing everything in one place with ease and efficiency!'
+        Content='Streamline your business operations with OrbitRMS. Manage clients, content, resources, and more — all in one powerful platform.'
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />

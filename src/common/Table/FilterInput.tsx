@@ -9,16 +9,7 @@ import {
   UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
 
-export interface ModuleValueInterface {
-  label: string;
-  value: string;
-  type: string;
-}
 
-export interface FilterObjectInterface {
-  id: string;
-  moduleValue: ModuleValueInterface[];
-}
 
 function FilterInput({
   filterColumnsArray,

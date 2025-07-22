@@ -17,9 +17,7 @@ function SideBar() {
     GlobalStateContext
   ) as GlobalStateContextApiProps;
   const organization =
-    GlobalStateProvider?.organization?.general_info?.portal_url.split(
-      'https://orbitrms.com/'
-    )[1];
+    GlobalStateProvider?.organization?.general_info?.portal_slug;
 
   const handelSidebarCollapse = () => {
     setCollapsed(!collapsed);

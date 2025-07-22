@@ -1,9 +1,10 @@
 import {
+  FilterObjectInterface,
   SearchBarFilterOptionsInterface,
   UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
 import Button from '../Button';
-import FilterInput, { FilterObjectInterface } from './FilterInput';
+import FilterInput from './FilterInput/FilterInput';
 
 interface TableFilterSearchBarInterface {
   filterColumnsArray: SearchBarFilterOptionsInterface[];
