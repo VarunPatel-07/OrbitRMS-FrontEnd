@@ -5,11 +5,11 @@ import { IoClose } from 'react-icons/io5';
 import { FilterFieldsTypeEnums } from '../../enums/enums';
 import { classNames } from '../../Helper/HelperFunctions';
 import {
+  FilterObjectInterface,
+  ModuleValueInterface,
   SearchBarFilterOptionsInterface,
   UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
-
-
 
 function FilterInput({
   filterColumnsArray,
