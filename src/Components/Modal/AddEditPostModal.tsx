@@ -25,7 +25,6 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
 ) {
   const {
     showAddEditPostModal,
-
     GlobalStateProvider,
     handelOnSubmit,
     onEditorReady,

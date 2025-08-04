@@ -2,6 +2,10 @@
 import React, { SetStateAction } from 'react';
 import axios, { AxiosRequestHeaders } from 'axios';
 
+import {
+  MAINTENANCE_MODE_LOCAL_STORAGE_KEY,
+  MaintenanceModeIsActiveStatusCode,
+} from '../../constant/constant';
 import { loginForm, signUpForm } from '../../interface/funcParamInterface';
 import { GlobalContextStore } from '../../interface/UserProfileInterface';
 import {
@@ -142,6 +146,17 @@ export const signUpApiFunction = async (
   }
 };
 
+const MaintenanceModeChecker = (error: any) => {
+  const status = error?.response?.status || error?.status;
+
+  const data = ErrorHandler(error);
+  if (MaintenanceModeIsActiveStatusCode.includes(status)) {
+    storeDataInLocalStorage(data.data, MAINTENANCE_MODE_LOCAL_STORAGE_KEY);
+    window.location.href = '/maintenance-mode';
+    return;
+  }
+};
+
 export const verifyUsersLoginStatus = async () => {
   try {
     const url = `${BASE_URL}/auth/verify-user`;
@@ -175,7 +190,11 @@ export const verifyUsersLoginStatus = async () => {
     const response = await axios(config);
 
     return response?.data as verifyUsersLoginStatusResponse;
-  } catch (error) {
-    return ErrorHandler(error as Error) as verifyUsersLoginStatusResponse;
+  } catch (error: any) {
+    if (MaintenanceModeIsActiveStatusCode.includes(error?.status)) {
+      MaintenanceModeChecker(error);
+    } else {
+      return ErrorHandler(error as Error) as verifyUsersLoginStatusResponse;
+    }
   }
 };

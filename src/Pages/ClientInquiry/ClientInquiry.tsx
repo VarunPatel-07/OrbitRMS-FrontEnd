@@ -451,6 +451,7 @@ function ClientInquiry() {
                 <TableInfoHeader
                   moduleName='Client Inquiry'
                   badgeValue={`${(metaData?.current_page - 1) * Number(metaData?.record_per_page) + 1} - ${Math.min(metaData?.current_page * metaData?.record_per_page, metaData?.total_data)} of  ${metaData?.total_data}  Inquiry`}
+                  loading={isFetchingData}
                 />
                 <TableFilterSearchBar
                   filterColumnsArray={clientInquiryFiltersArray}

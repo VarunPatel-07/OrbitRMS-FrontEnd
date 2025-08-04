@@ -365,7 +365,16 @@ function EmployeeListing() {
             obj.operator = moduleValue?.label;
           }
           if (moduleValue?.type === FilterFieldsTypeEnums[2]) {
-            obj.value = moduleValue?.value;
+            if (queryObj?.optionType == 'multi-select') {
+              const MultiSelectArr: string[] = [];
+              queryObj?.moduleValue
+                ?.filter((tem) => tem.type === FilterFieldsTypeEnums[2])
+                ?.map((data) => MultiSelectArr.push(data?.value));
+
+              obj.value = JSON.stringify(MultiSelectArr);
+            } else {
+              obj.value = moduleValue?.value;
+            }
           }
         });
         return obj;
@@ -445,8 +454,13 @@ function EmployeeListing() {
             <>
               <TableInfoHeader
                 moduleName='Employees'
-                badgeValue={`${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length * selectedPage} of  ${metaData?.total_data}  Employee`}
+                badgeValue={
+                  data?.length > 0
+                    ? `${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length * selectedPage} of  ${metaData?.total_data}  Employees`
+                    : `0 Employee`
+                }
                 buttonsArray={optionsButtonArray}
+                loading={isFetchingData}
               />
               <TableFilterSearchBar
                 filterColumnsArray={EmployeeListingFiltersArray}
@@ -469,7 +483,7 @@ function EmployeeListing() {
                         columns={columns}
                         data={data}
                         tableWrapperClass={
-                          'overflow-auto max-h-[calc(100vh-330px)] h-full bg-white'
+                          'overflow-auto max-h-[calc(100vh-340px)] h-full bg-white'
                         }
                         stickyHeaderClass='sticky top-0'
                       />
