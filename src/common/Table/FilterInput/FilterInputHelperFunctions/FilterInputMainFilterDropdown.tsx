@@ -4,6 +4,7 @@ import { FilterFieldsTypeEnums } from '../../../../enums/enums';
 import { classNames } from '../../../../Helper/HelperFunctions';
 import {
   FilterInputMainFilterDropdownInterface,
+  FilterObjectInterface,
   ModuleValueInterface,
 } from '../../../../interface/propsInterface';
 
@@ -38,7 +39,7 @@ const FilterInputMainFilterDropdown = React.memo(
       id: string,
       type: string,
       value: string,
-      optionType: string
+      optionType: 'text' | 'select' | 'multi-select' | 'date'
     ) => {
       setShowFilterDropDownMenu(true);
       setCurrentFilterId(id);
@@ -55,10 +56,12 @@ const FilterInputMainFilterDropdown = React.memo(
               : item
           );
         } else {
-          return [
-            ...pervArray,
-            { id, optionType: optionType, moduleValue: [newItem] },
-          ];
+          const newItemObj: FilterObjectInterface = {
+            id,
+            optionType,
+            moduleValue: [newItem],
+          };
+          return [...pervArray, newItemObj];
         }
       });
       setShowCurrentOperatorDropdown(true);
