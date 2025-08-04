@@ -22,6 +22,7 @@ import { GlobalStateContentApiProvider } from './Context/globalState/GlobalState
 import { NotificationContextApiProvider } from './Context/Notification/NotificationContextApi';
 import ProtectedRoute from './Helper/ProtectedRoute';
 import RedirectToDashboard from './Helper/RedirectToDashboard';
+import MaintenanceMode from './Pages/MaintenanceMode/MaintenanceMode';
 import Onboarding from './Pages/Onboarding/Onboarding';
 import VerifyEmail from './Pages/VerifyEmail';
 
@@ -44,6 +45,7 @@ createRoot(document.getElementById('root')!).render(
           />
           <Route path='/verification/verify-email' element={<VerifyEmail />} />
           <Route path='/onboarding' element={<Onboarding />} />
+          <Route path='/maintenance-mode' element={<MaintenanceMode />} />
 
           <Route path='*' element={<RedirectToDashboard />} />
 

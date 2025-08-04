@@ -226,6 +226,7 @@ export interface TableInfoHeaderInterface {
   renderDateSelector?: boolean;
   year?: number;
   handelYearButton?: (type: 'increment' | 'decrement') => void;
+  loading?: boolean;
 }
 
 export interface ClonedRolePermissionInterface {
@@ -275,6 +276,7 @@ export interface ModuleValueInterface {
 export interface FilterObjectInterface {
   id: string;
   moduleValue: ModuleValueInterface[];
+  optionType?: 'text' | 'select' | 'multi-select' | 'date';
 }
 
 export interface handleMultiInputChangeInterface {

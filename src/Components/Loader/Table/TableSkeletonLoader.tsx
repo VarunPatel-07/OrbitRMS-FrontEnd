@@ -35,9 +35,10 @@ function TableSkeletonLoader({
               </p>
               <span className='text-sm font-inter font-medium'>
                 <Skeleton
-                  width={28}
+                  width={120}
                   height={28}
-                  className='inline-block'
+                  className='inline-block mt-1'
+                  borderRadius={30}
                 />{' '}
               </span>
             </div>

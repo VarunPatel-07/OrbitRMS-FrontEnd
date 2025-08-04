@@ -93,7 +93,7 @@ function App() {
     useEffectRef.current = true;
     (async () => {
       const response = await verifyUsersLoginStatus();
-
+      if (!response) return;
       if (!response?.success) {
         handelNotification(response, 'top-right');
         setShowGlobalLoader(false);

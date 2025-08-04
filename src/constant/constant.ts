@@ -75,11 +75,15 @@ export const unauthorizedStatusCodes = [
   407, // Proxy Authentication Required (rare, but still access-related)
 ];
 
+export const MaintenanceModeIsActiveStatusCode = [503]
+
 export const NotAllowedObjectField = ['client_inquire_id', 'id'];
 
 export const PASSWORD_RESET_KEY = 'expiry_time';
 
 export const MAX_SIGN_IN_ATTEMPT = 'sign_in_attempt';
+
+export const MAINTENANCE_MODE_LOCAL_STORAGE_KEY ='MAINTENANCE_MODE'
 
 export const defaultCountryInfo = {
   country_code: 'IN',
