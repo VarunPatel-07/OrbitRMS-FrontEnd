@@ -141,6 +141,7 @@ function SignIn() {
           return;
         }
         const response = await verifyUsersLoginStatus();
+        if (!response) return;
         if (!response?.success) {
           handelNotification(response, 'top-right');
           clearLocalSessionStorage();
