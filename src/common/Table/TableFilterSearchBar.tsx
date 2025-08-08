@@ -29,7 +29,7 @@ export default function TableFilterSearchBar(
         </div>
         <div className=''>
           <Button
-            Type='button'
+            type='button'
             className='font-inter font-semibold bg-[#EEF4FF] border border-[#C7D7FE] text-[#3538CD] text-base h-full px-5 py-2 rounded-lg capitalize'
             disabled
           >

@@ -44,9 +44,9 @@ export const ConfigSidebarMenuList = (
   },
   {
     id: 5,
-    name: 'Client Form',
+    name: 'Inquiry Forms',
     label: 'config-client-form-tooltip',
-    link: `/${organization}/config/client-form`,
+    link: `/${organization}/config/inquiry-forms`,
     showToolTip: false,
     ToolTipValue: 'Client Form',
   },

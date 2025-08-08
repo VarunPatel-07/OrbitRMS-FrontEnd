@@ -305,7 +305,7 @@ function ForgotPassword() {
 
                   <div className='w-full grid grid-cols-1 gap-y-8'>
                     <Button
-                      Type='button'
+                      type='button'
                       className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all'
                       disabled={loading || countDown ? true : false}
                       onClick={submitForgotPasswordHandler}

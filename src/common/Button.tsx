@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import Loader from './Loader';
 
 interface ButtonProps {
-  Type: 'button' | 'submit';
+  type: 'button' | 'submit';
   children: React.ReactElement | string;
   className: string;
   disabled?: boolean;
@@ -15,7 +15,7 @@ interface ButtonProps {
 }
 
 function Button({
-  Type = 'button',
+  type = 'button',
   children,
   className,
   disabled = false,
@@ -26,7 +26,7 @@ function Button({
 }: ButtonProps) {
   return (
     <button
-      type={Type}
+      type={type}
       className={clsx(
         'disabled:opacity-75 disabled:cursor-not-allowed',
         className

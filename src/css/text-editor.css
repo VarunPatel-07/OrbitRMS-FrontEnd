@@ -1,0 +1,111 @@
+.text-editor-wrapper:first-child {
+  margin-top: 0;
+}
+.text-editor-wrapper .mention {
+  background-color: var(--purple-light);
+  border-radius: 0.4rem;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  color: var(--purple);
+  padding: 0.1rem 0.3rem;
+}
+.text-editor-wrapper .mention::after {
+  content: '​';
+}
+.text-editor-wrapper:first-child {
+  margin-top: 0;
+}
+.text-editor-wrapper ul,
+.text-editor-wrapper ol {
+  padding: 0 1rem;
+  margin: 1.25rem 1rem 1.25rem 0.4rem;
+}
+.text-editor-wrapper ul li p,
+.text-editor-wrapper ol li p {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+.text-editor-wrapper p {
+  margin-bottom: 1em;
+}
+.text-editor-wrapper h1,
+.text-editor-wrapper h2,
+.text-editor-wrapper h3,
+.text-editor-wrapper h4,
+.text-editor-wrapper h5,
+.text-editor-wrapper h6 {
+  line-height: 1.1;
+  text-wrap: pretty;
+}
+.text-editor-wrapper h1,
+.text-editor-wrapper h2 {
+  margin-bottom: 1.5rem;
+}
+.text-editor-wrapper h1 {
+  font-size: 1.4rem;
+}
+.text-editor-wrapper h2 {
+  font-size: 1.2rem;
+}
+.text-editor-wrapper h3 {
+  font-size: 1.1rem;
+}
+.text-editor-wrapper h4,
+.text-editor-wrapper h5,
+.text-editor-wrapper h6 {
+  font-size: 1rem;
+}
+.text-editor-wrapper code {
+  background-color: var(--purple-light);
+  border-radius: 0.4rem;
+  color: var(--black);
+  font-size: 0.85rem;
+  padding: 0.25em 0.3em;
+}
+.text-editor-wrapper pre {
+  background: var(--black);
+  border-radius: 0.5rem;
+  color: var(--white);
+  font-family: 'JetBrainsMono', monospace;
+  margin: 1.5rem 0;
+  padding: 0.75rem 1rem;
+}
+.text-editor-wrapper pre code {
+  background: none;
+  color: inherit;
+  font-size: 0.8rem;
+  padding: 0;
+}
+.text-editor-wrapper mark {
+  background-color: #faf594;
+  border-radius: 0.4rem;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0.1rem 0.3rem;
+}
+.text-editor-wrapper blockquote {
+  border-left: 3px solid var(--gray-3);
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+}
+.text-editor-wrapper hr {
+  border: none;
+  border-top: 1px solid var(--gray-2);
+  margin: 2rem 0;
+}
+.text-editor-wrapper .tippy-box {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.text-editor-wrapper .mention {
+  background-color: transparent;
+  border-radius: 4px;
+  padding: 0 2px;
+  color: #4f46e5 !important;
+  text-decoration: none;
+  font-family: 'Inter', serif;
+  font-weight: 600;
+  cursor: pointer;
+}

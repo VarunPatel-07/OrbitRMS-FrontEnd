@@ -35,6 +35,7 @@ export interface verifyUsersLoginStatusResponse {
   message: string;
   data: GlobalContextStore | null;
   status_code?: number;
+  encrypted_org_id: string;
 }
 
 // * The Function That Are HelpFull For Sign-IN And Sign-UP

@@ -17,6 +17,7 @@ function TableInfoHeader(props: TableInfoHeaderInterface) {
     year,
     handelYearButton,
     loading = false,
+    renderElement,
   } = props;
 
   const renderOptionsButtonArray = (
@@ -91,6 +92,11 @@ function TableInfoHeader(props: TableInfoHeaderInterface) {
               </>
             )}
           </div>
+          {renderElement && (
+            <div className='flex items-center justify-end gap-3'>
+              {renderElement}
+            </div>
+          )}
         </div>
       </div>
     </SkeletonTheme>
