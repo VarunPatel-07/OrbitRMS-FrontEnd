@@ -8,9 +8,10 @@ import {
 } from '../../Context/globalState/GlobalStateContectApi';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
-import ClientFormSchema from './ConfigModulePages/ClientFormSchema';
 import AttachmentTypes from './ConfigModulePages/Department';
 import Designations from './ConfigModulePages/Designations';
+import InquiryFormFields from './ConfigModulePages/InquiryForm/InquiryFormFields';
+import InquiryFormSchema from './ConfigModulePages/InquiryForm/InquiryFormSchema';
 import ProjectStatus from './ConfigModulePages/ProjectStatus';
 import RolesAndPermission from './ConfigModulePages/RolesAndPermission/RolesAndPermission';
 import ViewPermissions from './ConfigModulePages/RolesAndPermission/ViewPermissions';
@@ -64,8 +65,12 @@ function Config() {
               element={<ProtectedRoute element={<ViewPermissions />} />}
             />
             <Route
-              path='/client-form'
-              element={<ProtectedRoute element={<ClientFormSchema />} />}
+              path='/inquiry-forms'
+              element={<ProtectedRoute element={<InquiryFormSchema />} />}
+            />
+            <Route
+              path='/inquiry-forms/:id/fields'
+              element={<ProtectedRoute element={<InquiryFormFields />} />}
             />
             <Route path='*' element={<PageNotFound />} />
           </Routes>

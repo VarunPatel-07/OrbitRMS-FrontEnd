@@ -142,6 +142,19 @@ export interface DepartmentConfig {
   updated_by: string | null;
 }
 
+export interface InquiryFormFieldInterface {
+  id: string;
+  field_name: string;
+  type: string;
+  is_required_field: boolean;
+  source_type: string;
+  created_at: string;
+  created_by: string | null;
+  updated_at: string | null;
+  updated_by: string | null;
+  inquiry_form_schema_id: string;
+}
+
 export interface DesignationConfig {
   config_module_id: string;
   created_at: string;
@@ -252,4 +265,13 @@ export interface DragAndDropCropImageInterface {
 
 export interface NoHolidayCardPropsInterface {
   portalSlug: string;
+}
+
+export interface AddEditInquiryFormSchemaInterface {
+  id: string;
+  form_id: string;
+  form_name: string;
+  status: boolean;
+  description: string;
+  source_type: 'default' | 'user_created';
 }

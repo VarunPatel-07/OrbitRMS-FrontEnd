@@ -1,18 +1,26 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { IoEye } from 'react-icons/io5';
+import { MdDelete } from 'react-icons/md';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
-import SearchDrop from '../../common/SearchDrop';
 import Table from '../../common/Table/Table';
 import TableFilterSearchBar from '../../common/Table/TableFilterSearchBar';
 import TableInfoHeader from '../../common/Table/TableInfoHeader';
 import TableNoDataFound from '../../common/Table/TableNoDataFound';
 import TablePagination from '../../common/Table/TablePagination';
 import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoader';
-import { AddEditInquiryFormSchemaBreadcrumbs } from '../../constant/ConfigModuleConstant';
-import { dropdownMenuArray, initialMetadata } from '../../constant/constant';
+import ClientInquirySliderModal from '../../Components/Modal/ClientInquirySliderModal';
+import { dropdownMenuArray } from '../../constant/constant';
+import {
+  Contains,
+  EndsWith,
+  Equals,
+  Is,
+  StartsWith,
+} from '../../constant/FilterOperator';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -22,11 +30,15 @@ import {
   NotificationContextApiProps,
 } from '../../Context/Notification/NotificationContextApi';
 import { FilterFieldsTypeEnums } from '../../enums/enums';
-import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
+import {
+  endpointObject,
+  multipleDeleteApi,
+  multipleFetchApi,
+} from '../../Helper/api/multipleAPI';
+import HelmetSeo from '../../Helper/HelmetSeo';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
 import { ClientInquiryFormSchemaInterface } from '../../interface/ClientInquiryInterFace';
-import { AddEditInquiryFormSchemaInterface } from '../../interface/interface';
 import {
   Column,
   FilterObjectInterface,
@@ -34,104 +46,100 @@ import {
   SearchBarFilterOptionsInterface,
   UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
-import { handelGeneratingDynamicClientColumn } from './ClientInquiryHelper';
+
+const DeleteModal = React.lazy(
+  () => import('../../Components/Modal/DeleteModal')
+);
+
+const initialMetadata: MetaDataInterface = {
+  total_data: 0,
+  total_pages: 1,
+  current_page: 1,
+  record_per_page: 10,
+};
 
 function ClientInquiry() {
-  const { handelNotification } = useContext(
-    NotificationContext
-  ) as NotificationContextApiProps;
-
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
 
-  const inquiryFormUseEffectRef = useRef(false);
-  const useEffectRef = useRef(false);
-
-  const [queryParameter] = useSearchParams();
-  const navigate = useNavigate();
-
-  // Defining The Required State
-  const [isInitialFetching, setIsInitialFetching] = useState<boolean>(true);
-  const [isFetchingData, setIsFetchingData] = useState<boolean>(false);
-  const [data, setData] = useState([]);
-  const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
-  const [selectedPage, setSelectedPage] = useState<number>(1);
-  const [metaData, setMetaData] = useState<MetaDataInterface>(initialMetadata);
-  const [clientFormSchema, setClientFormSchema] = useState<
-    ClientInquiryFormSchemaInterface[]
-  >([]);
-  const [clientInquiryFiltersArray, setClientInquiryFiltersArray] = useState<
-    SearchBarFilterOptionsInterface[]
-  >([]);
-  const [inquiryFormData, setInquiryFormData] = useState<
-    Array<AddEditInquiryFormSchemaInterface>
-  >([]);
-  const [selectedInquiryForm, setSelectedInquiryForm] = useState<{
-    id: string;
-    formId: string;
-  }>({ id: '', formId: '' });
-  const [urlDecodedFilterQuery, setUrlDecodedFilterQuery] = useState<
-    UrlEncodedFilterQueryInterface[]
-  >([]);
+  const { handelNotification } = useContext(
+    NotificationContext
+  ) as NotificationContextApiProps;
 
   const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
     GlobalStateProvider?.organization?.general_info?.portal_slug ||
     JSON.parse(localStorageData)?.portal_slug;
 
-  const BreadcrumbsObjects = AddEditInquiryFormSchemaBreadcrumbs(organization);
+  const BreadcrumbsObjects = [
+    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
+    {
+      name: 'Client Inquiry',
+      label: 'client-inquiry',
+      link: `/${organization}/client-inquiry`,
+    },
+  ];
+
+  const useEffectRef = useRef(false);
+
+  const navigate = useNavigate();
+
+  const [queryParameter] = useSearchParams();
+
+  const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
+  const [selectedPage, setSelectedPage] = useState<number>(1);
+  const [metaData, setMetaData] = useState<MetaDataInterface>(initialMetadata);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [loadingClientData, setLoadingClientData] = useState(true);
+  const [data, setData] = useState([]);
+  const [isFetchingData, setIsFetchingData] = useState<boolean>(false);
+  const [clientFormSchema, setClientFormSchema] = useState<
+    ClientInquiryFormSchemaInterface[]
+  >([]);
+  const [isDeletingClientInquiry, setIsDeletingClientInquiry] =
+    useState<boolean>(false);
+  const [deleteClientInquiryId, setDeleteClientInquiryId] =
+    useState<string>('');
+
+  const [clientInquiryData, setClientInquiryData] = useState<any>({});
+  const [showClientInquiryDetail, setShowClientInquiryDetail] =
+    useState<boolean>(false);
+
+  const [urlDecodedFilterQuery, setUrlDecodedFilterQuery] = useState<
+    UrlEncodedFilterQueryInterface[]
+  >([]);
+
+  const [clientInquiryFiltersArray, setClientInquiryFiltersArray] = useState<
+    SearchBarFilterOptionsInterface[]
+  >([]);
 
   const [columns, setColumns] = useState<Column[]>([
-    {
-      key: 'form_id',
-      title: 'Form Id',
-      isSortable: true,
-      isSticky: false,
-      canToggleVisibility: true,
-      renderContent: (data: string) => (
-        <span className='w-fit font-inter text-sm font-medium inline-block'>
-          {data || '-'}
-        </span>
-      ),
-    },
-    {
-      key: 'form_name',
-      title: 'Form Name',
-      isSortable: true,
-      isSticky: false,
-      canToggleVisibility: true,
-      renderContent: (data: string) => (
-        <span className='w-fit font-inter text-sm font-medium inline-block'>
-          {data || '-'}
-        </span>
-      ),
-    },
     {
       key: 'action',
       title: 'Action',
       isSortable: false,
       isSticky: true,
       canToggleVisibility: true,
-      renderContent: () => {
+      renderContent: (data) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
             <button
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
               data-tooltip-id='client_inquiry_view_button'
               data-tooltip-content='View Inquiry'
-              // onClick={() => handelClickOnViewInquiryButton(data)}
+              onClick={() => handelClickOnViewInquiryButton(data)}
             >
               <IoEye className='text-[22px]' />
             </button>
-            {/* <button
+            <button
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
               data-tooltip-id='client_inquiry_view_button'
               data-tooltip-content='Delete Inquiry'
               onClick={() => handelClickOnDeleteButton(data)}
             >
               <MdDelete className='text-[22px]' />
-            </button> */}
+            </button>
             <Tooltip
               id='client_inquiry_view_button'
               opacity={'100'}
@@ -150,11 +158,20 @@ function ClientInquiry() {
       },
     },
   ]);
+
+  const handelClickOnViewInquiryButton = (data: any) => {
+    setShowClientInquiryDetail(true);
+    setClientInquiryData(data);
+  };
+  const handelClickOnDeleteButton = (data: any) => {
+    setDeleteClientInquiryId(data?.id);
+    setShowDeleteModal(true);
+  };
+
   const fetchClientFormSchema = async () => {
-    const id = queryParameter.get('id');
     const endPointArr: endpointObject[] = [
       {
-        endPoint: `config/inquiry_form_fields/fetch?form_schema_id=${selectedInquiryForm?.id || id}`,
+        endPoint: 'config/client_form_schema/fetch',
         protected: true,
       },
     ];
@@ -165,21 +182,102 @@ function ClientInquiry() {
     if (res?.success) return { success: true, data: res?.data };
     return { success: false, data: [] };
   };
+
+  const handelGeneratingDynamicClientColumn = (
+    columnData: ClientInquiryFormSchemaInterface[]
+  ) => {
+    const columnsArray: Array<Column> = [];
+
+    const clientFilterArray: SearchBarFilterOptionsInterface[] = [];
+
+    columnData?.map((data: ClientInquiryFormSchemaInterface) => {
+      if (['string', 'number'].includes(data?.type)) {
+        const columnObject: Column = {
+          key: data?.field_name,
+          title: data?.field_name
+            ?.replace(/_/g, ' ')
+            ?.split(' ')
+            .map(
+              (item) =>
+                item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
+            )
+            ?.join(' '),
+          isSortable: true,
+          isSticky: false,
+          canToggleVisibility: true,
+          renderContent: (data: any) => (
+            <div className='w-fit'>
+              <span className='font-inter text-sm font-medium text-nowrap text-black'>
+                {data || <span>-</span>}
+              </span>
+            </div>
+          ),
+        };
+        columnsArray.push(columnObject);
+      }
+      if (['string', 'number', 'boolean'].includes(data?.type)) {
+        const FilterObject: SearchBarFilterOptionsInterface = {
+          id: data?.field_name,
+          value: data?.field_name
+            ?.replace(/_/g, ' ')
+            ?.split(' ')
+            .map(
+              (item) =>
+                item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
+            )
+            ?.join(' '),
+          label: (
+            <div className='flex items-start'>
+              <span className='icon-mail-05 text-gray-600 text-lg pe-2' />
+              <span>
+                {data?.field_name
+                  ?.replace(/_/g, ' ')
+                  ?.split(' ')
+                  .map(
+                    (item) =>
+                      item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()
+                  )
+                  ?.join(' ')}
+              </span>
+            </div>
+          ),
+          optionType: data?.type == 'boolean' ? 'select' : 'text',
+          operator:
+            data?.type == 'boolean'
+              ? [Is]
+              : [Equals, Contains, StartsWith, EndsWith],
+          options:
+            data?.type == 'boolean'
+              ? [
+                  {
+                    label: 'active',
+                    value: 'Active',
+                    type: FilterFieldsTypeEnums[2],
+                  },
+                  {
+                    label: 'inactive',
+                    value: 'Inactive',
+                    type: FilterFieldsTypeEnums[2],
+                  },
+                ]
+              : [], // No options for text filters
+        };
+        clientFilterArray.push(FilterObject);
+      }
+    });
+
+    setColumns((perValue) => [...columnsArray, ...perValue]);
+    setClientInquiryFiltersArray(clientFilterArray);
+  };
+
   const fetchAllClientInquiryWithDebounce = useDebounce(
-    async (
-      queryString: string,
-      page: number = 1,
-      limit: number = 10,
-      form_id: string
-    ) => {
-      const filter_form_id = queryParameter.get('form-id');
-      const formId = form_id || filter_form_id || selectedInquiryForm?.formId;
+    async (queryString: string, page: number = 1, limit: number = 10) => {
       const endPointArr: endpointObject[] = [
         {
           endPoint:
             queryString == undefined || queryString?.trim() == ''
-              ? `client-inquires/fetch?page=${page}&limit=${limit}&form_id=${formId}`
-              : `client-inquires/fetch?page=${page}&limit=${limit}&${queryString}&form_id=${formId}`,
+              ? `client-inquires/fetch?page=${page}&limit=${limit}`
+              : `client-inquires/fetch?page=${page}&limit=${limit}&${queryString}`,
           protected: true,
         },
       ];
@@ -192,11 +290,7 @@ function ClientInquiry() {
         const data = await fetchClientFormSchema();
         if (data?.success) {
           setClientFormSchema(data?.data);
-          handelGeneratingDynamicClientColumn(
-            data?.data,
-            setClientInquiryFiltersArray,
-            setColumns
-          );
+          handelGeneratingDynamicClientColumn(data?.data);
         } else {
           handelNotification(res, 'top-right');
         }
@@ -212,92 +306,76 @@ function ClientInquiry() {
       }
 
       setIsFetchingData(false);
-      setIsInitialFetching(false);
+      setLoadingClientData(false);
     },
     100
   );
 
-  const fetchClientFormFieldsWithDebounce = useDebounce(async () => {
-    const endPointArr: Array<endpointObject> = [
-      {
-        endPoint: `config/inquiry_form_schema/fetch`,
-
-        protected: true,
-      },
-    ];
-
-    const response = await multipleFetchApi(endPointArr);
-
-    const res = response[0];
-
-    if (res?.success) {
-      setInquiryFormData(res?.data);
-      const filter_form_id = queryParameter.get('form-id');
-      const id = queryParameter.get('id');
-      if (filter_form_id && id) {
-        setSelectedInquiryForm({ id: id, formId: filter_form_id });
-      } else {
-        setSelectedInquiryForm({
-          id: res?.data[0].id,
-          formId: res?.data[0].form_id,
-        });
-        navigate(
-          `/${organization}/client-inquiry?form-id=${res?.data[0].form_id}&id=${res?.data[0].id}`
-        );
-      }
-    } else {
-      handelNotification(res, 'top-right');
-    }
-    setIsInitialFetching(false);
-    setIsFetchingData(false);
-  }, 50);
-
-  const handleClickOnInquiryFormId = (data: string | object) => {
+  const handelClickOnRecordPerPage = (value: string | number) => {
     setIsFetchingData(true);
-    if (typeof data !== 'object') return;
+    setRecordsPerPage(value);
+    const filterQuery = queryParameter.get('filter');
+    let queryString = '';
+    if (filterQuery) {
+      const decodeQuery = decodeURIComponent(filterQuery);
+      const parsedFilter = JSON.parse(decodeQuery);
+      queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
+    }
 
-    const FormId = (data as Record<string, string>)['form_id'];
-    const id = (data as Record<string, string>)['id'];
+    fetchAllClientInquiryWithDebounce(queryString, 1, value);
+  };
 
-    setSelectedInquiryForm({ id: id, formId: FormId });
-
-    const formQuery = `form-id=${FormId}&id=${id}`;
-
-    setTimeout(() => {
-      navigate(`/${organization}/client-inquiry?${formQuery}`);
-    }, 0);
+  const handelClickOnPaginationButtons = (value: number) => {
+    setIsFetchingData(true);
+    setSelectedPage(value);
 
     const filterQuery = queryParameter.get('filter');
     let queryString = '';
     if (filterQuery) {
       const decodeQuery = decodeURIComponent(filterQuery);
       const parsedFilter = JSON.parse(decodeQuery);
-
-      setUrlDecodedFilterQuery(parsedFilter);
       queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
     }
 
-    fetchAllClientInquiryWithDebounce(queryString, 1, recordsPerPage, FormId);
+    fetchAllClientInquiryWithDebounce(queryString, value, recordsPerPage);
   };
 
-  const InquiryFormsSearchDrop = (
-    data: AddEditInquiryFormSchemaInterface[]
-  ) => {
-    return (
-      <div className='flex items-center justify-end gap-2'>
-        <p className='text-base font-inter font-medium text-black text-nowrap'>
-          Selected Form ID:
-        </p>
-        <SearchDrop
-          options={data}
-          searchKey='form_id'
-          selectedValue={selectedInquiryForm.formId}
-          onSelectValBtn={handleClickOnInquiryFormId}
-          position='bottom'
-          emptyDataMessage={'No Option'}
-        />
-      </div>
-    );
+  const handelDeleteClientInquiryWithDebounce = useDebounce(async () => {
+    const endPointArr: endpointObject[] = [
+      {
+        endPoint: `client-inquires/delete-inquire?id=${deleteClientInquiryId}`,
+        protected: true,
+      },
+    ];
+
+    const response = await multipleDeleteApi(endPointArr);
+
+    const res = response[0];
+
+    if (res?.success) {
+      setIsDeletingClientInquiry(false);
+      setShowDeleteModal(false);
+      setLoadingClientData(true);
+      const filterQuery = queryParameter.get('filter');
+      let queryString = '';
+      if (filterQuery) {
+        const decodeQuery = decodeURIComponent(filterQuery);
+        const parsedFilter = JSON.parse(decodeQuery);
+
+        setUrlDecodedFilterQuery(parsedFilter);
+        queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
+      }
+      fetchAllClientInquiryWithDebounce(queryString, 1, recordsPerPage);
+    } else {
+      setIsDeletingClientInquiry(false);
+      handelNotification(res, 'top-right');
+      setShowDeleteModal(false);
+    }
+  }, 100);
+
+  const handelDelete = () => {
+    setIsDeletingClientInquiry(true);
+    handelDeleteClientInquiryWithDebounce();
   };
 
   const handelApplyFilterClientInquiry = async (
@@ -332,65 +410,13 @@ function ClientInquiry() {
     // First update the state and fetch data
     await fetchAllClientInquiryWithDebounce(queryString);
 
-    const filter_form_id = queryParameter.get('form-id');
-    const id = queryParameter.get('id');
-    const formQuery = `form-id=${filter_form_id || selectedInquiryForm?.formId}&id=${id || selectedInquiryForm?.id}`;
-
     // Then navigate after the state updates are complete
     setTimeout(() => {
-      navigate(`/${organization}/client-inquiry?${queryString}&${formQuery}`);
+      navigate(`/${organization}/client-inquiry?${queryString}`);
     }, 0);
   };
 
-  const handelClickOnRecordPerPage = (value: string | number) => {
-    setIsFetchingData(true);
-    setRecordsPerPage(value);
-
-    const filter_form_id = queryParameter.get('form-id');
-    const formId = filter_form_id || selectedInquiryForm?.formId;
-
-    const filterQuery = queryParameter.get('filter');
-    let queryString = '';
-    if (filterQuery) {
-      const decodeQuery = decodeURIComponent(filterQuery);
-      const parsedFilter = JSON.parse(decodeQuery);
-      queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
-    }
-
-    fetchAllClientInquiryWithDebounce(queryString, 1, value, formId);
-  };
-
-  const handelClickOnPaginationButtons = (value: number) => {
-    setIsFetchingData(true);
-    setSelectedPage(value);
-
-    const filter_form_id = queryParameter.get('form-id');
-    const formId = filter_form_id || selectedInquiryForm?.formId;
-
-    const filterQuery = queryParameter.get('filter');
-    let queryString = '';
-    if (filterQuery) {
-      const decodeQuery = decodeURIComponent(filterQuery);
-      const parsedFilter = JSON.parse(decodeQuery);
-      queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
-    }
-
-    fetchAllClientInquiryWithDebounce(
-      queryString,
-      value,
-      recordsPerPage,
-      formId
-    );
-  };
-
   useEffect(() => {
-    if (inquiryFormUseEffectRef.current) return;
-    inquiryFormUseEffectRef.current = true;
-    fetchClientFormFieldsWithDebounce();
-  }, []);
-
-  useEffect(() => {
-    if (inquiryFormData?.length == 0) return;
     if (useEffectRef.current) return;
     useEffectRef.current = true;
 
@@ -405,39 +431,32 @@ function ClientInquiry() {
     }
 
     fetchAllClientInquiryWithDebounce(queryString);
-  }, [
-    fetchAllClientInquiryWithDebounce,
-    queryParameter,
-    selectedInquiryForm,
-    inquiryFormData,
-  ]);
+  }, [fetchAllClientInquiryWithDebounce, queryParameter]);
 
   return (
     <>
-      <div className='w-full h-full relative'>
+      <HelmetSeo Title='Client Inquires | OrbitRMS' />
+      <div className='relative w-full h-full'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>
-          <div className='w-full h-full p-4 2xl:p-5'>
-            {isInitialFetching ? (
-              <div className='w-full h-full overflow-hidden'>
-                <TableSkeletonLoader
-                  tableHeaderCount={5}
-                  tableValueCount={13}
-                  maxHeight='calc(-350px + 100vh)'
-                />
-              </div>
+          <div className='w-full h-full p-6'>
+            {loadingClientData ? (
+              <TableSkeletonLoader
+                tableHeaderCount={5}
+                tableValueCount={10}
+                maxHeight='calc(-350px + 100vh)'
+              />
             ) : (
-              <>
+              <div className='w-full h-full'>
                 <TableInfoHeader
                   moduleName='Client Inquiry'
                   badgeValue={`${(metaData?.current_page - 1) * Number(metaData?.record_per_page) + 1} - ${Math.min(metaData?.current_page * metaData?.record_per_page, metaData?.total_data)} of  ${metaData?.total_data}  Inquiry`}
-                  buttonsArray={[]}
-                  renderElement={InquiryFormsSearchDrop(inquiryFormData)}
+                  loading={isFetchingData}
                 />
                 <TableFilterSearchBar
                   filterColumnsArray={clientInquiryFiltersArray}
                   handelApplyFilterFunc={handelApplyFilterClientInquiry}
-                  urlDecodedFilterQuery={urlDecodedFilterQuery || ''}
+                  urlDecodedFilterQuery={urlDecodedFilterQuery}
                 />
                 {isFetchingData ? (
                   <TableSkeletonLoader
@@ -451,7 +470,6 @@ function ClientInquiry() {
                   <>
                     {data?.length > 0 ? (
                       <>
-                        {' '}
                         <Table
                           columns={columns}
                           data={data}
@@ -472,30 +490,34 @@ function ClientInquiry() {
                     ) : (
                       <TableNoDataFound
                         tableWrapperClass={
-                          'max-h-[calc(100%-140px)] rounded-b-lg'
+                          'max-h-[calc(100%-150px)] rounded-b-lg'
                         }
-                        notFoundTitle={'No Employees Found'}
+                        notFoundTitle={'No Inquiry Found'}
                         notFoundMessage={
-                          'No matching employee found. Try refining your search or add a new employee.'
+                          'We couldn’t find any inquiries that match your criteria. Please try adjusting your filters or search terms.'
                         }
                         notFoundOptionsButtonsArray={[]}
                       />
                     )}
                   </>
                 )}
-              </>
+              </div>
             )}
           </div>
         </div>
       </div>
-
-      {/* <DeleteModal
-        loading={isDeleteLoading}
+      <DeleteModal
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
-        handelDelete={handelDeleteItem}
-        name='Form Field'
-      /> */}
+        handelDelete={handelDelete}
+        loading={isDeletingClientInquiry}
+        name='Inquiry'
+      />
+      <ClientInquirySliderModal
+        clientInquiryData={clientInquiryData}
+        showClientInquiryDetail={showClientInquiryDetail}
+        setShowClientInquiryDetail={setShowClientInquiryDetail}
+      />
     </>
   );
 }

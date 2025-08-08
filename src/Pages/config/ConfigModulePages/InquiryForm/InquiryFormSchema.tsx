@@ -1,45 +1,54 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import { IoEye } from 'react-icons/io5';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
+import { Link } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
-import Breadcrumbs from '../../../common/Breadcrumbs';
-import Table from '../../../common/Table/Table';
-import TableInfoHeader from '../../../common/Table/TableInfoHeader';
-import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
-import TableNoDataFound from '../../../common/Table/TableNoDataFound';
-import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
+import Breadcrumbs from '../../../../common/Breadcrumbs';
+import Table from '../../../../common/Table/Table';
+import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
+import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
+import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
+import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
+import {
+  AddEditInquiryFormSchemaBreadcrumbs,
+  AddEditInquiryFormSchemaInitialForm,
+} from '../../../../constant/ConfigModuleConstant';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
-} from '../../../Context/globalState/GlobalStateContectApi';
+} from '../../../../Context/globalState/GlobalStateContectApi';
 import {
   NotificationContext,
   NotificationContextApiProps,
-} from '../../../Context/Notification/NotificationContextApi';
+} from '../../../../Context/Notification/NotificationContextApi';
 import {
   endpointObject,
   multipleDeleteApi,
   multipleFetchApi,
   multiplePostApi,
-} from '../../../Helper/api/multipleAPI';
+} from '../../../../Helper/api/multipleAPI';
 import {
   formateDate,
   getDataFromLocalStorage,
-} from '../../../Helper/HelperFunctions';
-import { useDebounce } from '../../../Hooks/useDebounce';
-import { DesignationConfig } from '../../../interface/interface';
+} from '../../../../Helper/HelperFunctions';
+import { useDebounce } from '../../../../Hooks/useDebounce';
+import {
+  AddEditInquiryFormSchemaInterface,
+  DesignationConfig,
+} from '../../../../interface/interface';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
-} from '../../../interface/propsInterface';
+} from '../../../../interface/propsInterface';
+import AddEditInquiryFormSchema from './AddEditInquiryFormSchema';
 
-const AddModal = React.lazy(() => import('../../../Components/Modal/AddModal'));
 const DeleteModal = React.lazy(
-  () => import('../../../Components/Modal/DeleteModal')
+  () => import('../../../../Components/Modal/DeleteModal')
 );
 
-function ClientFormSchema() {
+function InquiryFormSchema() {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
@@ -49,9 +58,11 @@ function ClientFormSchema() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [modalType, setModalType] = useState<'add' | 'edit'>('add');
-  const [editId, setEditId] = useState<string>('');
+
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
-  const [value, setValue] = useState<string>('');
+  const [formData, setFormData] = useState<AddEditInquiryFormSchemaInterface>(
+    AddEditInquiryFormSchemaInitialForm
+  );
   const [data, setData] = useState<Array<DesignationConfig>>([]);
   const [filterData, setFilterData] = useState<Array<DesignationConfig>>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
@@ -60,22 +71,15 @@ function ClientFormSchema() {
   const [deleteItemId, setDeleteItemId] = useState<string>('');
   const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
 
-  const [fieldType, setFieldType] = useState<string>('');
-  const [isRequiredField, setIsRequiredField] = useState<string>('');
-
   const handelShowModal = () => {
     setModalType('add');
-    setEditId('');
     setShowModal(!showModal);
   };
 
-  const handelEditButtonClick = (data: any) => {
+  const handelEditButtonClick = (data: AddEditInquiryFormSchemaInterface) => {
     setModalType('edit');
     setShowModal(!showModal);
-    setValue(data?.field_name);
-    setFieldType(data?.type);
-    setIsRequiredField(data?.is_required_field ? 'true' : 'false');
-    setEditId(data?.id);
+    setFormData(data);
   };
 
   const { GlobalStateProvider } = useContext(
@@ -87,24 +91,12 @@ function ClientFormSchema() {
     GlobalStateProvider?.organization?.general_info?.portal_slug ||
     JSON.parse(localStorageData)?.portal_slug;
 
-  const BreadcrumbsObjects = [
-    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
-    {
-      name: 'Config',
-      label: 'config-module',
-      link: `${organization}/config/project-status`,
-    },
-    {
-      name: 'Client Form Fields',
-      label: 'client-form-field',
-      link: `/${organization}/config/client-form`,
-    },
-  ];
+  const BreadcrumbsObjects = AddEditInquiryFormSchemaBreadcrumbs(organization);
 
   const fetchClientFormFieldsWithDebounce = useDebounce(async () => {
     const endPointArr: Array<endpointObject> = [
       {
-        endPoint: 'config/client_form_schema/fetch',
+        endPoint: 'config/inquiry_form_schema/fetch',
         protected: true,
       },
     ];
@@ -131,64 +123,60 @@ function ClientFormSchema() {
 
   const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
     {
-      buttonTitle: 'Add Form Field',
+      buttonTitle: 'Add Form',
       classNames:
         'font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg',
       onclickFunction: handelShowModal,
     },
   ];
 
-  const handelFormSubmitWithDebounce = useDebounce(async (value: string) => {
-    let endPoint = `config/client_form_schema/add-edit`;
+  const handelFormSubmitWithDebounce = useDebounce(
+    async (data: AddEditInquiryFormSchemaInterface) => {
+      let endPoint = `config/inquiry_form_schema/add-edit`;
 
-    if (modalType === 'edit') {
-      endPoint += `?type=edit&id=${editId}`;
-    } else {
-      endPoint += `?type=add`;
-    }
+      if (modalType === 'edit') {
+        endPoint += `?type=edit&id=${formData?.id}`;
+      } else {
+        endPoint += `?type=add`;
+      }
 
-    const data = {
-      field_name: value,
-      is_required_field:
-        isRequiredField.toLocaleLowerCase() == 'true' ? true : false,
-      type: fieldType,
-    };
+      const endPointArr: Array<endpointObject> = [
+        {
+          endPoint: endPoint,
+          protected: true,
+          data,
+        },
+      ];
 
-    const endPointArr: Array<endpointObject> = [
-      {
-        endPoint: endPoint,
-        protected: true,
-        data,
-      },
-    ];
+      const response = await multiplePostApi(endPointArr);
+      const res = response[0];
+      if (res?.success) {
+        setLoading(false);
+        setShowModal(false);
+        setIsFetchingData(true);
+        handelNotification(res, 'top-right');
+        fetchClientFormFields();
+        setFormData(AddEditInquiryFormSchemaInitialForm);
+      } else {
+        setLoading(false);
+        handelNotification(res, 'top-right');
+      }
+    },
+    200
+  );
 
-    const response = await multiplePostApi(endPointArr);
-    const res = response[0];
-    if (res?.success) {
-      setLoading(false);
-      setShowModal(false);
-      setIsFetchingData(true);
-      handelNotification(res, 'top-right');
-      fetchClientFormFields();
-      setValue('');
-      setIsRequiredField('');
-      setFieldType('');
-    } else {
-      setLoading(false);
-      handelNotification(res, 'top-right');
-    }
-  }, 200);
-
-  const handelFormSubmitFunction = (value: string) => {
+  const handelFormSubmitFunction = (
+    data: AddEditInquiryFormSchemaInterface
+  ) => {
     setLoading(true);
-    handelFormSubmitWithDebounce(value);
+    handelFormSubmitWithDebounce(data);
   };
 
   const handelDeleteItemWithDebounce = useDebounce(async () => {
     try {
       const response = await multipleDeleteApi([
         {
-          endPoint: `config/client_form_schema/delete?id=${deleteItemId}`,
+          endPoint: `config/inquiry_form_schema/delete?id=${deleteItemId}`,
           protected: true,
         },
       ]);
@@ -219,45 +207,62 @@ function ClientFormSchema() {
 
   const columns: Array<Column> = [
     {
-      key: 'field_name',
-      title: 'Field Name',
+      key: 'form_id',
+      title: 'Form Id',
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any) => (
+      renderContent: (data: string) => (
         <span className='w-fit font-inter text-sm font-medium inline-block'>
-          {data}
+          {data || '-'}
         </span>
       ),
     },
     {
-      key: 'type',
-      title: 'Field Type',
+      key: 'form_name',
+      title: 'Form Name',
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any) => (
+      renderContent: (data: string) => (
         <span className='w-fit font-inter text-sm font-medium inline-block'>
-          {data}
+          {data || '-'}
         </span>
       ),
     },
     {
-      key: 'is_required_field',
-      title: 'Required',
+      key: 'description',
+      title: 'Description',
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any) =>
-        data ? (
-          <span className='px-3 py-1 rounded-full text-sm bg-green-100 text-green-700 font-medium border border-green-500'>
-            Required
+      renderContent: (data: string) => (
+        <div className='line-clamp-4 overflow-hidden min-w-[250px] text-ellipsis'>
+          <span className='w-fit font-inter text-sm font-medium inline-block'>
+            {data || '-'}
           </span>
-        ) : (
-          <span className='px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700 font-medium border border-gray-500'>
-            Optional
-          </span>
-        ),
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      isSortable: true,
+      isSticky: false,
+      canToggleVisibility: true,
+      renderContent: (data: boolean) => (
+        <div className='w-full'>
+          {data ? (
+            <span className='text-xs font-medium font-inter bg-green-100 text-green-700 border border-green-500 px-4 py-1.5 rounded-full'>
+              Active
+            </span>
+          ) : (
+            <span className='text-xs font-medium font-inter bg-red-100 text-red-700 border border-red-500 px-4 py-1.5 rounded-full'>
+              Inactive
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       key: 'created_by',
@@ -324,7 +329,7 @@ function ClientFormSchema() {
       isSortable: false,
       isSticky: true,
       canToggleVisibility: true,
-      renderContent: (data: any) => {
+      renderContent: (data: AddEditInquiryFormSchemaInterface) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
             <button
@@ -335,6 +340,14 @@ function ClientFormSchema() {
             >
               <MdModeEdit className='text-[22px]' />
             </button>
+            <Link
+              to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/config/inquiry-forms/${data?.id}/fields`}
+              className='text-black/80 p-1.5'
+              data-tooltip-id='project_status_edit_button'
+              data-tooltip-content='Edit'
+            >
+              <IoEye className='text-[22px]' />
+            </Link>
             <button
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
               data-tooltip-id='project_status_delete_button'
@@ -390,7 +403,7 @@ function ClientFormSchema() {
             ) : (
               <>
                 <TableInfoHeader
-                  moduleName='Client Form Fields'
+                  moduleName='Inquiry Forms'
                   badgeValue={
                     showSearchFilterData
                       ? filterData.length?.toString()
@@ -401,7 +414,7 @@ function ClientFormSchema() {
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
                   data={data}
-                  search_key='designations_name'
+                  search_key='form_id'
                   setData={setFilterData}
                 />
                 {(data?.length > 0 && !showSearchFilterData) ||
@@ -425,7 +438,7 @@ function ClientFormSchema() {
                     notFoundMessage={
                       showSearchFilterData
                         ? 'No matching Form Field found. Try refining your search or adding a new Form Field.'
-                        : 'Add Form Field manually by clicking Add Form Field button.'
+                        : 'Add Form manually by clicking Add Form button.'
                     }
                     notFoundOptionsButtonsArray={
                       showSearchFilterData ? [] : optionsButtonArray
@@ -438,22 +451,15 @@ function ClientFormSchema() {
         </div>
       </div>
 
-      <AddModal
-        modalTitle={modalType == 'add' ? 'Add Form Field' : 'Edit Form Field'}
-        labelFieldName='Field Name'
-        showColorPicker={false}
-        showPreview={false}
+      <AddEditInquiryFormSchema
+        modalTitle={modalType == 'add' ? 'Add Form' : 'Edit Form'}
         showModal={showModal}
         setShowModal={setShowModal}
         loading={loading}
         handelFormSubmitFunction={handelFormSubmitFunction}
-        value={value?.replace(/[\s-]/g, '_')}
-        setValue={setValue}
+        formData={formData}
+        setFormData={setFormData}
         modalType={modalType}
-        fieldType={fieldType}
-        setFieldType={setFieldType}
-        isRequiredField={isRequiredField}
-        setIsRequiredField={setIsRequiredField}
       />
       <DeleteModal
         loading={isDeleteLoading}
@@ -466,4 +472,4 @@ function ClientFormSchema() {
   );
 }
 
-export default ClientFormSchema;
+export default InquiryFormSchema;

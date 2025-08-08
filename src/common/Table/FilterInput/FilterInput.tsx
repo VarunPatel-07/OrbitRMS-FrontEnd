@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { IoClose } from 'react-icons/io5';
 
 import { FilterFieldsTypeEnums } from '../../../enums/enums';
@@ -12,6 +13,7 @@ import {
   SearchBarFilterOptionsInterface,
   UrlEncodedFilterQueryInterface,
 } from '../../../interface/propsInterface';
+import FilterInputDateSelector from './FilterInputHelperFunctions/FilterInputDateSelector';
 import FilterInputMainFilterDropdown from './FilterInputHelperFunctions/FilterInputMainFilterDropdown';
 import FiltersOperatorDropdown from './FilterInputHelperFunctions/FiltersOperatorDropdown';
 import FiltersOptionsDropdown from './FilterInputHelperFunctions/FiltersOptionsDropdown';
@@ -98,43 +100,6 @@ function FilterInput({
     inputFieldRef.current?.blur();
   };
 
-  const handelOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key == 'Enter') {
-      const selectedFilter = filterColumnsArray.find(
-        (val) => val.id === currentFilterId
-      );
-
-      if (selectedFilter?.optionType == 'text') {
-        if (inputValue !== '') {
-          const newObject = {
-            label: 'input_value',
-            value: inputValue.trim(),
-            type: FilterFieldsTypeEnums[2],
-          };
-          updateFilterObject(newObject, currentFilterId, (updatedArray) => {
-            updateFinalFilterQuery(updatedArray);
-            setInputValue('');
-            setSearchInputValue('');
-          });
-        }
-      } else {
-        const isExist = Boolean(
-          filterObject?.find((arrayObj) =>
-            arrayObj.moduleValue?.find(
-              (item) => item?.type === FilterFieldsTypeEnums[2]
-            )
-          )
-        );
-
-        if (isExist) {
-          updateFinalFilterQuery(filterObject);
-          setInputValue('');
-          setSearchInputValue('');
-        }
-      }
-    }
-  };
-
   const handelClickOnDeleteBtn = (data: FilterObjectInterface) => {
     const filterData = selectedFilterObject.filter(
       (item) => item.id != data.id
@@ -166,6 +131,47 @@ function FilterInput({
 
   const handelInputFieldFocus = () => {
     inputFieldRef.current?.focus();
+  };
+
+  const handelSelectedFilterOnClickOfEnter = () => {
+    const selectedFilter = filterColumnsArray.find(
+      (val) => val.id === currentFilterId
+    );
+
+    if (selectedFilter?.optionType == 'text') {
+      if (inputValue !== '') {
+        const newObject = {
+          label: 'input_value',
+          value: inputValue.trim(),
+          type: FilterFieldsTypeEnums[2],
+        };
+        updateFilterObject(newObject, currentFilterId, (updatedArray) => {
+          updateFinalFilterQuery(updatedArray);
+          setInputValue('');
+          setSearchInputValue('');
+        });
+      }
+    } else {
+      const isExist = Boolean(
+        filterObject?.find((arrayObj) =>
+          arrayObj.moduleValue?.find(
+            (item) => item?.type === FilterFieldsTypeEnums[2]
+          )
+        )
+      );
+
+      if (isExist) {
+        updateFinalFilterQuery(filterObject);
+        setInputValue('');
+        setSearchInputValue('');
+      }
+    }
+  };
+
+  const handelOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key == 'Enter') {
+      handelSelectedFilterOnClickOfEnter();
+    }
   };
 
   useEffect(() => {
@@ -256,107 +262,125 @@ function FilterInput({
       );
     };
   }, [showFilterDropDownMenu]);
-  console.log(filterObject);
+
+  const RenderFilterDropDownFunction = () => {
+    return (
+      <div
+        className={classNames('drop-down absolute z-50 top-full mt-1', {
+          'scale-y-0 opacity-0': !showFilterDropDownMenu,
+          'scale-y-100 opacity-100': showFilterDropDownMenu,
+        })}
+      >
+        <div className='flex items-start justify-start gap-2'>
+          {/* Filter Dropdown */}
+          {currentFilterId?.trim() === '' && (
+            <FilterInputMainFilterDropdown
+              currentFilterId={currentFilterId}
+              filterColumnsArray={filterColumnsArray}
+              selectedFilterObject={selectedFilterObject}
+              setCurrentFilterId={setCurrentFilterId}
+              setFilterObject={setFilterObject}
+              setShowCurrentOperatorDropdown={setShowCurrentOperatorDropdown}
+              setShowFilterDropDownMenu={setShowFilterDropDownMenu}
+              showFilterDropDownMenu={showFilterDropDownMenu}
+            />
+          )}
+
+          {/* Operator Dropdown */}
+          {currentFilterId?.trim() !== '' && showCurrentOperatorDropdown && (
+            <FiltersOperatorDropdown
+              currentFilterId={currentFilterId}
+              filterColumnsArray={filterColumnsArray}
+              showCurrentOperatorDropdown={showCurrentOperatorDropdown}
+              updateFilterObject={updateFilterObject}
+              setShowCurrentOperatorDropdown={setShowCurrentOperatorDropdown}
+              setShowCurrentOptionDropdown={setShowCurrentOptionDropdown}
+              handelInputFieldFocus={handelInputFieldFocus}
+              showFilterDropDownMenu={showFilterDropDownMenu}
+            />
+          )}
+
+          {/* Options Dropdown */}
+          {currentFilterId?.trim() !== '' &&
+            (
+              filterColumnsArray?.find((item) => item?.id === currentFilterId)
+                ?.options || []
+            )?.length > 0 && (
+              <FiltersOptionsDropdown
+                currentFilterId={currentFilterId}
+                filterColumnsArray={filterColumnsArray}
+                showCurrentOptionDropdown={showCurrentOptionDropdown}
+                filterObject={filterObject}
+                setShowCurrentOperatorDropdown={setShowCurrentOperatorDropdown}
+                setShowCurrentOptionDropdown={setShowCurrentOptionDropdown}
+                updateFilterObject={updateFilterObject}
+                setFilterObject={setFilterObject}
+                updateFinalFilterQuery={updateFinalFilterQuery}
+                setInputValue={setInputValue}
+                showFilterDropDownMenu={showFilterDropDownMenu}
+                searchInputValue={searchInputValue}
+                enterClickHandler={handelSelectedFilterOnClickOfEnter}
+              />
+            )}
+
+          {currentFilterId?.trim() !== '' &&
+            filterColumnsArray?.find((item) => item?.id === currentFilterId)
+              ?.optionType === 'date' && (
+              <FilterInputDateSelector
+                setShowCurrentOptionDropdown={setShowCurrentOptionDropdown}
+                showCurrentOptionDropdown={showCurrentOptionDropdown}
+                currentFilterId={currentFilterId}
+                filterObject={filterObject}
+                setFilterObject={setFilterObject}
+                updateFilterObject={updateFilterObject}
+                updateFinalFilterQuery={updateFinalFilterQuery}
+                setInputValue={setInputValue}
+              />
+            )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className='w-full relative' ref={boxRef}>
-      <div className='flex items-stretch flex-wrap justify-start rounded-lg relative bg-white pr-7'>
-        {selectedFilterObject.length > 0 && (
-          <FinalFilterRenderHelper
-            filterArray={selectedFilterObject}
-            background='bg-gray-300'
-            handelClickOnDeleteBtn={handelClickOnDeleteBtn}
-          />
-        )}
-        {filterObject.length > 0 && (
-          <FinalFilterRenderHelper filterArray={filterObject} />
-        )}
-        {/* This Section Is Used To Render The InputField With The DropDown Section */}
-        <div
-          className='flex-grow w-fit relative focus:outline-none focus:ring-0'
-          tabIndex={0}
-          ref={filterDropDownInputRef}
-          onKeyDown={handelOnKeyDown}
-        >
-          {/* We Will Render The Input That Handel Multiple Input That Will Handel The Field Like text ,select ,multi-select */}
-          <HandleMultiInputChange
-            filterObject={filterObject}
-            inputFieldRef={inputFieldRef}
-            inputValue={inputValue}
-            selectedFilterObject={selectedFilterObject}
-            setInputValue={setInputValue}
-            setShowFilterDropDownMenu={setShowFilterDropDownMenu}
-            searchInputValue={searchInputValue}
-            setSearchInputValue={setSearchInputValue}
-            optionType={
-              filterColumnsArray?.find((item) => item?.id == currentFilterId)
-                ?.optionType
-            }
-          />
-          <div
-            className={classNames('drop-down absolute z-50 top-full mt-1', {
-              'scale-y-0 opacity-0': !showFilterDropDownMenu,
-              'scale-y-100 opacity-100': showFilterDropDownMenu,
-            })}
-          >
-            <div className='flex items-start justify-start gap-2'>
-              {/* Filter Dropdown */}
-              {currentFilterId?.trim() === '' && (
-                <FilterInputMainFilterDropdown
-                  currentFilterId={currentFilterId}
-                  filterColumnsArray={filterColumnsArray}
-                  selectedFilterObject={selectedFilterObject}
-                  setCurrentFilterId={setCurrentFilterId}
-                  setFilterObject={setFilterObject}
-                  setShowCurrentOperatorDropdown={
-                    setShowCurrentOperatorDropdown
-                  }
-                  setShowFilterDropDownMenu={setShowFilterDropDownMenu}
-                  showFilterDropDownMenu={showFilterDropDownMenu}
-                />
-              )}
+      <div
+        className='rounded-lg relative w-full bg-white pr-7'
+        ref={filterDropDownInputRef}
+        onKeyDown={handelOnKeyDown}
+      >
+        <div className='flex items-stretch flex-nowrap justify-start overflow-auto  hide-scrollbar'>
+          {selectedFilterObject.length > 0 && (
+            <FinalFilterRenderHelper
+              filterArray={selectedFilterObject}
+              background='bg-gray-300'
+              handelClickOnDeleteBtn={handelClickOnDeleteBtn}
+            />
+          )}
+          {filterObject.length > 0 && (
+            <FinalFilterRenderHelper filterArray={filterObject} />
+          )}
 
-              {/* Operator Dropdown */}
-              {currentFilterId?.trim() !== '' &&
-                showCurrentOperatorDropdown && (
-                  <FiltersOperatorDropdown
-                    currentFilterId={currentFilterId}
-                    filterColumnsArray={filterColumnsArray}
-                    showCurrentOperatorDropdown={showCurrentOperatorDropdown}
-                    updateFilterObject={updateFilterObject}
-                    setShowCurrentOperatorDropdown={
-                      setShowCurrentOperatorDropdown
-                    }
-                    setShowCurrentOptionDropdown={setShowCurrentOptionDropdown}
-                    handelInputFieldFocus={handelInputFieldFocus}
-                    showFilterDropDownMenu={showFilterDropDownMenu}
-                  />
-                )}
-              {/* Options Dropdown */}
-              {currentFilterId?.trim() !== '' &&
-                (
-                  filterColumnsArray?.find(
-                    (item) => item?.id == currentFilterId
-                  )?.options || []
-                )?.length > 0 && (
-                  <FiltersOptionsDropdown
-                    currentFilterId={currentFilterId}
-                    filterColumnsArray={filterColumnsArray}
-                    showCurrentOptionDropdown={showCurrentOptionDropdown}
-                    filterObject={filterObject}
-                    setShowCurrentOperatorDropdown={
-                      setShowCurrentOperatorDropdown
-                    }
-                    setShowCurrentOptionDropdown={setShowCurrentOptionDropdown}
-                    updateFilterObject={updateFilterObject}
-                    setFilterObject={setFilterObject}
-                    updateFinalFilterQuery={updateFinalFilterQuery}
-                    setInputValue={setInputValue}
-                    showFilterDropDownMenu={showFilterDropDownMenu}
-                    searchInputValue={searchInputValue}
-                  />
-                )}
-            </div>
+          {/* This Section Is Used To Render The InputField With The DropDown Section */}
+          <div
+            className='flex-grow w-fit relative focus:outline-none focus:ring-0'
+            tabIndex={0}
+          >
+            {/* We Will Render The Input That Handel Multiple Input That Will Handel The Field Like text ,select ,multi-select */}
+            <HandleMultiInputChange
+              filterObject={filterObject}
+              inputFieldRef={inputFieldRef}
+              inputValue={inputValue}
+              selectedFilterObject={selectedFilterObject}
+              setInputValue={setInputValue}
+              setShowFilterDropDownMenu={setShowFilterDropDownMenu}
+              searchInputValue={searchInputValue}
+              setSearchInputValue={setSearchInputValue}
+              optionType={
+                filterColumnsArray?.find((item) => item?.id == currentFilterId)
+                  ?.optionType
+              }
+            />
           </div>
         </div>
 
@@ -371,6 +395,12 @@ function FilterInput({
           </button>
         )}
       </div>
+
+      {filterDropDownInputRef.current &&
+        createPortal(
+          RenderFilterDropDownFunction(),
+          filterDropDownInputRef.current
+        )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import './auth.css';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { BiSupport } from 'react-icons/bi';
 import { BsArrowLeft } from 'react-icons/bs';
 import { FaStarOfLife } from 'react-icons/fa';
@@ -14,7 +14,12 @@ import AlertModal from '../common/AlertModal';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
+import {
+  NotificationContext,
+  NotificationContextApiProps,
+} from '../Context/Notification/NotificationContextApi';
 import { signUpApiFunction, verifyUsersLoginStatus } from '../Helper/api/api';
+import { endpointObject, multiplePostApi } from '../Helper/api/multipleAPI';
 import {
   countryObject,
   fetchFormattedCountryData,
@@ -28,6 +33,7 @@ import {
   isValidEmail,
   verifyPhoneNumberLength,
 } from '../Helper/HelperFunctions';
+import { useDebounce } from '../Hooks/useDebounce';
 import { signUpForm } from '../interface/funcParamInterface';
 
 const initialOrganizationFormInfo = {
@@ -45,6 +51,7 @@ const alertModalErrorButtonArray = [
     classNames:
       'bg-blue-600 text-white text-base w-fit px-16 py-2 font-semibold rounded-lg mx-auto',
     icon: <BiSupport className='text-lg' />,
+    onclickFunction: () => {},
   },
   {
     buttonTitle: 'Back To Sign In',
@@ -53,6 +60,7 @@ const alertModalErrorButtonArray = [
       'text-black text-base w-fit px-16 py-2 font-medium rounded-lg mx-auto',
     icon: <HiOutlineArrowLeft className='text-lg' />,
     link: '/auth/sign-in',
+    onclickFunction: () => {},
   },
 ];
 
@@ -63,6 +71,7 @@ const alertModalSuccessButtonArray = [
     classNames:
       'bg-blue-600 text-white text-base w-fit px-16 py-2 font-semibold rounded-lg mx-auto',
     icon: <GrPowerReset />,
+    onclickFunction: () => {},
   },
   {
     buttonTitle: 'Back To Sign In',
@@ -71,6 +80,7 @@ const alertModalSuccessButtonArray = [
       'text-black text-base w-fit px-16 py-2 font-medium rounded-lg mx-auto',
     icon: <HiOutlineArrowLeft className='text-lg' />,
     link: '/auth/sign-in',
+    onclickFunction: () => {},
   },
 ];
 
@@ -87,6 +97,10 @@ const AuthLottieAnimation = React.lazy(
 );
 
 function SignUp() {
+  const { handelNotification } = useContext(
+    NotificationContext
+  ) as NotificationContextApiProps;
+
   const useEffectRef = useRef(false);
   const CountryDataRef = useRef(false);
   const navigate = useNavigate();
@@ -110,6 +124,7 @@ function SignUp() {
     Array<countryObject>
   >([]);
   const [mobileVerified, setMobileVerified] = useState<boolean>(true);
+  const [resendMailLoader, setResendMailLoader] = useState<boolean>(false);
 
   const handleMoveToNextPage = () => {
     if (formData?.organizationName?.trim() === '') {
@@ -118,6 +133,25 @@ function SignUp() {
       return;
     }
     setCurrentPage(2);
+  };
+
+  const handelReSendMailWithDebounce = useDebounce(async (email: string) => {
+    const endPointArr: endpointObject[] = [
+      {
+        endPoint: 'auth/resend-verification-mail',
+        protected: false,
+        data: { email: email },
+      },
+    ];
+    const response = await multiplePostApi(endPointArr);
+    const res = response[0];
+    setResendMailLoader(false);
+    handelNotification(res, 'top-right');
+  });
+
+  const handelClickOnResendMail = (email: string) => {
+    setResendMailLoader(true);
+    handelReSendMailWithDebounce(email);
   };
 
   const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -155,6 +189,9 @@ function SignUp() {
       );
       if (response) {
         setShowAlertModal(response?.showModal);
+
+        alertModalSuccessButtonArray[0].onclickFunction = () =>
+          handelClickOnResendMail(formData.primaryEmail);
         setAlertModalPropsInfo({
           success: response?.success,
           alertModalTitle: response?.title,
@@ -350,7 +387,7 @@ function SignUp() {
           clearLocalSessionStorage();
         } else {
           navigate(
-            `/${response?.data?.organization?.general_info?.portal_url.split('https://orbitrms.com/')[1]}/config/project-status`
+            `/${response?.data?.organization?.general_info?.portal_slug}/config/project-status`
           );
         }
       } finally {
@@ -504,6 +541,7 @@ function SignUp() {
         ModalInfo={alertModalPropsInfo}
         showAlertModal={showAlertModal}
         setShowAlertModal={setShowAlertModal}
+        loader={resendMailLoader}
       />
     </>
   );

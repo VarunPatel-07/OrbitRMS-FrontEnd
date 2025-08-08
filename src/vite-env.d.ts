@@ -21,3 +21,10 @@ declare module '*.webp' {
   const src: string;
   export default src;
 }
+// vite-env.d.ts
+declare module '*?worker' {
+  const WorkerConstructor: {
+    new (): Worker;
+  };
+  export default WorkerConstructor;
+}

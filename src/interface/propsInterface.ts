@@ -211,6 +211,7 @@ export interface AlertModalProps {
   ModalInfo: ModalInfoType;
   showAlertModal: boolean;
   setShowAlertModal: React.Dispatch<SetStateAction<boolean>>;
+  loader?: boolean;
 }
 
 export interface TableInfoHeaderInterfaceButtonArrayObject {
@@ -227,6 +228,7 @@ export interface TableInfoHeaderInterface {
   year?: number;
   handelYearButton?: (type: 'increment' | 'decrement') => void;
   loading?: boolean;
+  renderElement?: React.ReactElement;
 }
 
 export interface ClonedRolePermissionInterface {
@@ -310,6 +312,7 @@ export interface FiltersOptionsDropdownInterface {
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
   showFilterDropDownMenu: boolean;
   searchInputValue: string;
+  enterClickHandler: () => void;
 }
 
 export interface FilterInputMainFilterDropdownInterface {
@@ -336,4 +339,21 @@ export interface FiltersOperatorDropdownInterface {
   setShowCurrentOptionDropdown: React.Dispatch<React.SetStateAction<boolean>>;
   handelInputFieldFocus: () => void;
   showFilterDropDownMenu: boolean;
+}
+
+export interface FilterInputDateSelectorInterface {
+  showCurrentOptionDropdown: boolean;
+  setShowCurrentOptionDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  currentFilterId: string;
+  filterObject: FilterObjectInterface[];
+  setFilterObject: React.Dispatch<
+    React.SetStateAction<FilterObjectInterface[]>
+  >;
+  updateFilterObject: (
+    newItem: ModuleValueInterface,
+    id: string,
+    callback?: (updatedArray: FilterObjectInterface[]) => void
+  ) => void;
+  updateFinalFilterQuery: (newData: FilterObjectInterface[]) => void;
+  setInputValue: React.Dispatch<React.SetStateAction<string>>;
 }

@@ -7,9 +7,15 @@ import React, {
 } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 
+import MaintenanceWorker from '../worker/MaintenanceWorker?worker';
 import MainSuspenseLoader from './Components/Loader/MainSuspenseLoader';
 import Navbar from './Components/Navbar/Navbar';
 import SideBar from './Components/SideBar/SideBar';
+import {
+  MAINTENANCE_MODE_LOCAL_STORAGE_KEY,
+  MaintenanceModeIsActiveStatusCode,
+  unauthorizedStatusCodes,
+} from './constant/constant';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -23,7 +29,9 @@ import { endpointObject, multiplePostApi } from './Helper/api/multipleAPI';
 import HelmetSeo from './Helper/HelmetSeo';
 import {
   clearLocalSessionStorage,
+  ErrorHandler,
   getDataFromLocalStorage,
+  getDataFromTheSessionStorage,
   storeDataInLocalStorage,
 } from './Helper/HelperFunctions';
 import ProtectedRoute from './Helper/ProtectedRoute';
@@ -37,6 +45,8 @@ import EmployeeListing from './Pages/Employee/EmployeeListing';
 import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile/AddEditEmployeeProfile';
 import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
 import OrganizationSettings from './Pages/OrganizationSettings/OrganizationSettings';
+
+const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 
 export const HandelPathFunction = () => {
   const _data = getDataFromLocalStorage('organization-info');
@@ -98,6 +108,7 @@ function App() {
         handelNotification(response, 'top-right');
         setShowGlobalLoader(false);
         clearLocalSessionStorage();
+        navigate('/auth/sign-in');
       } else {
         setShowGlobalLoader(false);
         const localStorageData = {
@@ -117,6 +128,52 @@ function App() {
         if (response?.data) setGlobalStateProvider(response?.data);
       }
     })();
+  }, []);
+
+  // Now We Will Create An Worker That Will Run After every Time
+
+  useEffect(() => {
+    const _localToken = getDataFromLocalStorage('authenticationToken');
+    const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
+    //   todo we will show the error in the form of the notification
+
+    const authToken = _localToken || _sessionToken;
+
+    if (!authToken) return;
+
+    const worker = new MaintenanceWorker();
+
+    const url = `${BASE_URL}/auth/maintenance/check-maintenance-mode`;
+
+    worker.onmessage = (e) => {
+      const { success, error } = e.data;
+      if (!success) {
+        const status = error?.status;
+
+        const data = ErrorHandler(error);
+        if (unauthorizedStatusCodes.includes(status)) {
+          window.location.href = '/auth/sign-in';
+          return;
+        }
+        if (MaintenanceModeIsActiveStatusCode.includes(status)) {
+          storeDataInLocalStorage(
+            data.data,
+            MAINTENANCE_MODE_LOCAL_STORAGE_KEY
+          );
+          window.location.href = '/maintenance-mode';
+          return;
+        }
+      }
+    };
+    worker.onerror = (err) => {
+      console.error('Worker internal error:', err);
+    };
+
+    worker.postMessage({ url, token: authToken });
+
+    return () => {
+      worker.terminate();
+    };
   }, []);
 
   return (

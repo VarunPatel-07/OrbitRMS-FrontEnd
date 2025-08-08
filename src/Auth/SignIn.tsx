@@ -146,9 +146,18 @@ function SignIn() {
           handelNotification(response, 'top-right');
           clearLocalSessionStorage();
         } else {
-          navigate(
-            `/${response?.data?.organization?.general_info?.portal_slug}/dashboard`
-          );
+          if (
+            response?.data?.organization?.organization_created &&
+            !response?.encrypted_org_id
+          ) {
+            navigate(
+              `/${response?.data?.organization?.general_info?.portal_slug}/dashboard`
+            );
+          } else {
+            navigate(
+              `/onboarding?organization_id=${response?.encrypted_org_id}`
+            );
+          }
         }
       } finally {
         if (document.readyState === 'complete') {

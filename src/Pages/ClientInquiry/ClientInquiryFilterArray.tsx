@@ -1,0 +1,69 @@
+import {
+  Contains,
+  EndsWith,
+  Equals,
+  Is,
+  StartsWith,
+} from '../../constant/FilterOperator';
+import { FilterFieldsTypeEnums } from '../../enums/enums';
+import { SearchBarFilterOptionsInterface } from '../../interface/propsInterface';
+
+export const ClientInquiryFilterArray: SearchBarFilterOptionsInterface[] = [
+  {
+    id: 'form_id',
+    value: 'Form Id',
+    label: (
+      <div className='flex items-start'>
+        <span className='icon-mail-05 text-gray-600 text-sm pe-2' />
+        <span className='font-inter text-base text-black font-medium'>
+          Form Id
+        </span>
+      </div>
+    ),
+    optionType: 'text',
+    operator: [Equals, Contains, StartsWith, EndsWith],
+    options: [], // No options for text filters
+  },
+  {
+    id: 'form_name',
+    value: 'Form Name',
+    label: (
+      <div className='flex items-start'>
+        <span className='icon-user text-gray-600 text-lg pe-2' />
+        <span className='font-inter text-base text-black font-medium'>
+          Form Name
+        </span>
+      </div>
+    ),
+    optionType: 'select',
+    operator: [Equals, Contains, StartsWith, EndsWith],
+    options: [],
+  },
+
+  {
+    id: 'status',
+    value: 'Status',
+    label: (
+      <div className='flex items-start'>
+        <span className='icon-user text-gray-600 text-lg pe-2' />
+        <span className='font-inter text-base text-black font-medium'>
+          Status
+        </span>
+      </div>
+    ),
+    optionType: 'select',
+    operator: [Is],
+    options: [
+      {
+        label: 'active',
+        value: 'Active',
+        type: FilterFieldsTypeEnums[2],
+      },
+      {
+        label: 'inactive',
+        value: 'Inactive',
+        type: FilterFieldsTypeEnums[2],
+      },
+    ], // No options for text filters
+  },
+];

@@ -106,6 +106,7 @@ function ProjectStatus() {
 
       const response = await multiplePostApi(endPointArr);
       const res = response[0];
+      console.log(res);
       if (res?.success) {
         setEditId('');
         setModalType('add');
@@ -121,7 +122,7 @@ function ProjectStatus() {
         handelNotification(res, 'top-right');
       }
     },
-    200
+    100
   );
 
   const handelFormSubmitFunction = (value: string, color?: string) => {
