@@ -45,6 +45,7 @@ import EmployeeListing from './Pages/Employee/EmployeeListing';
 import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile/AddEditEmployeeProfile';
 import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
 import OrganizationSettings from './Pages/OrganizationSettings/OrganizationSettings';
+import SocialMedia from './Pages/SocialMedia/SocialMedia';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 
@@ -234,6 +235,10 @@ function App() {
                     element={
                       <ProtectedRoute element={<OrganizationSettings />} />
                     }
+                  />
+                  <Route
+                    path='/social-media'
+                    element={<ProtectedRoute element={<SocialMedia />} />}
                   />
                   {/* <Route path='*' element={<PageNotFound />} /> */}
                   <Route path='*' element={<HandelPathFunction />} />

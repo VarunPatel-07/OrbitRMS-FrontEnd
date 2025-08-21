@@ -15,14 +15,17 @@ import {
   multipleDeleteApi,
   multipleFetchApi,
   multiplePostApi,
+  multiplePutApi,
 } from '../../Helper/api/multipleAPI';
 import { generateTimeBasedGreeting } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
+import { useMentionSearchDebounce } from '../../Hooks/useMentionSearchDebounce';
 import {
   AddEditPostFormdataInterface,
   FeedPostDataPropsInterface,
 } from '../../interface/Dashboard';
 import { OrganizationHolidays } from '../../interface/OrganizationSettings';
+import { RichTextEditorApiResponseInterface } from '../../interface/propsInterface';
 import DashboardPlayground from './DashboardPlayground';
 import Feed from './Feed';
 
@@ -40,6 +43,7 @@ const initialData: AddEditPostFormdataInterface = {
   isCommentDisabled: false,
   isLikeDisabled: false,
   existing_images: [],
+  likes: [],
 };
 
 function Dashboard() {
@@ -73,6 +77,7 @@ function Dashboard() {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [deletePostId, setDeletePostId] = useState<string>('');
   const [isLoadingHoliday, setIsLoadingHoliday] = useState<boolean>(true);
+  const [likedPosts, setLikedPosts] = useState<string[]>([]);
 
   //
   //
@@ -105,6 +110,120 @@ function Dashboard() {
     setDeletePostId(id);
     setShowDeleteModal(true);
   };
+
+  const handelToggleLikeWithDebounce = useDebounce(async (post_id: string) => {
+    const endPointArr: endpointObject[] = [
+      {
+        endPoint: `feed/like/toggle?post-id=${post_id}`,
+        protected: true,
+      },
+    ];
+    const response = await multiplePutApi(endPointArr);
+    const res = response[0];
+    setIsDeleteLoading(false);
+
+    if (res?.success) {
+      if (res?.data?.liked && res?.data?.action == 'like') {
+        const likedPostArray = [...likedPosts].filter(
+          (item) => item?.trim() !== post_id
+        );
+
+        setLikedPosts(likedPostArray);
+
+        setFeedPostData((pervData) => {
+          return pervData?.map((data) =>
+            data?.id === post_id
+              ? {
+                  ...data,
+                  likes: [
+                    ...data.likes,
+                    GlobalStateProvider?.user?.personal_info?.user_id,
+                  ],
+                }
+              : data
+          );
+        });
+      } else if (!res?.data?.liked && res?.data?.action == 'unlike') {
+        const likedPostArray = [...likedPosts].filter(
+          (item) => item?.trim() !== post_id
+        );
+
+        setLikedPosts(likedPostArray);
+
+        setFeedPostData((pervData) => {
+          return pervData?.map((data) =>
+            data?.id === post_id
+              ? {
+                  ...data,
+                  likes: [...data.likes].filter(
+                    (item) =>
+                      item?.trim() !==
+                      GlobalStateProvider?.user?.personal_info?.user_id
+                  ),
+                }
+              : data
+          );
+        });
+      }
+    } else {
+      handelNotification(res, 'top-right');
+    }
+  }, 100);
+
+  const handelAddCommentWithDebounce = useDebounce(
+    async (post_id: string, data: string, callback: () => void) => {
+      const endPointArr: endpointObject[] = [
+        {
+          endPoint: `feed/comment/toggle?post-id=${post_id}`,
+          protected: true,
+          data: { comment: data },
+        },
+      ];
+      const response = await multiplePutApi(endPointArr);
+      const res = response[0];
+      setIsDeleteLoading(false);
+
+      if (res?.success) {
+        setFeedPostData((pervData) => {
+          return pervData?.map((data) =>
+            data?.id === post_id
+              ? {
+                  ...data,
+                  comments: [
+                    ...data.comments,
+                    {
+                      comment: res?.data?.comment,
+                      id: '',
+                      is_replay: res?.data?.is_replay,
+                      organization_update_id: res?.data?.post_id,
+                      user_id: res?.data?.user_id,
+                    },
+                  ],
+                }
+              : data
+          );
+        });
+      } else {
+        handelNotification(res, 'top-right');
+      }
+      callback();
+    },
+    100
+  );
+
+  const handelClickOnLikeToggle = (post_id: string) => {
+    setLikedPosts((pervData) => [...pervData, post_id]);
+    handelToggleLikeWithDebounce(post_id);
+  };
+
+  const submitCommentOnClick = (
+    post_id: string,
+    data: string,
+    callback: () => void
+  ) => {
+    handelAddCommentWithDebounce(post_id, data, callback);
+  };
+
   //
   //
   // * The Api That Help To Fetch The Post Data
@@ -158,7 +277,40 @@ function Dashboard() {
     }
     setIsLoadingHoliday(false);
   }, 100);
+  const handelApiCallingFunction = useMentionSearchDebounce(
+    async (query: string) => {
+      const response = await multipleFetchApi([
+        {
+          endPoint: `employee/fetch-employee?query=${query}`,
+          protected: true,
+        },
+      ]);
 
+      if (!response[0]?.success) throw new Error('Failed to fetch');
+
+      const data = await response[0]?.data;
+
+      if (data?.length !== 0) {
+        return data.map((item: RichTextEditorApiResponseInterface) => ({
+          id: item.id,
+          label: `${item?.full_name ? item?.full_name : item?.first_name + ' ' + item?.middle_name + ' ' + item?.last_name}`,
+          employeeCode: `(<span className="text-blue-600">${item?.employee_code}</span>)`,
+          success: true,
+        }));
+      } else {
+        return [
+          {
+            id: '',
+            label: '',
+            employeeCode: '',
+            success: false,
+            message: 'No matches found.',
+          },
+        ];
+      }
+    },
+    400
+  );
   //
   //
   //* The Api That Help To Post The Feed As Well As For The Editing
@@ -220,6 +372,7 @@ function Dashboard() {
       isCommentDisabled: feedData?.isCommentDisabled,
       isLikeDisabled: feedData?.isLikeDisabled,
       new_images: [],
+      likes: [],
     });
   };
 
@@ -280,6 +433,9 @@ function Dashboard() {
               loading={feedPostLoader}
               editPostHandler={editPostHandler}
               handelClickOnDeleteButton={handelClickOnDeleteButton}
+              handelClickOnLikeToggle={handelClickOnLikeToggle}
+              likedPosts={likedPosts}
+              submitCommentOnClick={submitCommentOnClick}
             />
           </div>
         </div>
@@ -294,6 +450,7 @@ function Dashboard() {
         loading={formSubmitLoader}
         setLoading={setFormSubmitLoader}
         handelCancelButton={handelCancelButton}
+        handelApiCallingFunction={handelApiCallingFunction}
       />
       <DeleteModal
         loading={isDeleteLoading}

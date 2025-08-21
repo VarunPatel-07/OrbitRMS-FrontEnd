@@ -68,9 +68,24 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
     setFormData(AddEditInquiryFormSchemaInitialForm);
   };
 
+  function formatInput(value: string) {
+    if (!value) return '';
+
+    // Capitalize first letter of each word after space
+    const capitalized = value.replace(/\b\w/g, (char) => char.toUpperCase());
+
+    // Remove spaces and hyphens
+    return capitalized.replace(/[\s-]/g, '');
+  }
+
   const handelOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target;
-    setFormData((pervData) => ({ ...pervData, [name]: value }));
+    if (name === 'form_id') {
+      const newValue = formatInput(value);
+      setFormData((pervData) => ({ ...pervData, form_id: newValue }));
+    } else {
+      setFormData((pervData) => ({ ...pervData, [name]: value }));
+    }
   };
 
   const handelClickOnCheckBox = (value: string) => {

@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { FaProjectDiagram, FaUser } from 'react-icons/fa';
+import { FaHashtag, FaProjectDiagram, FaUser } from 'react-icons/fa';
 import { IoSettings } from 'react-icons/io5';
 import { LuBuilding2 } from 'react-icons/lu';
 import { MdAssignment, MdSpaceDashboard } from 'react-icons/md';
@@ -50,6 +50,16 @@ export const SidebarMenuItems = (
   },
   {
     id: 4,
+    name: 'Social Media',
+    icon: <FaHashtag className='w-5 h-5' />,
+    label: 'data-tooltip-social-media',
+    link: `/${organization}/social-media`,
+    protected: true,
+    showToolTip: true,
+    ToolTipValue: 'Social Media',
+  },
+  {
+    id: 5,
     name: 'Config',
     icon: <IoSettings className='w-6 h-6' />,
     label: 'data-tooltip-settings',
@@ -59,7 +69,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Config',
   },
   {
-    id: 5,
+    id: 6,
     name: 'Api Manager',
     icon: <FaProjectDiagram className='w-6 h-6' />,
     label: 'data-tooltip-api-manager',
@@ -69,7 +79,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Api Manager',
   },
   {
-    id: 6,
+    id: 7,
     name: 'Organization Settings',
     icon: <LuBuilding2 className='w-6 h-6' />,
     label: 'data-tooltip-organization-setting',

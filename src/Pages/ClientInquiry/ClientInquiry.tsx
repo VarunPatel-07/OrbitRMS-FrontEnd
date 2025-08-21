@@ -234,16 +234,18 @@ function ClientInquiry() {
       setInquiryFormData(res?.data);
       const filter_form_id = queryParameter.get('form-id');
       const id = queryParameter.get('id');
-      if (filter_form_id && id) {
-        setSelectedInquiryForm({ id: id, formId: filter_form_id });
-      } else {
-        setSelectedInquiryForm({
-          id: res?.data[0].id,
-          formId: res?.data[0].form_id,
-        });
-        navigate(
-          `/${organization}/client-inquiry?form-id=${res?.data[0].form_id}&id=${res?.data[0].id}`
-        );
+      if (res?.data?.length !== 0) {
+        if (filter_form_id && id) {
+          setSelectedInquiryForm({ id: id, formId: filter_form_id });
+        } else {
+          setSelectedInquiryForm({
+            id: res?.data[0]?.id,
+            formId: res?.data[0]?.form_id,
+          });
+          navigate(
+            `/${organization}/client-inquiry?form-id=${res?.data[0].form_id}&id=${res?.data[0].id}`
+          );
+        }
       }
     } else {
       handelNotification(res, 'top-right');
@@ -430,7 +432,7 @@ function ClientInquiry() {
               <>
                 <TableInfoHeader
                   moduleName='Client Inquiry'
-                  badgeValue={`${(metaData?.current_page - 1) * Number(metaData?.record_per_page) + 1} - ${Math.min(metaData?.current_page * metaData?.record_per_page, metaData?.total_data)} of  ${metaData?.total_data}  Inquiry`}
+                  badgeValue={data?.length === 0 ? `0 Inquiry`:`${(metaData?.current_page - 1) * Number(metaData?.record_per_page) + 1} - ${Math.min(metaData?.current_page * metaData?.record_per_page, metaData?.total_data)} of  ${metaData?.total_data}  Inquiry`}
                   buttonsArray={[]}
                   renderElement={InquiryFormsSearchDrop(inquiryFormData)}
                 />

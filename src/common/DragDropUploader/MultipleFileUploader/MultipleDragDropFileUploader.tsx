@@ -29,6 +29,8 @@ const MultipleDragAndDropFileUploader = React.memo(
       asPlusIcon = false,
       disabled,
       remainingImages,
+      showError,
+      errorMessage,
     } = props as MultipleImageUploaderPropsInterface;
 
     const { handelNotification } = useContext(
@@ -157,12 +159,22 @@ const MultipleDragAndDropFileUploader = React.memo(
                 )
               ) : (
                 <>
-                  <div className='py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]'>
+                  <div
+                    className='py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]'
+                    style={{
+                      border: showError && errorMessage ? '1px solid red' : '',
+                    }}
+                  >
                     <FaCloudUploadAlt className='w-20 h-20 text-indigo-600' />
                     <p className='text-base text-black'>
                       Drag & Drop Files or <span>Browse</span>
                     </p>
                   </div>
+                  {showError && errorMessage && (
+                    <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
+                      {errorMessage}
+                    </span>
+                  )}
                 </>
               )}
             </>

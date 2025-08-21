@@ -5,6 +5,7 @@ import React, { SetStateAction } from 'react';
 import { Editor } from '@tiptap/react';
 
 import { AddEditPostFormdataInterface } from './Dashboard';
+import { RichTextEditorApiCallIngReturnInterface } from './propsInterface';
 import { GlobalContextStore } from './UserProfileInterface';
 
 //? -------------------------- Start Of The Onboarding Form InterFace Utility -------------------------
@@ -244,6 +245,9 @@ export interface AddEditPostModalInterface {
   loading: boolean;
   setLoading: React.Dispatch<SetStateAction<boolean>>;
   handelCancelButton: () => void;
+  handelApiCallingFunction: (
+    query: string
+  ) => Promise<RichTextEditorApiCallIngReturnInterface[]>;
 }
 
 export interface SelectedFileArrayObjInterface {

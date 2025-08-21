@@ -4,6 +4,7 @@ interface ImportMetaEnv {
   readonly VITE_GOOGLE_SAFE_BROWSING_CHECKER_API_KEY: string;
   readonly VITE_ENCRYPTION_KEY: string;
   readonly VITE_ENVIRONMENT: string;
+  readonly META_AUTHENTICATION_BASE_URL: string;
   // add other env vars here
 }
 

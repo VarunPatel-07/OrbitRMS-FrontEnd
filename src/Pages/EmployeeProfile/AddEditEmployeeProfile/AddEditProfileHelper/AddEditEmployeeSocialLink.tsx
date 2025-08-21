@@ -103,8 +103,6 @@ const AddEditEmployeeSocialLink = React.memo(function AddEditEmployeeSocialLink(
     }
   };
 
-  console.log(isEmptySocialLink);
-
   return (
     <div className='w-full bg-white rounded-xl border border-black/15'>
       <div className='flex items-start flex-col justify-start gap-1 p-6 border-b border-b-black/20'>

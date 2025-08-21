@@ -34,6 +34,7 @@
     "cleave.js": "^1.6.0",
     "clsx": "^2.1.1",
     "crypto-js": "^4.2.0",
+    "emoji-picker-react": "^4.13.2",
     "lexical": "^0.33.0",
     "lodash": "^4.17.21",
     "react": "^18.3.1",

@@ -14,12 +14,25 @@ export interface HolidayedPropsInterFace {
   GlobalStateProvider: GlobalContextStore;
 }
 
+export interface OrganizationPostLikesInterface {
+  full_name: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  profile_picture: string;
+  department: string;
+  designation: string;
+  employee_code: string;
+  id: string;
+}
+
 export interface AddEditPostFormdataInterface {
   new_images: SelectedFileArrayObjInterface[];
   description: string;
   isCommentDisabled: boolean;
   isLikeDisabled: boolean;
   existing_images: string[];
+  likes: string[];
 }
 
 export interface FeedPostDataPropsInterface {
@@ -44,15 +57,30 @@ export interface FeedPostDataPropsInterface {
     middle_name: string;
     profile_picture: string;
   };
+  likes: string[];
+  comments: {
+    comment: string;
+    id: string;
+    is_replay: boolean;
+    organization_update_id: string;
+    user_id: string;
+  }[];
 }
 
 export interface OrganizationFeedPropsInterface {
   setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;
   feedPostData: FeedPostDataPropsInterface[];
+  likedPosts: string[];
   GlobalStateProvider: GlobalContextStore;
   loading: boolean;
   editPostHandler: (feedData: FeedPostDataPropsInterface) => void;
   handelClickOnDeleteButton: (id: string) => void;
+  handelClickOnLikeToggle: (post_id: string) => void;
+  submitCommentOnClick: (
+    post_id: string,
+    data: string,
+    callback: () => void
+  ) => void;
 }
 
 export interface EmptyFeedAnimationPropsInterface {

@@ -2,10 +2,10 @@ import React from 'react';
 import { FaFilter } from 'react-icons/fa';
 import { FaPenToSquare } from 'react-icons/fa6';
 
+import EmptyFeedAnimation from '../../Components/Animation/EmptyFeedAnimation';
 import FeedPostCard from '../../Components/FeedPostCard';
 import FeedPostLoader from '../../Components/Loader/FeedPostLoader';
 import { OrganizationFeedPropsInterface } from '../../interface/Dashboard';
-import EmptyFeedAnimation from '../../Components/Animation/EmptyFeedAnimation';
 
 const CTAButton = ({
   setShowAddEditPostModal,
@@ -31,6 +31,9 @@ function Feed(props: OrganizationFeedPropsInterface) {
     loading,
     editPostHandler,
     handelClickOnDeleteButton,
+    handelClickOnLikeToggle,
+    likedPosts,
+    submitCommentOnClick,
   } = props;
   return (
     <div className='w-full bg-white relative flex flex-col items-start justify-start max-h-[calc(100vh-56px)] overflow-auto hide-scrollbar'>
@@ -64,9 +67,12 @@ function Feed(props: OrganizationFeedPropsInterface) {
                     <div key={item?.id} className='w-full'>
                       <FeedPostCard
                         data={item}
+                        likedPosts={likedPosts}
                         GlobalStateProvider={GlobalStateProvider}
                         editPostHandler={editPostHandler}
                         handelClickOnDeleteButton={handelClickOnDeleteButton}
+                        handelClickOnLikeToggle={handelClickOnLikeToggle}
+                        submitCommentOnClick={submitCommentOnClick}
                       />
                     </div>
                   );

@@ -62,6 +62,8 @@ export interface MultipleImageUploaderPropsInterface {
   asPlusIcon?: boolean;
   disabled?: boolean;
   remainingImages?: number;
+  showError?: boolean;
+  errorMessage?: string;
 }
 
 export interface commonDatePickerProps {
@@ -148,9 +150,9 @@ export interface SearchDropProps {
   className?: string;
   labelFieldName?: string;
   isRequiredField?: boolean;
-  selectedValue?: string;
+  selectedValue?: string | string[];
   setSelectedValue?: React.Dispatch<SetStateAction<string>>;
-  onSelectValBtn?: (data: string | object) => void;
+  onSelectValBtn?: (data: string | object, index?: number) => void;
   placeHolderName?: string;
   options: Array<string | object>;
   searchKey: string;
@@ -161,6 +163,7 @@ export interface SearchDropProps {
   showError?: boolean;
   errorMessage?: string;
   disabled?: boolean;
+  type?: 'select' | 'multi-select';
 }
 
 export interface Column {

@@ -120,7 +120,6 @@ export const EmployeeFormValidator = (
     },
   ];
 
-  console.log(userProfileValidation.find((section) => !section.validated()));
   const inValidModule = userProfileValidation.find(
     (section) => !section.validated()
   );
