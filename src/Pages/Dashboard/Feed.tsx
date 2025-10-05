@@ -42,10 +42,7 @@ function Feed(props: OrganizationFeedPropsInterface) {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<'comments' | 'likes'>('likes');
 
-  const handelClickOnLikesComments = (
-    data: FeedPostDataPropsInterface,
-    type: 'comments' | 'likes'
-  ) => {
+  const handelClickOnLikesComments = (data: FeedPostDataPropsInterface) => {
     console.log(data);
     setModalType('comments');
   };
