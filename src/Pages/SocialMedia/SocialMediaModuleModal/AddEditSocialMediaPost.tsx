@@ -142,6 +142,7 @@ const AddEditSocialMediaPost = React.memo(function AddEditSocialMediaPost(
         errorMessage={
           showError && imagesArrayLength == 0 ? 'this is an required field' : ''
         }
+        maxSize={100 * 1024 * 1024}
       />
     );
   };

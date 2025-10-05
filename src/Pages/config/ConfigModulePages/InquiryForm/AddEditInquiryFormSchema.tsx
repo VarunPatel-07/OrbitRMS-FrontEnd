@@ -1,10 +1,15 @@
 import React, { SetStateAction, useEffect, useRef, useState } from 'react';
+import { BsInfoCircleFill } from 'react-icons/bs';
+import { FaStarOfLife } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
+import { MdDelete, MdModeEdit } from 'react-icons/md';
+import { Tooltip } from 'react-tooltip';
 
+import Button from '../../../../common/Button';
 import Input from '../../../../common/Input';
 import Loader from '../../../../common/Loader';
 import { AddEditInquiryFormSchemaInitialForm } from '../../../../constant/ConfigModuleConstant';
-import { classNames } from '../../../../Helper/HelperFunctions';
+import { classNames, isValidEmail } from '../../../../Helper/HelperFunctions';
 import { AddEditInquiryFormSchemaInterface } from '../../../../interface/interface';
 
 interface AddModalProps {
@@ -41,11 +46,16 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
   const handelSubmitButton = async () => {
-    if (
-      formData?.form_id?.trim() === '' ||
-      formData?.form_name?.trim() === '' ||
-      formData?.description?.trim() === ''
-    ) {
+    const isEmpty =
+      !formData?.form_id?.trim() ||
+      !formData?.form_name?.trim() ||
+      !formData?.description?.trim();
+
+    const hasInvalidEmail = !formData?.authorized_recipient_emails?.every(
+      (item) => isValidEmail(item)
+    );
+
+    if (isEmpty || hasInvalidEmail) {
       setShowError(true);
       return;
     }
@@ -78,14 +88,25 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
     return capitalized.replace(/[\s-]/g, '');
   }
 
-  const handelOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handelOnChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index?: number
+  ) => {
     const { value, name } = e.target;
     if (name === 'form_id') {
       const newValue = formatInput(value);
       setFormData((pervData) => ({ ...pervData, form_id: newValue }));
+    } else if (name == 'authorized_recipient_emails' && index !== undefined) {
+      setFormData((prevData) => {
+        const updatedEmails = [...(prevData.authorized_recipient_emails || [])];
+        updatedEmails[index] = value;
+        return { ...prevData, authorized_recipient_emails: updatedEmails };
+      });
     } else {
       setFormData((pervData) => ({ ...pervData, [name]: value }));
     }
+
+    console.log(formData);
   };
 
   const handelClickOnCheckBox = (value: string) => {
@@ -93,6 +114,23 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
       ...pervData,
       status: value?.trim()?.toLocaleLowerCase() == 'true' ? true : false,
     }));
+  };
+
+  const handelClickOnTheAddRecipientEmails = () => {
+    if (
+      formData?.authorized_recipient_emails?.every((item) => isValidEmail(item))
+    ) {
+      setFormData((pervData) => ({
+        ...pervData,
+        authorized_recipient_emails: [
+          ...pervData.authorized_recipient_emails,
+          '',
+        ],
+      }));
+      setShowError(false);
+    } else {
+      setShowError(true);
+    }
   };
 
   useEffect(() => {
@@ -152,7 +190,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
             ref={modalBoxRef}
           >
             <div className='w-full'>
-              <div className='w-full flex px-5 py-6 border-b border-b-black/20 items-center justify-between'>
+              <div className='w-full flex px-5 py-4 border-b border-b-black/20 items-center justify-between'>
                 <span className='text-xl text-black font-inter font-semibold'>
                   {modalTitle}
                 </span>
@@ -161,7 +199,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                 </button>
               </div>
               <div
-                className='px-5 py-10 mx-auto flex flex-col items-start justify-start w-full'
+                className='px-5 py-6 mx-auto flex flex-col items-start justify-start w-full overflow-auto max-h-[500px] hide-scrollbar'
                 onKeyDown={handelKeyPress}
               >
                 <div className='grid grid-cols-1 gap-5 w-full'>
@@ -176,7 +214,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       onChange={handelOnChange}
                       showError={showError}
                       errorMessage={
-                        showError && formData?.form_id
+                        showError && formData?.form_id?.length <= 0
                           ? 'this is a require field'
                           : ''
                       }
@@ -193,7 +231,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       onChange={handelOnChange}
                       showError={showError}
                       errorMessage={
-                        showError && formData?.form_name
+                        showError && formData?.form_name?.length <= 0
                           ? 'this is a require field'
                           : ''
                       }
@@ -210,7 +248,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       onChange={handelOnChange}
                       showError={showError}
                       errorMessage={
-                        showError && formData?.description
+                        showError && formData?.description?.length <= 0
                           ? 'this is a require field'
                           : ''
                       }
@@ -236,9 +274,79 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       />
                     </div>
                   </div>
+                  <div className='w-full'>
+                    <label
+                      htmlFor=''
+                      className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
+                    >
+                      <span className='flex gap-1'>
+                        <span>Add Authorized Recipient Emails</span>
+                        <FaStarOfLife className='w-1.5 text-red-700' />
+                        <span
+                          className='cursor-pointer'
+                          data-tooltip-id={`info_tooltip_for_add_authorized_recipient_emails`}
+                          data-tooltip-content='Add the email addresses of all authorized recipients who should be immediately notified whenever a new inquiry is submitted through this form. These recipients will receive direct email alerts, ensuring that no inquiry is ever missed. Make sure to include all relevant team members or departments responsible for handling inquiries.'
+                        >
+                          <BsInfoCircleFill />
+                        </span>
+                      </span>
+                    </label>
+
+                    <Tooltip
+                      id={`info_tooltip_for_add_authorized_recipient_emails`}
+                      opacity={'100'}
+                      className='z-[15] bg-white max-w-[300px]'
+                      place={'top'}
+                    />
+                    <div className='flex flex-col items-start justify-start gap-5 w-full'>
+                      {formData?.authorized_recipient_emails?.map(
+                        (email: string, index: number) => (
+                          <div
+                            key={index}
+                            className='flex items-start justify-between gap-5 w-full'
+                          >
+                            <div className='flex-grow'>
+                              <Input
+                                name={`authorized_recipient_emails`}
+                                type='text'
+                                className='border border-black/45'
+                                isRequiredField={true}
+                                value={email}
+                                onChange={(e) => handelOnChange(e, index)}
+                                showError={showError}
+                                errorMessage={
+                                  showError && !isValidEmail(email)
+                                    ? 'pls enter a valid email'
+                                    : ''
+                                }
+                              />
+                            </div>
+                            <div className='flex items-center justify-end gap-2'>
+                              <Button
+                                className='p-2 border border-black/45 rounded-lg'
+                                type='button'
+                                onClick={handelClickOnTheAddRecipientEmails}
+                              >
+                                <MdModeEdit className='text-black w-6 h-6 min-w-6 min-h-6' />
+                              </Button>
+                              {formData?.authorized_recipient_emails?.length !==
+                                index + 1 && (
+                                <Button
+                                  className='p-2 border border-red-400 rounded-lg'
+                                  type='button'
+                                >
+                                  <MdDelete className='text-red-600 w-6 h-6 min-w-6 min-h-6' />
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className='px-5 pb-6 w-full grid grid-cols-2 gap-2.5'>
+              <div className='px-5 py-5 w-full grid grid-cols-2 gap-2.5 border-t border-t-black/20'>
                 <button
                   className='text-black bg-transparent py-2 rounded-lg border border-black/45 hover:bg-gray-800/5'
                   onClick={handelCancelButton}

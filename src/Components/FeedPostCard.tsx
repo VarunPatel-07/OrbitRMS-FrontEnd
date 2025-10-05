@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BsEmojiSmile, BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdHeart, IoMdHeartEmpty } from 'react-icons/io';
 import { IoChatbubbleOutline } from 'react-icons/io5';
@@ -28,6 +28,10 @@ interface propsInterface {
     data: string,
     callback: () => void
   ) => void;
+  handelClickOnLikesComments: (
+    data: FeedPostDataPropsInterface,
+    type: 'comments' | 'likes'
+  ) => void;
 }
 
 function FeedPostCard(props: propsInterface) {
@@ -39,6 +43,7 @@ function FeedPostCard(props: propsInterface) {
     handelClickOnDeleteButton,
     handelClickOnLikeToggle,
     submitCommentOnClick,
+    handelClickOnLikesComments,
   } = props;
   const prevRef = useRef(null);
   const nextRef = useRef(null);
@@ -54,6 +59,14 @@ function FeedPostCard(props: propsInterface) {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const toggleMenu = () => setShowMenu((prev) => !prev);
+
+  const handleContextMenu: React.MouseEventHandler<HTMLImageElement> = (e) => {
+    e.preventDefault(); // Disable right-click
+  };
+
+  const handleDragStart: React.DragEventHandler<HTMLImageElement> = (e) => {
+    e.preventDefault(); // Disable dragging
+  };
 
   const handelClickOnEditPost = (feedData: FeedPostDataPropsInterface) => {
     editPostHandler(feedData);
@@ -84,7 +97,7 @@ function FeedPostCard(props: propsInterface) {
   useEffect(() => {
     if (showPicker && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      const pickerHeight = 300; // your EmojiPicker height
+      const pickerHeight = 300;
       const spaceBelow = window.innerHeight - rect.bottom;
       const spaceAbove = rect.top;
 
@@ -221,6 +234,9 @@ function FeedPostCard(props: propsInterface) {
                           height={'100%'}
                           className='object-cover w-full h-full aspect-video'
                           loading='lazy'
+                          onContextMenu={handleContextMenu}
+                          onDragStart={handleDragStart}
+                          draggable={false}
                         />
                       </picture>
                     </div>
@@ -254,7 +270,10 @@ function FeedPostCard(props: propsInterface) {
                   <IoMdHeartEmpty className='w-7 h-7 min-w-7 min-h-7 max-h-7 max-w-7 text-gray-600' />
                 )}
               </button>
-              <button className='text-black font-semibold font-inter text-base hover:text-blue-600'>
+              <button
+                className='text-black font-semibold font-inter text-base hover:text-blue-600'
+                onClick={() => handelClickOnLikesComments(data, 'likes')}
+              >
                 {data?.likes?.length || likedPosts?.length || 0}
               </button>
             </div>
@@ -268,8 +287,11 @@ function FeedPostCard(props: propsInterface) {
               >
                 <IoChatbubbleOutline className='w-6 h-6 min-w-6 min-h-6 max-h-6 max-w-6 text-gray-600' />
               </button>
-              <button className='text-black font-semibold font-inter text-base hover:text-blue-600'>
-                {data?.comments?.length || likedPosts?.length || 0}
+              <button
+                className='text-black font-semibold font-inter text-base hover:text-blue-600'
+                onClick={() => handelClickOnLikesComments(data, 'comments')}
+              >
+                {data?.comments?.length || 0}
               </button>
             </div>
           </div>

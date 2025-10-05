@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { SetStateAction, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { IoClose } from 'react-icons/io5';
 
@@ -24,10 +24,14 @@ function FilterInput({
   filterColumnsArray,
   handelApplyFilterFunc,
   urlDecodedFilterQuery,
+  setUrlDecodedFilterQuery,
 }: {
   filterColumnsArray: SearchBarFilterOptionsInterface[];
   handelApplyFilterFunc: (filterArray: FilterObjectInterface[]) => void;
   urlDecodedFilterQuery?: UrlEncodedFilterQueryInterface[];
+  setUrlDecodedFilterQuery?: React.Dispatch<
+    SetStateAction<UrlEncodedFilterQueryInterface[]>
+  >;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
   const inputFieldRef = useRef<HTMLInputElement>(null);
@@ -116,6 +120,7 @@ function FilterInput({
   };
 
   const handelClearFilterQueryBtn = () => {
+    if (setUrlDecodedFilterQuery) setUrlDecodedFilterQuery([]);
     setSelectedFilterObject([]);
     setFilterObject([]);
     setShowFilterDropDownMenu(false);

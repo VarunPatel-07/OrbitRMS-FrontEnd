@@ -1,7 +1,12 @@
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-
+import React from 'react';
 import DefaultLotiAnimation from '../../assets/lottie/DefaultAnimation.lottie';
 import { TableInfoHeaderInterfaceButtonArrayObject } from '../../interface/propsInterface';
+
+const DotLottieReact = React.lazy(() =>
+  import('@lottiefiles/dotlottie-react').then((mod) => ({
+    default: mod.DotLottieReact,
+  }))
+);
 
 function TableNoDataFound({
   tableWrapperClass = 'max-h-[calc(100%-85px)]',

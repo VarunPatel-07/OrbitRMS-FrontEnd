@@ -2,12 +2,17 @@
 
 import axios from 'axios';
 
-import { unauthorizedStatusCodes } from '../../constant/constant';
+import {
+  MAINTENANCE_MODE_LOCAL_STORAGE_KEY,
+  MaintenanceModeIsActiveStatusCode,
+  unauthorizedStatusCodes,
+} from '../../constant/constant';
 import {
   clearLocalSessionStorage,
   ErrorHandler,
   getDataFromLocalStorage,
   getDataFromTheSessionStorage,
+  storeDataInLocalStorage,
 } from '../HelperFunctions';
 
 export interface endpointObject {
@@ -31,16 +36,21 @@ export interface ApiReturnInterface {
 }
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
-const VITE_ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
+// const VITE_ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
 
 const defaultHeader = {
   'Content-Type': 'application/json',
 };
 
 const multipleFetchApiErrorHandler = (error: any) => {
-  if (VITE_ENVIRONMENT === 'DEVELOPMENT') {
-    console.error(error);
-    return ErrorHandler(error);
+  return console.log(error)
+  if (MaintenanceModeIsActiveStatusCode.includes(error?.status)) {
+    storeDataInLocalStorage(
+      error?.response?.data?.detail.data,
+      MAINTENANCE_MODE_LOCAL_STORAGE_KEY
+    );
+    window.location.href = '/maintenance-mode';
+    return;
   }
   if (unauthorizedStatusCodes.includes(error?.status)) {
     const status = error?.response?.status || error?.status;

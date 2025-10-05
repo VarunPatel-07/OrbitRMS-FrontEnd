@@ -1,3 +1,5 @@
+import React, { SetStateAction } from 'react';
+
 import {
   FilterObjectInterface,
   SearchBarFilterOptionsInterface,
@@ -10,13 +12,20 @@ interface TableFilterSearchBarInterface {
   filterColumnsArray: SearchBarFilterOptionsInterface[];
   handelApplyFilterFunc: (filterArray: FilterObjectInterface[]) => void;
   urlDecodedFilterQuery?: UrlEncodedFilterQueryInterface[];
+  setUrlDecodedFilterQuery?: React.Dispatch<
+    SetStateAction<UrlEncodedFilterQueryInterface[]>
+  >;
 }
 
 export default function TableFilterSearchBar(
   props: TableFilterSearchBarInterface
 ) {
-  const { filterColumnsArray, handelApplyFilterFunc, urlDecodedFilterQuery } =
-    props;
+  const {
+    filterColumnsArray,
+    handelApplyFilterFunc,
+    urlDecodedFilterQuery,
+    setUrlDecodedFilterQuery,
+  } = props;
   return (
     <div className='p-2 bg-gray-200 w-full border border-black/5 border-t-0 border-b-0'>
       <div className='flex items-start justify-between gap-2'>
@@ -25,6 +34,7 @@ export default function TableFilterSearchBar(
             filterColumnsArray={filterColumnsArray}
             handelApplyFilterFunc={handelApplyFilterFunc}
             urlDecodedFilterQuery={urlDecodedFilterQuery}
+            setUrlDecodedFilterQuery={setUrlDecodedFilterQuery}
           />
         </div>
         <div className=''>

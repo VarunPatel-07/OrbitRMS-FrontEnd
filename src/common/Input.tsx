@@ -1,5 +1,7 @@
 import React, { ForwardedRef, forwardRef, useState } from 'react';
+import { BsInfoCircleFill } from 'react-icons/bs';
 import { FaCheck, FaEye, FaEyeSlash, FaStarOfLife } from 'react-icons/fa';
+import { Tooltip } from 'react-tooltip';
 import clsx from 'clsx';
 
 import { classNames } from '../Helper/HelperFunctions';
@@ -30,6 +32,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       disabled = false,
       countryDropDownMaxHeight,
       countryOptionsData,
+      InfoIconContent,
+      InfoIconToolTipPlace,
     } = props;
 
     const [isToggled, setIsToggled] = useState<boolean>(false);
@@ -160,7 +164,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {labelFieldName?.trim() != '' && (
           <label
             htmlFor=''
-            className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
+            className='text-sm font-inter font-normal text-black/65 pb-2 flex items-center justify-start gap-2'
           >
             <span className='flex gap-1'>
               <span>{labelFieldName}</span>
@@ -168,6 +172,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 <FaStarOfLife className='w-1.5 text-red-700' />
               )}
             </span>
+            {InfoIconContent && (
+              <span
+                className='cursor-pointer'
+                data-tooltip-id={`info_tooltip_${labelFieldName?.toLocaleLowerCase()?.replace(/\s+/g, '_')}`}
+                data-tooltip-content={InfoIconContent}
+              >
+                <BsInfoCircleFill />
+              </span>
+            )}
           </label>
         )}
         {type == 'checkbox' ? renderCheckBox() : renderInputField()}
@@ -175,6 +188,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
             {errorMessage}
           </span>
+        )}
+
+        {InfoIconContent && (
+          <Tooltip
+            id={`info_tooltip_${labelFieldName?.toLocaleLowerCase()?.replace(/\s+/g, '_')}`}
+            opacity={'100'}
+            className='z-[15] bg-white'
+            place={InfoIconToolTipPlace || 'top'}
+          />
         )}
       </>
     );

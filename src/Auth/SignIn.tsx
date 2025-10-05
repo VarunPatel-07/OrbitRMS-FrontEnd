@@ -151,7 +151,8 @@ function SignIn() {
             !response?.encrypted_org_id
           ) {
             navigate(
-              `/${response?.data?.organization?.general_info?.portal_slug}/dashboard`
+              `/${response?.data?.organization?.general_info?.portal_slug}/dashboard`,
+              { replace: true, state: null }
             );
           } else {
             navigate(

@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 import OrbitRMSLogo from '../../assets/Images/orbitrms-final-logo-transperent.webp';
 import Maintenance from '../../assets/lottie/Maintenance.lottie';
-import { MAINTENANCE_MODE_LOCAL_STORAGE_KEY } from '../../constant/constant';
+import {
+  MAINTENANCE_MODE_LOCAL_STORAGE_KEY,
+  unauthorizedStatusCodes,
+} from '../../constant/constant';
 import {
   clearLocalSessionStorage,
   ErrorHandler,
@@ -14,7 +16,7 @@ import {
 
 import '../../css/text-editor.css';
 
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 
 import Button from '../../common/Button';
@@ -25,6 +27,12 @@ import {
 } from '../../Context/Notification/NotificationContextApi';
 import HelmetSeo from '../../Helper/HelmetSeo';
 import { useDebounce } from '../../Hooks/useDebounce';
+
+const DotLottieReact = React.lazy(() =>
+  import('@lottiefiles/dotlottie-react').then((mod) => ({
+    default: mod.DotLottieReact,
+  }))
+);
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 
@@ -70,6 +78,15 @@ function MaintenanceMode() {
         window.location.href = `/${response?.data?.data?.portal_slug}/dashboard`;
       }
     } catch (error: any) {
+      if (unauthorizedStatusCodes.includes(error?.status)) {
+        const status = error?.response?.status || error?.status;
+
+        if (unauthorizedStatusCodes.includes(status)) {
+          clearLocalSessionStorage();
+          window.location.href = '/auth/sign-in';
+          return;
+        }
+      }
       const response = ErrorHandler(error as Error);
 
       if (!response?.success) {

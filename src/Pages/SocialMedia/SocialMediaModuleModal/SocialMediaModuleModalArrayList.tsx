@@ -6,8 +6,11 @@ import { SocialMediaModuleModalArrayListInterface } from '../../../interface/Soc
 import { GlobalContextStore } from '../../../interface/UserProfileInterface';
 
 const META_AUTHENTICATION_BASE_URL = import.meta.env
-  .META_AUTHENTICATION_BASE_URL;
+  .VITE_META_AUTHENTICATION_BASE_URL;
+const TWITTER_AUTHENTICATION_BASE_URL = import.meta.env
+  .VITE_TWITTER_AUTHENTICATION_BASE_URL;
 
+console.log(TWITTER_AUTHENTICATION_BASE_URL, META_AUTHENTICATION_BASE_URL);
 export const SocialMediaModuleModalArrayList = (
   GlobalStateProvider: GlobalContextStore
 ): SocialMediaModuleModalArrayListInterface[] => [
@@ -46,7 +49,18 @@ export const SocialMediaModuleModalArrayList = (
   {
     name: 'Twitter',
     platform: 'twitter',
-    onClickFunction: () => {},
+    onClickFunction: () => {
+      {
+        const _localToken = getDataFromLocalStorage('authenticationToken');
+        const _sessionToken = getDataFromTheSessionStorage(
+          'authenticationToken'
+        );
+
+        const authToken = `Bearer ${_localToken || _sessionToken}`;
+        window.location.href = `${TWITTER_AUTHENTICATION_BASE_URL}?org-id=${GlobalStateProvider?.organization?.id}&token=${encodeURIComponent(authToken)}
+  `;
+      }
+    },
   },
   {
     name: 'Linkedin',

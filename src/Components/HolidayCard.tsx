@@ -1,8 +1,7 @@
 import 'swiper/swiper-bundle.css';
 
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -13,6 +12,12 @@ import {
   formateDate,
 } from '../Helper/HelperFunctions';
 import { HolidayedPropsInterFace } from '../interface/Dashboard';
+
+const DotLottieReact = React.lazy(() =>
+  import('@lottiefiles/dotlottie-react').then((mod) => ({
+    default: mod.DotLottieReact,
+  }))
+);
 
 function HolidayCard(props: HolidayedPropsInterFace) {
   const { holidayData, GlobalStateProvider } = props;

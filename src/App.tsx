@@ -48,7 +48,7 @@ import OrganizationSettings from './Pages/OrganizationSettings/OrganizationSetti
 import SocialMedia from './Pages/SocialMedia/SocialMedia';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
-
+const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
 export const HandelPathFunction = () => {
   const _data = getDataFromLocalStorage('organization-info');
   const _isAuthenticated = getDataFromLocalStorage('authenticationToken');
@@ -174,6 +174,36 @@ function App() {
 
     return () => {
       worker.terminate();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (ENVIRONMENT === 'DEVELOPMENT') return;
+
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+
+    const handleDragStart = (e: DragEvent) => e.preventDefault();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey &&
+          e.shiftKey &&
+          ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
+        (e.ctrlKey && e.key.toUpperCase() === 'U')
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('dragstart', handleDragStart);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('dragstart', handleDragStart);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 

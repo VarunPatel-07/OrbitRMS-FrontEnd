@@ -1,25 +1,30 @@
 import React, { SetStateAction, useEffect, useRef } from 'react';
-import { MdDeleteOutline } from 'react-icons/md';
+
 
 import Loader from '../../common/Loader';
 import { classNames } from '../../Helper/HelperFunctions';
+import { IoMdAlert } from 'react-icons/io';
 
-function DeleteModal({
+function CommonAlertModal({
   showDeleteModal,
   setShowDeleteModal,
   loading,
   handelDelete,
-  name,
+  title,
   ExtraErrorMessage,
   minHeight,
+  description,
+  secondaryButtonTitle,
 }: {
   showDeleteModal: boolean;
   setShowDeleteModal: React.Dispatch<SetStateAction<boolean>>;
   loading: boolean;
   handelDelete: () => void;
-  name?: string;
+  title?: string;
   ExtraErrorMessage?: React.ReactElement;
   minHeight?: number;
+  description?: string;
+  secondaryButtonTitle?: string;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +54,7 @@ function DeleteModal({
       <div className='w-full h-full flex items-center justify-center'>
         <div
           className={classNames(
-            `delete-modal bg-white min-w-[600px] transition-all px-8 rounded-lg relative overflow-hidden flex flex-col items-start justify-end`,
+            `delete-modal bg-white min-w-[400px] max-w-[700px] transition-all px-8 rounded-lg relative overflow-hidden flex flex-col items-start justify-end`,
             {
               'scale-50 opacity-0': !showDeleteModal,
               'scale-100 opacity-100': showDeleteModal,
@@ -59,11 +64,11 @@ function DeleteModal({
           ref={boxRef}
         >
           <div className='delete absolute -top-[15%]  -left-[10%]'>
-            <span className='p-4 flex items-center justify-center overflow-hidden rounded-full border border-red-200'>
-              <span className='p-4 flex items-center justify-center overflow-hidden rounded-full border border-red-200'>
-                <span className='p-4 flex items-center justify-center overflow-hidden rounded-full border border-red-200'>
-                  <span className='p-6 flex items-center justify-center overflow-hidden rounded-full border border-red-300'>
-                    <MdDeleteOutline className='text-red-400 text-3xl' />
+            <span className='p-4 flex items-center justify-center overflow-hidden rounded-full border border-orange-200'>
+              <span className='p-4 flex items-center justify-center overflow-hidden rounded-full border border-orange-200'>
+                <span className='p-4 flex items-center justify-center overflow-hidden rounded-full border border-orange-300'>
+                  <span className='p-6 flex items-center justify-center overflow-hidden rounded-full border border-orange-400'>
+                    <IoMdAlert className='text-orange-500 text-3xl' />
                   </span>
                 </span>
               </span>
@@ -78,11 +83,10 @@ function DeleteModal({
             >
               <div className='flex flex-col items-start justify-start gap-1'>
                 <h4 className='text-[26px] text-slate-950 font-bold font-inter'>
-                  Delete {name}
+                  {title}
                 </h4>
                 <p className='text-base text-slate-950 font-inter'>
-                  Are you sure you want to delete {name?.toLocaleLowerCase()}?
-                  This action is irreversible.
+                  {description}
                 </p>
               </div>
               {ExtraErrorMessage && ExtraErrorMessage}
@@ -95,14 +99,14 @@ function DeleteModal({
                 Cancel
               </button>
               <button
-                className='text-white bg-rose-600 hover:bg-rose-700/90 w-full py-2.5 rounded-lg font-inter text-base font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed'
+                className='text-white bg-yellow-600 hover:bg-yellow-600 w-full py-2.5 rounded-lg font-inter text-base font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed'
                 disabled={loading}
                 onClick={handelDelete}
               >
                 {loading ? (
-                  <Loader loaderText='Deleting...' />
+                  <Loader loaderText='Loading...' />
                 ) : (
-                  <span>Delete</span>
+                  <span>{secondaryButtonTitle}</span>
                 )}
               </button>
             </div>
@@ -113,4 +117,4 @@ function DeleteModal({
   );
 }
 
-export default DeleteModal;
+export default CommonAlertModal;

@@ -1,6 +1,12 @@
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import React from 'react';
 
 import AuthPageAnimation from '../../assets/lottie/AuthPageAnimation.lottie';
+
+const DotLottieReact = React.lazy(() =>
+  import('@lottiefiles/dotlottie-react').then((mod) => ({
+    default: mod.DotLottieReact,
+  }))
+);
 
 function AuthLottieAnimation() {
   return (

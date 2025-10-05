@@ -1,9 +1,15 @@
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import React from 'react';
 
 import DefaultLotiAnimation from '../../assets/lottie/DefaultAnimation.lottie';
 import Button from '../../common/Button';
 import { SocialMedialPostComponentInterface } from '../../interface/SocialMediaModule';
 import SocialMediaPostCard from './SocialMediaModuleHelper/SocialMediaPostCard';
+
+const DotLottieReact = React.lazy(() =>
+  import('@lottiefiles/dotlottie-react').then((mod) => ({
+    default: mod.DotLottieReact,
+  }))
+);
 
 function SocialMediaPosts(props: SocialMedialPostComponentInterface) {
   const {

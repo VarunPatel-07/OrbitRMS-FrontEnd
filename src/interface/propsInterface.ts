@@ -35,6 +35,20 @@ export interface InputProps {
   disabled?: boolean;
   countryDropDownMaxHeight?: number;
   countryOptionsData?: Array<countryObject>;
+  InfoIconContent?: string;
+  InfoIconToolTipPlace?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
 }
 
 export interface DragDropUploaderProps {
@@ -64,6 +78,7 @@ export interface MultipleImageUploaderPropsInterface {
   remainingImages?: number;
   showError?: boolean;
   errorMessage?: string;
+  maxSize?: number;
 }
 
 export interface commonDatePickerProps {
@@ -359,4 +374,10 @@ export interface FilterInputDateSelectorInterface {
   ) => void;
   updateFinalFilterQuery: (newData: FilterObjectInterface[]) => void;
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export interface LikesCommentsModalInterface {
+  type: 'comments' | 'likes';
+  showModal: boolean;
+  setShowModal: React.Dispatch<SetStateAction<boolean>>;
 }
