@@ -120,7 +120,12 @@ function MultipleImageCropper({
 
       setSelectedFileObj((pervItem) => {
         if (!pervItem) return null;
-        return { ...pervItem, croppedImagePreview: dataUrl };
+        return {
+          ...pervItem,
+          croppedImagePreview: dataUrl,
+          croppedArea: croppedArea,
+          rotation: rotation,
+        };
       });
 
       setDroppedFilesArray((fileArray) => {
@@ -134,7 +139,12 @@ function MultipleImageCropper({
 
         return fileArray?.map((item) =>
           item?.id === selectedFileObj?.id
-            ? { ...item, croppedImagePreview: dataUrl }
+            ? {
+                ...item,
+                croppedImagePreview: dataUrl,
+                croppedArea: croppedArea,
+                rotation: rotation,
+              }
             : item
         );
       });
@@ -167,6 +177,8 @@ function MultipleImageCropper({
     });
   };
 
+  // console.log('finalSelectedImageArray', finalSelectedImageArray);
+
   const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
     setCroppedArea(croppedAreaPixels);
   };
@@ -197,6 +209,8 @@ function MultipleImageCropper({
         previewUrl: previewUrl,
         croppedImagePreview: file?.croppedImagePreview,
         originalFile: file.originalFile,
+        croppedArea: file?.croppedArea,
+        rotation: file?.rotation,
       });
       setRenderingImage(false);
     }, 150);
@@ -227,6 +241,8 @@ function MultipleImageCropper({
                 croppedImagePreview: data?.croppedImagePreview,
                 file: file,
                 originalFile: item.originalFile,
+                croppedArea: item?.croppedArea,
+                rotation: item?.rotation,
               }
             : item
         );
@@ -250,6 +266,8 @@ function MultipleImageCropper({
         previewUrl: previewUrl,
         croppedImagePreview: filteredData[0]?.croppedImagePreview,
         originalFile: filteredData[0]?.originalFile,
+        croppedArea: filteredData[0]?.croppedArea,
+        rotation: filteredData[0]?.rotation,
       });
     }
   };
@@ -281,6 +299,8 @@ function MultipleImageCropper({
             previewUrl: previewUrl,
             croppedImagePreview: file.croppedImagePreview || '',
             originalFile: file?.originalFile,
+            croppedArea: file?.croppedArea,
+            rotation: file?.rotation,
           });
         }
       }
@@ -290,7 +310,6 @@ function MultipleImageCropper({
 
   useEffect(() => {
     if (!selectedFileObj && DroppedFilesArray?.length !== 0) {
-      console.log(DroppedFilesArray);
       const previewUrl = URL.createObjectURL(DroppedFilesArray[0]?.file);
       setSelectedFileObj({
         id: DroppedFilesArray[0]?.id,
@@ -298,11 +317,11 @@ function MultipleImageCropper({
         previewUrl: previewUrl,
         croppedImagePreview: DroppedFilesArray[0]?.croppedImagePreview,
         originalFile: DroppedFilesArray[0]?.originalFile,
+        croppedArea: DroppedFilesArray[0]?.croppedArea,
+        rotation: DroppedFilesArray[0]?.rotation,
       });
     }
   }, [DroppedFilesArray, selectedFileObj]);
-
-  console.log(imageProcessingLoader);
 
   return (
     <div className='fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/25 z-[999] transition-all duration-200'>

@@ -81,6 +81,13 @@ const MultipleDragAndDropFileUploader = React.memo(
                     file: processedFile,
                     croppedImagePreview: '',
                     originalFile: eachFile,
+                    croppedArea: {
+                      width: 0,
+                      height: 0,
+                      x: 0,
+                      y: 0,
+                    },
+                    rotation: 0,
                   };
                   setDroppedFilesArray((pervFile) => [
                     ...(pervFile || []),
@@ -133,7 +140,7 @@ const MultipleDragAndDropFileUploader = React.memo(
           if (setIsImageCropperActive) setIsImageCropperActive(false);
           handelNotification(res, 'top-right');
         }
-        console.log(fileRejections.length);
+
         if (fileRejections.length > 6) {
           const res = {
             message: 'Too many files! Max 5 at a time',

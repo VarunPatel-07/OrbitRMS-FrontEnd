@@ -2,6 +2,7 @@
 //? -------------------------- This Is The Start Of The Onboarding Form InterFace -------------------------
 
 import React, { SetStateAction } from 'react';
+import { Area } from 'react-easy-crop';
 import { Editor } from '@tiptap/react';
 
 import { AddEditPostFormdataInterface } from './Dashboard';
@@ -257,13 +258,38 @@ export interface SelectedFileArrayObjInterface {
   file: File;
   croppedImagePreview: string;
   originalFile: File;
+  croppedArea: Area;
+  rotation: number;
 }
+export interface CloudinaryUploadResult {
+  asset_id: string;
+  public_id: string;
+  version: number;
+  version_id: string;
+  signature: string;
+  width: number;
+  height: number;
+  format: string;
+  resource_type: string;
+  created_at: string;
+  tags: string[];
+  bytes: number;
+  type: string;
+  etag: string;
+  placeholder: boolean;
+  url: string;
+  secure_url: string;
+  original_filename: string;
+}
+
 export interface SelectedFileForCrop {
   id: string;
   file: File;
   previewUrl: string;
   croppedImagePreview: string;
   originalFile: File;
+  croppedArea: Area;
+  rotation: number;
 }
 
 export interface DragAndDropCropImageInterface {

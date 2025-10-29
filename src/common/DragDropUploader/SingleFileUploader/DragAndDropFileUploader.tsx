@@ -179,7 +179,7 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
 
       const endpointArray: Array<endpointObject> = [
         {
-          endPoint: 'uploadation/single-upload',
+          endPoint: 'upload/single-upload',
           data: formData,
           protected: true,
           header: multipartHeader,

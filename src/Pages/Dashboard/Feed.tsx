@@ -5,6 +5,7 @@ import { FaPenToSquare } from 'react-icons/fa6';
 import EmptyFeedAnimation from '../../Components/Animation/EmptyFeedAnimation';
 import FeedPostCard from '../../Components/FeedPostCard';
 import FeedPostLoader from '../../Components/Loader/FeedPostLoader';
+import UploadingPostDefaultLoader from '../../Components/Loader/UploadingPostDefaultLoader';
 import {
   FeedPostDataPropsInterface,
   OrganizationFeedPropsInterface,
@@ -38,6 +39,9 @@ function Feed(props: OrganizationFeedPropsInterface) {
     handelClickOnLikeToggle,
     likedPosts,
     submitCommentOnClick,
+    stage,
+    progress,
+    uploadingPostFormData,
   } = props;
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<'comments' | 'likes'>('likes');
@@ -65,6 +69,12 @@ function Feed(props: OrganizationFeedPropsInterface) {
           <FeedPostLoader />
         ) : (
           <>
+            {(uploadingPostFormData?.description !== '' ||
+              uploadingPostFormData?.new_images?.length > 0 ||
+              uploadingPostFormData?.existing_images?.length > 0) && (
+              <UploadingPostDefaultLoader progress={progress} stage={stage} />
+            )}
+
             {feedPostData?.length == 0 ? (
               <EmptyFeedAnimation
                 CTAButton={

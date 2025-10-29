@@ -112,11 +112,16 @@ function SocialMediaPostCard(props: SocialMediaPostCardInterface) {
             <div className='w-full border-t border-t-black/20 pt-3'>
               <p className='text-black text-sm'>Platforms:</p>
               <div className='flex items-center justify-start gap-2 pt-2'>
-                {JSON.parse(data?.selected_platforms)?.map((item: string) => (
-                  <span className='bg-blue-50 border border-blue-700 text-blue-700 text-xs px-1.5 py-0.5 capitalize rounded-md'>
-                    {item}
-                  </span>
-                ))}
+                {JSON.parse(data?.selected_platforms)?.map(
+                  (item: string, _index: number) => (
+                    <span
+                      className='bg-blue-50 border border-blue-700 text-blue-700 text-xs px-1.5 py-0.5 capitalize rounded-md'
+                      key={_index}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
               </div>
             </div>
           )}

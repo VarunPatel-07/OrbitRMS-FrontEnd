@@ -43,7 +43,7 @@ const defaultHeader = {
 };
 
 const multipleFetchApiErrorHandler = (error: any) => {
-  return console.log(error)
+  return; // console.log(error)
   if (MaintenanceModeIsActiveStatusCode.includes(error?.status)) {
     storeDataInLocalStorage(
       error?.response?.data?.detail.data,

@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { GoAlert } from 'react-icons/go';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { useLocation } from 'react-router-dom';
+import * as tus from 'tus-js-client';
 
+import UploadingPostDefaultLoader from '../../Components/Loader/UploadingPostDefaultLoader';
 import { AddEditPostFormData } from '../../constant/SocialMediaConstatnt';
 import {
   GlobalStateContext,
@@ -18,7 +21,11 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../Helper/api/multipleAPI';
+import { getCroppedImageBlob } from '../../Helper/ImageCropper';
+import { ImageDownscaler } from '../../Helper/ImageDownscaler';
 import { useDebounce } from '../../Hooks/useDebounce';
+import { cloudSignDataInterface } from '../../interface/Dashboard';
+import { CloudinaryUploadResult } from '../../interface/interface';
 import {
   AddEditSocialMediaPostFormdataInterface,
   ConnectedSocialMediaAccountInterface,
@@ -77,6 +84,12 @@ function SocialMedia() {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 
   const [deletePostId, setDeletePostId] = useState<string>('');
+  const [uploadingPostFormData, setUploadingPostFormData] =
+    useState<AddEditSocialMediaPostFormdataInterface>(AddEditPostFormData);
+  const [stage, setStage] = useState<
+    'parsing' | 'uploading' | 'processing' | 'done'
+  >('parsing');
+  const [progress, setProgress] = useState(0);
 
   //
   //* This Is The Function That Fetch All The Linked SocialMedia Account
@@ -105,41 +118,240 @@ function SocialMedia() {
 
   //
   //*  This Is The Function That Handel Adding Of The Social Media Post From OrbitRMS
-  //
-  const handelAddSocialMediaPostWithDebounce = useDebounce(async () => {
-    const multipartFormData = GenerateFormDataForSocialMedia(formData);
 
-    const multipartHeader = {
-      'Content-Type': 'multipart/form-data',
+  const handelUploadPostWithDebounce = useDebounce(
+    async (
+      data: AddEditSocialMediaPostFormdataInterface,
+      uploadImages: [{ type: 'image' | 'video'; url: string }]
+    ) => {
+      const multipartFormData = GenerateFormDataForSocialMedia(
+        data,
+        uploadImages
+      );
+
+      const multipartHeader = {
+        'Content-Type': 'multipart/form-data',
+      };
+      //
+      //? End Point Array That Hold All The APi End Point To Fetch. In One Go
+      //
+      const endpointArr: endpointObject[] = [
+        {
+          endPoint: 'social/media/accounts/post/add',
+          protected: true,
+          data: multipartFormData,
+          header: multipartHeader,
+        },
+      ];
+
+      const response = await multiplePostApi(endpointArr);
+
+      const res = response[0];
+
+      if (res?.success) {
+        setTimeout(() => {
+          setUploadingPostFormData(AddEditPostFormData);
+        }, 500);
+        setTimeout(() => {
+          // setLoadingSocialMediaPost(true);
+          handelFetchSocialMediaPostWithDebounce();
+        }, 800);
+        handelFetchSocialMediaPostWithDebounce();
+      } else {
+        handelNotification(res, 'top-right');
+      }
+
+      setFormSubmitLoading(false);
+    },
+    100
+  );
+  const CLOUDINARY_UPLOAD_URL = (cloudName: string) =>
+    `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+
+  // -------------------------------
+  // VIDEO UPLOAD FUNCTION (TUS)
+  // -------------------------------
+  const uploadVideoUsingTUS = (
+    file: File,
+    { cloud_name }: cloudSignDataInterface,
+    onProgress: (bytesUploaded: number, bytesTotal: number) => void
+  ) => {
+    return new Promise((resolve, reject) => {
+      const uploadData = new tus.Upload(file, {
+        endpoint: CLOUDINARY_UPLOAD_URL(cloud_name),
+        metadata: {
+          filename: file.name,
+          filetype: file.type,
+        },
+        uploadDataDuringCreation: true,
+        chunkSize: 5 * 1024 * 1024,
+        retryDelays: [0, 1000, 3000, 5000],
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        onError: (error) => {
+          console.error('Upload failed:', error);
+          reject(error);
+        },
+        onProgress: (bytesUploaded, bytesTotal) => {
+          onProgress(bytesUploaded, bytesTotal);
+        },
+        onSuccess: () => {
+          // console.log('Upload finished:', uploadData.url);
+          resolve(uploadData.url);
+        },
+      });
+      uploadData.start();
+    });
+  };
+  // -------------------------------
+  // IMAGE UPLOAD FUNCTION
+  // -------------------------------
+  const uploadImageToCloudinary = (
+    file: File,
+    { cloud_name, api_key, signature, time_stamp }: cloudSignDataInterface,
+    onProgress: (bytesUploaded: number, bytesTotal: number) => void
+  ) => {
+    const url = CLOUDINARY_UPLOAD_URL(cloud_name);
+    const formData = new FormData();
+
+    formData.append('file', file);
+    formData.append('api_key', api_key);
+    formData.append('timestamp', String(time_stamp));
+    formData.append('signature', signature);
+    formData.append('resource_type', 'auto');
+
+    return new Promise<CloudinaryUploadResult>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url);
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          onProgress(e.loaded, e.total);
+        }
+      };
+      xhr.onerror = () => reject(new Error('Upload failed'));
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(JSON.parse(xhr.responseText));
+        } else reject(new Error(`Upload failed: ${xhr.status}`));
+      };
+      xhr.send(formData);
+    });
+  };
+  const uploadImageVideoToCloud = async (
+    data: AddEditSocialMediaPostFormdataInterface,
+    cloudSignData: cloudSignDataInterface
+  ) => {
+    setStage('parsing');
+    const { time_stamp, signature, api_key, cloud_name } = cloudSignData;
+
+    const allFiles = [
+      ...(data?.new_images || []).map((i) => i?.originalFile),
+    ].filter(Boolean) as File[];
+
+    const totalBytes = allFiles.reduce((acc, f) => acc + f.size, 0);
+    let uploadedBytes = 0;
+
+    const handleProgress = (bytesUploaded: number) => {
+      const totalProgress =
+        ((uploadedBytes + bytesUploaded) / totalBytes) * 100;
+
+      console.log(totalProgress);
+
+      setProgress(totalProgress);
     };
-    //
-    //? End Point Array That Hold All The APi End Point To Fetch. In One Go
-    //
-    const endpointArr: endpointObject[] = [
+
+    const uploadedMedia: any[] = [];
+    for (const item of data?.new_images || []) {
+      const file = item?.originalFile;
+      if (!file) return;
+
+      const isVideo = file.type.startsWith('video');
+
+      if (isVideo) {
+        setStage('uploading');
+
+        const uploadedUrl = await uploadVideoUsingTUS(
+          file,
+          {
+            cloud_name,
+            api_key,
+            signature,
+            time_stamp,
+          },
+          handleProgress
+        );
+        uploadedBytes += file.size;
+        uploadedMedia.push({ url: uploadedUrl, type: 'video' });
+      } else {
+        setStage('uploading');
+
+        let processedFile: File;
+        if (file.size > 10 * 1024 * 1024) {
+          processedFile = await ImageDownscaler(file, 10);
+        } else {
+          processedFile = file;
+        }
+
+        const blob = await getCroppedImageBlob(
+          processedFile,
+          item.croppedArea,
+          item?.rotation
+        );
+
+        processedFile = new File([blob], file.name, { type: file.type });
+
+        const uploadedUrl = await uploadImageToCloudinary(
+          processedFile,
+          {
+            cloud_name,
+            api_key,
+            signature,
+            time_stamp,
+          },
+          handleProgress
+        );
+
+        uploadedBytes += file.size;
+
+        if (uploadedUrl) {
+          uploadedMedia.push({
+            url: uploadedUrl.secure_url,
+            type: uploadedUrl.resource_type || 'image',
+          });
+        }
+      }
+      for (const img of data?.existing_images || []) {
+        uploadedMedia.push({ url: img, type: 'image' });
+      }
+    }
+
+    return uploadedMedia;
+  };
+  const handelAddSocialMediaPostWithDebounce = useDebounce(async () => {
+    const endPointArr: endpointObject[] = [
       {
-        endPoint: 'social/media/accounts/post/add',
+        endPoint: 'upload/cloud/signature',
         protected: true,
-        data: multipartFormData,
-        header: multipartHeader,
       },
     ];
 
-    const response = await multiplePostApi(endpointArr);
-
+    const response = await multiplePostApi(endPointArr);
     const res = response[0];
-
     if (res?.success) {
-      setLoadingSocialMediaPost(true);
+      setFormSubmitLoading(false);
       setShowAddEditPostModal(false);
-      handelFetchSocialMediaPostWithDebounce();
+      setStage('parsing');
+      setUploadingPostFormData(formData);
+      const responseData = await uploadImageVideoToCloud(formData, res.data);
+      if (responseData) {
+        setStage('processing');
+
+        handelUploadPostWithDebounce(formData, responseData);
+      }
       setFormData(AddEditPostFormData);
-    } else {
-      handelNotification(res, 'top-right');
     }
-
-    setFormSubmitLoading(false);
   }, 100);
-
   //
   //*  This Is The Function That Handel Fetching Of All The Social Media Post
   //
@@ -289,6 +501,25 @@ function SocialMedia() {
           </div>
         </div>
       </SkeletonTheme>
+      <div
+        className={`w-fit h-fit fixed right-3 bottom-3 z-50 transition-opacity duration-500 ${
+          uploadingPostFormData?.caption !== '' ||
+          uploadingPostFormData?.new_images?.length > 0 ||
+          uploadingPostFormData?.existing_images?.length > 0
+            ? 'opacity-100'
+            : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        {(uploadingPostFormData?.caption !== '' ||
+          uploadingPostFormData?.new_images?.length > 0 ||
+          uploadingPostFormData?.existing_images?.length > 0) && (
+          <UploadingPostDefaultLoader
+            progress={progress}
+            stage={stage}
+            theme='dark'
+          />
+        )}
+      </div>
 
       <SocialMediaModuleModal
         showModal={showModal}

@@ -106,7 +106,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
       setFormData((pervData) => ({ ...pervData, [name]: value }));
     }
 
-    console.log(formData);
+    // console.log(formData);
   };
 
   const handelClickOnCheckBox = (value: string) => {
