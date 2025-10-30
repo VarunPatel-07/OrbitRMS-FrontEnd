@@ -2,7 +2,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 import HolidayAnimation from '../../../../assets/lottie/HolidayAnimation.lottie';
 import Breadcrumbs from '../../../../common/Breadcrumbs';
@@ -42,6 +41,11 @@ const DeleteModal = React.lazy(
 
 const AddEditHoliday = React.lazy(
   () => import('../../../../Components/Modal/AddEditHoliday')
+);
+const DotLottieReact = React.lazy(() =>
+  import('@lottiefiles/dotlottie-react').then((mod) => ({
+    default: mod.DotLottieReact,
+  }))
 );
 
 function Holidays() {

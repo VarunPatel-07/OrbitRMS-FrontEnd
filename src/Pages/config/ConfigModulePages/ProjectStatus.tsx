@@ -106,7 +106,7 @@ function ProjectStatus() {
 
       const response = await multiplePostApi(endPointArr);
       const res = response[0];
-      console.log(res);
+
       if (res?.success) {
         setEditId('');
         setModalType('add');

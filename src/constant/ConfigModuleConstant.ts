@@ -8,6 +8,8 @@ export const AddEditInquiryFormSchemaInitialForm: AddEditInquiryFormSchemaInterf
     form_name: '',
     status: false,
     source_type: 'default',
+    authorized_recipient_emails: [''],
+    email_notification: false,
   };
 
 export const AddEditInquiryFormSchemaBreadcrumbs = (organization: string) => [

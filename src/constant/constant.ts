@@ -61,6 +61,13 @@ export const OrganizationEmployeeStatusArray = [
   'Confirmed',
 ];
 
+export const SocialMediaPostStatusArray = [
+  'queued',
+  'scheduled',
+  'posted',
+  'cancelled',
+];
+
 export const employeeTypesArray = [
   'Technical',
   'Support',

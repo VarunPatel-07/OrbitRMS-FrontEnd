@@ -5,6 +5,7 @@ import React, { SetStateAction } from 'react';
 import { Editor } from '@tiptap/react';
 
 import { AddEditPostFormdataInterface } from './Dashboard';
+import { RichTextEditorApiCallIngReturnInterface } from './propsInterface';
 import { GlobalContextStore } from './UserProfileInterface';
 
 //? -------------------------- Start Of The Onboarding Form InterFace Utility -------------------------
@@ -160,6 +161,8 @@ export interface DesignationConfig {
   created_at: string;
   created_by: object | null;
   designations_name: string;
+  authorized_recipient_emails: string | null;
+  email_notification: boolean | null;
   id: string;
   source_type: string;
   updated_at: object | null;
@@ -244,18 +247,23 @@ export interface AddEditPostModalInterface {
   loading: boolean;
   setLoading: React.Dispatch<SetStateAction<boolean>>;
   handelCancelButton: () => void;
+  handelApiCallingFunction: (
+    query: string
+  ) => Promise<RichTextEditorApiCallIngReturnInterface[]>;
 }
 
 export interface SelectedFileArrayObjInterface {
   id: string;
   file: File;
   croppedImagePreview: string;
+  originalFile: File;
 }
 export interface SelectedFileForCrop {
   id: string;
   file: File;
   previewUrl: string;
   croppedImagePreview: string;
+  originalFile: File;
 }
 
 export interface DragAndDropCropImageInterface {
@@ -273,5 +281,7 @@ export interface AddEditInquiryFormSchemaInterface {
   form_name: string;
   status: boolean;
   description: string;
+  authorized_recipient_emails: string[];
+  email_notification: boolean;
   source_type: 'default' | 'user_created';
 }

@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { IoEye } from 'react-icons/io5';
-import { MdDelete, MdModeEdit } from 'react-icons/md';
+import {
+  MdDelete,
+  MdModeEdit,
+  MdNotificationsActive,
+  MdNotificationsOff,
+} from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
@@ -11,6 +16,7 @@ import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
+import CommonAlertModal from '../../../../Components/Modal/CommonAlertModal';
 import {
   AddEditInquiryFormSchemaBreadcrumbs,
   AddEditInquiryFormSchemaInitialForm,
@@ -28,6 +34,7 @@ import {
   multipleDeleteApi,
   multipleFetchApi,
   multiplePostApi,
+  multiplePutApi,
 } from '../../../../Helper/api/multipleAPI';
 import {
   formateDate,
@@ -70,7 +77,10 @@ function InquiryFormSchema() {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [deleteItemId, setDeleteItemId] = useState<string>('');
   const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
-
+  const [showAlertModal, setShowAlertModal] = useState<boolean>(false);
+  const [emailNotificationStatus, setEmailNotificationStatus] = useState<
+    'active' | 'inactive'
+  >('inactive');
   const handelShowModal = () => {
     setModalType('add');
     setShowModal(!showModal);
@@ -106,7 +116,19 @@ function InquiryFormSchema() {
     const res = response[0];
 
     if (res?.success) {
-      setData(res?.data);
+      const responseData: DesignationConfig[] = [];
+      res?.data?.forEach((data: DesignationConfig) => {
+        responseData.push({
+          ...data,
+          authorized_recipient_emails: data?.authorized_recipient_emails
+            ? JSON.parse(data.authorized_recipient_emails)
+            : [''],
+
+          email_notification: data?.email_notification || false,
+        });
+      });
+
+      setData(responseData);
       setFilterData([]);
       setShowSearchFilterData(false);
       setIsFetchingData(false);
@@ -199,10 +221,41 @@ function InquiryFormSchema() {
       console.error('Error fetching project status:', error);
     }
   }, 50);
+  const handelToggleEmailNotificationWithDebounce = useDebounce(async () => {
+    try {
+      const response = await multiplePutApi([
+        {
+          endPoint: `config/inquiry_form_schema/toggle/email-notification?id=${deleteItemId}`,
+          protected: true,
+        },
+      ]);
 
+      const res = response[0];
+      if (res?.success) {
+        setDeleteItemId('');
+        setShowDeleteModal(false);
+        setShowAlertModal(false);
+        setIsDeleteLoading(false);
+        setIsFetchingData(true);
+        handelNotification(res, 'top-right');
+        fetchClientFormFields();
+      } else {
+        setDeleteItemId('');
+        setShowDeleteModal(false);
+        setIsDeleteLoading(false);
+        handelNotification(res, 'top-right');
+      }
+    } catch (error) {
+      console.error('Error fetching project status:', error);
+    }
+  }, 50);
   const handelDeleteItem = () => {
     setIsDeleteLoading(true);
     handelDeleteItemWithDebounce();
+  };
+  const handelToggleEmailNotification = () => {
+    setIsDeleteLoading(true);
+    handelToggleEmailNotificationWithDebounce();
   };
 
   const columns: Array<Column> = [
@@ -228,6 +281,26 @@ function InquiryFormSchema() {
         <span className='w-fit font-inter text-sm font-medium inline-block'>
           {data || '-'}
         </span>
+      ),
+    },
+    {
+      key: 'email_notification',
+      title: 'Email Notification',
+      isSortable: true,
+      isSticky: false,
+      canToggleVisibility: true,
+      renderContent: (data: boolean) => (
+        <div className='w-full'>
+          {data ? (
+            <span className='text-xs font-medium font-inter bg-green-100 text-green-700 border border-green-500 px-4 py-1.5 rounded-full'>
+              Active
+            </span>
+          ) : (
+            <span className='text-xs font-medium font-inter bg-red-100 text-red-700 border border-red-500 px-4 py-1.5 rounded-full'>
+              Inactive
+            </span>
+          )}
+        </div>
       ),
     },
     {
@@ -350,6 +423,29 @@ function InquiryFormSchema() {
             </Link>
             <button
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
+              data-tooltip-id='email_notification-toggler_button'
+              data-tooltip-content={
+                data?.email_notification
+                  ? 'Turn Off Email Notification'
+                  : 'Turn On Email Notification'
+              }
+              onClick={() => {
+                setShowAlertModal(true);
+                setDeleteItemId(data?.id);
+                setEmailNotificationStatus(
+                  data?.email_notification ? 'active' : 'inactive'
+                );
+              }}
+            >
+              {data?.email_notification ? (
+                <MdNotificationsOff className='text-[22px] text-rose-600' />
+              ) : (
+                <MdNotificationsActive className='text-[22px] text-green-600' />
+              )}
+            </button>
+
+            <button
+              className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
               data-tooltip-id='project_status_delete_button'
               data-tooltip-content='Delete'
               disabled={data?.source_type == 'default'}
@@ -360,12 +456,28 @@ function InquiryFormSchema() {
             >
               <MdDelete className='text-[22px]' />
             </button>
+
             <Tooltip
               id='project_status_edit_button'
               opacity={'100'}
               className='z-[15] bg-white'
               place='left'
             />
+            {data?.email_notification ? (
+              <Tooltip
+                id='email_notification-toggler_button'
+                opacity={'100'}
+                className='z-[15] bg-white'
+                place='left'
+              />
+            ) : (
+              <Tooltip
+                id='email_notification-toggler_button'
+                opacity={'100'}
+                className='z-[15] bg-white'
+                place='left'
+              />
+            )}
             {data?.source_type != 'default' && (
               <Tooltip
                 id='project_status_delete_button'
@@ -467,6 +579,19 @@ function InquiryFormSchema() {
         setShowDeleteModal={setShowDeleteModal}
         handelDelete={handelDeleteItem}
         name='Form Field'
+      />
+      <CommonAlertModal
+        loading={isDeleteLoading}
+        showDeleteModal={showAlertModal}
+        setShowDeleteModal={setShowAlertModal}
+        handelDelete={handelToggleEmailNotification}
+        title='Turn Off Email Notifications?'
+        description='You will no longer receive email updates or alerts. Are you sure you want to disable this feature?'
+        secondaryButtonTitle={
+          emailNotificationStatus == 'active'
+            ? 'Turn Off Notification'
+            : 'Turn On Notification'
+        }
       />
     </>
   );

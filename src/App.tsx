@@ -45,9 +45,10 @@ import EmployeeListing from './Pages/Employee/EmployeeListing';
 import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile/AddEditEmployeeProfile';
 import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
 import OrganizationSettings from './Pages/OrganizationSettings/OrganizationSettings';
+import SocialMedia from './Pages/SocialMedia/SocialMedia';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
-
+const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
 export const HandelPathFunction = () => {
   const _data = getDataFromLocalStorage('organization-info');
   const _isAuthenticated = getDataFromLocalStorage('authenticationToken');
@@ -176,6 +177,36 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (ENVIRONMENT === 'DEVELOPMENT') return;
+
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+
+    const handleDragStart = (e: DragEvent) => e.preventDefault();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey &&
+          e.shiftKey &&
+          ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
+        (e.ctrlKey && e.key.toUpperCase() === 'U')
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('dragstart', handleDragStart);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('dragstart', handleDragStart);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   return (
     <>
       <HelmetSeo
@@ -234,6 +265,10 @@ function App() {
                     element={
                       <ProtectedRoute element={<OrganizationSettings />} />
                     }
+                  />
+                  <Route
+                    path='/social-media'
+                    element={<ProtectedRoute element={<SocialMedia />} />}
                   />
                   {/* <Route path='*' element={<PageNotFound />} /> */}
                   <Route path='*' element={<HandelPathFunction />} />

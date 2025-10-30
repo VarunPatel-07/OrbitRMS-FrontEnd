@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaFilter } from 'react-icons/fa';
 import { FaPenToSquare } from 'react-icons/fa6';
 
+import EmptyFeedAnimation from '../../Components/Animation/EmptyFeedAnimation';
 import FeedPostCard from '../../Components/FeedPostCard';
 import FeedPostLoader from '../../Components/Loader/FeedPostLoader';
-import { OrganizationFeedPropsInterface } from '../../interface/Dashboard';
-import EmptyFeedAnimation from '../../Components/Animation/EmptyFeedAnimation';
+import {
+  FeedPostDataPropsInterface,
+  OrganizationFeedPropsInterface,
+} from '../../interface/Dashboard';
+import LikesCommentModal from './LikesCommentModal';
 
 const CTAButton = ({
   setShowAddEditPostModal,
@@ -31,51 +35,76 @@ function Feed(props: OrganizationFeedPropsInterface) {
     loading,
     editPostHandler,
     handelClickOnDeleteButton,
+    handelClickOnLikeToggle,
+    likedPosts,
+    submitCommentOnClick,
   } = props;
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [modalType, setModalType] = useState<'comments' | 'likes'>('likes');
+
+  const handelClickOnLikesComments = (data: FeedPostDataPropsInterface) => {
+    console.log(data);
+    setModalType('comments');
+  };
   return (
-    <div className='w-full bg-white relative flex flex-col items-start justify-start max-h-[calc(100vh-56px)] overflow-auto hide-scrollbar'>
-      {/* Header Section */}
-      <div className='w-full  flex items-stretch justify-between px-3.5 py-3 border-b border-b-black/15 min-h-[60px] h-[60px] sticky top-0 left-0 bg-white z-20'>
-        <p className='text-xl text-black font-inter font-semibold flex flex-col items-center justify-center'>
-          Feed
-        </p>
-        <div className='flex items-stretch justify-end gap-2'>
-          <CTAButton setShowAddEditPostModal={setShowAddEditPostModal} />
-          <button className='text-black text-base px-3 border border-black/15 rounded-md hover:bg-gray-100'>
-            <FaFilter className='text-sm' />
-          </button>
+    <div className='w-full h-full relative'>
+      <div className='w-full bg-white relative flex flex-col items-start justify-start max-h-[calc(100vh-56px)] overflow-auto hide-scrollbar'>
+        {/* Header Section */}
+        <div className='w-full  flex items-stretch justify-between px-3.5 py-3 border-b border-b-black/15 min-h-[60px] h-[60px] sticky top-0 left-0 bg-white z-20'>
+          <p className='text-xl text-black font-inter font-semibold flex flex-col items-center justify-center'>
+            Feed
+          </p>
+          <div className='flex items-stretch justify-end gap-2'>
+            <CTAButton setShowAddEditPostModal={setShowAddEditPostModal} />
+            <button className='text-black text-base px-3 border border-black/15 rounded-md hover:bg-gray-100'>
+              <FaFilter className='text-sm' />
+            </button>
+          </div>
         </div>
-      </div>
-      {loading ? (
-        <FeedPostLoader />
-      ) : (
-        <>
-          {feedPostData?.length == 0 ? (
-            <EmptyFeedAnimation
-              CTAButton={
-                <CTAButton setShowAddEditPostModal={setShowAddEditPostModal} />
-              }
-            />
-          ) : (
-            <div className='w-full'>
-              <div className='w-full flex flex-col items-start justify-start gap-4 px-4 py-4'>
-                {feedPostData?.map((item) => {
-                  return (
-                    <div key={item?.id} className='w-full'>
-                      <FeedPostCard
-                        data={item}
-                        GlobalStateProvider={GlobalStateProvider}
-                        editPostHandler={editPostHandler}
-                        handelClickOnDeleteButton={handelClickOnDeleteButton}
-                      />
-                    </div>
-                  );
-                })}
+        {loading ? (
+          <FeedPostLoader />
+        ) : (
+          <>
+            {feedPostData?.length == 0 ? (
+              <EmptyFeedAnimation
+                CTAButton={
+                  <CTAButton
+                    setShowAddEditPostModal={setShowAddEditPostModal}
+                  />
+                }
+              />
+            ) : (
+              <div className='w-full'>
+                <div className='w-full flex flex-col items-start justify-start gap-4 px-4 py-4'>
+                  {feedPostData?.map((item) => {
+                    return (
+                      <div key={item?.id} className='w-full'>
+                        <FeedPostCard
+                          data={item}
+                          likedPosts={likedPosts}
+                          GlobalStateProvider={GlobalStateProvider}
+                          editPostHandler={editPostHandler}
+                          handelClickOnDeleteButton={handelClickOnDeleteButton}
+                          handelClickOnLikeToggle={handelClickOnLikeToggle}
+                          submitCommentOnClick={submitCommentOnClick}
+                          handelClickOnLikesComments={
+                            handelClickOnLikesComments
+                          }
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
+      </div>
+      <LikesCommentModal
+        type={modalType}
+        showModal={showModal}
+        setShowModal={setShowModal}
+      />
     </div>
   );
 }

@@ -1,11 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from 'react';
 import { IoClose } from 'react-icons/io5';
-import ReactJson from 'react-json-view';
+
+// import ReactJson from 'react-json-view';
 
 import { NotAllowedObjectField } from '../../constant/constant';
 import { classNames } from '../../Helper/HelperFunctions';
 import { ClientInquirySidebarModelInterface } from '../../interface/interface';
+
+interface InquiryData {
+  [key: string]: any;
+}
+
+interface Props {
+  data: InquiryData;
+}
 
 function ClientInquirySliderModal(props: ClientInquirySidebarModelInterface) {
   const {
@@ -39,6 +48,56 @@ function ClientInquirySliderModal(props: ClientInquirySidebarModelInterface) {
       obj[key] = clientInquiryData[key];
       return obj;
     }, {});
+
+  const JsonTable = ({ data }: Props) => {
+    const renderValue = (value: any) => {
+      if (Array.isArray(value)) {
+        return (
+          <table className='table-auto border border-gray-300 w-full my-2'>
+            <thead>
+              <tr className='bg-gray-100 text-black capitalize'>
+                {Object.keys(value[0] || {}).map((key) => (
+                  <th key={key} className='border px-2 py-1 text-left'>
+                    {key}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {value.map((item: any, index: number) => (
+                <tr key={index}>
+                  {Object.values(item).map((val: any, i) => (
+                    <td key={i} className='border px-2 py-1 text-black/80'>
+                      {val.toString()}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+      } else if (typeof value === 'object' && value !== null) {
+        return <JsonTable data={value} />;
+      } else {
+        return <span className='text-black/60'>{value.toString()}</span>;
+      }
+    };
+
+    return (
+      <table className='table-auto border border-gray-300 w-full'>
+        <tbody>
+          {Object.entries(data).map(([key, value]) => (
+            <tr key={key} className='hover:bg-gray-50'>
+              <td className='border px-4 py-2 bg-gray-50 w-1/3 text-black capitalize font-semibold'>
+                {key?.replace(/_/g, ' ')}
+              </td>
+              <td className='border px-4 py-2'>{renderValue(value)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
   return (
     <div
       className={classNames(
@@ -51,7 +110,7 @@ function ClientInquirySliderModal(props: ClientInquirySidebarModelInterface) {
     >
       <div
         className={classNames(
-          'w-full bg-white max-w-[500px] h-full ml-auto transition-all duration-300',
+          'w-full bg-white max-w-[800px] h-full ml-auto transition-all duration-300',
           {
             'translate-x-full': !showClientInquiryDetail,
             'translate-x-0': showClientInquiryDetail,
@@ -71,14 +130,15 @@ function ClientInquirySliderModal(props: ClientInquirySidebarModelInterface) {
           </button>
         </div>
         <div className='w-full py-6 px-5 h-[calc(100%-100px)] overflow-auto text-base'>
-          <ReactJson
+          {/* <ReactJson
             src={filteredObjKey}
             theme='rjv-default'
             displayDataTypes={false}
             defaultValue=''
             name='Inquiry Data'
             collapsed={1}
-          />
+          /> */}
+          <JsonTable data={filteredObjKey} />
         </div>
       </div>
     </div>

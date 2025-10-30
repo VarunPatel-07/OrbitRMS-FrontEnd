@@ -42,7 +42,7 @@ export const handelGeneratingDynamicClientColumn = (
         canToggleVisibility: true,
         renderContent: (data: any) => (
           <div className='w-fit'>
-            <span className='font-inter text-sm font-medium text-nowrap text-black'>
+            <span className='font-inter text-sm font-medium text-black max-w-[500px] text-wrap line-clamp-3 text-ellipsis overflow-hidden'>
               {data || <span>-</span>}
             </span>
           </div>
