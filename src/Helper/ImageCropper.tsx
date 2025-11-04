@@ -11,7 +11,6 @@ export const getCroppedImageBlob = async (
   croppedArea: Area,
   rotation: number
 ): Promise<Blob> => {
-  // console.log(imageFile, croppedArea, rotation);
   const imageUrl = URL.createObjectURL(imageFile);
   const imageObject = await createImageUtilFunction(imageUrl);
   URL.revokeObjectURL(imageUrl);

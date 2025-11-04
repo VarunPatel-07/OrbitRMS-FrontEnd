@@ -109,15 +109,15 @@ export const BreadcrumbsObjects = (
   {
     name: 'Employee Listing',
     label: 'employee_listing',
-    link: `/${organization_slug}/employee/employee-listing`,
+    link: `/${organization_slug}/employees/employee-listing`,
   },
   {
     name: moduleType == 'edit' ? 'Edit Profile' : 'Add Employee',
     label: 'employee-profile',
     link:
       moduleType == 'edit'
-        ? `/${organization_slug}/employee/${moduleType}/${employee_id}`
-        : `/${organization_slug}/employee/${moduleType}`,
+        ? `/${organization_slug}/employees/${moduleType}/${employee_id}`
+        : `/${organization_slug}/employees/${moduleType}`,
   },
 ];
 

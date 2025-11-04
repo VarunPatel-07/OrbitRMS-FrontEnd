@@ -61,7 +61,7 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
       return;
     }
 
-    // console.log("handelUploadImage",data)
+ 
 
     setFormData((pervData) => ({
       ...pervData,

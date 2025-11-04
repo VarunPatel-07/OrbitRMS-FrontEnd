@@ -138,17 +138,17 @@ function EmployeeProfile() {
     {
       name: 'Employee Listing',
       label: 'employee_listing',
-      link: `/${organization}/employee/employee-listing`,
+      link: `/${organization}/employees/employee-listing`,
     },
     {
       name: 'Employee Profile',
       label: 'employee-profile',
-      link: `/${organization}/employee-profile/${employee_id}/employee-details`,
+      link: `/${organization}/employees/employee-profile/${employee_id}/employee-details`,
     },
   ];
   const EmployeeProfileActionArray: EmployeeProfileActionArrayInterface[] = [
     {
-      link: `/${organization}/employee-profile/${employee_id}/employee-details`,
+      link: `/${organization}/employees/employee-profile/${employee_id}/employee-details`,
       classNames:
         'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
       label: 'employee_details',
@@ -157,7 +157,7 @@ function EmployeeProfile() {
     ...(employee_id === GlobalStateProvider?.user?.personal_info?.user_id
       ? [
           {
-            link: `/${organization}/employee-profile/${employee_id}/logged-in-device`,
+            link: `/${organization}/employees/employee-profile/${employee_id}/logged-in-device`,
             classNames:
               'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
             label: 'logged_in_device',
@@ -393,7 +393,7 @@ function EmployeeProfile() {
                           <Skeleton height={35} width={140} borderRadius={6} />
                         ) : (
                           <Link
-                            to={`/${organization}/employee/edit/${GlobalStateProvider?.user?.personal_info?.user_id}`}
+                            to={`/${organization}/employees/edit/${GlobalStateProvider?.user?.personal_info?.user_id}`}
                             className='font-inter capitalize text-sm px-3 py-1.5 h-full inline-block rounded-md text-white font-medium bg-[var(--them-green-color)]'
                           >
                             Edit Profile

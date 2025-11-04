@@ -203,7 +203,9 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
               </div>
               <div className='w-full'>
                 <SearchDrop
-                  options={employeeFormDropdowns.employeeRoleOptions}
+                  options={employeeFormDropdowns.employeeRoleOptions?.filter(
+                    (item) => item?.status
+                  )}
                   searchKey='role_name'
                   position='bottom'
                   emptyDataMessage='No Role Found'

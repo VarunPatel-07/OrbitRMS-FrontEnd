@@ -241,18 +241,18 @@ function App() {
                     element={<ProtectedRoute element={<Config />} />}
                   />
                   <Route
-                    path='/employee-profile/:id/*'
+                    path='/employees/employee-profile/:id/*'
                     element={<ProtectedRoute element={<EmployeeProfile />} />}
                   />
 
                   <Route
-                    path='/employee/:type/:id?'
+                    path='/employees/:type/:id?'
                     element={
                       <ProtectedRoute element={<AddEditEmployeeProfile />} />
                     }
                   />
                   <Route
-                    path='/employee/employee-listing'
+                    path='/employees/employee-listing'
                     element={<ProtectedRoute element={<EmployeeListing />} />}
                   />
 

@@ -83,12 +83,12 @@ function EmployeeListing() {
     {
       name: 'Employee Listing',
       label: 'employee-listing',
-      link: `/${organization}/employee/employee-listing`,
+      link: `/${organization}/employees/employee-listing`,
     },
   ];
 
   const handelShowModal = () => {
-    navigate(`/${organization}/employee/add`);
+    navigate(`/${organization}/employees/add`);
   };
   //
   // * This Is An OptionsButton Array That Is Being Render On The Table Header
@@ -243,7 +243,7 @@ function EmployeeListing() {
             />
             <div className='w-fit'>
               <Link
-                to={`/${organization}/employee-profile/${data?.reporting_to_id}/employee-details`}
+                to={`/${organization}/employees/employee-profile/${data?.reporting_to_id}/employee-details`}
                 className='flex items-center justify-start gap-1 text-black hover:text-[#3538CD]'
                 target='_blank'
               >
@@ -279,7 +279,7 @@ function EmployeeListing() {
               data-tooltip-content='Edit'
               onClick={() => {
                 navigate(
-                  `/${organization}/employee/edit/${data?.personal_info?.user_id}`
+                  `/${organization}/employees/edit/${data?.personal_info?.user_id}`
                 );
               }}
             >
@@ -291,7 +291,7 @@ function EmployeeListing() {
               data-tooltip-content='View Profile'
               onClick={() => {
                 navigate(
-                  `/${organization}/employee-profile/${data?.personal_info?.user_id}/employee-details`
+                  `/${organization}/employees/employee-profile/${data?.personal_info?.user_id}/employee-details`
                 );
               }}
             >
@@ -388,7 +388,7 @@ function EmployeeListing() {
 
     // Then navigate after the state updates are complete
     setTimeout(() => {
-      navigate(`/${organization}/employee/employee-listing?${queryString}`);
+      navigate(`/${organization}/employees/employee-listing?${queryString}`);
     }, 0);
   };
 

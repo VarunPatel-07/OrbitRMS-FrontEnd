@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { SetStateAction, useState } from 'react';
+import React, { SetStateAction, startTransition, useState } from 'react';
 
 import SearchInput from './SearchInput';
 
@@ -22,8 +22,10 @@ function TableLocalSearchBar({
     setSearchValue(val);
     if (val.length <= 0) {
       setSearchValue('');
-      setShowSearchFilterData(false);
-      setData([]);
+      startTransition(() => {
+        setShowSearchFilterData(false);
+        setData([]);
+      });
     }
   };
 
@@ -35,19 +37,25 @@ function TableLocalSearchBar({
 
   const handelSearchButtonClick = () => {
     if (searchValue?.trim().length <= 0) return;
-    setShowSearchFilterData(true);
     const filterData = data.filter((item) =>
       item[search_key]
         ?.toLocaleLowerCase()
         .includes(searchValue?.toLocaleLowerCase())
     );
-    setData(filterData);
+
+    startTransition(() => {
+      setShowSearchFilterData(true);
+      setData(filterData);
+    });
   };
 
   const handelCancelButton = () => {
     setSearchValue('');
-    setShowSearchFilterData(false);
-    setData([]);
+
+    startTransition(() => {
+      setShowSearchFilterData(false);
+      setData([]);
+    });
   };
   return (
     <div className='w-ful p-2 bg-gray-200 border-x border-x-black/5'>

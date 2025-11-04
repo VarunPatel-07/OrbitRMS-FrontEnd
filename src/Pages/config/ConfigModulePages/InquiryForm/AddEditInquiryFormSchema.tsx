@@ -105,8 +105,6 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
     } else {
       setFormData((pervData) => ({ ...pervData, [name]: value }));
     }
-
-    // console.log(formData);
   };
 
   const handelClickOnCheckBox = (value: string) => {
@@ -213,6 +211,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       value={formData?.form_id}
                       onChange={handelOnChange}
                       showError={showError}
+                      // disabled={modalType == 'edit'}
                       errorMessage={
                         showError && formData?.form_id?.length <= 0
                           ? 'this is a require field'
@@ -230,6 +229,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       value={formData?.form_name}
                       onChange={handelOnChange}
                       showError={showError}
+                      // disabled={modalType == 'edit'}
                       errorMessage={
                         showError && formData?.form_name?.length <= 0
                           ? 'this is a require field'

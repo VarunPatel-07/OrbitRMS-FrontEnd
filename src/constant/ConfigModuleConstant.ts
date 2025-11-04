@@ -17,7 +17,7 @@ export const AddEditInquiryFormSchemaBreadcrumbs = (organization: string) => [
   {
     name: 'Config',
     label: 'config-module',
-    link: `${organization}/config/project-status`,
+    link: `/${organization}/config/project-status`,
   },
   {
     name: 'Inquiry Forms',
@@ -26,7 +26,11 @@ export const AddEditInquiryFormSchemaBreadcrumbs = (organization: string) => [
   },
 ];
 
-export const AddEditInquiryFormFields = (organization: string, id: string) => [
+export const AddEditInquiryFormFields = (
+  organization: string,
+  id: string,
+  form_name: string
+) => [
   { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
   {
     name: 'Config',
@@ -39,7 +43,7 @@ export const AddEditInquiryFormFields = (organization: string, id: string) => [
     link: `/${organization}/config/inquiry-forms`,
   },
   {
-    name: 'Fields',
+    name: form_name,
     label: '/fields',
     link: `/${organization}/config/inquiry-forms/${id}/fields`,
   },

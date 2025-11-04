@@ -30,7 +30,10 @@ import {
   getDataFromLocalStorage,
 } from '../../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../../Hooks/useDebounce';
-import { InquiryFormFieldInterface } from '../../../../interface/interface';
+import {
+  InquiryFormFieldInterface,
+  InquiryFormFieldsDataInterface,
+} from '../../../../interface/interface';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
@@ -42,6 +45,12 @@ const AddModal = React.lazy(
 const DeleteModal = React.lazy(
   () => import('../../../../Components/Modal/DeleteModal')
 );
+
+const initialData: InquiryFormFieldsDataInterface = {
+  form_id: '',
+  form_name: '',
+  form_fields: [],
+};
 
 export default function InquiryFormFields() {
   const { id: form_schema_id } = useParams();
@@ -57,10 +66,8 @@ export default function InquiryFormFields() {
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const [value, setValue] = useState<string>('');
-  const [data, setData] = useState<Array<InquiryFormFieldInterface>>([]);
-  const [filterData, setFilterData] = useState<
-    Array<InquiryFormFieldInterface>
-  >([]);
+  const [data, setData] = useState<InquiryFormFieldsDataInterface>(initialData);
+  const [filterData, setFilterData] = useState<InquiryFormFieldInterface[]>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -80,7 +87,8 @@ export default function InquiryFormFields() {
 
   const BreadcrumbsObjects = AddEditInquiryFormFields(
     organization,
-    form_schema_id || ''
+    form_schema_id || '',
+    data?.form_name
   );
 
   const handelShowModal = () => {
@@ -388,25 +396,25 @@ export default function InquiryFormFields() {
             ) : (
               <>
                 <TableInfoHeader
-                  moduleName='Form Fields'
+                  moduleName={data?.form_name}
                   badgeValue={
                     showSearchFilterData
-                      ? filterData.length?.toString()
-                      : data.length?.toString()
+                      ? filterData?.length?.toString()
+                      : data?.form_fields?.length?.toString()
                   }
                   buttonsArray={optionsButtonArray}
                 />
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
-                  data={data}
+                  data={data?.form_fields}
                   search_key='field_name'
                   setData={setFilterData}
                 />
-                {(data?.length > 0 && !showSearchFilterData) ||
+                {(data?.form_fields?.length > 0 && !showSearchFilterData) ||
                 (showSearchFilterData && filterData?.length > 0) ? (
                   <Table
                     columns={columns}
-                    data={showSearchFilterData ? filterData : data}
+                    data={showSearchFilterData ? filterData : data?.form_fields}
                     tableWrapperClass={
                       'overflow-auto max-h-[calc(100vh-280px)] rounded-b-lg'
                     }
@@ -445,7 +453,7 @@ export default function InquiryFormFields() {
         setShowModal={setShowModal}
         loading={loading}
         handelFormSubmitFunction={handelFormSubmitFunction}
-        value={value?.replace(/[\s-]/g, '_')}
+        value={value?.replace(/[\s-]/g, '_').toLocaleLowerCase()}
         setValue={setValue}
         modalType={modalType}
         fieldType={fieldType}

@@ -54,7 +54,7 @@ function Navbar(props: NavbarPropsInterface) {
       icon: <HiOutlineUserCircle className='text-2xl' />,
       label: 'my-profile',
       name: 'My Profile',
-      link: `/${organization}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/employee-details`,
+      link: `/${organization}/employees/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/employee-details`,
       className: '',
       type: 'link',
     },
@@ -62,7 +62,7 @@ function Navbar(props: NavbarPropsInterface) {
       icon: <HiOutlineDeviceMobile className='text-2xl' />,
       label: 'logged-in-devices',
       name: 'Logged In Devices',
-      link: `/${organization}/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/logged-in-device`,
+      link: `/${organization}/employees/employee-profile/${GlobalStateProvider?.user?.employee_info?.user_id}/logged-in-device`,
       className: '',
       type: 'link',
     },
@@ -99,7 +99,7 @@ function Navbar(props: NavbarPropsInterface) {
             src={OrbitRMSLogo}
             width={150}
             className='w-36 h-10 object-cover'
-            alt=''
+            alt='OrbitRMS Logo'
           />
         </div>
       </div>

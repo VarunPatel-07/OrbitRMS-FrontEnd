@@ -1,5 +1,5 @@
 export interface ConfigModuleSidebarInterface {
-  id: number;
+  id: string;
   name: string;
   label: string;
   link: string;
@@ -11,7 +11,7 @@ export const ConfigSidebarMenuList = (
   organization: string
 ): ConfigModuleSidebarInterface[] => [
   {
-    id: 1,
+    id: 'project_status',
     name: 'Project Status',
     label: 'config-project-status-tooltip',
     link: `/${organization}/config/project-status`,
@@ -19,7 +19,7 @@ export const ConfigSidebarMenuList = (
     ToolTipValue: 'Project Status',
   },
   {
-    id: 2,
+    id: 'department',
     name: 'Department',
     label: 'config-attachment-type-tooltip',
     link: `/${organization}/config/department`,
@@ -27,7 +27,7 @@ export const ConfigSidebarMenuList = (
     ToolTipValue: 'Attachment Type',
   },
   {
-    id: 3,
+    id: 'designations',
     name: 'Designations',
     label: 'config-designations-tooltip',
     link: `/${organization}/config/designations`,
@@ -35,7 +35,7 @@ export const ConfigSidebarMenuList = (
     ToolTipValue: 'Designations',
   },
   {
-    id: 4,
+    id: 'roles_permission',
     name: 'Roles & Permission',
     label: 'config-roles-permission-tooltip',
     link: `/${organization}/config/roles-permission`,
@@ -43,7 +43,7 @@ export const ConfigSidebarMenuList = (
     ToolTipValue: 'Roles & Permission',
   },
   {
-    id: 5,
+    id: 'inquiry_forms',
     name: 'Inquiry Forms',
     label: 'config-client-form-tooltip',
     link: `/${organization}/config/inquiry-forms`,

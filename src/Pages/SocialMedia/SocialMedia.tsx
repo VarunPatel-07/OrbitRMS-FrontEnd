@@ -90,6 +90,8 @@ function SocialMedia() {
     'parsing' | 'uploading' | 'processing' | 'done'
   >('parsing');
   const [progress, setProgress] = useState(0);
+  const [renderExtraMessageForDelete, setRenderExtraMessageForDelete] =
+    useState<boolean>(false);
 
   //
   //* This Is The Function That Fetch All The Linked SocialMedia Account
@@ -190,14 +192,12 @@ function SocialMedia() {
           'X-Requested-With': 'XMLHttpRequest',
         },
         onError: (error) => {
-          console.error('Upload failed:', error);
           reject(error);
         },
         onProgress: (bytesUploaded, bytesTotal) => {
           onProgress(bytesUploaded, bytesTotal);
         },
         onSuccess: () => {
-          // console.log('Upload finished:', uploadData.url);
           resolve(uploadData.url);
         },
       });
@@ -255,8 +255,6 @@ function SocialMedia() {
     const handleProgress = (bytesUploaded: number) => {
       const totalProgress =
         ((uploadedBytes + bytesUploaded) / totalBytes) * 100;
-
-      console.log(totalProgress);
 
       setProgress(totalProgress);
     };
@@ -389,11 +387,13 @@ function SocialMedia() {
 
       const res = response[0];
       setIsDeleteLoading(false);
-      setShowDeleteModal(false);
+
       handelNotification(res, 'top-right');
 
       if (res?.success) {
+        setShowDeleteModal(false);
         setLoadingSocialMediaPost(true);
+        setRenderExtraMessageForDelete(false);
         handelFetchSocialMediaPostWithDebounce();
       }
     },
@@ -428,17 +428,26 @@ function SocialMedia() {
     );
   };
 
-  console.log(loadingSocialMediaPost);
-
   const handelCancelButton = () => {
     setShowAddEditPostModal(false);
     setFormData(AddEditPostFormData);
   };
 
-  const handelClickOnDeleteButton = (postId: string) => {
+  const handelClickOnDeleteButton = (
+    postId: string,
+    selected_platforms: string
+  ) => {
+    setRenderExtraMessageForDelete(false);
     if (postId) {
       setDeletePostId(postId);
       setShowDeleteModal(true);
+      if (selected_platforms !== '') {
+        JSON.parse(selected_platforms)?.forEach((item: string) => {
+          if (item === 'instagram') {
+            setRenderExtraMessageForDelete(true);
+          }
+        });
+      }
     }
   };
 
@@ -478,6 +487,34 @@ function SocialMedia() {
     handelFetchSocialMediaPostWithDebounce();
   }, []);
 
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (
+        uploadingPostFormData?.caption !== '' ||
+        uploadingPostFormData?.new_images?.length > 0 ||
+        uploadingPostFormData?.existing_images?.length > 0
+      ) {
+        event.preventDefault();
+        // Standard message ignored by most browsers, but required for the popup
+        event.returnValue = '';
+      }
+    };
+
+    if (
+      uploadingPostFormData?.caption !== '' ||
+      uploadingPostFormData?.new_images?.length > 0 ||
+      uploadingPostFormData?.existing_images?.length > 0
+    ) {
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    } else {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [uploadingPostFormData]);
+
   return (
     <>
       <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
@@ -493,10 +530,12 @@ function SocialMedia() {
               showModal={showModal}
               setHandelClickOnDropDown={setHandelClickOnDropDown}
             />
+
             <SocialMediaPosts
               setShowAddEditPostModal={setShowAddEditPostModal}
               socialPostArray={socialPostArray}
               handelClickOnDeleteButton={handelClickOnDeleteButton}
+              loading={loadingSocialMediaPost}
             />
           </div>
         </div>
@@ -543,8 +582,10 @@ function SocialMedia() {
         setShowDeleteModal={setShowDeleteModal}
         handelDelete={handelDeletePost}
         name='Social Media Post'
-        ExtraErrorMessage={ExtraErrorMessageRender()}
-        minHeight={400}
+        ExtraErrorMessage={
+          renderExtraMessageForDelete ? ExtraErrorMessageRender() : <></>
+        }
+        minHeight={renderExtraMessageForDelete ? 400 : 300}
       />
     </>
   );

@@ -177,7 +177,7 @@ function MultipleImageCropper({
     });
   };
 
-  // console.log('finalSelectedImageArray', finalSelectedImageArray);
+
 
   const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
     setCroppedArea(croppedAreaPixels);

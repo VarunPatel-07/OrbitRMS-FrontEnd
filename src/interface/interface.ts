@@ -143,7 +143,11 @@ export interface DepartmentConfig {
   updated_at: object | null;
   updated_by: string | null;
 }
-
+export interface InquiryFormFieldsDataInterface {
+  form_id: string;
+  form_name: string;
+  form_fields: InquiryFormFieldInterface[];
+}
 export interface InquiryFormFieldInterface {
   id: string;
   field_name: string;
@@ -310,4 +314,17 @@ export interface AddEditInquiryFormSchemaInterface {
   authorized_recipient_emails: string[];
   email_notification: boolean;
   source_type: 'default' | 'user_created';
+}
+
+export interface PermissionObjectInterface {
+  label: 'view' | 'edit' | 'delete';
+  is_allowed: boolean;
+}
+
+export interface ConfigModuleSideBarListingInterface {
+  label: string;
+  path: string;
+  module: React.ReactElement<{
+    permissions?: PermissionObjectInterface[];
+  }>;
 }

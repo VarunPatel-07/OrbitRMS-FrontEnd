@@ -106,7 +106,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               onChange={setValue ? updateValue : onChange}
               placeholder={placeHolder}
               className={`bg-transparent caret-black  autofill:!text-black
-              !text-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter resize-none disabled:bg-[#7fab98]/15 disabled:cursor-not-allowed ${
+              !text-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter resize-none disabled:bg-[#7fab98]/15 disabled:cursor-not-allowed   ${
                 viewPasswordBtn ? 'pl-4 pr-10' : 'px-4'
               } placeholder:${placeholderColor}`}
               style={{

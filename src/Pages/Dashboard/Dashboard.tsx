@@ -96,7 +96,7 @@ function Dashboard() {
   //
   //
   //
-  // // console.log('uploadingPostFormData', uploadingPostFormData);
+
   const deletePostWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
       {
@@ -360,7 +360,7 @@ function Dashboard() {
           onProgress(bytesUploaded, bytesTotal);
         },
         onSuccess: () => {
-          // console.log('Upload finished:', uploadData.url);
+       
           resolve(uploadData.url);
         },
       });
@@ -500,6 +500,9 @@ function Dashboard() {
         if (item?.type == 'video')
           multipartFormData.append('videos', item?.url);
       });
+      formData?.existing_images.map((item) => {
+        multipartFormData.append('images', item);
+      });
 
       multipartFormData.append(
         'isCommentDisabled',
@@ -545,7 +548,7 @@ function Dashboard() {
   );
 
   const handelSubmitApiCallingWithDebounce = useDebounce(async () => {
-    // console.log(type, editPostId);
+
 
     const endPointArr: endpointObject[] = [
       {
@@ -565,7 +568,6 @@ function Dashboard() {
       setUploadingPostFormData(formData);
 
       const responseData = await uploadImageVideoToCloud(formData, res.data);
-      console.log(responseData);
       if (responseData) {
         setStage('processing');
         setProgress(100);

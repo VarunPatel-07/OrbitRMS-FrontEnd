@@ -6,7 +6,8 @@ import {
 } from '../constant/constant';
 import { EmployeeStatusInterface } from '../interface/EmployeeInterface';
 import { InfoFieldProps } from '../interface/interface';
-import { formateDate } from './HelperFunctions';
+import { clearLocalSessionStorage, formateDate } from './HelperFunctions';
+import { Navigate } from 'react-router-dom';
 
 const AccountStatusColor: Record<string, string> = {
   Intern: 'bg-yellow-500',
@@ -60,7 +61,9 @@ export const BeautifulSocialMediaPostStatusRenderer = (
         <span
           className={`w-2 h-2 inline-block rounded-full ${PostStatusColor[status]}`}
         ></span>
-        <span className='text-sm font-inter font-medium capitalize'>{status}</span>
+        <span className='text-sm font-inter font-medium capitalize'>
+          {status}
+        </span>
       </span>
     );
   } else {
@@ -111,3 +114,8 @@ export const InfoField = ({
     )}
   </div>
 );
+
+export const NavigateToTheLogInScreen = () => {
+  clearLocalSessionStorage();
+  return <Navigate to='/auth/sign-in' />;
+};
