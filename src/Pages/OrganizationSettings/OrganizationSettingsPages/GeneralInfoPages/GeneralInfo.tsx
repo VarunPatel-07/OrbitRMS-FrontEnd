@@ -134,6 +134,7 @@ function GeneralInfo() {
   ];
 
   const organizationGeneralInfo = () => {
+    if (data?.general_info == null) return <></>;
     return (
       <div className='bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -245,6 +246,7 @@ function GeneralInfo() {
     );
   };
   const organizationAddress = () => {
+    if (data?.address == null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -280,6 +282,7 @@ function GeneralInfo() {
     );
   };
   const organizationAboutInfo = () => {
+    if (data?.about_info == null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -315,6 +318,7 @@ function GeneralInfo() {
     );
   };
   const organizationContactInfo = () => {
+    if (data?.contact_info == null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -365,6 +369,7 @@ function GeneralInfo() {
     );
   };
   const organizationSettings = () => {
+    if (data?.organization_settings == null) return <></>;
     return (
       <div className='bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>

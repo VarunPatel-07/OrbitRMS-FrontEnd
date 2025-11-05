@@ -16,12 +16,14 @@ function RolesAndPermissionTable({
   updatingModuleLoaderId,
   setUpdatingModuleLoaderId,
   PermissionTogglerFunc,
+  disabled,
 }: {
   data: RolesAndPermissionsModule[];
   StatusTogglerFunc: (id: string) => void;
   PermissionTogglerFunc: (id: string) => void;
   updatingModuleLoaderId: string;
   setUpdatingModuleLoaderId: React.Dispatch<SetStateAction<string>>;
+  disabled: boolean;
 }) {
   const [expandedModules, setExpandedModules] = useState<Set<string>>(
     new Set()
@@ -106,9 +108,11 @@ function RolesAndPermissionTable({
               <LuLoaderCircle className='animate-spin' />
             ) : (
               <button
-                className={`w-10 h-[18px] rounded-full relative transition-all duration-200 border border-transparent disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:border-black/20 ${module.is_active ? 'bg-green-500' : 'bg-red-500'}`}
+                className={`w-10 h-[18px] rounded-full relative transition-all duration-200 border border-transparent disabled:opacity-75 disabled:cursor-not-allowed ${disabled ? '' : 'disabled:bg-gray-300 disabled:border-black/20'}  ${module.is_active ? 'bg-green-500' : 'bg-red-500'}`}
                 onClick={() => handelStatusToggler(module)}
-                disabled={!isParentModuleActive && hierarchyLevel > 0}
+                disabled={
+                  disabled || (!isParentModuleActive && hierarchyLevel > 0)
+                }
               >
                 <span
                   className={`w-3.5 h-3.5 bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${module.is_active ? 'left-[22px]' : 'left-0.5'}`}
@@ -143,7 +147,9 @@ function RolesAndPermissionTable({
                   <div className='flex items-center justify-center'>
                     <button
                       className='w-6 h-6 border border-black/30 disabled:border-black/15 rounded-full relative disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-gray-200'
-                      disabled={!module.is_active || !isParentModuleActive}
+                      disabled={
+                        disabled || !module.is_active || !isParentModuleActive
+                      }
                     >
                       <span
                         className={`inline-block w-3 h-3 bg-blue-700 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all ${

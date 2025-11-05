@@ -1,5 +1,5 @@
 export interface OrganizationSettingsSidebarListInterface {
-  id: number;
+  id: 'general_info' | 'holiday';
   name: string;
   label: string;
   link: string;
@@ -11,7 +11,7 @@ export const OrganizationSettingsSidebarList = (
   organization: string
 ): OrganizationSettingsSidebarListInterface[] => [
   {
-    id: 1,
+    id: 'general_info',
     name: 'General Info',
     label: 'api-manager-general-info-tooltip',
     link: `/${organization}/organization-settings/general-info`,
@@ -19,7 +19,7 @@ export const OrganizationSettingsSidebarList = (
     ToolTipValue: 'General Info',
   },
   {
-    id: 2,
+    id: 'holiday',
     name: 'Holiday',
     label: 'holiday-info-tooltip',
     link: `/${organization}/organization-settings/holiday`,

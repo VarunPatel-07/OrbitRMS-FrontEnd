@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { LuUser } from 'react-icons/lu';
 import { MdOutlineEmail } from 'react-icons/md';
 import { Link } from 'react-router-dom';
@@ -42,6 +42,7 @@ function EmployeeDetails(props: {
   // * ------ Start Of The Function That Help In The Rendering -----
   //
   const employee_general_info = () => {
+    if (data?.employee_info === null) return <></>;
     return (
       <div className='bg-white rounded-xl border border-black/15'>
         <div className='w-full'>
@@ -122,6 +123,7 @@ function EmployeeDetails(props: {
     );
   };
   const personal_information = () => {
+    if (data?.personal_info === null) return <></>;
     return (
       <div className='bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -186,6 +188,7 @@ function EmployeeDetails(props: {
     );
   };
   const employee_information = () => {
+    if (data?.employee_info === null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -262,6 +265,7 @@ function EmployeeDetails(props: {
     );
   };
   const personal_contact_information = () => {
+    if (data?.personal_contact_info === null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -330,6 +334,7 @@ function EmployeeDetails(props: {
     );
   };
   const family_info = () => {
+    if (data?.family_info === null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -433,6 +438,7 @@ function EmployeeDetails(props: {
   };
 
   const RenderAddressComponent = () => {
+    if (data?.current_address == null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -513,13 +519,13 @@ function EmployeeDetails(props: {
     },
     {
       id: 5,
-      label: 'family_info',
+      label: 'family_information',
       module: family_info(),
       title: 'Family information',
     },
     {
       id: 6,
-      label: 'address',
+      label: 'employee_address',
       module: RenderAddressComponent(),
       title: 'Address',
     },
@@ -534,9 +540,7 @@ function EmployeeDetails(props: {
       ) : (
         <>
           {UserInformationDataModules?.map((section) => (
-            <div className='w-full' key={section?.id}>
-              {section?.module}
-            </div>
+            <React.Fragment key={section?.id}>{section?.module}</React.Fragment>
           ))}
         </>
       )}

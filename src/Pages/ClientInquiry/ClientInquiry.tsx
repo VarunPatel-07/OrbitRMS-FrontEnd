@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { IoEye } from 'react-icons/io5';
+import { MdDelete } from 'react-icons/md';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
+import Button from '../../common/Button';
 import SearchDrop from '../../common/SearchDrop';
 import Table from '../../common/Table/Table';
 import TableFilterSearchBar from '../../common/Table/TableFilterSearchBar';
@@ -25,7 +27,12 @@ import {
   NotificationContextApiProps,
 } from '../../Context/Notification/NotificationContextApi';
 import { FilterFieldsTypeEnums } from '../../enums/enums';
-import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
+import {
+  endpointObject,
+  multipleDeleteApi,
+  multipleFetchApi,
+} from '../../Helper/api/multipleAPI';
+import { NavigateToTheLogInScreen } from '../../Helper/Helper';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
 import { AddEditInquiryFormSchemaInterface } from '../../interface/interface';
@@ -37,6 +44,10 @@ import {
   UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
 import { handelGeneratingDynamicClientColumn } from './ClientInquiryHelper';
+
+const DeleteModal = React.lazy(
+  () => import('../../Components/Modal/DeleteModal')
+);
 
 function ClientInquiry() {
   const { handelNotification } = useContext(
@@ -59,7 +70,7 @@ function ClientInquiry() {
   const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
   const [selectedPage, setSelectedPage] = useState<number>(1);
   const [metaData, setMetaData] = useState<MetaDataInterface>(initialMetadata);
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [clientInquiryData, setClientInquiryData] = useState<any>({});
   const [showClientInquiryDetail, setShowClientInquiryDetail] =
     useState<boolean>(false);
@@ -76,6 +87,10 @@ function ClientInquiry() {
   const [urlDecodedFilterQuery, setUrlDecodedFilterQuery] = useState<
     UrlEncodedFilterQueryInterface[]
   >([]);
+  const [isDeletingClientInquiry, setIsDeletingClientInquiry] =
+    useState<boolean>(false);
+  const [deleteClientInquiryId, setDeleteClientInquiryId] =
+    useState<string>('');
 
   const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
@@ -87,6 +102,11 @@ function ClientInquiry() {
   const handelClickOnViewInquiryButton = (data: any) => {
     setShowClientInquiryDetail(true);
     setClientInquiryData(data);
+  };
+
+  const handelClickOnDeleteButton = (data: any) => {
+    setDeleteClientInquiryId(data?.id);
+    setShowDeleteModal(true);
   };
 
   const initialColumns = [
@@ -124,22 +144,30 @@ function ClientInquiry() {
         if (typeof data === 'object')
           return (
             <div className='w-full h-full flex items-center justify-start gap-2'>
-              <button
+              <Button
+                type='button'
                 className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-                data-tooltip-id='client_inquiry_view_button'
-                data-tooltip-content='View Inquiry'
+                dataTooltipId='client_inquiry_view_button'
+                dataTooltipContent='View Inquiry'
                 onClick={() => handelClickOnViewInquiryButton(data)}
+                disabled={permissionData?.permissions?.some(
+                  (item) => item?.label == 'view' && !item?.is_allowed
+                )}
               >
                 <IoEye className='text-[22px]' />
-              </button>
-              {/* <button
-              className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='client_inquiry_view_button'
-              data-tooltip-content='Delete Inquiry'
-              onClick={() => handelClickOnDeleteButton(data)}
-            >
-              <MdDelete className='text-[22px]' />
-            </button> */}
+              </Button>
+              <Button
+                type='button'
+                className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
+                dataTooltipId='client_inquiry_view_button'
+                dataTooltipContent='Delete Inquiry'
+                onClick={() => handelClickOnDeleteButton(data)}
+                disabled={permissionData?.permissions?.some(
+                  (item) => item?.label == 'delete' && !item?.is_allowed
+                )}
+              >
+                <MdDelete className='text-[22px]' />
+              </Button>
               <Tooltip
                 id='client_inquiry_view_button'
                 opacity={'100'}
@@ -317,6 +345,44 @@ function ClientInquiry() {
     );
   };
 
+  const handelDeleteClientInquiryWithDebounce = useDebounce(async () => {
+    const endPointArr: endpointObject[] = [
+      {
+        endPoint: `client-inquires/delete-inquire?id=${deleteClientInquiryId}`,
+        protected: true,
+      },
+    ];
+
+    const response = await multipleDeleteApi(endPointArr);
+
+    const res = response[0];
+
+    if (res?.success) {
+      setIsDeletingClientInquiry(false);
+      setShowDeleteModal(false);
+      setIsFetchingData(true);
+      const filterQuery = queryParameter.get('filter');
+      let queryString = '';
+      if (filterQuery) {
+        const decodeQuery = decodeURIComponent(filterQuery);
+        const parsedFilter = JSON.parse(decodeQuery);
+
+        setUrlDecodedFilterQuery(parsedFilter);
+        queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
+      }
+      fetchAllClientInquiryWithDebounce(queryString, 1, recordsPerPage);
+    } else {
+      setIsDeletingClientInquiry(false);
+      handelNotification(res, 'top-right');
+      setShowDeleteModal(false);
+    }
+  }, 100);
+
+  const handelDelete = () => {
+    setIsDeletingClientInquiry(true);
+    handelDeleteClientInquiryWithDebounce();
+  };
+
   const InquiryFormsSearchDrop = (
     data: AddEditInquiryFormSchemaInterface[]
   ) => {
@@ -460,6 +526,23 @@ function ClientInquiry() {
       setUrlDecodedFilterQuery([]);
     }
   }, [filterQueryParam]);
+
+  const segments = location.pathname.split('/').filter(Boolean);
+
+  const parentSection = segments[1];
+
+  const permissionData = GlobalStateProvider.roles_permissions.permissions.find(
+    (item) => item.module_label == parentSection.replace('-', '_')
+  );
+
+  if (
+    !permissionData ||
+    !permissionData.is_active ||
+    !permissionData?.permissions?.some(
+      (item) => item.label == 'view' && item.is_allowed
+    )
+  )
+    return <NavigateToTheLogInScreen />;
   return (
     <>
       <div className='w-full h-full relative'>
@@ -543,13 +626,13 @@ function ClientInquiry() {
         </div>
       </div>
 
-      {/* <DeleteModal
-        loading={isDeleteLoading}
+      <DeleteModal
+        loading={isDeletingClientInquiry}
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
-        handelDelete={handelDeleteItem}
+        handelDelete={handelDelete}
         name='Form Field'
-      /> */}
+      />
       <ClientInquirySliderModal
         clientInquiryData={clientInquiryData}
         showClientInquiryDetail={showClientInquiryDetail}

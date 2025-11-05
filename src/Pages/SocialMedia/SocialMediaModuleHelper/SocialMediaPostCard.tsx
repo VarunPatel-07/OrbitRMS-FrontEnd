@@ -10,7 +10,7 @@ import { classNames } from '../../../Helper/HelperFunctions';
 import { SocialMediaPostCardInterface } from '../../../interface/SocialMediaModule';
 
 function SocialMediaPostCard(props: SocialMediaPostCardInterface) {
-  const { data, handelClickOnDeleteButton } = props;
+  const { data, handelClickOnDeleteButton, permissionData } = props;
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
@@ -22,20 +22,30 @@ function SocialMediaPostCard(props: SocialMediaPostCardInterface) {
             {BeautifulSocialMediaPostStatusRenderer(data?.status)}
           </div>
           <div className='w-fit flex items-center justify-end gap-2'>
-            <Button
-              type='button'
-              className='border border-black/45 p-1.5 rounded-[4px] hover:bg-white'
-              disabled={data?.status !== 'scheduled'}
-            >
-              <MdEdit className='text-black text-base min-w-5 min-h-5' />
-            </Button>
-            <Button
-              type='button'
-              className='border border-black/45 p-1.5 rounded-[4px] hover:bg-white'
-              onClick={() => handelClickOnDeleteButton(data?.id , data?.selected_platforms)}
-            >
-              <MdDelete className='text-black text-base min-w-5 min-h-5' />
-            </Button>
+            {permissionData?.permissions?.some(
+              (item) => item?.label == 'edit' && item?.is_allowed
+            ) && (
+              <Button
+                type='button'
+                className='border border-black/45 p-1.5 rounded-[4px] hover:bg-white'
+                disabled={data?.status !== 'scheduled'}
+              >
+                <MdEdit className='text-black text-base min-w-5 min-h-5' />
+              </Button>
+            )}
+            {permissionData?.permissions?.some(
+              (item) => item?.label == 'delete' && item?.is_allowed
+            ) && (
+              <Button
+                type='button'
+                className='border border-black/45 p-1.5 rounded-[4px] hover:bg-white'
+                onClick={() =>
+                  handelClickOnDeleteButton(data?.id, data?.selected_platforms)
+                }
+              >
+                <MdDelete className='text-black text-base min-w-5 min-h-5' />
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -100,9 +110,12 @@ function SocialMediaPostCard(props: SocialMediaPostCardInterface) {
           </div>
         )}
         <div
-          className={classNames('px-3.5 pb-3.5 text-black w-full grow flex flex-col items-start justify-between', {
-            'pt-3.5': JSON.parse(data?.media_urls)?.length == 0,
-          })}
+          className={classNames(
+            'px-3.5 pb-3.5 text-black w-full grow flex flex-col items-start justify-between',
+            {
+              'pt-3.5': JSON.parse(data?.media_urls)?.length == 0,
+            }
+          )}
         >
           <div className='w-full pb-4'>
             <p className='text-black text-base line-clamp-2'>{data?.caption}</p>

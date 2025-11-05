@@ -309,6 +309,7 @@ function AddEditEmployeeProfile() {
           success: false,
           message: 'Only Add/Edit allowed. Redirecting to Employee Page.',
         };
+        console.log(data);
         handelNotification(data, 'top-right');
         setFetchingTheEmployeeData(true);
         setTimeout(() => {

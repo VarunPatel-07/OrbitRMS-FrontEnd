@@ -121,7 +121,7 @@ const MultipleDragAndDropFileUploader = React.memo(
 
         if (fileRejections?.some((item) => item?.file?.size > maxFileSize)) {
           const res = {
-            message: 'File too large! Keep it under 2MB',
+            message: 'File too large! Keep it under 100MB',
             success: false,
           };
 

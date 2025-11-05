@@ -116,8 +116,8 @@ export const BreadcrumbsObjects = (
     label: 'employee-profile',
     link:
       moduleType == 'edit'
-        ? `/${organization_slug}/employees/${moduleType}/${employee_id}`
-        : `/${organization_slug}/employees/${moduleType}`,
+        ? `/${organization_slug}/employees/manage/${moduleType}/${employee_id}`
+        : `/${organization_slug}/employees/manage/${moduleType}`,
   },
 ];
 

@@ -278,10 +278,11 @@ function RolesAndPermission({
               dataTooltipContent='Edit'
               onClick={() => handelEditButtonClick(data)}
               disabled={
-                permissions &&
-                permissions.some(
-                  (perm) => perm.label === 'edit' && !perm.is_allowed
-                )
+                !data?.is_editable ||
+                (permissions &&
+                  permissions.some(
+                    (perm) => perm.label === 'edit' && !perm.is_allowed
+                  ))
               }
             >
               <MdModeEdit className='text-[22px]' />
