@@ -29,6 +29,7 @@ function OrganizationSettings() {
     }
   }, [location.pathname, navigate, organization]);
 
+
   return (
     <div className='w-full h-full'>
       <div className='w-full h-full flex items-stretch justify-start'>

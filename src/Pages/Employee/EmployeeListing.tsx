@@ -6,6 +6,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
+import Button from '../../common/Button';
 import Table from '../../common/Table/Table';
 import TableFilterSearchBar from '../../common/Table/TableFilterSearchBar';
 import TableInfoHeader from '../../common/Table/TableInfoHeader';
@@ -88,7 +89,7 @@ function EmployeeListing() {
   ];
 
   const handelShowModal = () => {
-    navigate(`/${organization}/employees/add`);
+    navigate(`/${organization}/employees/manage/add`);
   };
   //
   // * This Is An OptionsButton Array That Is Being Render On The Table Header
@@ -273,22 +274,30 @@ function EmployeeListing() {
       renderContent: (data: EmployeeFieldInterface) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
-            <button
+            <Button
+              type='button'
               className='text-black/80 p-1.5'
-              data-tooltip-id='project_status_edit_button'
-              data-tooltip-content='Edit'
+              dataTooltipId='project_status_edit_button'
+              dataTooltipContent='Edit'
+              disabled={permissionData?.permissions?.some(
+                (item) => item?.label == 'edit' && !item?.is_allowed
+              )}
               onClick={() => {
                 navigate(
-                  `/${organization}/employees/edit/${data?.personal_info?.user_id}`
+                  `/${organization}/employees/manage/edit/${data?.personal_info?.user_id}`
                 );
               }}
             >
               <MdModeEdit className='text-[22px]' />
-            </button>
-            <button
+            </Button>
+            <Button
+              type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='project_status_view_profile_button'
-              data-tooltip-content='View Profile'
+              dataTooltipId='project_status_view_profile_button'
+              dataTooltipContent='View Profile'
+              disabled={permissionData?.permissions?.some(
+                (item) => item?.label == 'view' && !item?.is_allowed
+              )}
               onClick={() => {
                 navigate(
                   `/${organization}/employees/employee-profile/${data?.personal_info?.user_id}/employee-details`
@@ -296,7 +305,7 @@ function EmployeeListing() {
               }}
             >
               <IoEye className='text-[22px]' />
-            </button>
+            </Button>
             <Tooltip
               id='project_status_edit_button'
               opacity={'100'}
@@ -437,6 +446,18 @@ function EmployeeListing() {
 
     fetchAllEmployeeWithDebounce(queryString);
   }, [fetchAllEmployeeWithDebounce, queryParameter]);
+
+  const segments = location.pathname.split('/').filter(Boolean);
+
+  const parentSection = segments[1];
+  const childSection = segments[2];
+
+  const permissionData = GlobalStateProvider.roles_permissions.permissions
+    .find((item) => item.module_label == parentSection)
+    ?.sub_modules?.find(
+      (item) => item?.module_label == childSection?.replace('-', '_')
+    );
+
   return (
     <div className='w-full h-full relative'>
       <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
@@ -459,7 +480,13 @@ function EmployeeListing() {
                     ? `${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length * selectedPage} of  ${metaData?.total_data}  Employees`
                     : `0 Employee`
                 }
-                buttonsArray={optionsButtonArray}
+                buttonsArray={
+                  permissionData?.permissions?.some(
+                    (item) => item?.label == 'edit' && item?.is_allowed
+                  )
+                    ? optionsButtonArray
+                    : []
+                }
                 loading={isFetchingData}
               />
               <TableFilterSearchBar
@@ -506,7 +533,14 @@ function EmployeeListing() {
                         'No matching employee found. Try refining your search or add a new employee.'
                       }
                       notFoundOptionsButtonsArray={
-                        queryParameter ? [] : optionsButtonArray
+                        queryParameter
+                          ? []
+                          : permissionData?.permissions?.some(
+                                (item) =>
+                                  item?.label == 'edit' && item?.is_allowed
+                              )
+                            ? optionsButtonArray
+                            : []
                       }
                     />
                   )}

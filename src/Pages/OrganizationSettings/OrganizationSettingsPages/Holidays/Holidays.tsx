@@ -5,6 +5,7 @@ import { Tooltip } from 'react-tooltip';
 
 import HolidayAnimation from '../../../../assets/lottie/HolidayAnimation.lottie';
 import Breadcrumbs from '../../../../common/Breadcrumbs';
+import Button from '../../../../common/Button';
 import Table from '../../../../common/Table/Table';
 import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
@@ -24,6 +25,7 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../../Helper/api/multipleAPI';
+import { NavigateToTheLogInScreen } from '../../../../Helper/Helper';
 import { formateDate } from '../../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../../Hooks/useDebounce';
 import {
@@ -244,26 +246,36 @@ function Holidays() {
       renderContent: (data: OrganizationHolidays) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
-            <button
+            <Button
+              type='button'
               className='text-black/80 p-1.5'
-              data-tooltip-id='holiday_edit_button'
-              data-tooltip-content='Edit'
+              dataTooltipId='holiday_edit_button'
+              dataTooltipContent='Edit'
               onClick={() => handelEditButtonClick(data)}
+              disabled={permissionData?.permissions?.some(
+                (item) => item.label == 'edit' && !item.is_allowed
+              )}
             >
               <MdModeEdit className='text-[22px]' />
-            </button>
-            <button
+            </Button>
+            <Button
+              type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='holiday_delete_button'
-              disabled={data?.source_type == 'default'}
-              data-tooltip-content='Delete'
+              dataTooltipId='holiday_delete_button'
+              dataTooltipContent='Delete'
+              disabled={
+                data?.source_type == 'default' ||
+                permissionData?.permissions?.some(
+                  (item) => item.label == 'delete' && !item.is_allowed
+                )
+              }
               onClick={() => {
                 setShowDeleteModal(true);
                 setDeleteItemId(data?.id);
               }}
             >
               <MdDelete className='text-[22px]' />
-            </button>
+            </Button>
             <Tooltip
               id='holiday_edit_button'
               opacity={'100'}
@@ -382,6 +394,23 @@ function Holidays() {
     fetchAllTheHolidayWithDebounce();
   }, []);
 
+  const segments = location.pathname.split('/').filter(Boolean);
+
+  const parentSection = segments[1];
+  const childSection = segments[2];
+
+  const permissionData = GlobalStateProvider.roles_permissions.permissions
+    .find((item) => item.module_label == parentSection.replace('-', '_'))
+    ?.sub_modules?.find((item) => item.module_label == childSection);
+
+  if (
+    !permissionData ||
+    !permissionData.is_active ||
+    !permissionData?.permissions?.some(
+      (item) => item.label == 'view' && item.is_allowed
+    )
+  )
+    return <NavigateToTheLogInScreen />;
   return (
     <>
       <div className='w-full h-full relative'>
@@ -405,7 +434,13 @@ function Holidays() {
                       ? filterData.length?.toString()
                       : data.length?.toString()
                   }
-                  buttonsArray={optionsButtonArray}
+                  buttonsArray={
+                    permissionData?.permissions?.some(
+                      (item) => item.label == 'edit' && item.is_allowed
+                    )
+                      ? optionsButtonArray
+                      : []
+                  }
                   renderDateSelector
                   year={year}
                   handelYearButton={handelYearButton}
@@ -452,7 +487,14 @@ function Holidays() {
                             : 'Start by adding holidays manually using the Add Holiday button.'
                         }
                         notFoundOptionsButtonsArray={
-                          showSearchFilterData ? [] : optionsButtonArray
+                          showSearchFilterData
+                            ? []
+                            : permissionData?.permissions?.some(
+                                  (item) =>
+                                    item.label == 'edit' && item.is_allowed
+                                )
+                              ? optionsButtonArray
+                              : []
                         }
                         defaultAnimation={HolidayNotFoundAnimation}
                       />

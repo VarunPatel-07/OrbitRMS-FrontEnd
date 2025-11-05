@@ -21,6 +21,7 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../Helper/api/multipleAPI';
+import { NavigateToTheLogInScreen } from '../../Helper/Helper';
 import { getCroppedImageBlob } from '../../Helper/ImageCropper';
 import { ImageDownscaler } from '../../Helper/ImageDownscaler';
 import { useDebounce } from '../../Hooks/useDebounce';
@@ -515,6 +516,22 @@ function SocialMedia() {
     };
   }, [uploadingPostFormData]);
 
+  const segments = location.pathname.split('/').filter(Boolean);
+
+  const parentSection = segments[1];
+
+  const permissionData = GlobalStateProvider.roles_permissions.permissions.find(
+    (item) => item.module_label == parentSection.replace('-', '_')
+  );
+
+  if (
+    !permissionData ||
+    !permissionData.is_active ||
+    !permissionData?.permissions?.some(
+      (item) => item.label == 'view' && item.is_allowed
+    )
+  )
+    return <NavigateToTheLogInScreen />;
   return (
     <>
       <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
@@ -536,6 +553,7 @@ function SocialMedia() {
               socialPostArray={socialPostArray}
               handelClickOnDeleteButton={handelClickOnDeleteButton}
               loading={loadingSocialMediaPost}
+              permissionData={permissionData}
             />
           </div>
         </div>

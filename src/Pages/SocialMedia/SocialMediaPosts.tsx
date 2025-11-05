@@ -18,6 +18,7 @@ function SocialMediaPosts(props: SocialMedialPostComponentInterface) {
     socialPostArray,
     handelClickOnDeleteButton,
     loading,
+    permissionData,
   } = props;
   return (
     <div className='w-full h-full rounded-lg flex flex-col'>
@@ -27,13 +28,17 @@ function SocialMediaPosts(props: SocialMedialPostComponentInterface) {
             Scheduled & Published Posts{' '}
           </h2>
         </div>
-        <Button
-          type='button'
-          className='px-4 py-1.5 bg-[var(--them-green-light-color)] rounded-lg text-base w-fit text-nowrap'
-          onClick={() => setShowAddEditPostModal(true)}
-        >
-          Post Content
-        </Button>
+        {permissionData?.permissions?.some(
+          (item) => item?.label == 'edit' && item?.is_allowed
+        ) && (
+          <Button
+            type='button'
+            className='px-4 py-1.5 bg-[var(--them-green-light-color)] rounded-lg text-base w-fit text-nowrap'
+            onClick={() => setShowAddEditPostModal(true)}
+          >
+            Post Content
+          </Button>
+        )}
       </div>
 
       {loading ? (
@@ -70,6 +75,7 @@ function SocialMediaPosts(props: SocialMedialPostComponentInterface) {
                     key={data?.id}
                     data={data}
                     handelClickOnDeleteButton={handelClickOnDeleteButton}
+                    permissionData={permissionData}
                   />
                 ))}
               </div>

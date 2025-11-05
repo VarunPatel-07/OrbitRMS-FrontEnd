@@ -36,6 +36,7 @@ import {
 } from './Helper/HelperFunctions';
 import ProtectedRoute from './Helper/ProtectedRoute';
 import { useDebounce } from './Hooks/useDebounce';
+import { appRouterArraysInterface } from './interface/interface';
 import ApiManager from './Pages/ApiManager/ApiManager';
 import ClientInquiry from './Pages/ClientInquiry/ClientInquiry';
 import Config from './Pages/config/Config';
@@ -69,7 +70,7 @@ function App() {
 
   const navigate = useNavigate();
 
-  const { setGlobalStateProvider } = useContext(
+  const { GlobalStateProvider, setGlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
 
@@ -98,6 +99,120 @@ function App() {
     },
     100
   );
+
+  const appRouterArrays: appRouterArraysInterface[] = [
+    {
+      label: 'dashboard',
+      path: '/dashboard',
+      module: <Dashboard />,
+      subModule: [],
+    },
+    {
+      label: 'employees',
+      path: '/employees',
+      module: null,
+      subModule: [
+        {
+          label: 'employee_profile',
+          path: '/employees/employee-profile/:id/*',
+          module: <EmployeeProfile />,
+          subModule: [],
+        },
+        {
+          label: 'employee_profile',
+          path: '/employees/manage/:type/:id?',
+          module: <AddEditEmployeeProfile />,
+          subModule: [],
+        },
+        {
+          label: 'employee_listing',
+          path: '/employees/employee-listing',
+          module: <EmployeeListing />,
+          subModule: [],
+        },
+      ],
+    },
+    {
+      label: 'client_inquiry',
+      path: '/client-inquiry',
+      module: <ClientInquiry />,
+      subModule: [],
+    },
+    {
+      label: 'social_media',
+      path: '/social-media',
+      module: <SocialMedia />,
+      subModule: [],
+    },
+    {
+      label: 'config',
+      path: '/config/*',
+      module: <Config />,
+      subModule: [],
+    },
+    {
+      label: 'api_manager',
+      path: '/api-manager/*',
+      module: <ApiManager />,
+      subModule: [],
+    },
+    {
+      label: 'organization_settings',
+      path: '/organization-settings/*',
+      module: <OrganizationSettings />,
+      subModule: [],
+    },
+  ];
+
+  // Recursive route renderer function
+
+  const recursiveRoutRender = (
+    routes: appRouterArraysInterface[],
+    parent_module_id: string
+  ) => {
+    return routes.map((route, index) => {
+      if (!GlobalStateProvider?.roles_permissions?.permissions) return [];
+      const permissions =
+        parent_module_id !== ''
+          ? GlobalStateProvider?.roles_permissions?.permissions
+              ?.find((data) => data?.module_label == parent_module_id)
+              ?.sub_modules?.find((item) => item?.module_label == route?.label)
+          : GlobalStateProvider?.roles_permissions?.permissions?.find(
+              (data) => data?.module_label == route?.label
+            );
+
+      const hasSubModule =
+        Array.isArray(route?.subModule) && route?.subModule.length > 0;
+
+      const currentModule =
+        route?.module !== null ? (
+          <Route
+            key={route?.path}
+            path={route?.path}
+            element={<ProtectedRoute element={route.module} />}
+          />
+        ) : null;
+
+      const nestedRoutes = hasSubModule
+        ? recursiveRoutRender(route.subModule, route?.label)
+        : null;
+
+      if (
+        permissions?.is_active &&
+        permissions?.permissions.some(
+          (perm) => perm.label === 'view' && perm.is_allowed
+        )
+      ) {
+        return (
+          <React.Fragment key={index}>
+            {currentModule}
+            {nestedRoutes}
+          </React.Fragment>
+        );
+      }
+      return null;
+    });
+  };
 
   useEffect(() => {
     if (useEffectRef.current) return;
@@ -225,52 +340,7 @@ function App() {
               </div>
               <div className='w-[calc(100%-60px)] ml-auto bg-[var(--main-white-color)] overflow-hidden'>
                 <Routes>
-                  <Route path='*' element={<HandelPathFunction />} />
-
-                  <Route
-                    path='/client-inquiry'
-                    element={<ProtectedRoute element={<ClientInquiry />} />}
-                  />
-                  <Route
-                    path='/dashboard'
-                    element={<ProtectedRoute element={<Dashboard />} />}
-                  />
-
-                  <Route
-                    path='/config/*'
-                    element={<ProtectedRoute element={<Config />} />}
-                  />
-                  <Route
-                    path='/employees/employee-profile/:id/*'
-                    element={<ProtectedRoute element={<EmployeeProfile />} />}
-                  />
-
-                  <Route
-                    path='/employees/:type/:id?'
-                    element={
-                      <ProtectedRoute element={<AddEditEmployeeProfile />} />
-                    }
-                  />
-                  <Route
-                    path='/employees/employee-listing'
-                    element={<ProtectedRoute element={<EmployeeListing />} />}
-                  />
-
-                  <Route
-                    path='/api-manager/*'
-                    element={<ProtectedRoute element={<ApiManager />} />}
-                  />
-                  <Route
-                    path='/organization-settings/*'
-                    element={
-                      <ProtectedRoute element={<OrganizationSettings />} />
-                    }
-                  />
-                  <Route
-                    path='/social-media'
-                    element={<ProtectedRoute element={<SocialMedia />} />}
-                  />
-                  {/* <Route path='*' element={<PageNotFound />} /> */}
+                  {recursiveRoutRender(appRouterArrays, '')}
                   <Route path='*' element={<HandelPathFunction />} />
                 </Routes>
               </div>

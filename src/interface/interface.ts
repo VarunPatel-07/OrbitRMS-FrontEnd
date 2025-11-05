@@ -110,6 +110,7 @@ export interface RolesAndPermissionsModule {
 export interface ConfigRolesAndPermissionModule {
   id: string;
   role_name: string;
+  is_editable: boolean;
   description: string;
   source_type: string;
   status: boolean;
@@ -200,8 +201,8 @@ type InterFaceModuleLabelType =
   | 'personal_information'
   | 'employee_information'
   | 'personal_contact_information'
-  | 'family_info'
-  | 'address'
+  | 'family_information'
+  | 'employee_address'
   | 'social_link'
   | 'organization_general_info'
   | 'organization_address'
@@ -327,4 +328,10 @@ export interface ConfigModuleSideBarListingInterface {
   module: React.ReactElement<{
     permissions?: PermissionObjectInterface[];
   }>;
+}
+export interface appRouterArraysInterface {
+  label: string;
+  path: string;
+  module: React.ReactElement | null;
+  subModule: appRouterArraysInterface[];
 }

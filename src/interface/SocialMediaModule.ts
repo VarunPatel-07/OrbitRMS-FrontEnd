@@ -1,7 +1,10 @@
 import React, { SetStateAction } from 'react';
 
 import { SelectedFileArrayObjInterface } from './interface';
-import { GlobalContextStore } from './UserProfileInterface';
+import {
+  GlobalContextStore,
+  PermissionsModuleInterface,
+} from './UserProfileInterface';
 
 export interface ConnectedSocialMediaAccountInterface {
   access_token: string;
@@ -57,6 +60,7 @@ export interface SocialMedialPostComponentInterface {
     selected_platforms: string
   ) => void;
   loading: boolean;
+  permissionData: PermissionsModuleInterface;
 }
 
 export interface AddEditSocialMediaPostFormdataInterface {
@@ -98,6 +102,7 @@ export interface SocialMediaPostDataInterface {
 
 export interface SocialMediaPostCardInterface {
   data: SocialMediaPostDataInterface;
+  permissionData: PermissionsModuleInterface;
   handelClickOnDeleteButton: (
     postId: string,
     selected_platforms: string

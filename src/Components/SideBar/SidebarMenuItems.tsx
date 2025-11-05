@@ -5,7 +5,14 @@ import { LuBuilding2 } from 'react-icons/lu';
 import { MdAssignment, MdSpaceDashboard } from 'react-icons/md';
 
 export interface SidebarMenuItemInterface {
-  id: number;
+  id:
+    | 'dashboard'
+    | 'employees'
+    | 'client_inquiry'
+    | 'social_media'
+    | 'config'
+    | 'api_manager'
+    | 'organization_settings';
   name: string;
   label: string;
   icon: ReactElement;
@@ -19,7 +26,7 @@ export const SidebarMenuItems = (
   organization: string
 ): SidebarMenuItemInterface[] => [
   {
-    id: 1,
+    id: 'dashboard',
     name: 'Dashboard',
     icon: <MdSpaceDashboard className='w-6 h-6' />,
     label: 'data-tooltip-dashboard',
@@ -29,7 +36,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Dashboard',
   },
   {
-    id: 2,
+    id: 'employees',
     name: 'Employees',
     icon: <FaUser className='w-5 h-5 mx-auto' />,
     label: 'data-tooltip-employee-listing',
@@ -39,7 +46,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Employees',
   },
   {
-    id: 3,
+    id: 'client_inquiry',
     name: 'Client Inquiry',
     icon: <MdAssignment className='w-6 h-6' />,
     label: 'data-tooltip-client-inquiry',
@@ -49,7 +56,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Client Inquiry',
   },
   {
-    id: 4,
+    id: 'social_media',
     name: 'Social Media',
     icon: <FaHashtag className='w-5 h-5' />,
     label: 'data-tooltip-social-media',
@@ -59,7 +66,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Social Media',
   },
   {
-    id: 5,
+    id: 'config',
     name: 'Config',
     icon: <IoSettings className='w-6 h-6' />,
     label: 'data-tooltip-settings',
@@ -69,7 +76,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Config',
   },
   {
-    id: 6,
+    id: 'api_manager',
     name: 'Api Manager',
     icon: <FaProjectDiagram className='w-6 h-6' />,
     label: 'data-tooltip-api-manager',
@@ -79,7 +86,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Api Manager',
   },
   {
-    id: 7,
+    id: 'organization_settings',
     name: 'Organization Settings',
     icon: <LuBuilding2 className='w-6 h-6' />,
     label: 'data-tooltip-organization-setting',

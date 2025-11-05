@@ -23,6 +23,7 @@ import RolesAndPermissionTable from './RolesAndPermissionTable';
 const initialState = {
   id: '',
   role_name: '',
+  is_editable: false,
   description: '',
   source_type: '',
   status: false,
@@ -176,6 +177,7 @@ function ViewPermissions() {
                   PermissionTogglerFunc={PermissionTogglerFunction}
                   updatingModuleLoaderId={updatingModuleLoaderId}
                   setUpdatingModuleLoaderId={setUpdatingModuleLoaderId}
+                  disabled={!data?.is_editable}
                 />
               )}
             </>

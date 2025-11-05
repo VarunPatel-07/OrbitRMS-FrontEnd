@@ -146,26 +146,6 @@ function EmployeeProfile() {
       link: `/${organization}/employees/employee-profile/${employee_id}/employee-details`,
     },
   ];
-  const EmployeeProfileActionArray: EmployeeProfileActionArrayInterface[] = [
-    {
-      link: `/${organization}/employees/employee-profile/${employee_id}/employee-details`,
-      classNames:
-        'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
-      label: 'employee_details',
-      title: 'Employee Details',
-    },
-    ...(employee_id === GlobalStateProvider?.user?.personal_info?.user_id
-      ? [
-          {
-            link: `/${organization}/employees/employee-profile/${employee_id}/logged-in-device`,
-            classNames:
-              'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
-            label: 'logged_in_device',
-            title: 'Logged In Device',
-          },
-        ]
-      : []),
-  ];
 
   // * ------- Some Of The Reference That Are Used In This Page ---------------
   //
@@ -219,6 +199,54 @@ function EmployeeProfile() {
       fetchTheUsersProfileInfoWithDebounce(employee_id);
     }
   }, [employee_id, fetchTheUsersProfileInfoWithDebounce]);
+
+  const segments = location.pathname.split('/').filter(Boolean);
+
+  const parentSection = segments[1];
+  const childSection = segments[2];
+
+  const permissionData = GlobalStateProvider.roles_permissions.permissions
+    .find((item) => item.module_label == parentSection)
+    ?.sub_modules?.find(
+      (item) => item?.module_label == childSection?.replace('-', '_')
+    );
+
+  const EmployeeProfileActionArray: EmployeeProfileActionArrayInterface[] = [
+    ...(permissionData?.sub_modules?.find(
+      (item) => item?.module_label == 'employee_details'
+    )?.is_active &&
+    permissionData?.sub_modules
+      ?.find((item) => item?.module_label == 'employee_details')
+      ?.permissions?.some((item) => item.label == 'view' && item.is_allowed)
+      ? [
+          {
+            link: `/${organization}/employees/employee-profile/${employee_id}/employee-details`,
+            classNames:
+              'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
+            label: 'employee_details',
+            title: 'Employee Details',
+          },
+        ]
+      : []),
+
+    ...(employee_id === GlobalStateProvider?.user?.personal_info?.user_id ||
+    (permissionData?.sub_modules?.find(
+      (item) => item?.module_label == 'logged_in_device'
+    )?.is_active &&
+      permissionData?.sub_modules
+        ?.find((item) => item?.module_label == 'logged_in_device')
+        ?.permissions?.some((item) => item.label == 'view' && item.is_allowed))
+      ? [
+          {
+            link: `/${organization}/employees/employee-profile/${employee_id}/logged-in-device`,
+            classNames:
+              'font-inter text-black font-medium capitalize text-sm px-3 py-1.5 border border-black/15 rounded-md h-full inline-block',
+            label: 'logged_in_device',
+            title: 'Logged In Device',
+          },
+        ]
+      : []),
+  ];
 
   return (
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
@@ -371,29 +399,41 @@ function EmployeeProfile() {
                         </>
                       ) : (
                         <>
-                          {EmployeeProfileActionArray?.map((item, index) => (
-                            <Link
-                              to={item?.link}
-                              key={index}
-                              className={classNames(`${item?.classNames}`, {
-                                'bg-[#EEF4FF] border border-[#C7D7FE] !text-[#3538CD]':
-                                  navigation.pathname?.startsWith(item?.link),
-                              })}
-                            >
-                              {item?.title}
-                            </Link>
-                          ))}
+                          {EmployeeProfileActionArray?.map((data, index) => {
+                            return (
+                              <Link
+                                to={data?.link}
+                                key={index}
+                                className={classNames(`${data?.classNames}`, {
+                                  'bg-[#EEF4FF] border border-[#C7D7FE] !text-[#3538CD]':
+                                    navigation.pathname?.startsWith(data?.link),
+                                })}
+                              >
+                                {data?.title}
+                              </Link>
+                            );
+                          })}
                         </>
                       )}
                     </div>
-                    {employee_id ==
-                      GlobalStateProvider?.user?.personal_info?.user_id && (
+                    {(employee_id ==
+                      GlobalStateProvider?.user?.personal_info?.user_id ||
+                      (permissionData?.sub_modules?.find(
+                        (item) => item?.module_label == 'employee_details'
+                      )?.is_active &&
+                        permissionData?.sub_modules
+                          ?.find(
+                            (item) => item?.module_label == 'employee_details'
+                          )
+                          ?.permissions?.some(
+                            (item) => item.label == 'edit' && item.is_allowed
+                          ))) && (
                       <div className='w-fit'>
                         {isFetching ? (
                           <Skeleton height={35} width={140} borderRadius={6} />
                         ) : (
                           <Link
-                            to={`/${organization}/employees/edit/${GlobalStateProvider?.user?.personal_info?.user_id}`}
+                            to={`/${organization}/employees/manage/edit/${employee_id}`}
                             className='font-inter capitalize text-sm px-3 py-1.5 h-full inline-block rounded-md text-white font-medium bg-[var(--them-green-color)]'
                           >
                             Edit Profile
@@ -426,18 +466,29 @@ function EmployeeProfile() {
                     />
                   ))}
 
-                  <Route
-                    path={'/logged-in-device'}
-                    element={
-                      <ProtectedRoute
+                  {permissionData?.sub_modules?.find(
+                    (item) => item?.module_label == 'logged_in_device'
+                  )?.is_active &&
+                    permissionData?.sub_modules
+                      ?.find((item) => item?.module_label == 'logged_in_device')
+                      ?.permissions?.some(
+                        (item) => item.label == 'view' && item.is_allowed
+                      ) && (
+                      <Route
+                        path={'/logged-in-device'}
                         element={
-                          <LoggedInDevices
-                            organizationInfo={GlobalStateProvider?.organization}
+                          <ProtectedRoute
+                            element={
+                              <LoggedInDevices
+                                organizationInfo={
+                                  GlobalStateProvider?.organization
+                                }
+                              />
+                            }
                           />
                         }
                       />
-                    }
-                  />
+                    )}
                 </Routes>
               </div>
             </div>
