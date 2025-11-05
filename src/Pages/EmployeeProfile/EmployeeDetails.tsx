@@ -96,7 +96,7 @@ function EmployeeDetails(props: {
                   </span>
                   {data?.employee_info?.reporting_manager?.first_name ? (
                     <Link
-                      to={`/${organization}/employee-profile/${data?.employee_info?.reporting_manager?.id}/employee-details`}
+                      to={`/${organization}/employees/employee-profile/${data?.employee_info?.reporting_manager?.id}/employee-details`}
                       className='text-base text-black font-inter font-medium block hover:text-[#3538CD]'
                       target='_blank'
                     >
@@ -437,7 +437,7 @@ function EmployeeDetails(props: {
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <span className='font-inter text-lg text-black font-semibold capitalize'>
-            Current Information
+            Current Address
           </span>
         </div>
         <div className='w-full'>

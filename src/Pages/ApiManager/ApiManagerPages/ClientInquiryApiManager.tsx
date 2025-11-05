@@ -141,7 +141,7 @@ function ClientInquiryApiManager() {
   };
 
   const handelClickOnCopyButton = () => {
-    const metaUrl = `${BACKEND_API_BASEURL}/app/v1/app/v1/client-inquires/submit?api_key=YOUR_API_KEY&api_secret=YOUR_API_SECRET`;
+    const metaUrl = `${BACKEND_API_BASEURL}/app/v1/app/v1/client-inquires/submit?api_key=YOUR_API_KEY&api_secret=YOUR_API_SECRET&form_id=YOUR_FORM_ID`;
     window.navigator.clipboard
       .writeText(metaUrl)
       .then(() => {
@@ -152,7 +152,17 @@ function ClientInquiryApiManager() {
         console.error('Failed to copy');
       });
   };
-
+  const handleClickOnCopyBtn = (text: string, message: string) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        const data = { success: true, message: message };
+        handelNotification(data, 'center');
+      })
+      .catch(() => {
+        console.error('Failed to copy');
+      });
+  };
   useEffect(() => {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
@@ -306,16 +316,29 @@ function ClientInquiryApiManager() {
                                 ))}
                               </span>
                             )}
-                            <button
-                              className='absolute top-1/2 -translate-y-1/2 right-5 invisible group-hover:visible transition-all'
-                              onClick={() => setShowApiKey(!showApiKey)}
-                            >
-                              {showApiKey ? (
-                                <FaEye className='transition-all' />
-                              ) : (
-                                <FaEyeSlash className='transition-all' />
-                              )}
-                            </button>
+                            <div className='absolute top-1/2 -translate-y-1/2 right-5 invisible group-hover:visible transition-all flex items-center justify-end gap-2'>
+                              <button
+                                className='w-fit hover:bg-black p-1 pl-[5px] rounded-md hover:text-white flex items-center justify-center transition-all'
+                                onClick={() =>
+                                  handleClickOnCopyBtn(
+                                    formData?.api_key,
+                                    'Api Key Copied Successfully'
+                                  )
+                                }
+                              >
+                                <MdContentCopy />
+                              </button>
+                              <button
+                                className='w-fit hover:bg-black p-1 pl-[5px] rounded-md hover:text-white flex items-center justify-center transition-all'
+                                onClick={() => setShowApiKey(!showApiKey)}
+                              >
+                                {showApiKey ? (
+                                  <FaEye className='transition-all' />
+                                ) : (
+                                  <FaEyeSlash className='transition-all' />
+                                )}
+                              </button>
+                            </div>
                           </p>
                           <div className='border border-black/10 bg-gray-100 px-3 py-2 rounded-r-lg'>
                             <button
@@ -362,16 +385,31 @@ function ClientInquiryApiManager() {
                                 ))}
                               </span>
                             )}
-                            <button
-                              className='absolute top-1/2 -translate-y-1/2 right-5 invisible group-hover:visible transition-all'
-                              onClick={() => setShowApiSecrete(!showApiSecrete)}
-                            >
-                              {showApiSecrete ? (
-                                <FaEye className='transition-all' />
-                              ) : (
-                                <FaEyeSlash className='transition-all' />
-                              )}
-                            </button>
+                            <div className='absolute top-1/2 -translate-y-1/2 right-5 invisible group-hover:visible transition-all flex items-center justify-end gap-2'>
+                              <button
+                                className='w-fit hover:bg-black p-1 pl-[5px] rounded-md hover:text-white flex items-center justify-center transition-all'
+                                onClick={() =>
+                                  handleClickOnCopyBtn(
+                                    formData?.api_secrete,
+                                    'Api Secrete Copied Successfully'
+                                  )
+                                }
+                              >
+                                <MdContentCopy />
+                              </button>
+                              <button
+                                className='w-fit hover:bg-black p-1 pl-[5px] rounded-md hover:text-white flex items-center justify-center transition-all'
+                                onClick={() =>
+                                  setShowApiSecrete(!showApiSecrete)
+                                }
+                              >
+                                {showApiSecrete ? (
+                                  <FaEye className='transition-all' />
+                                ) : (
+                                  <FaEyeSlash className='transition-all' />
+                                )}
+                              </button>
+                            </div>
                           </p>
                           <div className='border border-black/10 bg-gray-100 px-3 py-2 rounded-r-lg'>
                             <button
@@ -400,7 +438,7 @@ function ClientInquiryApiManager() {
                           </div>
                         </div>
                         <div className='border border-black/10 rounded-lg w-full'>
-                          <div className='p-2.5 border-b border-b-black/15'>
+                          <div className='p-2.5 border-b border-b-black/15 bg-gradient-to-r from-blue-50 to-indigo-50'>
                             <p className='font-inter text-black/80 font-medium text-base'>
                               How To Use The API
                             </p>
@@ -411,28 +449,38 @@ function ClientInquiryApiManager() {
                               <span className='font-semibold'>POST</span>{' '}
                               request to the following endpoint. You must
                               include a valid{' '}
-                              <code className='bg-slate-950/20 text-black font-semibold font-inter p-1 rounded'>
+                              <code className='bg-slate-950/20 text-black font-semibold font-inter px-1.5 py-0.5 rounded'>
                                 api_key
-                              </code>{' '}
-                              and{' '}
-                              <code className='bg-slate-950/20 text-black font-semibold font-inter p-1 rounded'>
+                              </code>
+                              ,{' '}
+                              <code className='bg-slate-950/20 text-black font-semibold font-inter px-1.5 py-0.5 rounded'>
                                 api_secret
+                              </code>
+                              , and{' '}
+                              <code className='bg-blue-950/20 text-blue-900 font-semibold font-inter px-1.5 py-0.5 rounded'>
+                                form_id
                               </code>{' '}
-                              as query parameters for authentication.
+                              as query parameters for authentication and
+                              routing.
                             </p>
-
-                            <div className='bg-black p-2 rounded relative group'>
-                              <span className='font-inter text-white/85 font-medium'>
-                                {BACKEND_API_BASEURL}
-                                /app/v1/client-inquires/submit?api_key=
-                                <span className='font-semibold text-white'>
-                                  YOUR_API_KEY
+                            <div className='bg-gradient-to-r from-slate-900 to-slate-800 p-2 rounded relative group'>
+                              <div className='w-full max-w-[97%] break-words'>
+                                <span className='font-inter text-white/85 font-medium break-words'>
+                                  {BACKEND_API_BASEURL}
+                                  /app/v1/client-inquires/submit?api_key=
+                                  <span className='font-semibold text-white'>
+                                    YOUR_API_KEY
+                                  </span>
+                                  &api_secret=
+                                  <span className='font-semibold text-white'>
+                                    YOUR_API_SECRET
+                                  </span>
+                                  &form_id=
+                                  <span className='font-semibold text-white'>
+                                    YOUR_FORM_ID
+                                  </span>
                                 </span>
-                                &api_secret=
-                                <span className='font-semibold text-white'>
-                                  YOUR_API_SECRET
-                                </span>
-                              </span>
+                              </div>
                               <button
                                 className='absolute top-1/2 -translate-y-1/2 right-2 invisible group-hover:visible'
                                 onClick={handelClickOnCopyButton}
@@ -441,41 +489,116 @@ function ClientInquiryApiManager() {
                               </button>
                             </div>
 
-                            <p className='font-inter text-sm text-black/70'>
-                              <span className='font-semibold'>
-                                Request Method:
-                              </span>{' '}
-                              POST
-                              <br />
-                              <span className='font-semibold'>
-                                Content-Type:
-                              </span>{' '}
-                              application/json
+                            <div className='bg-amber-50 border border-amber-200 rounded-lg p-3'>
+                              <p className='font-inter text-sm text-amber-900'>
+                                <span className='font-semibold'>
+                                  📋 About form_id:
+                                </span>{' '}
+                                The{' '}
+                                <code className='bg-amber-200/50 px-1.5 py-0.5 rounded font-semibold'>
+                                  form_id
+                                </code>{' '}
+                                is the unique identifier of the form to which
+                                you are submitting the inquiry. This ensures
+                                your submission is routed to the correct form
+                                configuration.
+                              </p>
+                              <p className='font-inter text-sm text-amber-900 mt-2'>
+                                <span className='font-semibold'>
+                                  How to get the form_id:
+                                </span>{' '}
+                                Navigate to{' '}
+                                <code className='bg-amber-200/50 px-1.5 py-0.5 rounded font-semibold'>
+                                  Config → Inquiry Forms
+                                </code>
+                                . You will see all the forms for your
+                                organization. You can retrieve the{' '}
+                                <code className='bg-amber-200/50 px-1.5 py-0.5 rounded font-semibold'>
+                                  form_id
+                                </code>{' '}
+                                from there. Note that you can edit the form
+                                details, but the{' '}
+                                <span className='font-semibold'>Form ID</span>{' '}
+                                and{' '}
+                                <span className='font-semibold'>Form Name</span>{' '}
+                                cannot be changed.
+                              </p>
+                              <p className='font-inter text-sm text-amber-900 mt-2'>
+                                <span className='font-semibold'>
+                                  Why form_id is important:
+                                </span>{' '}
+                                The form_id is used to retrieve the complete
+                                schema of all fields for that specific form.
+                                This schema provides critical information
+                                including:
+                              </p>
+                              <ul className='font-inter text-sm text-amber-900 mt-1 ml-4 list-disc space-y-1'>
+                                <li>Which fields are available in the form</li>
+                                <li>Which fields are required vs optional</li>
+                                <li>
+                                  The data type expected for each field (string,
+                                  number, array, etc.)
+                                </li>
+                                <li>
+                                  Validation rules and constraints for each
+                                  field
+                                </li>
+                                <li>
+                                  Field-specific configurations and settings
+                                </li>
+                              </ul>
+                            </div>
+
+                            <div className='grid grid-cols-2 gap-3'>
+                              <div className='bg-slate-50 p-3 rounded-lg border border-slate-200'>
+                                <p className='font-inter text-sm text-black/70'>
+                                  <span className='font-semibold text-black/90'>
+                                    Request Method:
+                                  </span>
+                                  <br />
+                                  <code className='text-green-700 font-semibold'>
+                                    POST
+                                  </code>
+                                </p>
+                              </div>
+                              <div className='bg-slate-50 p-3 rounded-lg border border-slate-200'>
+                                <p className='font-inter text-sm text-black/70'>
+                                  <span className='font-semibold text-black/90'>
+                                    Content-Type:
+                                  </span>
+                                  <br />
+                                  <code className='text-blue-700 font-semibold'>
+                                    application/json
+                                  </code>
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className='border-l-4 border-red-500 bg-red-50 p-3 rounded-r-lg'>
+                              <p className='font-inter text-sm text-red-900'>
+                                <span className='font-semibold'>
+                                  ⚠️ Important:
+                                </span>{' '}
+                                The request body must include all the fields
+                                that are defined in the{' '}
+                                <span className='font-semibold'>
+                                  config module
+                                </span>
+                                . Any field marked as{' '}
+                                <span className='font-semibold'>required</span>{' '}
+                                cannot be empty or missing. Additionally, the
+                                data types of the submitted values must strictly
+                                match the types defined in the config module's
+                                form field (e.g., string, number, array).
+                              </p>
+                            </div>
+
+                            <p className='font-inter text-sm text-black/80 font-semibold mt-6'>
+                              Sample Request Body:
                             </p>
 
-                            <p className='font-inter text-sm text-black/70'>
-                              <span className='font-semibold'>Important:</span>{' '}
-                              The request body must include all the fields that
-                              are defined in the{' '}
-                              <span className='font-semibold'>
-                                config module
-                              </span>
-                              . Any field marked as{' '}
-                              <span className='font-semibold'>required</span>{' '}
-                              cannot be empty or missing. Additionally, the data
-                              types of the submitted values must strictly match
-                              the types defined in the config module’s form
-                              field (e.g., string, number, array).
-                            </p>
-
-                            <p className='font-inter text-sm text-black/70'>
-                              <span className='font-semibold'>
-                                Sample Request Body:
-                              </span>
-                            </p>
-
-                            <div className='bg-black p-2 rounded text-sm font-mono overflow-auto'>
-                              <pre>
+                            <div className='bg-slate-900 p-4 rounded-lg text-sm font-mono overflow-auto shadow-lg'>
+                              <pre className='text-slate-100'>
                                 {`{
   "name": "John Doe",
   "email": "john@example.com",
@@ -485,12 +608,18 @@ function ClientInquiryApiManager() {
                               </pre>
                             </div>
 
-                            <p className='font-inter text-sm text-black/70'>
-                              Ensure that all required fields are provided and
-                              that the API key and secret are kept confidential.
-                              If your credentials are invalid or missing, the
-                              API will respond with an authentication error.
-                            </p>
+                            <div className='bg-blue-50 border border-blue-200 rounded-lg p-3'>
+                              <p className='font-inter text-sm text-blue-900'>
+                                <span className='font-semibold'>
+                                  🔒 Security Notice:
+                                </span>{' '}
+                                Ensure that all required fields are provided and
+                                that your API key, secret, and form ID are kept
+                                confidential. If your credentials are invalid or
+                                missing, the API will respond with an
+                                authentication error.
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>

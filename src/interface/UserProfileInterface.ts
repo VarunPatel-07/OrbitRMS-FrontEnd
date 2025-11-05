@@ -1,3 +1,5 @@
+import { PermissionObjectInterface } from './interface';
+
 export interface EmployeeInfo {
   id: string;
   status: string;
@@ -108,6 +110,7 @@ export interface User {
 export interface GlobalContextStore {
   user: User;
   organization: Organization;
+  roles_permissions: RolesAndPermissionsModuleInterface;
 }
 
 export interface UserSessionsInterFace {
@@ -126,4 +129,17 @@ export interface UserSessionsInterFace {
   os_version: string;
   updated_at: string;
   user_id: string;
+}
+
+export interface RolesAndPermissionsModuleInterface {
+  id: string;
+  role_name: string;
+  permissions: PermissionsModuleInterface[];
+}
+
+export interface PermissionsModuleInterface {
+  module_label: string;
+  is_active: string;
+  permissions: PermissionObjectInterface[];
+  sub_modules: PermissionsModuleInterface[];
 }

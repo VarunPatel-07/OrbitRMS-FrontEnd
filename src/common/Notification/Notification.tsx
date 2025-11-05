@@ -46,9 +46,11 @@ function Notification() {
         >
           <div
             className={classNames(
-              'w-full h-full flex flex-col-reverse items-end justify-end gap-[10px]',
+              'w-full h-full flex flex-col-reverse gap-[10px]',
               {
                 'px-6 pl-11 py-5': notificationInfoArray.length !== 0,
+                'items-center justify-center': direction === 'center',
+                'items-end justify-end': direction !== 'center',
               }
             )}
           >

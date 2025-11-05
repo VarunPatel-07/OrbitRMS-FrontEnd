@@ -1,9 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  Suspense,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../../common/Breadcrumbs';
+import Button from '../../../common/Button';
 import Table from '../../../common/Table/Table';
 import TableInfoHeader from '../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
@@ -24,12 +31,16 @@ import {
   // multipleFetchApi,
   multiplePostApi,
 } from '../../../Helper/api/multipleAPI';
+import { NavigateToTheLogInScreen } from '../../../Helper/Helper';
 import {
   formateDate,
   getDataFromLocalStorage,
 } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
-import { DesignationConfig } from '../../../interface/interface';
+import {
+  DesignationConfig,
+  PermissionObjectInterface,
+} from '../../../interface/interface';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
@@ -40,7 +51,11 @@ const DeleteModal = React.lazy(
   () => import('../../../Components/Modal/DeleteModal')
 );
 
-function Designations() {
+function Designations({
+  permissions,
+}: {
+  permissions?: PermissionObjectInterface[];
+}) {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
@@ -88,7 +103,7 @@ function Designations() {
     {
       name: 'Config',
       label: 'config-module',
-      link: `${organization}/config/project-status`,
+      link: `/${organization}/config/project-status`,
     },
     {
       name: 'Designations',
@@ -289,26 +304,40 @@ function Designations() {
       renderContent: (data: any) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
-            <button
+            <Button
+              type='button'
               className='text-black/80 p-1.5'
-              data-tooltip-id='project_status_edit_button'
-              data-tooltip-content='Edit'
+              dataTooltipId='project_status_edit_button'
+              dataTooltipContent='Edit'
               onClick={() => handelEditButtonClick(data)}
+              disabled={
+                permissions &&
+                permissions.some(
+                  (perm) => perm.label === 'edit' && !perm.is_allowed
+                )
+              }
             >
               <MdModeEdit className='text-[22px]' />
-            </button>
-            <button
+            </Button>
+            <Button
+              type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='project_status_delete_button'
-              data-tooltip-content='Delete'
-              disabled={data?.source_type == 'default'}
+              dataTooltipId='project_status_delete_button'
+              dataTooltipContent='Delete'
+              disabled={
+                data?.source_type == 'default' ||
+                (permissions &&
+                  permissions.some(
+                    (perm) => perm.label === 'delete' && !perm.is_allowed
+                  ))
+              }
               onClick={() => {
                 setShowDeleteModal(true);
                 setDeleteItemId(data?.id);
               }}
             >
               <MdDelete className='text-[22px]' />
-            </button>
+            </Button>
             <Tooltip
               id='project_status_edit_button'
               opacity={'100'}
@@ -335,6 +364,12 @@ function Designations() {
     setIsFetchingData(true);
     fetchDesignationsTypes();
   }, []);
+
+  if (
+    !permissions ||
+    !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
+  )
+    return <NavigateToTheLogInScreen />;
   return (
     <>
       <div className='w-full h-full relative'>
@@ -358,7 +393,13 @@ function Designations() {
                       ? filterData.length?.toString()
                       : data.length?.toString()
                   }
-                  buttonsArray={optionsButtonArray}
+                  buttonsArray={
+                    permissions.some(
+                      (perm) => perm.label === 'edit' && perm.is_allowed
+                    )
+                      ? optionsButtonArray
+                      : []
+                  }
                 />
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
@@ -390,7 +431,13 @@ function Designations() {
                         : 'Add Designation manually by clicking Add Designation button.'
                     }
                     notFoundOptionsButtonsArray={
-                      showSearchFilterData ? [] : optionsButtonArray
+                      showSearchFilterData
+                        ? []
+                        : permissions.some(
+                              (perm) => perm.label === 'edit' && perm.is_allowed
+                            )
+                          ? optionsButtonArray
+                          : []
                     }
                   />
                 )}
@@ -400,28 +447,34 @@ function Designations() {
         </div>
       </div>
 
-      <AddModal
-        modalTitle={
-          modalType == 'add' ? 'Add Designations' : 'Edit Designations'
-        }
-        labelFieldName='Designations Name'
-        showColorPicker={false}
-        showPreview={false}
-        showModal={showModal}
-        setShowModal={setShowModal}
-        loading={loading}
-        handelFormSubmitFunction={handelFormSubmitFunction}
-        value={value}
-        setValue={setValue}
-        modalType={modalType}
-      />
-      <DeleteModal
-        loading={isDeleteLoading}
-        showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
-        handelDelete={handelDeleteItem}
-        name='Designation'
-      />
+      <Suspense fallback={null}>
+        {showModal && (
+          <AddModal
+            modalTitle={
+              modalType == 'add' ? 'Add Designations' : 'Edit Designations'
+            }
+            labelFieldName='Designations Name'
+            showColorPicker={false}
+            showPreview={false}
+            showModal={showModal}
+            setShowModal={setShowModal}
+            loading={loading}
+            handelFormSubmitFunction={handelFormSubmitFunction}
+            value={value}
+            setValue={setValue}
+            modalType={modalType}
+          />
+        )}
+        {showDeleteModal && (
+          <DeleteModal
+            loading={isDeleteLoading}
+            showDeleteModal={showDeleteModal}
+            setShowDeleteModal={setShowDeleteModal}
+            handelDelete={handelDeleteItem}
+            name='Designation'
+          />
+        )}
+      </Suspense>
     </>
   );
 }

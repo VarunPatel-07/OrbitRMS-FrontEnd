@@ -51,7 +51,9 @@
     "react-window": "^1.8.11",
     "remove": "^0.1.5",
     "swiper": "^11.2.10",
+    "tailwind-merge": "^3.3.1",
     "tippy.js": "^6.3.7",
+    "tus-js-client": "^4.3.1",
     "uuid": "^11.1.0",
     "validator": "^13.12.0",
     "vite-plugin-svgr": "^4.3.0"

@@ -1,7 +1,8 @@
 import { AddEditSocialMediaPostFormdataInterface } from '../../../interface/SocialMediaModule';
 
 export const GenerateFormDataForSocialMedia = (
-  formData: AddEditSocialMediaPostFormdataInterface
+  formData: AddEditSocialMediaPostFormdataInterface,
+  uploadImages: [{ type: 'image' | 'video'; url: string }]
 ): FormData => {
   const multipartFormData = new FormData();
   multipartFormData.append('caption', formData.caption);
@@ -19,11 +20,9 @@ export const GenerateFormDataForSocialMedia = (
   formData?.platforms?.map((item) => {
     multipartFormData.append('platforms', item);
   });
-  formData?.new_images?.map((item) => {
-    multipartFormData.append('new_images', item?.file);
-  });
-  formData.existing_images?.map((item) => {
-    multipartFormData.append('existing_images', item);
+  uploadImages?.map((item) => {
+    if (item?.type == 'image') multipartFormData.append('images', item?.url);
+    if (item?.type == 'video') multipartFormData.append('videos', item?.url);
   });
 
   return multipartFormData;

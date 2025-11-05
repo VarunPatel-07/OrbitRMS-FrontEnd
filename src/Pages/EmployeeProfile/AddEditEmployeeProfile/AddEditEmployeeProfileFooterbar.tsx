@@ -50,7 +50,7 @@ function AddEditEmployeeProfileFooter(props: AddEditEmployeeFooterInterface) {
           />
         ) : (
           <Link
-            to={`/${organization_slug}/employee/employee-listing`}
+            to={`/${organization_slug}/employees/employee-listing`}
             className='text-[var(--them-green-color)] py-2.5 px-14 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 transition-all w-fit'
           >
             Cancel

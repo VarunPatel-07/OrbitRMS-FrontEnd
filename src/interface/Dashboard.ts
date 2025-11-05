@@ -34,6 +34,12 @@ export interface AddEditPostFormdataInterface {
   existing_images: string[];
   likes: string[];
 }
+export interface cloudSignDataInterface {
+  time_stamp: number;
+  signature: string;
+  api_key: string;
+  cloud_name: string;
+}
 
 export interface FeedPostDataPropsInterface {
   created_at: string;
@@ -81,6 +87,9 @@ export interface OrganizationFeedPropsInterface {
     data: string,
     callback: () => void
   ) => void;
+  stage: 'parsing' | 'uploading' | 'processing' | 'done';
+  progress: number;
+  uploadingPostFormData: AddEditPostFormdataInterface;
 }
 
 export interface EmptyFeedAnimationPropsInterface {

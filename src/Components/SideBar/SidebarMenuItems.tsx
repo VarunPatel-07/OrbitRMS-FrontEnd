@@ -33,7 +33,7 @@ export const SidebarMenuItems = (
     name: 'Employees',
     icon: <FaUser className='w-5 h-5 mx-auto' />,
     label: 'data-tooltip-employee-listing',
-    link: `/${organization}/employee/employee-listing`,
+    link: `/${organization}/employees/employee-listing`,
     protected: true,
     showToolTip: true,
     ToolTipValue: 'Employees',

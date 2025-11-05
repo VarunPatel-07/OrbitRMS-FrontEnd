@@ -7,15 +7,21 @@ import {
   GlobalStateContextApiProps,
 } from '../../../Context/globalState/GlobalStateContectApi';
 import { getDataFromLocalStorage } from '../../../Helper/HelperFunctions';
+import { PermissionsModuleInterface } from '../../../interface/UserProfileInterface';
 import {
   ConfigModuleSidebarInterface,
   ConfigSidebarMenuList,
 } from './ConfigModuleSidebarList';
 
-function ConfigSidebar() {
+function ConfigSidebar({
+  permissionData,
+}: {
+  permissionData: PermissionsModuleInterface;
+}) {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
+  console.log(permissionData);
 
   const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
@@ -34,26 +40,36 @@ function ConfigSidebar() {
           </h2>
         </div>
         <ul className='w-full h-full overflow-hidden'>
-          {ConfigSidebarMenuArray?.map((item: ConfigModuleSidebarInterface) => (
-            <li
-              key={item?.id}
-              className={`border-b border-b-black/15 transition-all group ${
-                navigation.pathname.includes(item?.link)
-                  ? 'bg-[#7fab98]/45'
-                  : 'hover:bg-[#7fab98]/10 bg-white'
-              }`}
-            >
-              <Link
-                to={item?.link}
-                className={`flex items-center justify-between px-3.5 py-4 transition-all text-base ${navigation.pathname.includes(item?.link) ? 'text-black' : 'text-black/70 group-hover:text-black'}`}
+          {ConfigSidebarMenuArray?.map((item: ConfigModuleSidebarInterface) => {
+            const modulePermission = permissionData?.sub_modules?.find(
+              (data) => data.module_label === item?.id
+            );
+
+            const hasViewPermission = modulePermission?.permissions?.some(
+              (perm) => perm.label === 'view' && perm.is_allowed
+            );
+            if (!hasViewPermission) return null;
+            return (
+              <li
+                key={item?.id}
+                className={`border-b border-b-black/15 transition-all group ${
+                  navigation.pathname.includes(item?.link)
+                    ? 'bg-[#7fab98]/45'
+                    : 'hover:bg-[#7fab98]/10 bg-white'
+                }`}
               >
-                <span className='font-medium font-inter'>{item?.name}</span>
-                <span>
-                  <RiArrowRightSLine className='text-2xl text-black/70' />
-                </span>
-              </Link>
-            </li>
-          ))}
+                <Link
+                  to={item?.link}
+                  className={`flex items-center justify-between px-3.5 py-4 transition-all text-base ${navigation.pathname.includes(item?.link) ? 'text-black' : 'text-black/70 group-hover:text-black'}`}
+                >
+                  <span className='font-medium font-inter'>{item?.name}</span>
+                  <span>
+                    <RiArrowRightSLine className='text-2xl text-black/70' />
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>

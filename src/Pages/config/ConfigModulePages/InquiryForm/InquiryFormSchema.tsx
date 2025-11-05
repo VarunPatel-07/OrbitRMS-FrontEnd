@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  Suspense,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { IoEye } from 'react-icons/io5';
 import {
   MdDelete,
@@ -11,6 +17,7 @@ import { Link } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../../../common/Breadcrumbs';
+import Button from '../../../../common/Button';
 import Table from '../../../../common/Table/Table';
 import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
@@ -36,6 +43,7 @@ import {
   multiplePostApi,
   multiplePutApi,
 } from '../../../../Helper/api/multipleAPI';
+import { NavigateToTheLogInScreen } from '../../../../Helper/Helper';
 import {
   formateDate,
   getDataFromLocalStorage,
@@ -44,6 +52,7 @@ import { useDebounce } from '../../../../Hooks/useDebounce';
 import {
   AddEditInquiryFormSchemaInterface,
   DesignationConfig,
+  PermissionObjectInterface,
 } from '../../../../interface/interface';
 import {
   Column,
@@ -55,7 +64,11 @@ const DeleteModal = React.lazy(
   () => import('../../../../Components/Modal/DeleteModal')
 );
 
-function InquiryFormSchema() {
+function InquiryFormSchema({
+  permissions,
+}: {
+  permissions?: PermissionObjectInterface[];
+}) {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
@@ -292,11 +305,31 @@ function InquiryFormSchema() {
       renderContent: (data: boolean) => (
         <div className='w-full'>
           {data ? (
-            <span className='text-xs font-medium font-inter bg-green-100 text-green-700 border border-green-500 px-4 py-1.5 rounded-full'>
+            <span className='text-xs font-medium font-inter bg-green-100 text-green-700 border border-green-500 px-4 py-1.5 rounded-full min-w-[80px] max-w-[80px] block text-center'>
               Active
             </span>
           ) : (
-            <span className='text-xs font-medium font-inter bg-red-100 text-red-700 border border-red-500 px-4 py-1.5 rounded-full'>
+            <span className='text-xs font-medium font-inter bg-red-100 text-red-700 border border-red-500 px-4 py-1.5 rounded-full min-w-[80px] max-w-[80px] block text-center'>
+              Inactive
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      isSortable: true,
+      isSticky: false,
+      canToggleVisibility: true,
+      renderContent: (data: boolean) => (
+        <div className='w-full'>
+          {data ? (
+            <span className='text-xs font-medium font-inter bg-green-100 text-green-700 border border-green-500 px-4 py-1.5 rounded-full min-w-[80px] max-w-[80px] block text-center'>
+              Active
+            </span>
+          ) : (
+            <span className='text-xs font-medium font-inter bg-red-100 text-red-700 border border-red-500 px-4 py-1.5 rounded-full min-w-[80px] max-w-[80px] block text-center'>
               Inactive
             </span>
           )}
@@ -317,26 +350,7 @@ function InquiryFormSchema() {
         </div>
       ),
     },
-    {
-      key: 'status',
-      title: 'Status',
-      isSortable: true,
-      isSticky: false,
-      canToggleVisibility: true,
-      renderContent: (data: boolean) => (
-        <div className='w-full'>
-          {data ? (
-            <span className='text-xs font-medium font-inter bg-green-100 text-green-700 border border-green-500 px-4 py-1.5 rounded-full'>
-              Active
-            </span>
-          ) : (
-            <span className='text-xs font-medium font-inter bg-red-100 text-red-700 border border-red-500 px-4 py-1.5 rounded-full'>
-              Inactive
-            </span>
-          )}
-        </div>
-      ),
-    },
+
     {
       key: 'created_by',
       childKey: 'created_at',
@@ -405,26 +419,34 @@ function InquiryFormSchema() {
       renderContent: (data: AddEditInquiryFormSchemaInterface) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
-            <button
+            <Button
+              type='button'
               className='text-black/80 p-1.5'
-              data-tooltip-id='project_status_edit_button'
-              data-tooltip-content='Edit'
+              dataTooltipId='project_status_edit_button'
+              dataTooltipContent='Edit'
               onClick={() => handelEditButtonClick(data)}
+              disabled={
+                permissions &&
+                permissions.some(
+                  (perm) => perm.label === 'edit' && !perm.is_allowed
+                )
+              }
             >
               <MdModeEdit className='text-[22px]' />
-            </button>
+            </Button>
             <Link
               to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/config/inquiry-forms/${data?.id}/fields`}
               className='text-black/80 p-1.5'
               data-tooltip-id='project_status_edit_button'
-              data-tooltip-content='Edit'
+              data-tooltip-content='View Form'
             >
               <IoEye className='text-[22px]' />
             </Link>
-            <button
+            <Button
+              type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='email_notification-toggler_button'
-              data-tooltip-content={
+              dataTooltipId='email_notification-toggler_button'
+              dataTooltipContent={
                 data?.email_notification
                   ? 'Turn Off Email Notification'
                   : 'Turn On Email Notification'
@@ -436,26 +458,39 @@ function InquiryFormSchema() {
                   data?.email_notification ? 'active' : 'inactive'
                 );
               }}
+              disabled={
+                permissions &&
+                permissions.some(
+                  (perm) => perm.label === 'edit' && !perm.is_allowed
+                )
+              }
             >
               {data?.email_notification ? (
                 <MdNotificationsOff className='text-[22px] text-rose-600' />
               ) : (
                 <MdNotificationsActive className='text-[22px] text-green-600' />
               )}
-            </button>
+            </Button>
 
-            <button
+            <Button
+              type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='project_status_delete_button'
-              data-tooltip-content='Delete'
-              disabled={data?.source_type == 'default'}
+              dataTooltipId='project_status_delete_button'
+              dataTooltipContent='Delete'
+              disabled={
+                data?.source_type == 'default' ||
+                (permissions &&
+                  permissions.some(
+                    (perm) => perm.label === 'delete' && !perm.is_allowed
+                  ))
+              }
               onClick={() => {
                 setShowDeleteModal(true);
                 setDeleteItemId(data?.id);
               }}
             >
               <MdDelete className='text-[22px]' />
-            </button>
+            </Button>
 
             <Tooltip
               id='project_status_edit_button'
@@ -498,6 +533,12 @@ function InquiryFormSchema() {
     setIsFetchingData(true);
     fetchClientFormFields();
   }, []);
+
+  if (
+    !permissions ||
+    !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
+  )
+    return <NavigateToTheLogInScreen />;
   return (
     <>
       <div className='w-full h-full relative'>
@@ -521,7 +562,13 @@ function InquiryFormSchema() {
                       ? filterData.length?.toString()
                       : data.length?.toString()
                   }
-                  buttonsArray={optionsButtonArray}
+                  buttonsArray={
+                    permissions.some(
+                      (perm) => perm.label === 'edit' && perm.is_allowed
+                    )
+                      ? optionsButtonArray
+                      : []
+                  }
                 />
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
@@ -553,7 +600,13 @@ function InquiryFormSchema() {
                         : 'Add Form manually by clicking Add Form button.'
                     }
                     notFoundOptionsButtonsArray={
-                      showSearchFilterData ? [] : optionsButtonArray
+                      showSearchFilterData
+                        ? []
+                        : permissions.some(
+                              (perm) => perm.label === 'edit' && perm.is_allowed
+                            )
+                          ? optionsButtonArray
+                          : []
                     }
                   />
                 )}
@@ -563,36 +616,44 @@ function InquiryFormSchema() {
         </div>
       </div>
 
-      <AddEditInquiryFormSchema
-        modalTitle={modalType == 'add' ? 'Add Form' : 'Edit Form'}
-        showModal={showModal}
-        setShowModal={setShowModal}
-        loading={loading}
-        handelFormSubmitFunction={handelFormSubmitFunction}
-        formData={formData}
-        setFormData={setFormData}
-        modalType={modalType}
-      />
-      <DeleteModal
-        loading={isDeleteLoading}
-        showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
-        handelDelete={handelDeleteItem}
-        name='Form Field'
-      />
-      <CommonAlertModal
-        loading={isDeleteLoading}
-        showDeleteModal={showAlertModal}
-        setShowDeleteModal={setShowAlertModal}
-        handelDelete={handelToggleEmailNotification}
-        title='Turn Off Email Notifications?'
-        description='You will no longer receive email updates or alerts. Are you sure you want to disable this feature?'
-        secondaryButtonTitle={
-          emailNotificationStatus == 'active'
-            ? 'Turn Off Notification'
-            : 'Turn On Notification'
-        }
-      />
+      <Suspense fallback={null}>
+        {showModal && (
+          <AddEditInquiryFormSchema
+            modalTitle={modalType == 'add' ? 'Add Form' : 'Edit Form'}
+            showModal={showModal}
+            setShowModal={setShowModal}
+            loading={loading}
+            handelFormSubmitFunction={handelFormSubmitFunction}
+            formData={formData}
+            setFormData={setFormData}
+            modalType={modalType}
+          />
+        )}
+        {showDeleteModal && (
+          <DeleteModal
+            loading={isDeleteLoading}
+            showDeleteModal={showDeleteModal}
+            setShowDeleteModal={setShowDeleteModal}
+            handelDelete={handelDeleteItem}
+            name='Form Field'
+          />
+        )}
+        {showAlertModal && (
+          <CommonAlertModal
+            loading={isDeleteLoading}
+            showDeleteModal={showAlertModal}
+            setShowDeleteModal={setShowAlertModal}
+            handelDelete={handelToggleEmailNotification}
+            title='Turn Off Email Notifications?'
+            description='You will no longer receive email updates or alerts. Are you sure you want to disable this feature?'
+            secondaryButtonTitle={
+              emailNotificationStatus == 'active'
+                ? 'Turn Off Notification'
+                : 'Turn On Notification'
+            }
+          />
+        )}
+      </Suspense>
     </>
   );
 }

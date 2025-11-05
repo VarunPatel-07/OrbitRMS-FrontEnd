@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { MdOutlineDashboard } from 'react-icons/md';
 import { Editor } from '@tiptap/react';
+import * as tus from 'tus-js-client';
 
 import {
   GlobalStateContext,
@@ -18,12 +20,16 @@ import {
   multiplePutApi,
 } from '../../Helper/api/multipleAPI';
 import { generateTimeBasedGreeting } from '../../Helper/HelperFunctions';
+import { getCroppedImageBlob } from '../../Helper/ImageCropper';
+import { ImageDownscaler } from '../../Helper/ImageDownscaler';
 import { useDebounce } from '../../Hooks/useDebounce';
 import { useMentionSearchDebounce } from '../../Hooks/useMentionSearchDebounce';
 import {
   AddEditPostFormdataInterface,
+  cloudSignDataInterface,
   FeedPostDataPropsInterface,
 } from '../../interface/Dashboard';
+import { CloudinaryUploadResult } from '../../interface/interface';
 import { OrganizationHolidays } from '../../interface/OrganizationSettings';
 import { RichTextEditorApiResponseInterface } from '../../interface/propsInterface';
 import DashboardPlayground from './DashboardPlayground';
@@ -78,13 +84,19 @@ function Dashboard() {
   const [deletePostId, setDeletePostId] = useState<string>('');
   const [isLoadingHoliday, setIsLoadingHoliday] = useState<boolean>(true);
   const [likedPosts, setLikedPosts] = useState<string[]>([]);
-
+  const [uploadingPostFormData, setUploadingPostFormData] =
+    useState<AddEditPostFormdataInterface>(initialData);
+  const [stage, setStage] = useState<
+    'parsing' | 'uploading' | 'processing' | 'done'
+  >('parsing');
+  const [progress, setProgress] = useState(0);
   //
   //
   // * The Api That Help To Delete a Specific Post
   //
   //
   //
+
   const deletePostWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
       {
@@ -317,48 +329,251 @@ function Dashboard() {
   //
   //
   //
+  const CLOUDINARY_UPLOAD_URL = (cloudName: string) =>
+    `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+  // -------------------------------
+  // VIDEO UPLOAD FUNCTION (TUS)
+  // -------------------------------
+  const uploadVideoUsingTUS = (
+    file: File,
+    { cloud_name }: cloudSignDataInterface,
+    onProgress: (bytesUploaded: number, bytesTotal: number) => void
+  ) => {
+    return new Promise((resolve, reject) => {
+      const uploadData = new tus.Upload(file, {
+        endpoint: CLOUDINARY_UPLOAD_URL(cloud_name),
+        metadata: {
+          filename: file.name,
+          filetype: file.type,
+        },
+        uploadDataDuringCreation: true,
+        chunkSize: 5 * 1024 * 1024,
+        retryDelays: [0, 1000, 3000, 5000],
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        onError: (error) => {
+          console.error('Upload failed:', error);
+          reject(error);
+        },
+        onProgress: (bytesUploaded, bytesTotal) => {
+          onProgress(bytesUploaded, bytesTotal);
+        },
+        onSuccess: () => {
+       
+          resolve(uploadData.url);
+        },
+      });
+      uploadData.start();
+    });
+  };
+  // -------------------------------
+  // IMAGE UPLOAD FUNCTION
+  // -------------------------------
+  const uploadImageToCloudinary = (
+    file: File,
+    { cloud_name, api_key, signature, time_stamp }: cloudSignDataInterface,
+    onProgress: (bytesUploaded: number, bytesTotal: number) => void
+  ) => {
+    const url = CLOUDINARY_UPLOAD_URL(cloud_name);
+    const formData = new FormData();
+
+    formData.append('file', file);
+    formData.append('api_key', api_key);
+    formData.append('timestamp', String(time_stamp));
+    formData.append('signature', signature);
+    formData.append('resource_type', 'auto');
+
+    return new Promise<CloudinaryUploadResult>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url);
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          onProgress(e.loaded, e.total);
+        }
+      };
+      xhr.onerror = () => reject(new Error('Upload failed'));
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(JSON.parse(xhr.responseText));
+        } else reject(new Error(`Upload failed: ${xhr.status}`));
+      };
+      xhr.send(formData);
+    });
+  };
+
+  const uploadImageVideoToCloud = async (
+    data: AddEditPostFormdataInterface,
+    cloudSignData: cloudSignDataInterface
+  ) => {
+    const { time_stamp, signature, api_key, cloud_name } = cloudSignData;
+
+    const allFiles = [
+      ...(data?.new_images || []).map((i) => i?.originalFile),
+    ].filter(Boolean) as File[];
+
+    const totalBytes = allFiles.reduce((acc, f) => acc + f.size, 0);
+    let uploadedBytes = 0;
+    const handleProgress = (bytesUploaded: number) => {
+      const totalProgress =
+        ((uploadedBytes + bytesUploaded) / totalBytes) * 100;
+
+      setProgress(totalProgress * 100);
+    };
+    const uploadedMedia: any[] = [];
+    for (const item of data?.new_images || []) {
+      const file = item?.originalFile;
+      if (!file) return;
+
+      const isVideo = file.type.startsWith('video');
+
+      if (isVideo) {
+        setStage('uploading');
+
+        const uploadedUrl = await uploadVideoUsingTUS(
+          file,
+          {
+            cloud_name,
+            api_key,
+            signature,
+            time_stamp,
+          },
+          handleProgress
+        );
+        uploadedBytes += file.size;
+
+        uploadedMedia.push({ url: uploadedUrl, type: 'video' });
+      } else {
+        setStage('uploading');
+
+        let processedFile: File;
+        if (file.size > 10 * 1024 * 1024) {
+          processedFile = await ImageDownscaler(file, 10);
+        } else {
+          processedFile = file;
+        }
+
+        const blob = await getCroppedImageBlob(
+          processedFile,
+          item.croppedArea,
+          item?.rotation
+        );
+
+        processedFile = new File([blob], file.name, { type: file.type });
+
+        const uploadedUrl = await uploadImageToCloudinary(
+          processedFile,
+          {
+            cloud_name,
+            api_key,
+            signature,
+            time_stamp,
+          },
+          handleProgress
+        );
+        uploadedBytes += processedFile.size;
+
+        if (uploadedUrl) {
+          uploadedMedia.push({
+            url: uploadedUrl.secure_url,
+            type: uploadedUrl.resource_type || 'image',
+          });
+        }
+      }
+      for (const img of data?.existing_images || []) {
+        uploadedMedia.push({ url: img, type: 'image' });
+      }
+    }
+    return uploadedMedia;
+  };
+
+  const handelUploadPostWithDebounce = useDebounce(
+    async (
+      data: AddEditPostFormdataInterface,
+      uploadImages: [{ type: 'image' | 'video'; url: string }]
+    ) => {
+      const multipartFormData = new FormData();
+      multipartFormData.append('description', data.description);
+      uploadImages?.map((item) => {
+        if (item?.type == 'image')
+          multipartFormData.append('images', item?.url);
+        if (item?.type == 'video')
+          multipartFormData.append('videos', item?.url);
+      });
+      formData?.existing_images.map((item) => {
+        multipartFormData.append('images', item);
+      });
+
+      multipartFormData.append(
+        'isCommentDisabled',
+        String(data.isCommentDisabled)
+      );
+      multipartFormData.append('isLikeDisabled', String(data.isLikeDisabled));
+      const multipartHeader = {
+        'Content-Type': 'multipart/form-data',
+      };
+
+      const endPointArr: endpointObject[] = [
+        {
+          endPoint:
+            type == 'add'
+              ? `feed/add-edit?type=${type}`
+              : `feed/add-edit?type=${type}&id=${editPostId}`,
+          protected: true,
+          data: multipartFormData,
+          header: multipartHeader,
+        },
+      ];
+
+      const response = await multiplePostApi(endPointArr);
+      const res = response[0];
+      handelNotification(res, 'top-right');
+
+      if (res?.success) {
+        setShowAddEditPostModal(false);
+        setFormData(initialData);
+        editorRef.current?.commands.clearContent();
+        setStage('done');
+        setProgress(100);
+        setTimeout(() => {
+          setUploadingPostFormData(initialData);
+        }, 500);
+        setTimeout(() => {
+          setFeedPostLoader(true);
+          fetchTheFeedPostsWithDebounce();
+        }, 800);
+      }
+    },
+    100
+  );
 
   const handelSubmitApiCallingWithDebounce = useDebounce(async () => {
-    const multipartFormData = new FormData();
-    multipartFormData.append('description', formData.description);
-    formData?.new_images?.map((item) => {
-      multipartFormData.append('new_images', item?.file);
-    });
-    formData.existing_images?.map((item) => {
-      multipartFormData.append('existing_images', item);
-    });
 
-    multipartFormData.append(
-      'isCommentDisabled',
-      String(formData.isCommentDisabled)
-    );
-    multipartFormData.append('isLikeDisabled', String(formData.isLikeDisabled));
-    const multipartHeader = {
-      'Content-Type': 'multipart/form-data',
-    };
 
     const endPointArr: endpointObject[] = [
       {
-        endPoint:
-          type == 'add'
-            ? `feed/add-edit?type=${type}`
-            : `feed/add-edit?type=${type}&id=${editPostId}`,
+        endPoint: 'upload/cloud/signature',
         protected: true,
-        data: multipartFormData,
-        header: multipartHeader,
       },
     ];
 
     const response = await multiplePostApi(endPointArr);
     const res = response[0];
-    handelNotification(res, 'top-right');
-    setFormSubmitLoader(false);
     if (res?.success) {
+      setFormSubmitLoader(false);
       setShowAddEditPostModal(false);
-      setFormData(initialData);
+      setStage('parsing');
       editorRef.current?.commands.clearContent();
-      setFeedPostLoader(true);
-      fetchTheFeedPostsWithDebounce();
+
+      setUploadingPostFormData(formData);
+
+      const responseData = await uploadImageVideoToCloud(formData, res.data);
+      if (responseData) {
+        setStage('processing');
+        setProgress(100);
+        handelUploadPostWithDebounce(formData, responseData);
+      }
+      setFormData(initialData);
     }
   }, 100);
 
@@ -396,6 +611,33 @@ function Dashboard() {
     fetchInitialDataWithDebounce();
     fetchTheFeedPostsWithDebounce();
   }, [fetchInitialDataWithDebounce, fetchTheFeedPostsWithDebounce]);
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (
+        uploadingPostFormData?.description !== '' ||
+        uploadingPostFormData?.new_images?.length > 0 ||
+        uploadingPostFormData?.existing_images?.length > 0
+      ) {
+        event.preventDefault();
+        // Standard message ignored by most browsers, but required for the popup
+        event.returnValue = '';
+      }
+    };
+
+    if (
+      uploadingPostFormData?.description !== '' ||
+      uploadingPostFormData?.new_images?.length > 0 ||
+      uploadingPostFormData?.existing_images?.length > 0
+    ) {
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    } else {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [uploadingPostFormData]);
 
   return (
     <>
@@ -436,6 +678,9 @@ function Dashboard() {
               handelClickOnLikeToggle={handelClickOnLikeToggle}
               likedPosts={likedPosts}
               submitCommentOnClick={submitCommentOnClick}
+              progress={progress}
+              stage={stage}
+              uploadingPostFormData={uploadingPostFormData}
             />
           </div>
         </div>

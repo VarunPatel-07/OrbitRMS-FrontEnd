@@ -129,7 +129,7 @@ function AddEditEmployeeProfile() {
           }));
         }
 
-        navigate(`/${organization_slug}/employee/employee-listing`);
+        navigate(`/${organization_slug}/employees/employee-listing`);
       } else {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
@@ -152,7 +152,7 @@ function AddEditEmployeeProfile() {
       if (res?.success) {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
-        navigate(`/${organization_slug}/employee/employee-listing`);
+        navigate(`/${organization_slug}/employees/employee-listing`);
       } else {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
@@ -313,7 +313,7 @@ function AddEditEmployeeProfile() {
         setFetchingTheEmployeeData(true);
         setTimeout(() => {
           navigate(
-            `/${GlobalStateProvider.organization?.general_info?.portal_slug}/employee/employee-listing`
+            `/${GlobalStateProvider.organization?.general_info?.portal_slug}/employees/employee-listing`
           );
         }, 2000);
       }

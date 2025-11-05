@@ -1,4 +1,4 @@
-import React, { RefObject, SetStateAction } from 'react';
+import React, { HTMLAttributes, RefObject, SetStateAction } from 'react';
 import { Editor } from '@tiptap/react';
 
 import { countryObject } from '../Helper/countryDataHelper';
@@ -49,6 +49,15 @@ export interface InputProps {
     | 'left'
     | 'left-start'
     | 'left-end';
+}
+
+export interface ImageCommonComponent extends HTMLAttributes<HTMLImageElement> {
+  src: string;
+  loading?: 'eager' | 'lazy';
+  height?: number;
+  width?: number;
+  className?: string;
+  alt: string;
 }
 
 export interface DragDropUploaderProps {

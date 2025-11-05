@@ -148,7 +148,7 @@ function RichTextEditor(props: RichTextEditorInterface) {
             'span',
             mergeAttributes(
               {
-                onclick: `window.open('/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${node.attrs.id}/employee-details', '_blank')`,
+                onclick: `window.open('/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employees/employee-profile/${node.attrs.id}/employee-details', '_blank')`,
               },
               options.HTMLAttributes
             ),

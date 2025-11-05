@@ -56,11 +56,15 @@ function ViewPermissions() {
 
   const BreadcrumbsObjects = [
     { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
-    { name: 'Config', label: 'config-module', link: '/config/project-status' },
+    {
+      name: 'Config',
+      label: 'config-module',
+      link: `/${organization}/config/project-status`,
+    },
     {
       name: 'Roles',
       label: 'role-permission',
-      link: '/config/roles-permission',
+      link: `/${organization}/config/roles-permission`,
     },
     {
       name: data?.role_name,
@@ -102,7 +106,7 @@ function ViewPermissions() {
   const StatusTogglerFunction = async (module_id: string) => {
     const endPointArr: Array<endpointObject> = [
       {
-        endPoint: `config/roles_permissions/update?id=${module_id}&type=module`,
+        endPoint: `config/roles_permissions/update?id=${module_id}&type=module&role_module_id=${id}`,
         protected: true,
       },
     ];
@@ -116,7 +120,7 @@ function ViewPermissions() {
   const PermissionTogglerFunction = async (module_id: string) => {
     const endPointArr: Array<endpointObject> = [
       {
-        endPoint: `config/roles_permissions/update?id=${module_id}&type=permission`,
+        endPoint: `config/roles_permissions/update?id=${module_id}&type=permission&role_module_id=${id}`,
         protected: true,
       },
     ];
@@ -145,7 +149,7 @@ function ViewPermissions() {
             <RolesAndPermissionLoader />
           ) : (
             <>
-              <div className='w-full p-6 bg-white rounded-t-lg'>
+              <div className='w-full p-6 bg-white rounded-t-lg border border-black/20 border-b-0'>
                 <div className='w-full flex items-center justify-between'>
                   <div className='flex items-center gap-2'>
                     <p className='text-slate-950 font-semibold capitalize text-xl font-inter'>

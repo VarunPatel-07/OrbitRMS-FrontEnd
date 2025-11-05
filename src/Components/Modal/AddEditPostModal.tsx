@@ -61,6 +61,8 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
       return;
     }
 
+ 
+
     setFormData((pervData) => ({
       ...pervData,
       new_images: [...pervData.new_images, ...data],
@@ -110,6 +112,7 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
       cropShape='rect'
       maxCropHeight={350}
       maxCropWidth={350}
+      maxSize={20 * 1024 * 1024 * 1024}
       isImageCropperActive={isImageCropperActive}
       setIsImageCropperActive={setIsImageCropperActive}
       handelUploadImage={handelUploadImage}

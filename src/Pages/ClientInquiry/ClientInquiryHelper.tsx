@@ -101,7 +101,7 @@ export const handelGeneratingDynamicClientColumn = (
   });
 
   setColumns((perValue) => {
-    return [...perValue.slice(0, 2), ...columnsArray, ...perValue.slice(2)];
+    return [...columnsArray, ...perValue];
   });
   setClientInquiryFiltersArray(clientFilterArray);
 };

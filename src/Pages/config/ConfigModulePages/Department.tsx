@@ -1,9 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  Suspense,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../../common/Breadcrumbs';
+import Button from '../../../common/Button';
 import Table from '../../../common/Table/Table';
 import TableInfoHeader from '../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
@@ -24,12 +31,16 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../Helper/api/multipleAPI';
+import { NavigateToTheLogInScreen } from '../../../Helper/Helper';
 import {
   formateDate,
   getDataFromLocalStorage,
 } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
-import { DepartmentConfig } from '../../../interface/interface';
+import {
+  DepartmentConfig,
+  PermissionObjectInterface,
+} from '../../../interface/interface';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
@@ -40,7 +51,11 @@ const DeleteModal = React.lazy(
   () => import('../../../Components/Modal/DeleteModal')
 );
 
-export default function AttachmentTypes() {
+export default function AttachmentTypes({
+  permissions,
+}: {
+  permissions?: PermissionObjectInterface[];
+}) {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
@@ -289,26 +304,40 @@ export default function AttachmentTypes() {
       renderContent: (data: any) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
-            <button
-              className='text-black/80 p-1.5'
-              data-tooltip-id='project_status_edit_button'
-              data-tooltip-content='Edit'
+            <Button
+              type='button'
+              className='text-black/80 p-1.5 cursor-pointer'
+              dataTooltipId='project_status_edit_button'
+              dataTooltipContent='Edit'
               onClick={() => handelEditButtonClick(data)}
+              disabled={
+                permissions &&
+                permissions.some(
+                  (perm) => perm.label === 'edit' && !perm.is_allowed
+                )
+              }
             >
               <MdModeEdit className='text-[22px]' />
-            </button>
-            <button
-              className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='project_status_delete_button'
-              disabled={data?.source_type == 'default'}
-              data-tooltip-content='Delete'
+            </Button>
+            <Button
+              type='button'
+              className='text-black/80 p-1.5 cursor-pointer'
+              dataTooltipId='project_status_delete_button'
+              disabled={
+                data?.source_type == 'default' ||
+                (permissions &&
+                  permissions.some(
+                    (perm) => perm.label === 'delete' && !perm.is_allowed
+                  ))
+              }
+              dataTooltipContent='Delete'
               onClick={() => {
                 setShowDeleteModal(true);
                 setDeleteItemId(data?.id);
               }}
             >
               <MdDelete className='text-[22px]' />
-            </button>
+            </Button>
             <Tooltip
               id='project_status_edit_button'
               opacity={'100'}
@@ -337,6 +366,12 @@ export default function AttachmentTypes() {
     fetchAttachmentTypes();
   }, []);
 
+  if (
+    !permissions ||
+    !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
+  )
+    return <NavigateToTheLogInScreen />;
+
   return (
     <>
       <div className='w-full h-full relative'>
@@ -360,7 +395,13 @@ export default function AttachmentTypes() {
                       ? filterData.length?.toString()
                       : data.length?.toString()
                   }
-                  buttonsArray={optionsButtonArray}
+                  buttonsArray={
+                    permissions.some(
+                      (perm) => perm.label === 'edit' && perm.is_allowed
+                    )
+                      ? optionsButtonArray
+                      : []
+                  }
                 />
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
@@ -392,7 +433,13 @@ export default function AttachmentTypes() {
                         : 'Add Department manually by clicking Add Department button.'
                     }
                     notFoundOptionsButtonsArray={
-                      showSearchFilterData ? [] : optionsButtonArray
+                      showSearchFilterData
+                        ? []
+                        : permissions.some(
+                              (perm) => perm.label === 'edit' && perm.is_allowed
+                            )
+                          ? optionsButtonArray
+                          : []
                     }
                   />
                 )}
@@ -401,29 +448,37 @@ export default function AttachmentTypes() {
           </div>
         </div>
       </div>
+      <Suspense fallback={null}>
+        {showModal && (
+          <AddModal
+            modalTitle={
+              modalType == 'add'
+                ? 'Add Attachment Type'
+                : 'Edit Attachment Type'
+            }
+            labelFieldName='Department Name'
+            showColorPicker={false}
+            showPreview={false}
+            showModal={showModal}
+            setShowModal={setShowModal}
+            loading={loading}
+            handelFormSubmitFunction={handelFormSubmitFunction}
+            value={value}
+            setValue={setValue}
+            modalType={modalType}
+          />
+        )}
 
-      <AddModal
-        modalTitle={
-          modalType == 'add' ? 'Add Attachment Type' : 'Edit Attachment Type'
-        }
-        labelFieldName='Department Name'
-        showColorPicker={false}
-        showPreview={false}
-        showModal={showModal}
-        setShowModal={setShowModal}
-        loading={loading}
-        handelFormSubmitFunction={handelFormSubmitFunction}
-        value={value}
-        setValue={setValue}
-        modalType={modalType}
-      />
-      <DeleteModal
-        loading={isDeleteLoading}
-        showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
-        handelDelete={handelDeleteItem}
-        name='Department'
-      />
+        {showDeleteModal && (
+          <DeleteModal
+            loading={isDeleteLoading}
+            showDeleteModal={showDeleteModal}
+            setShowDeleteModal={setShowDeleteModal}
+            handelDelete={handelDeleteItem}
+            name='Department'
+          />
+        )}
+      </Suspense>
     </>
   );
 }

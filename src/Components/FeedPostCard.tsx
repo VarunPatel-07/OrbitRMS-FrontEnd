@@ -130,7 +130,7 @@ function FeedPostCard(props: propsInterface) {
               </p>
             ) : (
               <Link
-                to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employee-profile/${data?.publisher?.id}/employee-details`}
+                to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employees/employee-profile/${data?.publisher?.id}/employee-details`}
                 target='_blank'
                 className='text-black flex items-center justify-start text-sm font-semibold gap-1 hover:text-blue-700'
               >

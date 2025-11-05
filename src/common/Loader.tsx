@@ -1,17 +1,24 @@
+import clsx from 'clsx';
+
 import { classNames } from '../Helper/HelperFunctions';
 
 function Loader({
   loaderText,
   theme = 'light',
+  className,
 }: {
   loaderText: string;
   theme?: 'dark' | 'light';
+  className?: string;
 }) {
   return (
     <span
-      className={classNames('flex items-center justify-center', {
-        'gap-2': loaderText?.trim() !== '',
-      })}
+      className={classNames(
+        clsx('flex items-center justify-center', className),
+        {
+          'gap-2': loaderText?.trim() !== '',
+        }
+      )}
     >
       <svg
         className={classNames('-ml-1 size-5 animate-spin', {

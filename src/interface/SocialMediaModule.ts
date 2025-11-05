@@ -52,7 +52,11 @@ export interface ConnectedPlatformsInterface {
 export interface SocialMedialPostComponentInterface {
   setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;
   socialPostArray: SocialMediaPostDataInterface[];
-  handelClickOnDeleteButton: (postId: string) => void;
+  handelClickOnDeleteButton: (
+    postId: string,
+    selected_platforms: string
+  ) => void;
+  loading: boolean;
 }
 
 export interface AddEditSocialMediaPostFormdataInterface {
@@ -94,5 +98,8 @@ export interface SocialMediaPostDataInterface {
 
 export interface SocialMediaPostCardInterface {
   data: SocialMediaPostDataInterface;
-  handelClickOnDeleteButton: (postId: string) => void;
+  handelClickOnDeleteButton: (
+    postId: string,
+    selected_platforms: string
+  ) => void;
 }

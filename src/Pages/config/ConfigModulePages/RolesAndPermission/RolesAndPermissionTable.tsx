@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import React, { SetStateAction } from 'react';
-import { LuLoaderCircle } from 'react-icons/lu';
+import React, { SetStateAction, useState } from 'react';
+import { LuLoaderCircle, LuSquareChevronDown } from 'react-icons/lu';
 import { PiArrowBendDownRightBold } from 'react-icons/pi';
 
 import { classNames } from '../../../../Helper/HelperFunctions';
@@ -23,6 +23,22 @@ function RolesAndPermissionTable({
   updatingModuleLoaderId: string;
   setUpdatingModuleLoaderId: React.Dispatch<SetStateAction<string>>;
 }) {
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(
+    new Set()
+  );
+
+  const toggleExpandButton = (moduleId: string) => {
+    setExpandedModules((perv) => {
+      const newSet = new Set(perv);
+      if (newSet.has(moduleId)) {
+        newSet.delete(moduleId);
+      } else {
+        newSet.add(moduleId);
+      }
+      return newSet;
+    });
+  };
+
   const handelStatusToggler = (info: RolesAndPermissionsModule) => {
     setUpdatingModuleLoaderId(info?.id);
     StatusTogglerFunc(info?.id);
@@ -38,14 +54,15 @@ function RolesAndPermissionTable({
     isSubModule: boolean,
     isParentModuleActive: boolean
   ) => {
+    const isExpanded = expandedModules.has(module.id);
     return (
-      <tr key={module.module_label} className='group back'>
+      <tr key={module.id} className='group back transition-all'>
         <td
           className={classNames(
-            `bg-white px-6 py-3 text-black cursor-pointe min-w-[300px]  border-b border-b-black/15 text-center`,
+            `px-6 py-3 text-black cursor-pointe min-w-[300px]  border-b border-b-black/15 text-center`,
             {
-              'bg-[#E9ECF0]': isSubModule,
-              'group-hover:bg-gray-50': !isSubModule,
+              'bg-gray-300/25': hierarchyLevel == 0,
+              'bg-white group-hover:bg-gray-50': hierarchyLevel != 0,
             }
           )}
           style={{
@@ -54,22 +71,33 @@ function RolesAndPermissionTable({
           }}
         >
           <span className='flex items-center justify-start'>
+            {!isSubModule && <span className='pl-[24px]'></span>}
+            {isSubModule && (
+              <span
+                className={classNames(' transition-all', {
+                  'rotate-180': isExpanded,
+                })}
+                onClick={() => toggleExpandButton(module?.id)}
+              >
+                <LuSquareChevronDown className='text-black text-lg h-5 w-7' />
+              </span>
+            )}
             {hierarchyLevel != 0 && (
               <span className='pr-1.5'>
                 <PiArrowBendDownRightBold className='text-black/30 text-lg h-5 w-7' />
               </span>
             )}
-            <span className='font-inter text-black font-medium text-sm'>
+            <span className='font-inter text-black font-medium text-sm text-nowrap w-fit'>
               {module.module_title}
             </span>
           </span>
         </td>
         <td
           className={classNames(
-            'bg-white px-6 py-3 text-black cursor-pointe border-l border-l-black/15 border-b border-b-black/15 text-center',
+            'px-6 py-3 text-black cursor-pointe border-l border-l-black/15 border-b border-b-black/15 text-center',
             {
-              'bg-[#E9ECF0]': isSubModule,
-              'group-hover:bg-gray-50': !isSubModule,
+              'bg-gray-300/25': hierarchyLevel == 0,
+              'bg-white group-hover:bg-gray-50': hierarchyLevel != 0,
             }
           )}
         >
@@ -89,21 +117,25 @@ function RolesAndPermissionTable({
             )}
           </div>
         </td>
-        {module.permissions?.map((item, index) => {
-          if (item?.show_input) {
+        {['view', 'edit', 'delete'].map((permLabel, index) => {
+          const permission = module.permissions?.find(
+            (p) => p.label === permLabel
+          );
+
+          if (permission && permission.show_input) {
             return (
               <td
+                key={index}
                 className={classNames(
-                  'bg-white px-6 py-3 text-black cursor-pointe border-l border-l-black/15 border-b border-b-black/15 text-center',
+                  'bg-white px-6 py-3 text-black cursor-pointer border-l border-l-black/15 border-b border-b-black/15 text-center',
                   {
-                    'bg-[#E9ECF0]': isSubModule,
-                    'group-hover:bg-gray-50': !isSubModule,
+                    'bg-gray-300/25': hierarchyLevel == 0,
+                    'bg-white group-hover:bg-gray-50': hierarchyLevel != 0,
                   }
                 )}
-                key={index}
-                onClick={() => handelPermissionToggler(item)}
+                onClick={() => handelPermissionToggler(permission)}
               >
-                {updatingModuleLoaderId == item?.id ? (
+                {updatingModuleLoaderId == permission?.id ? (
                   <span className='w-full h-6 flex items-center justify-center'>
                     <LuLoaderCircle className='animate-spin' />
                   </span>
@@ -114,7 +146,9 @@ function RolesAndPermissionTable({
                       disabled={!module.is_active || !isParentModuleActive}
                     >
                       <span
-                        className={`inline-block w-3 h-3 bg-blue-700 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all ${item?.is_allowed ? 'scale-100' : 'scale-0'}`}
+                        className={`inline-block w-3 h-3 bg-blue-700 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all ${
+                          permission.is_allowed ? 'scale-100' : 'scale-0'
+                        }`}
                       ></span>
                     </button>
                   </div>
@@ -124,14 +158,14 @@ function RolesAndPermissionTable({
           } else {
             return (
               <td
+                key={index}
                 className={classNames(
-                  'bg-white px-6 py-3 text-black cursor-pointe border-l border-l-black/15 border-b border-b-black/15 text-center',
+                  'bg-white px-6 py-3 text-black cursor-pointer border-l border-l-black/15 border-b border-b-black/15 text-center',
                   {
-                    'bg-[#E9ECF0]': isSubModule,
-                    'group-hover:bg-gray-50': !isSubModule,
+                    'bg-gray-300/25': hierarchyLevel == 0,
+                    'bg-white group-hover:bg-gray-50': hierarchyLevel != 0,
                   }
                 )}
-                key={index}
               >
                 <span className='font-inter text-black font-medium text-base'>
                   -
@@ -154,10 +188,10 @@ function RolesAndPermissionTable({
           module,
           level,
           module.sub_modules?.length > 0 ? true : false,
-          is_active
+          module?.is_active ? module?.is_active : is_active
         ),
       ];
-      if (module.sub_modules?.length > 0) {
+      if (module.sub_modules?.length > 0 && expandedModules.has(module.id)) {
         rows.push(
           ...handleRecursion(module.sub_modules, level + 1, module.is_active)
         );
@@ -166,13 +200,13 @@ function RolesAndPermissionTable({
     });
   };
   return (
-    <div className='overflow-auto hide-scrollbar max-h-[calc(100vh-210px)] rounded-b-lg'>
+    <div className='overflow-auto hide-scrollbar max-h-[calc(100vh-220px)] rounded-b-lg border border-black/20 border-t-0'>
       <table className='table-auto border-collapse w-full relative'>
         <thead>
           <tr className={`shadow`}>
             <th
               className={classNames(
-                'px-6 py-2.5 text-left bg-[#eef0f4] text-black ',
+                'px-6 py-2.5 text-left bg-gray-300 text-black ',
                 {}
               )}
             >
@@ -184,7 +218,7 @@ function RolesAndPermissionTable({
             </th>
             <th
               className={classNames(
-                'px-6 py-2.5 text-left bg-[#eef0f4] text-black ',
+                'px-6 py-2.5 text-left bg-gray-300 text-black ',
                 {}
               )}
             >
@@ -196,7 +230,7 @@ function RolesAndPermissionTable({
             </th>
             <th
               className={classNames(
-                'px-6 py-2.5 text-left bg-[#eef0f4] text-black ',
+                'px-6 py-2.5 text-left bg-gray-300 text-black ',
                 {}
               )}
             >
@@ -208,7 +242,7 @@ function RolesAndPermissionTable({
             </th>
             <th
               className={classNames(
-                'px-6 py-2.5 text-left bg-[#eef0f4] text-black ',
+                'px-6 py-2.5 text-left bg-gray-300 text-black ',
                 {}
               )}
             >
@@ -220,7 +254,7 @@ function RolesAndPermissionTable({
             </th>
             <th
               className={classNames(
-                'px-6 py-2.5 text-left bg-[#eef0f4] text-black ',
+                'px-6 py-2.5 text-left bg-gray-300 text-black ',
                 {}
               )}
             >
@@ -233,7 +267,7 @@ function RolesAndPermissionTable({
           </tr>
         </thead>
 
-        <tbody>{handleRecursion(data)}</tbody>
+        <tbody className='transition-all'>{handleRecursion(data)}</tbody>
       </table>
     </div>
   );

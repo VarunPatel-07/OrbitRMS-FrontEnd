@@ -10,7 +10,6 @@ const META_AUTHENTICATION_BASE_URL = import.meta.env
 const TWITTER_AUTHENTICATION_BASE_URL = import.meta.env
   .VITE_TWITTER_AUTHENTICATION_BASE_URL;
 
-console.log(TWITTER_AUTHENTICATION_BASE_URL, META_AUTHENTICATION_BASE_URL);
 export const SocialMediaModuleModalArrayList = (
   GlobalStateProvider: GlobalContextStore
 ): SocialMediaModuleModalArrayListInterface[] => [

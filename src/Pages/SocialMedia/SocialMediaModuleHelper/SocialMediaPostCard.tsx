@@ -15,7 +15,7 @@ function SocialMediaPostCard(props: SocialMediaPostCardInterface) {
   const nextRef = useRef(null);
 
   return (
-    <div className='w-full border border-black/10 rounded-lg relative overflow-hidden'>
+    <div className='w-full border border-black/10 rounded-lg relative overflow-hidden flex flex-col items-start justify-start'>
       <div className='w-full px-3.5 py-2.5 bg-gray-100 border-b border-black/10'>
         <div className='w-full flex items-center justify-between'>
           <div className='w-fit'>
@@ -32,16 +32,16 @@ function SocialMediaPostCard(props: SocialMediaPostCardInterface) {
             <Button
               type='button'
               className='border border-black/45 p-1.5 rounded-[4px] hover:bg-white'
-              onClick={() => handelClickOnDeleteButton(data?.id)}
+              onClick={() => handelClickOnDeleteButton(data?.id , data?.selected_platforms)}
             >
               <MdDelete className='text-black text-base min-w-5 min-h-5' />
             </Button>
           </div>
         </div>
       </div>
-      <div className='w-full h-fit'>
+      <div className='w-full grow flex flex-col items-start justify-start'>
         {JSON.parse(data?.media_urls)?.length > 0 && (
-          <div className='p-3.5 relative'>
+          <div className='p-3.5 relative w-full'>
             <Swiper
               modules={[Navigation]}
               navigation={{
@@ -100,23 +100,28 @@ function SocialMediaPostCard(props: SocialMediaPostCardInterface) {
           </div>
         )}
         <div
-          className={classNames('px-3.5 pb-3.5 text-black', {
+          className={classNames('px-3.5 pb-3.5 text-black w-full grow flex flex-col items-start justify-between', {
             'pt-3.5': JSON.parse(data?.media_urls)?.length == 0,
           })}
         >
           <div className='w-full pb-4'>
-            <p className='text-black text-base'>{data?.caption}</p>
+            <p className='text-black text-base line-clamp-2'>{data?.caption}</p>
           </div>
 
           {data?.selected_platforms && (
             <div className='w-full border-t border-t-black/20 pt-3'>
               <p className='text-black text-sm'>Platforms:</p>
               <div className='flex items-center justify-start gap-2 pt-2'>
-                {JSON.parse(data?.selected_platforms)?.map((item: string) => (
-                  <span className='bg-blue-50 border border-blue-700 text-blue-700 text-xs px-1.5 py-0.5 capitalize rounded-md'>
-                    {item}
-                  </span>
-                ))}
+                {JSON.parse(data?.selected_platforms)?.map(
+                  (item: string, _index: number) => (
+                    <span
+                      className='bg-blue-50 border border-blue-700 text-blue-700 text-xs px-1.5 py-0.5 capitalize rounded-md'
+                      key={_index}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
               </div>
             </div>
           )}
