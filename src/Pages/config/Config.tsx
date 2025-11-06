@@ -1,12 +1,12 @@
 import React, { useContext, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
+import AccessDeniedRedirect from '../../Components/AccessDeniedRedirect';
 import PageNotFound from '../../Components/PageNotFound';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
-import { NavigateToTheLogInScreen } from '../../Helper/Helper';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
 import { ConfigModuleSideBarListingInterface } from '../../interface/interface';
@@ -84,7 +84,12 @@ function Config() {
   ];
 
   if (!permissionData || !permissionData.is_active) {
-    return <NavigateToTheLogInScreen />;
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission For ConfigModule."
+        isAccessDenied={!permissionData || !permissionData.is_active}
+      />
+    );
   }
   if (!permissionData) return null;
   return (

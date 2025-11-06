@@ -9,7 +9,10 @@ import {
   ReportingManagerModuleInterface,
   StateOptionArrayInterFace,
 } from './interface';
-import { GlobalContextStore } from './UserProfileInterface';
+import {
+  GlobalContextStore,
+  PermissionsModuleInterface,
+} from './UserProfileInterface';
 
 export interface AddressModuleInterface {
   address: string;
@@ -220,6 +223,7 @@ export interface EmployeePersonalInfoComponentProps {
       | 'personal_contact_info'
       | 'family_info'
   ) => void;
+  disabled: boolean;
 }
 
 export interface AddEditComponentListingPropsInterface {
@@ -236,6 +240,8 @@ export interface AddEditComponentListingPropsInterface {
     SetStateAction<CountryDataInterface>
   >;
   formSubmitLoader: boolean;
+  permissionData: PermissionsModuleInterface;
+  isEditingCurrentEmployee: boolean;
 }
 
 export interface EmployeeEmployerInformationPropsInterface {
@@ -258,6 +264,7 @@ export interface EmployeeEmployerInformationPropsInterface {
   handleOnChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
+  disabled: boolean;
 }
 
 export interface fetchingDesignationsDepartmentsLoadingFlagInterface {
@@ -293,6 +300,7 @@ export interface EmployeePersonalContactInformationInterface {
       | 'personal_contact_info'
       | 'family_info'
   ) => void;
+  disabled: boolean;
 }
 
 export interface EmployeeFamilyInfoInterface {
@@ -312,6 +320,7 @@ export interface EmployeeFamilyInfoInterface {
       | 'personal_contact_info'
       | 'family_info'
   ) => void;
+  disabled: boolean;
 }
 
 export interface EmployeeAddressInfoInterface {
@@ -328,11 +337,13 @@ export interface EmployeeAddressInfoInterface {
   handleOnChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
+  disabled: boolean;
 }
 
 export interface DynamicAddressComponentPropsInterface {
   module_name: 'current_address' | 'permanent_address';
   formSubmitLoader: boolean;
+  disabled: boolean;
   module: AddEditUserCurrentAddress;
   formData: AddEditUserProfileInterFace;
   setFormData: React.Dispatch<SetStateAction<AddEditUserProfileInterFace>>;
@@ -375,4 +386,5 @@ export interface AddEditEmployeeSocialLinksInterface {
   setFormData: React.Dispatch<SetStateAction<AddEditUserProfileInterFace>>;
   showEmptyFieldError: boolean;
   formSubmitLoader: boolean;
+  disabled: boolean;
 }

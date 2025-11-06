@@ -21,7 +21,6 @@ function ConfigSidebar({
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
-  console.log(permissionData);
 
   const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =

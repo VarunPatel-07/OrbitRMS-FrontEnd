@@ -33,6 +33,7 @@ const DynamicAddressComponentHelper = React.memo(
       fetchingStateInfo,
       stateOptionArray,
       formSubmitLoader,
+      disabled,
     } = props;
 
     const handleClickOnStateValue = (
@@ -80,7 +81,7 @@ const DynamicAddressComponentHelper = React.memo(
             onChange={handleOnChange}
             isRequiredField={true}
             labelFieldName='Address'
-            disabled={formSubmitLoader}
+            disabled={disabled ? disabled : formSubmitLoader}
             showError={showEmptyFieldError}
             errorMessage={
               module_name === 'current_address'
@@ -101,7 +102,7 @@ const DynamicAddressComponentHelper = React.memo(
           <div className='w-full'>
             <SearchDrop
               options={countryData}
-              disabled={formSubmitLoader}
+              disabled={disabled ? disabled : formSubmitLoader}
               searchKey='country_name'
               isRequiredField={true}
               labelFieldName='Country'
@@ -133,7 +134,7 @@ const DynamicAddressComponentHelper = React.memo(
           <div className='w-full'>
             <SearchDrop
               options={stateOptionArray[module_name]}
-              disabled={formSubmitLoader}
+              disabled={disabled ? disabled : formSubmitLoader}
               searchKey='state_name'
               isRequiredField={true}
               labelFieldName='State'
@@ -169,7 +170,7 @@ const DynamicAddressComponentHelper = React.memo(
           <div className='w-full'>
             <SearchDrop
               options={citiesOptionsArray[module_name]}
-              disabled={formSubmitLoader}
+              disabled={disabled ? disabled : formSubmitLoader}
               searchKey='city_name'
               isRequiredField={true}
               labelFieldName='City'
@@ -204,7 +205,7 @@ const DynamicAddressComponentHelper = React.memo(
               type='text'
               name='address.zip_code'
               className='border border-black/45'
-              disabled={formSubmitLoader}
+              disabled={disabled ? disabled : formSubmitLoader}
               isRequiredField={true}
               labelFieldName='Zip Code'
               value={module?.zip_code}

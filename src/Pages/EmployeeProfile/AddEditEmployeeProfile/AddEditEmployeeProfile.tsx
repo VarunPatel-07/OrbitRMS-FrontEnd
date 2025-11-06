@@ -3,6 +3,7 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import Breadcrumbs from '../../../common/Breadcrumbs';
+import AccessDeniedRedirect from '../../../Components/AccessDeniedRedirect';
 import {
   AddEditEmployeeFormInitialState,
   BreadcrumbsObjects,
@@ -183,7 +184,7 @@ function AddEditEmployeeProfile() {
     async (id: string) => {
       const endPointArr: endpointObject[] = [
         {
-          endPoint: `employee/fetch-profile?employee_id=${id}`,
+          endPoint: `employee/fetch-employee?employee_id=${id}`,
           protected: true,
         },
       ];
@@ -309,7 +310,7 @@ function AddEditEmployeeProfile() {
           success: false,
           message: 'Only Add/Edit allowed. Redirecting to Employee Page.',
         };
-        console.log(data);
+
         handelNotification(data, 'top-right');
         setFetchingTheEmployeeData(true);
         setTimeout(() => {
@@ -338,9 +339,61 @@ function AddEditEmployeeProfile() {
     moduleType,
     navigate,
   ]);
+  if (moduleType == undefined || !['add', 'edit'].includes(moduleType))
+    return (
+      <AccessDeniedRedirect
+        message='Invalid Manage Type'
+        isAccessDenied={false}
+      />
+    );
 
-  if (moduleType == undefined || !['add', 'edit'].includes(moduleType)) return;
+  const segments = location.pathname.split('/').filter(Boolean);
+  const parentSection = segments[1];
+  const childSection = segments[2];
 
+  const permissionData = GlobalStateProvider?.roles_permissions?.permissions
+    ?.find((item) => item.module_label == parentSection)
+    ?.sub_modules?.find(
+      (item) =>
+        item?.module_label == (childSection == 'manage' && 'employee_profile')
+    );
+
+  const subModulePermissionData = permissionData?.sub_modules?.find(
+    (item) => item.module_label == 'employee_details'
+  );
+
+  const hasNoPermissionToViewProfile =
+    !permissionData ||
+    !permissionData?.is_active ||
+    !permissionData?.permissions?.some(
+      (item) => item?.label == 'view' && item?.is_allowed
+    ) ||
+    !subModulePermissionData ||
+    !subModulePermissionData?.is_active ||
+    !subModulePermissionData?.permissions?.some(
+      (item) => item?.label == 'view' && item?.is_allowed
+    );
+  if (hasNoPermissionToViewProfile)
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission to access the Employee Profile module."
+        isAccessDenied={hasNoPermissionToViewProfile}
+      />
+    );
+  const hasNoPermissionToEdit =
+    employee_id !== GlobalStateProvider?.user?.personal_info?.user_id &&
+    subModulePermissionData?.is_active &&
+    !subModulePermissionData?.permissions?.some(
+      (item) => item?.label == 'edit' && item?.is_allowed
+    );
+  if (hasNoPermissionToEdit) {
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission to edit this profile."
+        isAccessDenied={hasNoPermissionToEdit}
+      />
+    );
+  }
   return (
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       <div className='w-full h-full relative'>
@@ -353,6 +406,12 @@ function AddEditEmployeeProfile() {
                   <AddEditComponentListing
                     formData={formData}
                     setFormData={setFormData}
+                    isEditingCurrentEmployee={
+                      moduleType == 'add'
+                        ? false
+                        : GlobalStateProvider?.user?.personal_info?.user_id ==
+                          employee_id
+                    }
                     GlobalStateProvider={GlobalStateProvider}
                     showEmptyFieldError={showEmptyFieldError}
                     countryOptionsDataArray={countryOptionsDataArray}
@@ -366,6 +425,7 @@ function AddEditEmployeeProfile() {
                       setSelectedCountryInfoForCurrentAddress
                     }
                     formSubmitLoader={formSubmitLoader}
+                    permissionData={subModulePermissionData}
                   />
                 ) : (
                   <AddEditEmployeeProfileSkeletonLoader />

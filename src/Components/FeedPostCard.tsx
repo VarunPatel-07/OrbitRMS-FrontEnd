@@ -13,7 +13,10 @@ import Loader from '../common/Loader';
 import TextArea from '../common/TextArea';
 import { classNames, formateDate } from '../Helper/HelperFunctions';
 import { FeedPostDataPropsInterface } from '../interface/Dashboard';
-import { GlobalContextStore } from '../interface/UserProfileInterface';
+import {
+  GlobalContextStore,
+  PermissionsModuleInterface,
+} from '../interface/UserProfileInterface';
 import EmployeeProfilePicture from './EmployeeProfilePicture';
 
 interface propsInterface {
@@ -32,6 +35,7 @@ interface propsInterface {
     data: FeedPostDataPropsInterface,
     type: 'comments' | 'likes'
   ) => void;
+  permissionData: PermissionsModuleInterface;
 }
 
 function FeedPostCard(props: propsInterface) {
@@ -44,6 +48,7 @@ function FeedPostCard(props: propsInterface) {
     handelClickOnLikeToggle,
     submitCommentOnClick,
     handelClickOnLikesComments,
+    permissionData,
   } = props;
   const prevRef = useRef(null);
   const nextRef = useRef(null);
@@ -57,6 +62,7 @@ function FeedPostCard(props: propsInterface) {
   const [loading, setLoading] = useState<boolean>(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const postActionButtonsRef = useRef<HTMLDivElement | null>(null);
 
   const toggleMenu = () => setShowMenu((prev) => !prev);
 
@@ -76,6 +82,34 @@ function FeedPostCard(props: propsInterface) {
   const handelClickOnEmoji = (data: EmojiClickData) => {
     setShowPicker(false);
     setCommentData((pervData) => `${pervData} ${data.emoji}`);
+  };
+
+  const renderPostEditButton = () => {
+    return (
+      <li className='px-3 w-full py-2 text-black text-nowrap border-b border-b-black/15 hover:bg-gray-50'>
+        <Button
+          type='button'
+          className=''
+          onClick={() => handelClickOnEditPost(data)}
+        >
+          Edit Post
+        </Button>
+      </li>
+    );
+  };
+
+  const renderPostDeleteButton = () => {
+    return (
+      <li className='px-3 w-full py-2 text-black text-nowrap hover:bg-gray-50'>
+        <Button
+          type='button'
+          className=''
+          onClick={() => handelClickOnDeleteButton(data?.id)}
+        >
+          Delete Post
+        </Button>
+      </li>
+    );
   };
 
   useEffect(() => {
@@ -109,6 +143,34 @@ function FeedPostCard(props: propsInterface) {
       }
     }
   }, [showPicker]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        postActionButtonsRef.current &&
+        !postActionButtonsRef.current.contains(event.target as Node)
+      ) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const hasPotEditAccess =
+    permissionData?.is_active &&
+    permissionData?.permissions?.some(
+      (item) => item.label == 'edit' && item.is_allowed
+    );
+
+  const hasPostDeleteAccess =
+    permissionData?.is_active &&
+    permissionData?.permissions?.some(
+      (item) => item.label == 'delete' && item.is_allowed
+    );
 
   return (
     <div
@@ -159,31 +221,39 @@ function FeedPostCard(props: propsInterface) {
             </p>
           </div>
         </div>
-        <div className='relative'>
-          <button onClick={toggleMenu} className='text-black'>
-            <BsThreeDotsVertical />
-          </button>
 
-          {showMenu && (
-            <ul
-              className={classNames(
-                'flex flex-col items-start justify-start bg-white shadow-xl absolute top-full z-10 rounded overflow-hidden right-0 transition-all border border-black/15',
-                { 'opacity-0': !showMenu, 'opacity-100': showMenu }
-              )}
-            >
-              <li className='px-3 w-full py-2 text-black text-nowrap border-b border-b-black/15 hover:bg-gray-50'>
-                <button onClick={() => handelClickOnEditPost(data)}>
-                  Edit Post
-                </button>
-              </li>
-              <li className='px-3 w-full py-2 text-black text-nowrap hover:bg-gray-50'>
-                <button onClick={() => handelClickOnDeleteButton(data?.id)}>
-                  Delete Post
-                </button>
-              </li>
-            </ul>
-          )}
-        </div>
+        {(data?.publisher?.id ==
+          GlobalStateProvider?.user?.employee_info?.user_id ||
+          hasPostDeleteAccess ||
+          hasPotEditAccess) && (
+          <div className='relative' ref={postActionButtonsRef}>
+            <button onClick={toggleMenu} className='text-black'>
+              <BsThreeDotsVertical />
+            </button>
+
+            {showMenu && (
+              <ul
+                className={classNames(
+                  'flex flex-col items-start justify-start bg-white shadow-xl absolute top-full z-10 rounded overflow-hidden right-0 transition-all border border-black/15',
+                  { 'opacity-0': !showMenu, 'opacity-100': showMenu }
+                )}
+              >
+                {data?.publisher?.id ==
+                GlobalStateProvider?.user?.personal_info?.user_id
+                  ? renderPostEditButton()
+                  : hasPotEditAccess
+                    ? renderPostEditButton()
+                    : null}
+                {data?.publisher?.id ==
+                GlobalStateProvider?.user?.personal_info?.user_id
+                  ? renderPostDeleteButton()
+                  : hasPostDeleteAccess
+                    ? renderPostDeleteButton()
+                    : null}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
       <div className='w-full h-fit'>
         {JSON.parse(data?.images)?.length > 0 && (
@@ -247,7 +317,7 @@ function FeedPostCard(props: propsInterface) {
           </div>
         )}
         <div
-          className={classNames('px-3.5 pb-3.5 text-black', {
+          className={classNames('px-3.5 pt-4 pb-5 text-black', {
             'pt-3.5': JSON.parse(data?.images)?.length == 0,
           })}
         >
@@ -255,45 +325,57 @@ function FeedPostCard(props: propsInterface) {
         </div>
       </div>
 
-      <div className='w-full h-fit flex items-center justify-between px-3.5 py-2 bg-[var(--main-white-color)] border-b border-b-black/10 rounded-b-lg'>
+      <div
+        className={classNames(
+          'w-full h-fit flex items-center justify-between border-b border-b-black/10 rounded-b-lg',
+          {
+            'bg-[var(--main-white-color)] px-3.5 py-2':
+              !data?.isLikeDisabled || !data?.isCommentDisabled,
+          }
+        )}
+      >
         <div className='w-full h-fit flex flex-col items-center gap-4'>
           <div className='w-full h-fit flex items-center gap-4'>
-            <div className='flex items-center justify-start gap-1'>
-              <button onClick={() => handelClickOnLikeToggle(data?.id)}>
-                {data?.likes?.includes(
-                  GlobalStateProvider?.user?.personal_info?.user_id
-                ) ? (
-                  <IoMdHeart className='w-7 h-7 min-w-7 min-h-7 max-h-7 max-w-7 text-rose-500' />
-                ) : likedPosts?.includes(data?.id) ? (
-                  <IoMdHeart className='w-7 h-7 min-w-7 min-h-7 max-h-7 max-w-7 text-rose-500' />
-                ) : (
-                  <IoMdHeartEmpty className='w-7 h-7 min-w-7 min-h-7 max-h-7 max-w-7 text-gray-600' />
-                )}
-              </button>
-              <button
-                className='text-black font-semibold font-inter text-base hover:text-blue-600'
-                onClick={() => handelClickOnLikesComments(data, 'likes')}
-              >
-                {data?.likes?.length || likedPosts?.length || 0}
-              </button>
-            </div>
-            <div className='flex items-center justify-start gap-1'>
-              <button
-                onClick={() =>
-                  setShowCommentField(
-                    showCommentField?.trim() == '' ? data?.id : ''
-                  )
-                }
-              >
-                <IoChatbubbleOutline className='w-6 h-6 min-w-6 min-h-6 max-h-6 max-w-6 text-gray-600' />
-              </button>
-              <button
-                className='text-black font-semibold font-inter text-base hover:text-blue-600'
-                onClick={() => handelClickOnLikesComments(data, 'comments')}
-              >
-                {data?.comments?.length || 0}
-              </button>
-            </div>
+            {!data?.isLikeDisabled && (
+              <div className='flex items-center justify-start gap-1'>
+                <button onClick={() => handelClickOnLikeToggle(data?.id)}>
+                  {data?.likes?.includes(
+                    GlobalStateProvider?.user?.personal_info?.user_id
+                  ) ? (
+                    <IoMdHeart className='w-7 h-7 min-w-7 min-h-7 max-h-7 max-w-7 text-rose-500' />
+                  ) : likedPosts?.includes(data?.id) ? (
+                    <IoMdHeart className='w-7 h-7 min-w-7 min-h-7 max-h-7 max-w-7 text-rose-500' />
+                  ) : (
+                    <IoMdHeartEmpty className='w-7 h-7 min-w-7 min-h-7 max-h-7 max-w-7 text-gray-600' />
+                  )}
+                </button>
+                <button
+                  className='text-black font-semibold font-inter text-base hover:text-blue-600'
+                  onClick={() => handelClickOnLikesComments(data, 'likes')}
+                >
+                  {data?.likes?.length || likedPosts?.length || 0}
+                </button>
+              </div>
+            )}
+            {!data?.isCommentDisabled && (
+              <div className='flex items-center justify-start gap-1'>
+                <button
+                  onClick={() =>
+                    setShowCommentField(
+                      showCommentField?.trim() == '' ? data?.id : ''
+                    )
+                  }
+                >
+                  <IoChatbubbleOutline className='w-6 h-6 min-w-6 min-h-6 max-h-6 max-w-6 text-gray-600' />
+                </button>
+                <button
+                  className='text-black font-semibold font-inter text-base hover:text-blue-600'
+                  onClick={() => handelClickOnLikesComments(data, 'comments')}
+                >
+                  {data?.comments?.length || 0}
+                </button>
+              </div>
+            )}
           </div>
           {showCommentField == data?.id && (
             <div className='w-full'>
@@ -354,6 +436,7 @@ function FeedPostCard(props: propsInterface) {
                     setLoading(true);
                     submitCommentOnClick(data?.id, commentData, () => {
                       setShowCommentField('');
+                      setCommentData('');
                       setLoading(false);
                     });
                   }}

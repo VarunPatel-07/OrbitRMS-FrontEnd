@@ -147,7 +147,7 @@ function IconPicker(props: IconPickerInterFace) {
   return (
     <div className='w-full relative' ref={boxRef}>
       <button
-        className='w-fit disabled:cursor-not-allowed'
+        className='w-fit disabled:cursor-not-allowed disabled:opacity-60'
         onClick={() => setIsOpen(!isOpen)}
         disabled={disabled}
       >

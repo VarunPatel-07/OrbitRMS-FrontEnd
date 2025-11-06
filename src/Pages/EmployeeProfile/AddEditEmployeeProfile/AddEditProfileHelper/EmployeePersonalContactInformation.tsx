@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { FaStarOfLife } from 'react-icons/fa';
 import { MdDelete, MdModeEditOutline } from 'react-icons/md';
 
+import Button from '../../../../common/Button';
 import Input from '../../../../common/Input';
 import { defaultEmergencyContactInfo } from '../../../../constant/AddEditEmployeeForm';
 import { ERROR_MESSAGES } from '../../../../constant/ErrorMessages';
@@ -22,6 +23,7 @@ const EmployeePersonalContactInformation = React.memo(
       countryOptionsDataArray,
       filteredCountry,
       formSubmitLoader,
+      disabled,
     } = props;
 
     const [showError, setShowError] = useState<boolean>(false);
@@ -156,7 +158,7 @@ const EmployeePersonalContactInformation = React.memo(
                     className='border border-black/45'
                     isRequiredField={true}
                     value={formData.personal_contact_info.personal_email}
-                    disabled={formSubmitLoader}
+                    disabled={disabled ? disabled : formSubmitLoader}
                     onChange={handleOnChange}
                     showError={showEmptyFieldError}
                     errorMessage={
@@ -173,7 +175,7 @@ const EmployeePersonalContactInformation = React.memo(
                     className='border border-black/[.65] text-black rounded-lg rounded-l-none'
                     labelFieldName='Contact Number'
                     isRequiredField={true}
-                    disabled={formSubmitLoader}
+                    disabled={disabled ? disabled : formSubmitLoader}
                     value={formateAndVerifyPhoneNumber(
                       formData?.personal_contact_info?.mobile_number,
                       formData?.personal_contact_info?.country_info
@@ -253,7 +255,7 @@ const EmployeePersonalContactInformation = React.memo(
                           name='emergency_contact_name'
                           className='border border-black/45'
                           isRequiredField={true}
-                          disabled={formSubmitLoader}
+                          disabled={disabled ? disabled : formSubmitLoader}
                           value={eachContact?.emergency_contact_name}
                           onChange={(e) =>
                             handleEmergencyContactField(
@@ -281,7 +283,7 @@ const EmployeePersonalContactInformation = React.memo(
                           name='emergency_contact_number'
                           className='border border-black/[.65] text-black rounded-lg rounded-l-none'
                           isRequiredField={true}
-                          disabled={formSubmitLoader}
+                          disabled={disabled ? disabled : formSubmitLoader}
                           value={formateAndVerifyPhoneNumber(
                             eachContact?.emergency_contact_number,
                             eachContact?.emergency_contact_country_info
@@ -331,21 +333,25 @@ const EmployeePersonalContactInformation = React.memo(
                         formData.personal_contact_info?.emergency_contacts
                           .length -
                           1 && (
-                        <button
+                        <Button
+                          type='button'
                           className='bg-green-100 h-full w-full rounded-[4px] flex items-center justify-center border border-green-600 text-black text-xl'
                           onClick={handelAddNewContact}
+                          disabled={disabled}
                         >
                           <MdModeEditOutline />
-                        </button>
+                        </Button>
                       )}
                       {formData.personal_contact_info?.emergency_contacts
                         .length > 1 && (
-                        <button
+                        <Button
+                          type='button'
                           className='bg-rose-100 h-full w-full rounded-[4px] flex items-center justify-center border border-rose-500 text-black text-xl'
                           onClick={() => removeContactInfo(index)}
+                          disabled={disabled}
                         >
                           <MdDelete />
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>

@@ -10,6 +10,7 @@ import Table from '../../../../common/Table/Table';
 import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
+import AccessDeniedRedirect from '../../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
 import {
   GlobalStateContext,
@@ -25,7 +26,6 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../../Helper/api/multipleAPI';
-import { NavigateToTheLogInScreen } from '../../../../Helper/Helper';
 import { formateDate } from '../../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../../Hooks/useDebounce';
 import {
@@ -403,14 +403,20 @@ function Holidays() {
     .find((item) => item.module_label == parentSection.replace('-', '_'))
     ?.sub_modules?.find((item) => item.module_label == childSection);
 
-  if (
+  const hasNoViewHolidayPermission =
     !permissionData ||
     !permissionData.is_active ||
     !permissionData?.permissions?.some(
       (item) => item.label == 'view' && item.is_allowed
-    )
-  )
-    return <NavigateToTheLogInScreen />;
+    );
+
+  if (hasNoViewHolidayPermission)
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission For Holidays."
+        isAccessDenied={hasNoViewHolidayPermission}
+      />
+    );
   return (
     <>
       <div className='w-full h-full relative'>

@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom';
 
+import { HandelPathFunction } from '../../App';
 import Breadcrumbs from '../../common/Breadcrumbs';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
 import {
@@ -248,6 +249,16 @@ function EmployeeProfile() {
       : []),
   ];
 
+  if (
+    !permissionData ||
+    !permissionData?.sub_modules?.find(
+      (item) => item?.module_label == 'employee_details'
+    )?.is_active ||
+    !permissionData?.sub_modules
+      ?.find((item) => item?.module_label == 'employee_details')
+      ?.permissions?.some((item) => item.label == 'view' && item.is_allowed)
+  )
+    return <HandelPathFunction />;
   return (
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       <div className='w-full h-full'>

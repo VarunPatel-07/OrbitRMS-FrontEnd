@@ -42,24 +42,46 @@ function Feed(props: OrganizationFeedPropsInterface) {
     stage,
     progress,
     uploadingPostFormData,
+    permissionData,
+    setFeedPostData,
   } = props;
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<'comments' | 'likes'>('likes');
+  const [postId, setPostId] = useState<string>('');
 
-  const handelClickOnLikesComments = (data: FeedPostDataPropsInterface) => {
-    console.log(data);
-    setModalType('comments');
+  const handelClickOnLikesComments = (
+    data: FeedPostDataPropsInterface,
+    type: 'comments' | 'likes'
+  ) => {
+    setModalType(type);
+    setShowModal(true);
+    setPostId(data?.id);
+  };
+
+  const handelCancelButton = () => {
+    setShowModal(false);
+    setTimeout(() => {
+      setModalType('likes');
+      setPostId('');
+    }, 150);
   };
   return (
     <div className='w-full h-full relative'>
-      <div className='w-full bg-white relative flex flex-col items-start justify-start max-h-[calc(100vh-56px)] overflow-auto hide-scrollbar'>
+      <div className='w-full bg-white relative flex flex-col items-start justify-start max-h-[calc(100vh-56px)] h-full overflow-auto hide-scrollbar'>
         {/* Header Section */}
         <div className='w-full  flex items-stretch justify-between px-3.5 py-3 border-b border-b-black/15 min-h-[60px] h-[60px] sticky top-0 left-0 bg-white z-20'>
           <p className='text-xl text-black font-inter font-semibold flex flex-col items-center justify-center'>
             Feed
           </p>
           <div className='flex items-stretch justify-end gap-2'>
-            <CTAButton setShowAddEditPostModal={setShowAddEditPostModal} />
+            {!permissionData ||
+            !permissionData?.is_active ||
+            !permissionData?.permissions?.some(
+              (item) => item.label == 'view' && item.is_allowed
+            ) ? null : (
+              <CTAButton setShowAddEditPostModal={setShowAddEditPostModal} />
+            )}
+
             <button className='text-black text-base px-3 border border-black/15 rounded-md hover:bg-gray-100'>
               <FaFilter className='text-sm' />
             </button>
@@ -84,7 +106,7 @@ function Feed(props: OrganizationFeedPropsInterface) {
                 }
               />
             ) : (
-              <div className='w-full'>
+              <div className='w-full h-full grow'>
                 <div className='w-full flex flex-col items-start justify-start gap-4 px-4 py-4'>
                   {feedPostData?.map((item) => {
                     return (
@@ -100,6 +122,7 @@ function Feed(props: OrganizationFeedPropsInterface) {
                           handelClickOnLikesComments={
                             handelClickOnLikesComments
                           }
+                          permissionData={permissionData}
                         />
                       </div>
                     );
@@ -113,7 +136,9 @@ function Feed(props: OrganizationFeedPropsInterface) {
       <LikesCommentModal
         type={modalType}
         showModal={showModal}
-        setShowModal={setShowModal}
+        postId={postId}
+        handelCancelButton={handelCancelButton}
+        setFeedPostData={setFeedPostData}
       />
     </div>
   );

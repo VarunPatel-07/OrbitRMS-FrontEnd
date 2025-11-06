@@ -14,6 +14,7 @@ import TableFilterSearchBar from '../../common/Table/TableFilterSearchBar';
 import TableInfoHeader from '../../common/Table/TableInfoHeader';
 import TableNoDataFound from '../../common/Table/TableNoDataFound';
 import TablePagination from '../../common/Table/TablePagination';
+import AccessDeniedRedirect from '../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoader';
 import ClientInquirySliderModal from '../../Components/Modal/ClientInquirySliderModal';
 import { AddEditInquiryFormSchemaBreadcrumbs } from '../../constant/ConfigModuleConstant';
@@ -32,7 +33,6 @@ import {
   multipleDeleteApi,
   multipleFetchApi,
 } from '../../Helper/api/multipleAPI';
-import { NavigateToTheLogInScreen } from '../../Helper/Helper';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
 import { AddEditInquiryFormSchemaInterface } from '../../interface/interface';
@@ -535,14 +535,20 @@ function ClientInquiry() {
     (item) => item.module_label == parentSection.replace('-', '_')
   );
 
-  if (
+  const hasNoPermissionToView =
     !permissionData ||
     !permissionData.is_active ||
     !permissionData?.permissions?.some(
       (item) => item.label == 'view' && item.is_allowed
-    )
-  )
-    return <NavigateToTheLogInScreen />;
+    );
+
+  if (hasNoPermissionToView)
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission to View Client Inquires."
+        isAccessDenied={hasNoPermissionToView}
+      />
+    );
   return (
     <>
       <div className='w-full h-full relative'>

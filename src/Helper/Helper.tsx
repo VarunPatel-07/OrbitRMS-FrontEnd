@@ -6,8 +6,7 @@ import {
 } from '../constant/constant';
 import { EmployeeStatusInterface } from '../interface/EmployeeInterface';
 import { InfoFieldProps } from '../interface/interface';
-import { clearLocalSessionStorage, formateDate } from './HelperFunctions';
-import { Navigate } from 'react-router-dom';
+import { formateDate } from './HelperFunctions';
 
 const AccountStatusColor: Record<string, string> = {
   Intern: 'bg-yellow-500',
@@ -114,8 +113,3 @@ export const InfoField = ({
     )}
   </div>
 );
-
-export const NavigateToTheLogInScreen = () => {
-  clearLocalSessionStorage();
-  return <Navigate to='/auth/sign-in' />;
-};

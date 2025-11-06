@@ -2,7 +2,10 @@ import React, { SetStateAction } from 'react';
 
 import { SelectedFileArrayObjInterface } from './interface';
 import { OrganizationHolidays } from './OrganizationSettings';
-import { GlobalContextStore } from './UserProfileInterface';
+import {
+  GlobalContextStore,
+  PermissionsModuleInterface,
+} from './UserProfileInterface';
 
 export interface DashboardPlaygroundPropsInterface {
   holidayData: OrganizationHolidays[];
@@ -76,6 +79,7 @@ export interface FeedPostDataPropsInterface {
 export interface OrganizationFeedPropsInterface {
   setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;
   feedPostData: FeedPostDataPropsInterface[];
+  setFeedPostData: React.Dispatch<SetStateAction<FeedPostDataPropsInterface[]>>;
   likedPosts: string[];
   GlobalStateProvider: GlobalContextStore;
   loading: boolean;
@@ -90,8 +94,29 @@ export interface OrganizationFeedPropsInterface {
   stage: 'parsing' | 'uploading' | 'processing' | 'done';
   progress: number;
   uploadingPostFormData: AddEditPostFormdataInterface;
+  permissionData: PermissionsModuleInterface;
 }
 
 export interface EmptyFeedAnimationPropsInterface {
   CTAButton?: React.ReactElement;
+}
+
+export interface LikesCommentsDataInterface {
+  comment: string;
+  department: string;
+  designation: string;
+  employee_code: string;
+  first_name: string;
+  full_name: string;
+  id: string;
+  last_name: string;
+  middle_name: string;
+  profile_picture: string;
+}
+export interface LikesCommentsModalInterface {
+  type: 'comments' | 'likes';
+  showModal: boolean;
+  handelCancelButton: () => void;
+  postId: string;
+  setFeedPostData: React.Dispatch<SetStateAction<FeedPostDataPropsInterface[]>>;
 }

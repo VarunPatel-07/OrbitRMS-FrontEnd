@@ -51,6 +51,7 @@ export interface ConnectedPlatformsInterface {
   showModal: boolean;
   handelClickOnDropDown: string;
   setHandelClickOnDropDown: React.Dispatch<SetStateAction<string>>;
+  permissionData: PermissionsModuleInterface;
 }
 export interface SocialMedialPostComponentInterface {
   setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;

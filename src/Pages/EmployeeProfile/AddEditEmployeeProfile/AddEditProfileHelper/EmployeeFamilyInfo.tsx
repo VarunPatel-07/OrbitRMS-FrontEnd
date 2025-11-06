@@ -19,6 +19,7 @@ function EmployeeFamilyInfo(props: EmployeeFamilyInfoInterface) {
     setFormData,
     handelSearchDropSelectValue,
     formSubmitLoader,
+    disabled,
   } = props;
 
   const handleEmergencyContactField = (
@@ -114,7 +115,7 @@ function EmployeeFamilyInfo(props: EmployeeFamilyInfoInterface) {
                   value={formData.family_info?.father_name}
                   onChange={handleOnChange}
                   showError={showEmptyFieldError}
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   errorMessage={
                     formData.family_info?.father_name
                       ? ''
@@ -131,7 +132,7 @@ function EmployeeFamilyInfo(props: EmployeeFamilyInfoInterface) {
                   isRequiredField={true}
                   value={formData.family_info?.mother_name}
                   onChange={handleOnChange}
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   showError={showEmptyFieldError}
                   errorMessage={
                     formData.family_info?.mother_name
@@ -149,7 +150,7 @@ function EmployeeFamilyInfo(props: EmployeeFamilyInfoInterface) {
                   labelFieldName='Marital Status'
                   isRequiredField
                   showSearchBar={false}
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   selectedValue={formData?.family_info?.marital_status}
                   onSelectValBtn={(data: string | object) =>
                     handelSearchDropSelectValue(
@@ -206,7 +207,7 @@ function EmployeeFamilyInfo(props: EmployeeFamilyInfoInterface) {
                         name='child_name'
                         className='border border-black/45'
                         isRequiredField={true}
-                        disabled={formSubmitLoader}
+                        disabled={disabled ? disabled : formSubmitLoader}
                         value={eachChild?.child_name}
                         onChange={(e) =>
                           handleEmergencyContactField(
@@ -241,7 +242,7 @@ function EmployeeFamilyInfo(props: EmployeeFamilyInfoInterface) {
                             date
                           )
                         }
-                        disabled={formSubmitLoader}
+                        disabled={disabled ? disabled : formSubmitLoader}
                         selectedValue={eachChild?.child_date_of_birth as Date}
                         name='child_date_of_birth'
                         datePickerPosition={'left-start'}

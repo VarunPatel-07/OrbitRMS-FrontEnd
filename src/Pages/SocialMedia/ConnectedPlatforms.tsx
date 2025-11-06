@@ -16,7 +16,7 @@ function ConnectedPlatforms(props: ConnectedPlatformsInterface) {
     showModal,
     handelClickOnDropDown,
     setHandelClickOnDropDown,
-    
+    permissionData,
   } = props;
   const SocialMediaModuleModalArray =
     SocialMediaModuleModalArrayList(GlobalStateProvider);
@@ -27,7 +27,7 @@ function ConnectedPlatforms(props: ConnectedPlatformsInterface) {
           Connected Platforms
         </h2>
       </div>
-      <div className='flex items-center justify-start gap-4 pt-4'>
+      <div className='flex items-center justify-start gap-4 pt-4 w-full overflow-auto hide-scrollbar'>
         {loading ? (
           <>
             {Array.from({ length: 3 })?.map((_, index) => (
@@ -50,15 +50,22 @@ function ConnectedPlatforms(props: ConnectedPlatformsInterface) {
                 key={data?.id}
               />
             ))}
-            {data?.length !== SocialMediaModuleModalArray?.length && (
-              <Button
-                type='button'
-                className='min-w-52 min-h-52 max-w-52 max-h-52 rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center border border-black/20'
-                onClick={() => setShowModal(!showModal)}
-              >
-                <FaPlus className='w-10 h-10 text-black' />
-              </Button>
-            )}
+            {!(
+              !permissionData ||
+              !permissionData.is_active ||
+              permissionData?.permissions?.some(
+                (item) => item.label == 'edit' && !item.is_allowed
+              )
+            ) &&
+              data?.length !== SocialMediaModuleModalArray?.length && (
+                <Button
+                  type='button'
+                  className='min-w-52 min-h-52 max-w-52 max-h-52 rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center border border-black/20'
+                  onClick={() => setShowModal(!showModal)}
+                >
+                  <FaPlus className='w-10 h-10 text-black' />
+                </Button>
+              )}
           </>
         )}
       </div>

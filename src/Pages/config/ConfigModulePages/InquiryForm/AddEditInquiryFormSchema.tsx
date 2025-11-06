@@ -131,6 +131,16 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
     }
   };
 
+  const handelDeleteRecipientEmails = (email: string) => {
+    const recipient_emails = formData.authorized_recipient_emails.filter(
+      (data) => data !== email
+    );
+    setFormData((pervData) => ({
+      ...pervData,
+      authorized_recipient_emails: recipient_emails,
+    }));
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -330,10 +340,13 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                                 <MdModeEdit className='text-black w-6 h-6 min-w-6 min-h-6' />
                               </Button>
                               {formData?.authorized_recipient_emails?.length !==
-                                index + 1 && (
+                                1 && (
                                 <Button
                                   className='p-2 border border-red-400 rounded-lg'
                                   type='button'
+                                  onClick={() =>
+                                    handelDeleteRecipientEmails(email)
+                                  }
                                 >
                                   <MdDelete className='text-red-600 w-6 h-6 min-w-6 min-h-6' />
                                 </Button>
