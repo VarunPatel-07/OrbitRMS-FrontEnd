@@ -36,6 +36,8 @@ const AddEditComponentListing = React.memo(function AddEditComponentListing(
     selectedCountryInfoForCurrentAddress,
     setSelectedCountryInfoForCurrentAddress,
     formSubmitLoader,
+    permissionData,
+    isEditingCurrentEmployee,
   } = props;
 
   const DesignationsDepartmentsRef = useRef(false);
@@ -179,6 +181,22 @@ const AddEditComponentListing = React.memo(function AddEditComponentListing(
     }
   };
 
+  const personalInfoPermissions = permissionData?.sub_modules?.find(
+    (item) => item?.module_label == 'personal_information'
+  );
+  const employeeInfoPermissions = permissionData?.sub_modules?.find(
+    (item) => item?.module_label == 'employee_information'
+  );
+  const personalContactInfoPermissions = permissionData?.sub_modules?.find(
+    (item) => item?.module_label == 'personal_contact_information'
+  );
+  const familyInfoPermissions = permissionData?.sub_modules?.find(
+    (item) => item?.module_label == 'family_information'
+  );
+  const employeeAddressPermissions = permissionData?.sub_modules?.find(
+    (item) => item?.module_label == 'employee_address'
+  );
+
   useEffect(() => {
     if (DesignationsDepartmentsRef.current) return;
     DesignationsDepartmentsRef.current = true;
@@ -193,6 +211,14 @@ const AddEditComponentListing = React.memo(function AddEditComponentListing(
         showEmptyFieldError={showEmptyFieldError}
         handelSearchDropSelectValue={handelSearchDropSelectValue}
         formSubmitLoader={formSubmitLoader}
+        disabled={
+          isEditingCurrentEmployee
+            ? !isEditingCurrentEmployee
+            : !personalInfoPermissions?.is_active ||
+              personalInfoPermissions?.permissions?.some(
+                (item) => item?.label == 'edit' && !item?.is_allowed
+              )
+        }
       />
       <EmployeeInformation
         formData={formData}
@@ -204,6 +230,12 @@ const AddEditComponentListing = React.memo(function AddEditComponentListing(
         employeeFormDropdowns={employeeFormDropdowns}
         fetchingDesignationsDepartments={fetchingDesignationsDepartments}
         formSubmitLoader={formSubmitLoader}
+        disabled={
+          !employeeInfoPermissions?.is_active ||
+          employeeInfoPermissions?.permissions?.some(
+            (item) => item?.label == 'edit' && !item?.is_allowed
+          )
+        }
       />
       <EmployeePersonalContactInformation
         formData={formData}
@@ -214,6 +246,14 @@ const AddEditComponentListing = React.memo(function AddEditComponentListing(
         countryOptionsDataArray={countryOptionsDataArray}
         filteredCountry={filteredCountry}
         formSubmitLoader={formSubmitLoader}
+        disabled={
+          isEditingCurrentEmployee
+            ? !isEditingCurrentEmployee
+            : !personalContactInfoPermissions?.is_active ||
+              personalContactInfoPermissions?.permissions?.some(
+                (item) => item?.label == 'edit' && !item?.is_allowed
+              )
+        }
       />
       <EmployeeFamilyInfo
         formData={formData}
@@ -222,6 +262,14 @@ const AddEditComponentListing = React.memo(function AddEditComponentListing(
         handleOnChange={handleOnChange}
         showEmptyFieldError={showEmptyFieldError}
         formSubmitLoader={formSubmitLoader}
+        disabled={
+          isEditingCurrentEmployee
+            ? !isEditingCurrentEmployee
+            : !familyInfoPermissions?.is_active ||
+              familyInfoPermissions?.permissions?.some(
+                (item) => item?.label == 'edit' && !item?.is_allowed
+              )
+        }
       />
       <EmployeeAddress
         formData={formData}
@@ -237,12 +285,28 @@ const AddEditComponentListing = React.memo(function AddEditComponentListing(
         setSelectedCountryInfoForCurrentAddress={
           setSelectedCountryInfoForCurrentAddress
         }
+        disabled={
+          isEditingCurrentEmployee
+            ? !isEditingCurrentEmployee
+            : !employeeAddressPermissions?.is_active ||
+              employeeAddressPermissions?.permissions?.some(
+                (item) => item?.label == 'edit' && !item?.is_allowed
+              )
+        }
       />
       <AddEditEmployeeSocialLink
         formData={formData}
         formSubmitLoader={formSubmitLoader}
         setFormData={setFormData}
         showEmptyFieldError={showEmptyFieldError}
+        disabled={
+          isEditingCurrentEmployee
+            ? !isEditingCurrentEmployee
+            : !personalInfoPermissions?.is_active ||
+              personalInfoPermissions?.permissions?.some(
+                (item) => item?.label == 'edit' && !item?.is_allowed
+              )
+        }
       />
     </>
   );

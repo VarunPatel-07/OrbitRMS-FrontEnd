@@ -34,7 +34,7 @@ function Button({
       type={type}
       className={twMerge(
         clsx(
-          'disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer',
+          'disabled:opacity-75 disabled:cursor-not-allowed  cursor-pointer',
           className
         )
       )}

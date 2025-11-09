@@ -16,6 +16,7 @@ import Table from '../../../../common/Table/Table';
 import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
+import AccessDeniedRedirect from '../../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
 import {
   GlobalStateContext,
@@ -31,7 +32,6 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../../Helper/api/multipleAPI';
-import { NavigateToTheLogInScreen } from '../../../../Helper/Helper';
 import { formateDate } from '../../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../../Hooks/useDebounce';
 import { PermissionObjectInterface } from '../../../../interface/interface';
@@ -460,7 +460,15 @@ function RolesAndPermission({
     !permissions ||
     !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
   )
-    return <NavigateToTheLogInScreen />;
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission For Roles & Permission."
+        isAccessDenied={
+          !permissions ||
+          !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
+        }
+      />
+    );
   return (
     <>
       <div className='relative w-full h-full'>

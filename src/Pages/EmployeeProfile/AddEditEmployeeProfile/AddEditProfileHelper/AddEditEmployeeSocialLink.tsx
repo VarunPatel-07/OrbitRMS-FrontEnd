@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaCheck } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 
+import Button from '../../../../common/Button';
 import IconPicker from '../../../../common/IconPicker';
 import Input from '../../../../common/Input';
 import { classNames } from '../../../../Helper/HelperFunctions';
@@ -13,7 +14,7 @@ import {
 const AddEditEmployeeSocialLink = React.memo(function AddEditEmployeeSocialLink(
   props: AddEditEmployeeSocialLinksInterface
 ) {
-  const { formData, setFormData, formSubmitLoader } = props;
+  const { formData, setFormData, formSubmitLoader, disabled } = props;
 
   const [isEmptySocialLink, setIsEmptySocialLink] = useState<boolean[]>([]);
 
@@ -144,7 +145,7 @@ const AddEditEmployeeSocialLink = React.memo(function AddEditEmployeeSocialLink(
                           errorMessage={
                             link?.icon ? '' : 'This Is An Required Field'
                           }
-                          disabled={formSubmitLoader}
+                          disabled={disabled ? disabled : formSubmitLoader}
                         />
                       </div>
                       <div className='w-fit flex flex-col items-start justify-start'>
@@ -158,7 +159,7 @@ const AddEditEmployeeSocialLink = React.memo(function AddEditEmployeeSocialLink(
                           errorMessage={
                             !link?.name ? 'This Is An Required Field' : ''
                           }
-                          disabled={formSubmitLoader}
+                          disabled={disabled ? disabled : formSubmitLoader}
                         />
                       </div>
                     </div>
@@ -185,7 +186,7 @@ const AddEditEmployeeSocialLink = React.memo(function AddEditEmployeeSocialLink(
                         errorMessage={
                           !link?.link ? 'This Is An Required Field' : ''
                         }
-                        disabled={formSubmitLoader}
+                        disabled={disabled ? disabled : formSubmitLoader}
                       />
                     </div>
                   </div>
@@ -194,7 +195,7 @@ const AddEditEmployeeSocialLink = React.memo(function AddEditEmployeeSocialLink(
                       Link
                     </span>
                     <div className='flex items-stretch justify-end gap-2'>
-                      <button
+                      <Button
                         type='button'
                         className={classNames(
                           'relative inline-block min-w-10 min-h-10 rounded-lg cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] disabled:cursor-not-allowed',
@@ -205,34 +206,39 @@ const AddEditEmployeeSocialLink = React.memo(function AddEditEmployeeSocialLink(
                               formData?.social_link[index]?.target_blank,
                           }
                         )}
-                        disabled={formSubmitLoader}
+                        disabled={disabled ? disabled : formSubmitLoader}
                         onClick={() => handelClickOnTargetBlockButton(index)}
                       >
-                        {formData?.social_link[index]?.target_blank && (
+                        {formData?.social_link[index]?.target_blank ? (
                           <span className='flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all'>
                             <FaCheck className='w-5 h-5' />
                           </span>
+                        ) : (
+                          <></>
                         )}
-                      </button>
+                      </Button>
                       {index !== 0 && (
-                        <button
+                        <Button
+                          type='button'
                           className='bg-rose-100 w-10 rounded-lg flex items-center justify-center border border-rose-500 text-black text-xl'
                           onClick={() => removeTheSpecificLink(index)}
                         >
                           <MdDelete />
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
                 </div>
                 {index === formData.social_link.length - 1 ? (
                   <div className='button pt-4' key={index + link?.id}>
-                    <button
+                    <Button
+                      type='button'
+                      disabled={disabled ? disabled : formSubmitLoader}
                       className='font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg'
                       onClick={() => handelAddNewEmptySocialLink(index)}
                     >
                       <span>Add Link</span>
-                    </button>
+                    </Button>
                   </div>
                 ) : (
                   ''

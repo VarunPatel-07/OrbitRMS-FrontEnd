@@ -69,6 +69,7 @@ export interface DragDropUploaderProps {
   maxCropHeight: number;
   maxCropWidth: number;
   setImageUrl: (url: string) => void;
+  disabled: boolean;
 }
 
 export interface MultipleImageUploaderPropsInterface {
@@ -383,10 +384,4 @@ export interface FilterInputDateSelectorInterface {
   ) => void;
   updateFinalFilterQuery: (newData: FilterObjectInterface[]) => void;
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
-}
-
-export interface LikesCommentsModalInterface {
-  type: 'comments' | 'likes';
-  showModal: boolean;
-  setShowModal: React.Dispatch<SetStateAction<boolean>>;
 }

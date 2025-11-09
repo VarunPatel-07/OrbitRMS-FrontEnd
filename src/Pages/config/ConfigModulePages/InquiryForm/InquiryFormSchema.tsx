@@ -22,6 +22,7 @@ import Table from '../../../../common/Table/Table';
 import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
+import AccessDeniedRedirect from '../../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
 import CommonAlertModal from '../../../../Components/Modal/CommonAlertModal';
 import {
@@ -43,7 +44,6 @@ import {
   multiplePostApi,
   multiplePutApi,
 } from '../../../../Helper/api/multipleAPI';
-import { NavigateToTheLogInScreen } from '../../../../Helper/Helper';
 import {
   formateDate,
   getDataFromLocalStorage,
@@ -538,7 +538,15 @@ function InquiryFormSchema({
     !permissions ||
     !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
   )
-    return <NavigateToTheLogInScreen />;
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission For Inquiry Forms."
+        isAccessDenied={
+          !permissions ||
+          !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
+        }
+      />
+    );
   return (
     <>
       <div className='w-full h-full relative'>

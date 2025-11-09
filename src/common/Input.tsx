@@ -139,8 +139,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         return (
           <button
             type='button'
+            disabled={disabled}
             className={classNames(
-              'relative inline-block min-w-4 min-h-4 rounded-sm cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)]',
+              'relative inline-block min-w-4 min-h-4 rounded-sm cursor-pointer focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] disabled:cursor-not-allowed disabled:opacity-60',
               {
                 'border border-black/[.65] bg-white': value != 'true',
                 'border border-[var(--them-pink-color)] bg-[rgba(215,139,159,0.2)]':
@@ -150,7 +151,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             onClick={() => setValue(value == 'true' ? 'false' : 'true')}
           >
             {value == 'true' && (
-              <span className='flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all'>
+              <span
+                className={`flex items-center justify-center w-full h-full text-[var(--them-pink-color)] absolute top-0 left-0 z-10 transition-all`}
+              >
                 <FaCheck className='w-3 h-3' />
               </span>
             )}

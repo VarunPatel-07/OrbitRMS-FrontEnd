@@ -884,6 +884,7 @@ function Onboarding() {
                               maxCropHeight={400}
                               maxCropWidth={400}
                               setImageUrl={handelProfileUploadation}
+                              disabled={false}
                             />
                           </div>
                         ) : (

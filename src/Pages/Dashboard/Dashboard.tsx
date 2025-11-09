@@ -360,7 +360,6 @@ function Dashboard() {
           onProgress(bytesUploaded, bytesTotal);
         },
         onSuccess: () => {
-       
           resolve(uploadData.url);
         },
       });
@@ -548,8 +547,6 @@ function Dashboard() {
   );
 
   const handelSubmitApiCallingWithDebounce = useDebounce(async () => {
-
-
     const endPointArr: endpointObject[] = [
       {
         endPoint: 'upload/cloud/signature',
@@ -639,6 +636,31 @@ function Dashboard() {
     };
   }, [uploadingPostFormData]);
 
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  const segments = location.pathname.split('/').filter(Boolean);
+
+  const parentSection = segments[1];
+
+  const permissionData = GlobalStateProvider.roles_permissions.permissions.find(
+    (item) => item.module_label == parentSection
+  );
+
+  const feedModulePermissions = permissionData?.sub_modules?.find(
+    (item) => item?.module_label == 'feed'
+  );
+
   return (
     <>
       <div className='w-full h-full bg-[var(--main-white-color)] overflow-hidden'>
@@ -667,22 +689,32 @@ function Dashboard() {
               isLoadingHoliday={isLoadingHoliday}
             />
           </div>
-          <div className='w-1/2 max-w-[500px] bg-white min-w-[200px] h-full border-l border-l-black/15'>
-            <Feed
-              setShowAddEditPostModal={setShowAddEditPostModal}
-              feedPostData={feedPostData}
-              GlobalStateProvider={GlobalStateProvider}
-              loading={feedPostLoader}
-              editPostHandler={editPostHandler}
-              handelClickOnDeleteButton={handelClickOnDeleteButton}
-              handelClickOnLikeToggle={handelClickOnLikeToggle}
-              likedPosts={likedPosts}
-              submitCommentOnClick={submitCommentOnClick}
-              progress={progress}
-              stage={stage}
-              uploadingPostFormData={uploadingPostFormData}
-            />
-          </div>
+          {!(
+            !feedModulePermissions ||
+            !feedModulePermissions?.is_active ||
+            !feedModulePermissions?.permissions?.some(
+              (item) => item.label == 'view' && item.is_allowed
+            )
+          ) && (
+            <div className='w-1/2 max-w-[500px] bg-white min-w-[200px] h-full border-l border-l-black/15'>
+              <Feed
+                setShowAddEditPostModal={setShowAddEditPostModal}
+                feedPostData={feedPostData}
+                setFeedPostData={setFeedPostData}
+                GlobalStateProvider={GlobalStateProvider}
+                loading={feedPostLoader}
+                editPostHandler={editPostHandler}
+                handelClickOnDeleteButton={handelClickOnDeleteButton}
+                handelClickOnLikeToggle={handelClickOnLikeToggle}
+                likedPosts={likedPosts}
+                submitCommentOnClick={submitCommentOnClick}
+                progress={progress}
+                stage={stage}
+                uploadingPostFormData={uploadingPostFormData}
+                permissionData={feedModulePermissions}
+              />
+            </div>
+          )}
         </div>
       </div>
       <AddEditPostModal

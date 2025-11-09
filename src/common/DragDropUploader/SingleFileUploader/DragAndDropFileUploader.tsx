@@ -30,6 +30,7 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
     maxCropHeight,
     maxCropWidth,
     setImageUrl,
+    disabled,
   } = props as DragDropUploaderProps;
 
   const { handelNotification } = useContext(
@@ -225,7 +226,7 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
   return (
     <>
       <div {...getRootProps()} className='cursor-pointer'>
-        <input {...getInputProps()} />
+        <input {...getInputProps()} disabled={disabled} />
         {isDragActive ? (
           showDropFileScreenInFullScreen ? (
             createPortal(
@@ -238,7 +239,9 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
             )
           ) : (
             <>
-              <div className='py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]'>
+              <div
+                className={`py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border-dashed rounded-lg ${disabled ? 'border-2 border-[#7fab98] bg-[#7fab98]/15' : 'border-2 border-indigo-500  bg-[rgba(99,102,241,0.08)]'}`}
+              >
                 <FaCloudUploadAlt className='w-20 h-20 text-indigo-600' />
                 <p className='text-base font-semibold text-indigo-700'>
                   Drop Files to Upload
@@ -248,7 +251,9 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
           )
         ) : (
           <>
-            <div className='py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]'>
+            <div
+              className={`py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center rounded-lg border-dashed ${disabled ? 'border-2 border-[#7fab98] bg-[#7fab98]/15' : 'border-2 border-indigo-500 bg-[rgba(99,102,241,0.08)]'}`}
+            >
               <FaCloudUploadAlt className='w-20 h-20 text-indigo-600' />
               <p className='text-base text-black'>
                 Drag & Drop Files or <span>Browse</span>

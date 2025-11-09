@@ -26,6 +26,7 @@ const EmployeeAddress = React.memo(function EmployeeAddress(
     selectedCountryInfoForCurrentAddress,
     setSelectedCountryInfoForCurrentAddress,
     formSubmitLoader,
+    disabled,
   } = props;
 
   const [citiesOptionsArray, setCitiesOptionsArray] = useState<{
@@ -182,6 +183,7 @@ const EmployeeAddress = React.memo(function EmployeeAddress(
         <div className='p-6 w-full'>
           <DynamicAddressComponentHelper
             formData={formData}
+            disabled={disabled}
             formSubmitLoader={formSubmitLoader}
             handleOnChange={handleOnChange}
             module_name='current_address'
@@ -218,6 +220,7 @@ const EmployeeAddress = React.memo(function EmployeeAddress(
               <Input
                 type='checkbox'
                 name='termsAccepted'
+                disabled={disabled}
                 value={formData?.same_as_current_address ? 'true' : 'false'}
                 setValue={(val: string) =>
                   handelTheSameAsCurrentAddressButton(val as 'true' | 'false')
@@ -229,6 +232,7 @@ const EmployeeAddress = React.memo(function EmployeeAddress(
           {!formData?.same_as_current_address ? (
             <div className='pb-3 mt-6 transition-all'>
               <DynamicAddressComponentHelper
+                disabled={disabled}
                 formSubmitLoader={formSubmitLoader}
                 formData={formData}
                 handleOnChange={handleOnChange}

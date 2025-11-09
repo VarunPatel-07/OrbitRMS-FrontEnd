@@ -28,6 +28,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
     employeeFormDropdowns,
     fetchingDesignationsDepartments,
     formSubmitLoader,
+    disabled,
   } = props;
 
   const { type: moduleType } = useParams();
@@ -89,7 +90,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
                   labelFieldName='Status'
                   isRequiredField={true}
                   selectedValue={formData?.employee_info?.status}
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   onSelectValBtn={(data: string | object) =>
                     handelSearchDropSelectValue(data, 'status', 'employee_info')
                   }
@@ -129,7 +130,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
                   isRequiredField={true}
                   selectedValue={formData?.employee_info?.department}
                   loading={fetchingDesignationsDepartments['departments']}
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   onSelectValBtn={(data: string | object) =>
                     handelSearchDropSelectValue(
                       (data as DepartmentConfig).department_name,
@@ -158,7 +159,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
                   showSearchBar={true}
                   labelFieldName='Designation'
                   isRequiredField={true}
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   loading={fetchingDesignationsDepartments['designations']}
                   selectedValue={formData?.employee_info?.designation}
                   onSelectValBtn={(data: string | object) =>
@@ -184,7 +185,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
                   emptyDataMessage='No Reporting Manager Found'
                   showSearchBar={true}
                   labelFieldName='Reporting To'
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   isRequiredField={true}
                   loading={fetchingDesignationsDepartments['reporting_to']}
                   selectedValue={formData?.employee_info?.reporting_to?.name}
@@ -209,7 +210,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
                   searchKey='role_name'
                   position='bottom'
                   emptyDataMessage='No Role Found'
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   showSearchBar={true}
                   labelFieldName='Employee Role'
                   isRequiredField={true}
@@ -235,7 +236,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
                   options={employeeTypesArray}
                   searchKey=''
                   position='bottom'
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   emptyDataMessage='No Role Found'
                   showSearchBar={true}
                   labelFieldName='Employee Type'
@@ -262,7 +263,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
                   onChange={handelJoiningDateOfEmployee}
                   selectedValue={formData?.employee_info?.joining_date as Date}
                   name='joining_date'
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   labelFieldName='Joining Date'
                   isRequiredField={true}
                   datePickerPosition={'left-start'}
@@ -292,7 +293,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
                   <div
                     className={classNames(
                       'flex items-center justify-center border border-[#7fab98] text-black w-fit bg-[#7FAB984D] rounded-l-lg text-[14px] px-3 whitespace-nowrap',
-                      { 'border-r-0': formSubmitLoader }
+                      { 'border-r-0': disabled || formSubmitLoader }
                     )}
                   >
                     {formData?.employee_info?.status.toLocaleLowerCase() ==
@@ -307,7 +308,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
                     name='employee_info.employee_code'
                     className='border border-[#7fab98] border-l-0 rounded-l-none text-black w-full'
                     type='number'
-                    disabled={formSubmitLoader}
+                    disabled={disabled ? disabled : formSubmitLoader}
                     value={formData?.employee_info?.employee_code
                       ?.split('-')
                       .pop()}

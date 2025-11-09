@@ -5,6 +5,7 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 import { useLocation } from 'react-router-dom';
 import * as tus from 'tus-js-client';
 
+import AccessDeniedRedirect from '../../Components/AccessDeniedRedirect';
 import UploadingPostDefaultLoader from '../../Components/Loader/UploadingPostDefaultLoader';
 import { AddEditPostFormData } from '../../constant/SocialMediaConstatnt';
 import {
@@ -21,7 +22,6 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../Helper/api/multipleAPI';
-import { NavigateToTheLogInScreen } from '../../Helper/Helper';
 import { getCroppedImageBlob } from '../../Helper/ImageCropper';
 import { ImageDownscaler } from '../../Helper/ImageDownscaler';
 import { useDebounce } from '../../Hooks/useDebounce';
@@ -523,15 +523,19 @@ function SocialMedia() {
   const permissionData = GlobalStateProvider.roles_permissions.permissions.find(
     (item) => item.module_label == parentSection.replace('-', '_')
   );
-
-  if (
+  const hasNoPermissionForSocialMediaModule =
     !permissionData ||
     !permissionData.is_active ||
     !permissionData?.permissions?.some(
       (item) => item.label == 'view' && item.is_allowed
-    )
-  )
-    return <NavigateToTheLogInScreen />;
+    );
+  if (hasNoPermissionForSocialMediaModule)
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission For Roles & Permission."
+        isAccessDenied={hasNoPermissionForSocialMediaModule}
+      />
+    );
   return (
     <>
       <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
@@ -546,6 +550,7 @@ function SocialMedia() {
               setShowModal={setShowModal}
               showModal={showModal}
               setHandelClickOnDropDown={setHandelClickOnDropDown}
+              permissionData={permissionData}
             />
 
             <SocialMediaPosts

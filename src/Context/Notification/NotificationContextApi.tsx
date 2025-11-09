@@ -26,6 +26,7 @@ export interface NotificationObject {
 }
 export interface NotificationContextApiProps {
   notificationInfoArray: Array<NotificationObject>;
+
   handelNotification: (
     data: NotificationFunctionParamsInterface,
     direction:

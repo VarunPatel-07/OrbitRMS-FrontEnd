@@ -139,7 +139,7 @@ export interface RolesAndPermissionsModuleInterface {
 
 export interface PermissionsModuleInterface {
   module_label: string;
-  is_active: string;
+  is_active: boolean;
   permissions: PermissionObjectInterface[];
   sub_modules: PermissionsModuleInterface[];
 }

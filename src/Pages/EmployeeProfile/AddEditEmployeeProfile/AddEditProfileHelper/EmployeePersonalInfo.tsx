@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { IoCloseSharp } from 'react-icons/io5';
 import { MdOutlineFileUpload } from 'react-icons/md';
 
+import Button from '../../../../common/Button';
 import CommonDatePicker from '../../../../common/CommonDatePicker';
 import DragAndDropFileUploader from '../../../../common/DragDropUploader/SingleFileUploader/DragAndDropFileUploader';
 import Input from '../../../../common/Input';
@@ -20,6 +21,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
     handleOnChange,
     handelSearchDropSelectValue,
     formSubmitLoader,
+    disabled,
   } = props;
 
   const handelProfileUploadation = (url: string) => {
@@ -97,6 +99,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
                 maxCropHeight={400}
                 maxCropWidth={400}
                 setImageUrl={handelProfileUploadation}
+                disabled={disabled}
               />
             </div>
           ) : (
@@ -116,18 +119,22 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
                   />
                 </div>
                 <div className='flex items-center justify-start gap-4'>
-                  <button
-                    className='text-black bg-black/10 hover:bg-black/15 transition-all p-2.5 rounded-lg'
+                  <Button
+                    type='button'
+                    className='text-black bg-black/10 enabled:hover:bg-black/15 transition-all p-2.5 rounded-lg'
+                    disabled={disabled}
                     onClick={() => handelProfileUploadation('')}
                   >
                     <MdOutlineFileUpload className='w-6 h-6' />
-                  </button>
-                  <button
-                    className='text-black bg-black/10 hover:bg-black/15 transition-all p-2.5 rounded-lg'
+                  </Button>
+                  <Button
+                    type='button'
+                    className='text-black bg-black/10 enabled:hover:bg-black/15 transition-all p-2.5 rounded-lg'
+                    disabled={disabled}
                     onClick={() => handelProfileUploadation('')}
                   >
                     <IoCloseSharp className='w-6 h-6' />
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -162,7 +169,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
                   value={formData.personal_info.first_name}
                   onChange={handleOnChange}
                   showError={showEmptyFieldError}
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   errorMessage={
                     formData?.personal_info?.first_name
                       ? ''
@@ -179,7 +186,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
                   isRequiredField={false}
                   value={formData.personal_info.middle_name}
                   onChange={handleOnChange}
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                 />
               </div>
               <div className='w-full'>
@@ -192,7 +199,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
                   value={formData.personal_info.last_name}
                   onChange={handleOnChange}
                   showError={showEmptyFieldError}
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   errorMessage={
                     formData?.personal_info?.last_name
                       ? ''
@@ -213,7 +220,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
                   showSearchBar={false}
                   labelFieldName='Gender'
                   isRequiredField={true}
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   selectedValue={formData?.personal_info?.gender}
                   onSelectValBtn={(data: string | object) =>
                     handelSearchDropSelectValue(data, 'gender', 'personal_info')
@@ -228,7 +235,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
               </div>
               <div className='w-full'>
                 <CommonDatePicker
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   onChange={handelDateOfBirthPickUpChangeFunction}
                   selectedValue={formData?.personal_info?.date_of_birth as Date}
                   name='date_of_birth'
@@ -245,7 +252,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
               </div>
               <div className='w-full'>
                 <SearchDrop
-                  disabled={formSubmitLoader}
+                  disabled={disabled ? disabled : formSubmitLoader}
                   options={bloodGroupArray}
                   searchKey=''
                   position='bottom'
@@ -273,7 +280,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
           </div>
           <div className='w-full'>
             <TextArea
-              disabled={formSubmitLoader}
+              disabled={disabled ? disabled : formSubmitLoader}
               name='personal_info.about'
               rows={4}
               value={formData?.personal_info?.about}
