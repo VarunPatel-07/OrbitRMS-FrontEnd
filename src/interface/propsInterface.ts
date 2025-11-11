@@ -161,13 +161,16 @@ export interface RichTextEditorInterface {
   isRequiredField?: boolean;
   showError?: boolean;
   errorMessage?: string;
-  handelApiCallingFunction: (
+  handelApiCallingFunction?: (
     query: string
   ) => Promise<RichTextEditorApiCallIngReturnInterface[]>;
   GlobalStateProvider: GlobalContextStore;
   handelOnUpdateFunction: (data: string) => void;
   onEditorReady?: (editor: Editor) => void;
   feedContent: string;
+  classNames?: string;
+  height?: number;
+  showMenuBar?: boolean;
 }
 
 export interface SearchDropProps {

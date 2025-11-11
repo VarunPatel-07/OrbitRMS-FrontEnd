@@ -79,7 +79,13 @@ function CommonDatePicker(props: commonDatePickerProps) {
         dateFormat='dd/MM/yyyy'
         disabled={disabled}
         customInput={<CustomInput />}
-        openToDate={year ? new Date(new Date().setFullYear(year)) : new Date()}
+        openToDate={
+          year
+            ? new Date(new Date().setFullYear(year))
+            : selectedValue
+              ? new Date(selectedValue)
+              : new Date()
+        }
       />
       {showError && errorMessage && (
         <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>

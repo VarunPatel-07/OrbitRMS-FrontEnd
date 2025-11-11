@@ -73,7 +73,16 @@ input[type='number'] {
 .animate-spin-smooth {
   animation: spin 1.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
-
+.epr-category-nav {
+  display: none !important;
+}
+.epr-emoji-img {
+  width: 35px !important;
+  height: 35px !important;
+  min-width: 35px !important;
+  max-height: 35px !important;
+  object-fit: contain;
+}
 .animate-fadeIn {
   animation: fadeIn 0.8s ease forwards;
 }

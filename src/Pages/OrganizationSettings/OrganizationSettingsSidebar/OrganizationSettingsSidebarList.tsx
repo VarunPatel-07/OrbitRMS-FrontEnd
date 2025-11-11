@@ -26,4 +26,12 @@ export const OrganizationSettingsSidebarList = (
     showToolTip: false,
     ToolTipValue: 'Holiday',
   },
+  {
+    id: 'holiday',
+    name: 'Leaves Manager',
+    label: 'leaves-manager-tooltip',
+    link: `/${organization}/organization-settings/leaves-manager`,
+    showToolTip: false,
+    ToolTipValue: 'Holiday',
+  },
 ];

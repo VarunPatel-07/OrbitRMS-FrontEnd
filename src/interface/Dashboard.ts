@@ -67,20 +67,13 @@ export interface FeedPostDataPropsInterface {
     profile_picture: string;
   };
   likes: string[];
-  comments: {
-    comment: string;
-    id: string;
-    is_replay: boolean;
-    organization_update_id: string;
-    user_id: string;
-  }[];
+  comments: string[];
 }
 
 export interface OrganizationFeedPropsInterface {
   setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;
   feedPostData: FeedPostDataPropsInterface[];
   setFeedPostData: React.Dispatch<SetStateAction<FeedPostDataPropsInterface[]>>;
-  likedPosts: string[];
   GlobalStateProvider: GlobalContextStore;
   loading: boolean;
   editPostHandler: (feedData: FeedPostDataPropsInterface) => void;
@@ -112,6 +105,14 @@ export interface LikesCommentsDataInterface {
   last_name: string;
   middle_name: string;
   profile_picture: string;
+  user_id: string;
+  replies: LikesCommentsDataInterface[];
+  metadata: {
+    total_data: number;
+    total_pages: number;
+    current_page: number;
+    record_per_page: number;
+  };
 }
 export interface LikesCommentsModalInterface {
   type: 'comments' | 'likes';
@@ -119,4 +120,6 @@ export interface LikesCommentsModalInterface {
   handelCancelButton: () => void;
   postId: string;
   setFeedPostData: React.Dispatch<SetStateAction<FeedPostDataPropsInterface[]>>;
+  GlobalStateProvider: GlobalContextStore;
+  feedPostData: FeedPostDataPropsInterface[];
 }

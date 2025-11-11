@@ -12,8 +12,11 @@ const current_environment = import.meta.env.VITE_ENVIRONMENT;
 
 //  * Validates if the given email is in a correct format.
 
-export const isValidEmail = (email: string): boolean => {
-  const isValid = validator.isEmail(email);
+export const isValidEmail = (
+  email: string,
+  host_blacklist: string[] = []
+): boolean => {
+  const isValid = validator.isEmail(email, { host_blacklist: host_blacklist });
   return isValid;
 };
 
@@ -316,7 +319,7 @@ export const formateDate = (
   for (const token of tokenOrder) {
     // Replace exact tokens only (use \b boundaries or match whole token)
     const regex = new RegExp(`\\b${token}\\b`, 'g');
-    formattedDate = formattedDate.replace(regex, replacements[token]);
+    formattedDate = formattedDate?.replace(regex, replacements[token]);
   }
 
   if (showTime) {

@@ -14,6 +14,7 @@ import AlertModal from '../common/AlertModal';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
+import { publicEmailProviders } from '../constant/PublicEmailArray';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -126,13 +127,29 @@ function SignUp() {
   const [mobileVerified, setMobileVerified] = useState<boolean>(true);
   const [resendMailLoader, setResendMailLoader] = useState<boolean>(false);
 
+  const hostBlacklistMails = publicEmailProviders?.map((item) => item?.mail);
+
   const handleMoveToNextPage = () => {
-    if (formData?.organizationName?.trim() === '') {
+    if (
+      formData?.organizationName?.trim() === '' ||
+      !isValidEmail(formData?.primaryEmail, hostBlacklistMails)
+    ) {
       setShowError(true);
       setLoading(false);
       return;
+    } else {
+      setShowError(false);
+      setCurrentPage(2);
     }
-    setCurrentPage(2);
+  };
+
+  const getEmailErrorMessage = (email: string) => {
+    const domain = email.split('@')[1].toLowerCase();
+    const check = publicEmailProviders.find((p) => p.mail === domain);
+    if (check) {
+      return `public email (${check.company} - ${check.mail}) Not Allowed`;
+    }
+    return 'Please enter a valid email address.';
   };
 
   const handelReSendMailWithDebounce = useDebounce(async (email: string) => {
@@ -168,7 +185,11 @@ function SignUp() {
       setMobileVerified(true);
     }
 
-    if (is_verified && termsAccepted == 'true') {
+    if (
+      is_verified &&
+      termsAccepted == 'true' &&
+      isValidEmail(formData?.primaryEmail, hostBlacklistMails)
+    ) {
       setLoading(true);
       const data: signUpForm = {
         organizationName: formData.organizationName,
@@ -245,8 +266,8 @@ function SignUp() {
               showError
                 ? formData.primaryEmail?.trim() === ''
                   ? 'This field is required.'
-                  : !isValidEmail(formData?.primaryEmail)
-                    ? 'Please enter a valid email address.'
+                  : !isValidEmail(formData?.primaryEmail, hostBlacklistMails)
+                    ? getEmailErrorMessage(formData?.primaryEmail)
                     : ''
                 : ''
             }

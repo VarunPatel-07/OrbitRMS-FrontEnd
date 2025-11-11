@@ -27,121 +27,93 @@ function RichTextEditor(props: RichTextEditorInterface) {
     errorMessage,
     onEditorReady,
     feedContent,
+    classNames,
+    height,
+    showMenuBar,
   } = props;
-  const editor = useEditor({
-    extensions: [
-      Highlight,
-      Document,
-      Paragraph,
-      Text,
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
-      Italic.configure({
-        HTMLAttributes: {
-          class: 'italic',
-        },
-      }),
-      Bold.configure({
-        HTMLAttributes: {
-          class: 'font-bold',
-        },
-      }),
-      Strike.configure({
-        HTMLAttributes: {
-          class: 'line-through',
-        },
-      }),
-      Link.configure({
-        autolink: true,
-        openOnClick: true,
-        defaultProtocol: 'https',
-        linkOnPaste: true,
-        protocols: [
-          'https',
-          'ftp',
-          'mailto',
-          {
-            scheme: 'tel',
-            optionalSlashes: true,
-          },
-        ],
-        isAllowedUri: (url, ctx) => {
-          try {
-            // construct URL
-            const parsedUrl = url.includes(':')
-              ? new URL(url)
-              : new URL(`${ctx.defaultProtocol}://${url}`);
 
-            // use default validation
-            if (!ctx.defaultValidate(parsedUrl.href)) {
-              return false;
-            }
+  const editorDefaultExtensionsArray = [
+    Highlight,
+    Document,
+    Paragraph,
+    Text,
+    TextAlign.configure({
+      types: ['heading', 'paragraph'],
+    }),
+    Italic.configure({
+      HTMLAttributes: { class: 'italic' },
+    }),
+    Bold.configure({
+      HTMLAttributes: { class: 'font-bold' },
+    }),
+    Strike.configure({
+      HTMLAttributes: { class: 'line-through' },
+    }),
+    Link.configure({
+      autolink: true,
+      openOnClick: true,
+      defaultProtocol: 'https',
+      linkOnPaste: true,
+      protocols: [
+        'https',
+        'ftp',
+        'mailto',
+        { scheme: 'tel', optionalSlashes: true },
+      ],
+      isAllowedUri: (url, ctx) => {
+        try {
+          const parsedUrl = url.includes(':')
+            ? new URL(url)
+            : new URL(`${ctx.defaultProtocol}://${url}`);
+          if (!ctx.defaultValidate(parsedUrl.href)) return false;
 
-            // disallowed protocols
-            const disallowedProtocols = ['ftp', 'file', 'mailto'];
-            const protocol = parsedUrl.protocol.replace(':', '');
+          const disallowedProtocols = ['ftp', 'file', 'mailto'];
+          const protocol = parsedUrl.protocol.replace(':', '');
+          if (disallowedProtocols.includes(protocol)) return false;
 
-            if (disallowedProtocols.includes(protocol)) {
-              return false;
-            }
+          const allowedProtocols = ctx.protocols.map((p) =>
+            typeof p === 'string' ? p : p.scheme
+          );
+          if (!allowedProtocols.includes(protocol)) return false;
 
-            // only allow protocols specified in ctx.protocols
-            const allowedProtocols = ctx.protocols.map((p) =>
-              typeof p === 'string' ? p : p.scheme
-            );
+          const disallowedDomains = [
+            'example-phishing.com',
+            'malicious-site.net',
+          ];
+          if (disallowedDomains.includes(parsedUrl.hostname)) return false;
 
-            if (!allowedProtocols.includes(protocol)) {
-              return false;
-            }
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      shouldAutoLink: (url) => {
+        try {
+          const parsedUrl = url.includes(':')
+            ? new URL(url)
+            : new URL(`https://${url}`);
+          const disallowedDomains = [
+            'example-no-autolink.com',
+            'another-no-autolink.com',
+          ];
+          return !disallowedDomains.includes(parsedUrl.hostname);
+        } catch {
+          return false;
+        }
+      },
+      HTMLAttributes: {
+        class:
+          'text-blue-500 underline hover:text-blue-600 transition-colors duration-200 cursor-pointer',
+        rel: 'noopener noreferrer',
+        target: '_blank',
+      },
+    }),
+  ];
 
-            // disallowed domains
-            const disallowedDomains = [
-              'example-phishing.com',
-              'malicious-site.net',
-            ];
-            const domain = parsedUrl.hostname;
-
-            if (disallowedDomains.includes(domain)) {
-              return false;
-            }
-
-            // all checks have passed
-            return true;
-          } catch {
-            return false;
-          }
-        },
-        shouldAutoLink: (url) => {
-          try {
-            // construct URL
-            const parsedUrl = url.includes(':')
-              ? new URL(url)
-              : new URL(`https://${url}`);
-
-            // only auto-link if the domain is not in the disallowed list
-            const disallowedDomains = [
-              'example-no-autolink.com',
-              'another-no-autolink.com',
-            ];
-            const domain = parsedUrl.hostname;
-
-            return !disallowedDomains.includes(domain);
-          } catch {
-            return false;
-          }
-        },
-        HTMLAttributes: {
-          class:
-            'text-blue-500 underline hover:text-blue-600 transition-colors duration-200 cursor-pointer',
-          rel: 'noopener noreferrer',
-          target: '_blank',
-        },
-      }),
+  if (handelApiCallingFunction) {
+    editorDefaultExtensionsArray.push(
       Mention.configure({
-        HTMLAttributes: {
-          class: 'mention',
-        },
+        HTMLAttributes: { class: 'mention' },
         suggestion: mentionSuggestion(handelApiCallingFunction),
         renderHTML({ options, node }) {
           return [
@@ -152,16 +124,17 @@ function RichTextEditor(props: RichTextEditorInterface) {
               },
               options.HTMLAttributes
             ),
-
             `${options.suggestion.char}${node.attrs.label ?? node.attrs.label}`,
           ];
         },
-      }),
-    ],
+      })
+    );
+  }
+  const editor = useEditor({
+    extensions: editorDefaultExtensionsArray,
     editorProps: {
       attributes: {
-        class:
-          'text-black rounded-lg px-3 py-1.5 outline-none min-h-[350px] rounded-t-none border-t-0 outline-t-none',
+        class: `text-black rounded-lg px-3 py-1.5 outline-none min-h-[${height || 350}px] rounded-t-none border-t-0 outline-t-none`,
       },
     },
     onUpdate: ({ editor }) => {
@@ -202,7 +175,7 @@ function RichTextEditor(props: RichTextEditorInterface) {
           </label>
         )}
         <div
-          className='tiptap rounded-lg'
+          className={`tiptap rounded-lg ${classNames}`}
           style={{
             border:
               showError && errorMessage
@@ -210,9 +183,9 @@ function RichTextEditor(props: RichTextEditorInterface) {
                 : '1px solid rgb(0,0,0,0.2)',
           }}
         >
-          <MenuBar editor={editor} />
+          {showMenuBar && <MenuBar editor={editor} />}
           <div className='relative'>
-            <EditorContent editor={editor} />
+            <EditorContent editor={editor} height={height} />
           </div>
         </div>
         {showError && errorMessage && (

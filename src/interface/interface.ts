@@ -335,3 +335,11 @@ export interface appRouterArraysInterface {
   module: React.ReactElement | null;
   subModule: appRouterArraysInterface[];
 }
+
+export interface ResetPasswordLinkModalInterface {
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<SetStateAction<boolean>>;
+  handelSubmit: (mail: string, callBack: (success: boolean) => void) => void;
+  companyEmail: string;
+  personalEmail: string;
+}

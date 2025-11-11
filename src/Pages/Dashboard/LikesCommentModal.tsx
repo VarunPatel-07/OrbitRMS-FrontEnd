@@ -1,13 +1,27 @@
 import { useContext, useEffect, useRef, useState } from 'react';
+import { FiLoader } from 'react-icons/fi';
 import { IoMdHeart } from 'react-icons/io';
 import { LuMessageCircleReply } from 'react-icons/lu';
+import { Editor } from '@tiptap/react';
+import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 
+import Button from '../../common/Button';
+import Loader from '../../common/Loader';
+import RichTextEditor from '../../common/RichTextEditor/RichTextEditor';
+// import TextArea from '../../common/TextArea';
 import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../Context/Notification/NotificationContextApi';
-import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
-import { classNames } from '../../Helper/HelperFunctions';
+import {
+  endpointObject,
+  multipleFetchApi,
+  multiplePutApi,
+} from '../../Helper/api/multipleAPI';
+import {
+  classNames,
+  getDataFromLocalStorage,
+} from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
 import {
   LikesCommentsDataInterface,
@@ -15,8 +29,15 @@ import {
 } from '../../interface/Dashboard';
 
 function LikesCommentModal(props: LikesCommentsModalInterface) {
-  const { type, showModal, handelCancelButton, postId, setFeedPostData } =
-    props;
+  const {
+    type,
+    showModal,
+    handelCancelButton,
+    postId,
+    setFeedPostData,
+
+    GlobalStateProvider,
+  } = props;
 
   const { handelNotification } = useContext(
     NotificationContext
@@ -26,12 +47,24 @@ function LikesCommentModal(props: LikesCommentsModalInterface) {
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<LikesCommentsDataInterface[]>([]);
+  const [commentData, setCommentData] = useState<string>('');
+  const [showCommentField, setShowCommentField] = useState<string>('');
+  const [showPicker, setShowPicker] = useState<boolean>(false);
+  const [addCommentLoader, setAddCommentLoader] = useState<boolean>(false);
+  const [renderCommentRepliesId, setRenderCommentRepliesId] =
+    useState<string>('');
+  const [page, setPage] = useState<number>(1);
+  const [loadingMoreReplies, setLoadingMoreReplies] = useState<boolean>(false);
+  const useEffectRef = useRef(false);
   const modalBoxRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<Editor | null>(null);
 
   const handelFetchLikesCommentWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
       {
-        endPoint: `feed/fetch?type=${type}&post-id=${postId}`,
+        endPoint: `feed/fetch?type=${type}&post-id=${postId}&page=${page}&limit=2`,
         protected: true,
       },
     ];
@@ -40,21 +73,113 @@ function LikesCommentModal(props: LikesCommentsModalInterface) {
     const res = response[0];
 
     if (res?.success) {
-      setData(res?.data);
+      if (type == 'likes') {
+        setData(res?.data?.likes);
+        setFeedPostData((prevData) =>
+          prevData.map((item) =>
+            item.id === postId
+              ? { ...item, [type]: res?.data?.total_likes }
+              : item
+          )
+        );
+      } else {
+        setData(res?.data?.comments);
+        setFeedPostData((prevData) =>
+          prevData.map((item) =>
+            item.id === postId
+              ? { ...item, [type]: res?.data?.total_comments }
+              : item
+          )
+        );
+      }
       setLoading(false);
-
-      const likeCommentArray = res?.data?.map(
-        (item: LikesCommentsDataInterface) => item?.id
-      );
-      setFeedPostData((prevData) =>
-        prevData.map((item) =>
-          item.id === postId ? { ...item, [type]: likeCommentArray } : item
-        )
-      );
     } else {
       handelNotification(res, 'top-right');
     }
   }, 100);
+
+  const handelFetchMoreRepliesWithDebounce = useDebounce(
+    async (page: number, comment_id: string, post_id: string) => {
+      const endPointArr: endpointObject[] = [
+        {
+          endPoint: `feed/fetch-replies?post-id=${post_id}&comment-id=${comment_id}&page=${page}&limit=2`,
+          protected: true,
+        },
+      ];
+
+      const response = await multipleFetchApi(endPointArr);
+      const res = response[0];
+
+      if (res?.success) {
+        setData((pervData) =>
+          pervData?.map((item) =>
+            item.id === comment_id
+              ? {
+                  ...item,
+                  replies: [...(item.replies || []), ...(res?.data || [])],
+                }
+              : item
+          )
+        );
+        setLoadingMoreReplies(false);
+      } else {
+        handelNotification(res, 'top-right');
+      }
+      setLoadingMoreReplies(false);
+    },
+    200
+  );
+
+  const handelLoadMoreReplies = (comment_id: string, post_id: string) => {
+    setLoadingMoreReplies(true);
+    const _page = page;
+    setPage(_page + 1);
+    handelFetchMoreRepliesWithDebounce(_page + 1, comment_id, post_id);
+  };
+
+  const localStorageData = getDataFromLocalStorage('organization-info');
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug ||
+    JSON.parse(localStorageData)?.portal_slug;
+
+  const handelClickOnEmoji = (data: EmojiClickData) => {
+    setShowPicker(false);
+    setCommentData((pervData) => `${pervData} ${data.emoji}`);
+  };
+
+  const handelOnUpdateFunction = (data: string) => {
+    setCommentData(data);
+  };
+  const handelClickOnReplayButton = (data: LikesCommentsDataInterface) => {
+    setShowCommentField(showCommentField?.trim() == '' ? data?.id : '');
+    setCommentData(
+      (pervData) =>
+        `<a class="text-blue-600 font-bold pl-1" target="_blank" href=${`/${organization}/employees/employee-profile/${data?.user_id}/employee-details`} contenteditable="false">@${data?.full_name}</a> <span>${pervData || '   '}</span> `
+    );
+  };
+
+  const submitCommentOnClick = async (comment_id: string, comment: string) => {
+    const endPointArr: endpointObject[] = [
+      {
+        endPoint: `feed/comment/replay/toggle?post-id=${postId}&comment-id=${comment_id}`,
+        protected: true,
+        data: { comment: comment },
+      },
+    ];
+
+    const response = await multiplePutApi(endPointArr);
+    const res = response[0];
+    if (res?.success) {
+      setShowCommentField('');
+      setCommentData('');
+      setAddCommentLoader(false);
+      handelFetchLikesCommentWithDebounce();
+    }
+  };
+
+  const handleEditorReady = (editor: Editor) => {
+    editorRef.current = editor;
+  };
 
   const LikeItem = (data: LikesCommentsDataInterface) => {
     return (
@@ -79,30 +204,143 @@ function LikesCommentModal(props: LikesCommentsModalInterface) {
   const CommentItem = (data: LikesCommentsDataInterface) => {
     return (
       <div
-        className='w-full flex gap-3 p-4 bg-gray-50 rounded-lg border border-gray-400'
+        className='w-full flex flex-col gap-3 rounded-lg px-3 py-2'
         key={data?.id}
       >
-        <img
-          src={data.profile_picture}
-          alt={data.full_name}
-          className='w-10 h-10 rounded-full object-cover flex-shrink-0'
-        />
-        <div className='flex-1'>
-          <div className='flex items-center gap-2 mb-1'>
-            <h3 className='font-semibold text-gray-900'>{data.full_name}</h3>
-            <span className='text-xs text-gray-500'>
-              ({data.employee_code})
-            </span>
+        <div className='w-full flex items-center justify-start gap-3'>
+          <img
+            src={data.profile_picture}
+            alt={data.full_name}
+            className='w-12 h-12 rounded-full object-cover flex-shrink-0'
+          />
+          <div className='flex-1'>
+            <div className='flex items-center gap-2 mb-1'>
+              <h3 className='font-semibold text-gray-900'>{data.full_name}</h3>
+              <span className='text-xs text-gray-500'>
+                ({data.employee_code})
+              </span>
+            </div>
+            <p
+              className='text-gray-700 mb-2 text-sm'
+              dangerouslySetInnerHTML={{ __html: data?.comment }}
+            ></p>
+            <div className='w-full flex items-center justify-start gap-3.5'>
+              <Button
+                type='button'
+                onClick={() => handelClickOnReplayButton(data)}
+                className='text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1'
+              >
+                <span className='flex items-center justify-start gap-0.5'>
+                  <LuMessageCircleReply className='w-4 h-4' />
+                  Reply
+                </span>
+              </Button>
+              {data?.replies?.length > 0 && (
+                <>
+                  {renderCommentRepliesId == data?.id && (
+                    <Button
+                      type='button'
+                      onClick={() => setRenderCommentRepliesId(data?.id)}
+                      className='text-xs font-medium text-gray-500 hover:text-gray-700 flex items-center gap-1'
+                    >
+                      <span className='flex items-center justify-start gap-0.5 capitalize'>
+                        <span className='h-[1px] w-3 flex bg-gray-500'></span>
+                        view replies
+                      </span>
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
-          <p className='text-gray-700 mb-2'>{data?.comment}</p>
-          <button
-            // onClick={onReply}
-            className='text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1'
-          >
-            <LuMessageCircleReply className='w-4 h-4' />
-            Reply
-          </button>
         </div>
+        {showCommentField == data?.id && (
+          <div className='w-full'>
+            <div className='border border-black/45 rounded-lg'>
+              <div className='flex items-center justify-between pb-1.5 pt-2 px-2 border-b border-b-black/45'>
+                <span className='font-inter text-black text-sm'>
+                  Write Your Thoughts...
+                </span>
+
+                <div className='relative'>
+                  <button
+                    ref={buttonRef}
+                    onClick={() => setShowPicker((prev) => !prev)}
+                  >
+                    😄
+                  </button>
+
+                  {showPicker && (
+                    <div
+                      ref={emojiPickerRef}
+                      className={`absolute z-50 -right-full mr-12 -mt-[200px]`}
+                    >
+                      <EmojiPicker
+                        height={350}
+                        theme={Theme.DARK}
+                        allowExpandReactions={false}
+                        previewConfig={{ showPreview: false }}
+                        skinTonesDisabled
+                        categories={[]}
+                        width={300}
+                        lazyLoadEmojis
+                        onEmojiClick={handelClickOnEmoji}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <RichTextEditor
+                name='text-editor'
+                isRequiredField
+                classNames='!border-0 !rounded-none'
+                GlobalStateProvider={GlobalStateProvider}
+                handelOnUpdateFunction={handelOnUpdateFunction}
+                // showError={showError}
+                onEditorReady={handleEditorReady}
+                // errorMessage={
+                //   showError
+                //     ? isRichTextEditorIsEmpty(formData?.description)
+                //       ? 'This Is An Required Field'
+                //       : ''
+                //     : ''
+                // }
+                feedContent={commentData}
+                className='whitespace-pre-wrap'
+                height={100}
+                showMenuBar={false}
+              />
+            </div>
+            <div className='flex items-center justify-end gap-2 pt-3'>
+              <Button
+                type='button'
+                className='border border-black/45 px-3 py-1.5 text-black rounded-lg text-base'
+                onClick={() => {
+                  setShowCommentField('');
+                  setCommentData('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type='button'
+                className='text-white bg-[var(--them-green-color)] hover:bg-[var(--them-green-light-color)] px-3 py-1.5 rounded-lg font-inter text-base transition-all'
+                disabled={loading}
+                onClick={() => {
+                  setAddCommentLoader(true);
+                  submitCommentOnClick(data?.id, commentData);
+                }}
+              >
+                {addCommentLoader ? (
+                  <Loader loaderText='submitting...' />
+                ) : (
+                  'Submit'
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -149,10 +387,17 @@ function LikesCommentModal(props: LikesCommentsModalInterface) {
     );
   };
   useEffect(() => {
-    if (type && postId !== '') {
-      handelFetchLikesCommentWithDebounce();
+    if (showModal && !useEffectRef.current) {
+      useEffectRef.current = true;
+
+      if (type && postId !== '') {
+        handelFetchLikesCommentWithDebounce();
+      }
     }
-  }, [postId, type]);
+    if (!showModal && useEffectRef.current) {
+      useEffectRef.current = false;
+    }
+  }, [showModal]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -161,6 +406,10 @@ function LikesCommentModal(props: LikesCommentsModalInterface) {
         !modalBoxRef.current.contains(event.target as Node)
       ) {
         handelCancelButton();
+        setShowCommentField('');
+        setCommentData('');
+        setPage(1);
+        setLoadingMoreReplies(false);
       }
     };
 
@@ -170,6 +419,22 @@ function LikesCommentModal(props: LikesCommentsModalInterface) {
 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [handelCancelButton, showModal]);
+
+  useEffect(() => {
+    const handelClickOutSide = (event: MouseEvent) => {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handelClickOutSide);
+
+    return () => {
+      document.addEventListener('mousedown', handelClickOutSide);
+    };
+  }, [emojiPickerRef]);
 
   useEffect(() => {
     if (showModal) {
@@ -220,11 +485,38 @@ function LikesCommentModal(props: LikesCommentsModalInterface) {
               {loading ? (
                 LoadingSkeleton()
               ) : (
-                <div className='w-full h-full flex flex-col items-start justify-start gap-2'>
+                <div className='w-full h-full flex flex-col items-start justify-start gap-3'>
                   {data?.length > 0 ? (
                     <>
                       {data?.map((item) =>
-                        type == 'comments' ? CommentItem(item) : LikeItem(item)
+                        type == 'comments' ? (
+                          <div className='w-full flex flex-col items-start justify-start gap-3'>
+                            {CommentItem(item)}
+                            <div className='w-full flex flex-col items-start justify-start gap-3 pl-10'>
+                              {item?.replies?.map((data) => CommentItem(data))}
+                              {page < item?.metadata?.total_pages && (
+                                <Button
+                                  type='button'
+                                  onClick={() =>
+                                    handelLoadMoreReplies(item?.id, postId)
+                                  }
+                                  className='text-xs font-medium text-gray-500 hover:text-gray-700 flex items-center gap-1 pl-10'
+                                >
+                                  {loadingMoreReplies ? (
+                                    <FiLoader className='min-w-5 min-h-5 animate-spin text-black' />
+                                  ) : (
+                                    <span className='flex items-center justify-start gap-0.5 capitalize'>
+                                      <span className='h-[1px] w-3 flex bg-gray-500'></span>
+                                      load more replies
+                                    </span>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          LikeItem(item)
+                        )
                       )}
                     </>
                   ) : (

@@ -57,6 +57,45 @@ function AddEditEmployeeProfile() {
 
   const { organization } = useParams();
 
+  //
+  //? This is An Line Of Code That Is Used For The Roles And Permission Related Things
+  //
+  const segments = location.pathname.split('/').filter(Boolean);
+  const parentSection = segments[1];
+  const childSection = segments[2];
+
+  const permissionData = GlobalStateProvider?.roles_permissions?.permissions
+    ?.find((item) => item.module_label == parentSection)
+    ?.sub_modules?.find(
+      (item) =>
+        item?.module_label == (childSection == 'manage' && 'employee_profile')
+    );
+
+  const hasPermissionForTheEmpListing =
+    GlobalStateProvider.roles_permissions.permissions
+      .find((item) => item.module_label == parentSection)
+      ?.sub_modules?.find((item) => item?.module_label == 'employee_listing');
+
+  const subModulePermissionData = permissionData?.sub_modules?.find(
+    (item) => item.module_label == 'employee_details'
+  );
+
+  const hasNoPermissionToViewProfile =
+    !permissionData ||
+    !permissionData?.is_active ||
+    !permissionData?.permissions?.some(
+      (item) => item?.label == 'view' && item?.is_allowed
+    ) ||
+    !subModulePermissionData ||
+    !subModulePermissionData?.is_active ||
+    !subModulePermissionData?.permissions?.some(
+      (item) => item?.label == 'view' && item?.is_allowed
+    );
+
+  //
+  //
+  //
+
   const fetchCountryReference = useRef(false);
   const employeeInfoFetchRef = useRef(false);
 
@@ -129,8 +168,20 @@ function AddEditEmployeeProfile() {
             user: _res.data,
           }));
         }
-
-        navigate(`/${organization_slug}/employees/employee-listing`);
+        if (
+          !hasPermissionForTheEmpListing ||
+          hasPermissionForTheEmpListing.is_active ||
+          hasPermissionForTheEmpListing?.permissions?.some(
+            (item) => item?.label == 'view' && item?.is_allowed
+          )
+        ) {
+          navigate(`/${organization_slug}/employees/employee-listing`);
+        } else {
+          navigate(`/${organization_slug}/employees/employee-listing`);
+          navigate(
+            `/${organization_slug}/employees/employee-profile/${id}/employee-details`
+          );
+        }
       } else {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
@@ -184,7 +235,7 @@ function AddEditEmployeeProfile() {
     async (id: string) => {
       const endPointArr: endpointObject[] = [
         {
-          endPoint: `employee/fetch-employee?employee_id=${id}`,
+          endPoint: `employee/fetch-employee-profile?employee_id=${id}`,
           protected: true,
         },
       ];
@@ -347,33 +398,7 @@ function AddEditEmployeeProfile() {
       />
     );
 
-  const segments = location.pathname.split('/').filter(Boolean);
-  const parentSection = segments[1];
-  const childSection = segments[2];
-
-  const permissionData = GlobalStateProvider?.roles_permissions?.permissions
-    ?.find((item) => item.module_label == parentSection)
-    ?.sub_modules?.find(
-      (item) =>
-        item?.module_label == (childSection == 'manage' && 'employee_profile')
-    );
-
-  const subModulePermissionData = permissionData?.sub_modules?.find(
-    (item) => item.module_label == 'employee_details'
-  );
-
-  const hasNoPermissionToViewProfile =
-    !permissionData ||
-    !permissionData?.is_active ||
-    !permissionData?.permissions?.some(
-      (item) => item?.label == 'view' && item?.is_allowed
-    ) ||
-    !subModulePermissionData ||
-    !subModulePermissionData?.is_active ||
-    !subModulePermissionData?.permissions?.some(
-      (item) => item?.label == 'view' && item?.is_allowed
-    );
-  if (hasNoPermissionToViewProfile)
+  if (hasNoPermissionToViewProfile && childSection == 'manage')
     return (
       <AccessDeniedRedirect
         message="You don't have permission to access the Employee Profile module."
@@ -386,7 +411,7 @@ function AddEditEmployeeProfile() {
     !subModulePermissionData?.permissions?.some(
       (item) => item?.label == 'edit' && item?.is_allowed
     );
-  if (hasNoPermissionToEdit) {
+  if (hasNoPermissionToEdit && childSection == 'manage') {
     return (
       <AccessDeniedRedirect
         message="You don't have permission to edit this profile."
@@ -402,7 +427,7 @@ function AddEditEmployeeProfile() {
             <div className='w-full h-full xl:w-[70%] flex-grow relative'>
               <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObject} />
               <div className='h-[calc(100vh-120px)] hide-scrollbar overflow-auto px-6 flex flex-col gap-6 pt-16 pb-5'>
-                {!fetchingTheEmployeeData ? (
+                {!fetchingTheEmployeeData && subModulePermissionData ? (
                   <AddEditComponentListing
                     formData={formData}
                     setFormData={setFormData}

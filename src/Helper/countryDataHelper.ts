@@ -33,12 +33,14 @@ export const countryDataApiHelper = async (): Promise<
 
 export const fetchUsersPosition = async (): Promise<string> => {
   try {
-    const response = await fetch('https://ipapi.co/json/');
+    const response = await fetch(
+      'https://api.ipinfo.io/lite/me?token=13cd1dabec5b5b'
+    );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return data.country_name || 'India'; // Return country name after the fetch completes
+    return data.country || 'India'; // Return country name after the fetch completes
   } catch {
     return 'India'; // Return undefined in case of an error
   }

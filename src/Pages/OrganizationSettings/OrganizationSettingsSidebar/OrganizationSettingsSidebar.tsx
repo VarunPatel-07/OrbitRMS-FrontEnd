@@ -45,7 +45,7 @@ function OrganizationSettingsSidebar() {
         </div>
         <ul className='w-full h-full overflow-hidden'>
           {OrganizationSettingsArraySidebarArray?.map(
-            (item: OrganizationSettingsSidebarListInterface) => {
+            (item: OrganizationSettingsSidebarListInterface, index: number) => {
               const permission = permissionData?.sub_modules?.find(
                 (data) => data?.module_label == item?.id
               );
@@ -60,7 +60,7 @@ function OrganizationSettingsSidebar() {
                 return null;
               return (
                 <li
-                  key={item?.id}
+                  key={index}
                   className={`border-b border-b-black/15 transition-all group ${
                     navigation.pathname.includes(item?.link)
                       ? 'bg-[#7fab98]/45'

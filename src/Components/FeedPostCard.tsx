@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BsEmojiSmile, BsThreeDotsVertical } from 'react-icons/bs';
+import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdHeart, IoMdHeartEmpty } from 'react-icons/io';
 import { IoChatbubbleOutline } from 'react-icons/io5';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 import { Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -21,7 +21,6 @@ import EmployeeProfilePicture from './EmployeeProfilePicture';
 
 interface propsInterface {
   data: FeedPostDataPropsInterface;
-  likedPosts: string[];
   GlobalStateProvider: GlobalContextStore;
   editPostHandler: (feedData: FeedPostDataPropsInterface) => void;
   handelClickOnDeleteButton: (id: string) => void;
@@ -41,7 +40,6 @@ interface propsInterface {
 function FeedPostCard(props: propsInterface) {
   const {
     data,
-    likedPosts,
     GlobalStateProvider,
     editPostHandler,
     handelClickOnDeleteButton,
@@ -53,6 +51,7 @@ function FeedPostCard(props: propsInterface) {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const postWrapperDivRef = useRef<HTMLDivElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   const [showMenu, setShowMenu] = useState(false);
   const [showCommentField, setShowCommentField] = useState<string>('');
@@ -159,6 +158,21 @@ function FeedPostCard(props: propsInterface) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  useEffect(() => {
+    const handelClickOutSide = (event: MouseEvent) => {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handelClickOutSide);
+
+    return () => {
+      document.addEventListener('mousedown', handelClickOutSide);
+    };
+  }, [emojiPickerRef]);
 
   const hasPotEditAccess =
     permissionData?.is_active &&
@@ -343,17 +357,19 @@ function FeedPostCard(props: propsInterface) {
                     GlobalStateProvider?.user?.personal_info?.user_id
                   ) ? (
                     <IoMdHeart className='w-7 h-7 min-w-7 min-h-7 max-h-7 max-w-7 text-rose-500' />
-                  ) : likedPosts?.includes(data?.id) ? (
-                    <IoMdHeart className='w-7 h-7 min-w-7 min-h-7 max-h-7 max-w-7 text-rose-500' />
                   ) : (
                     <IoMdHeartEmpty className='w-7 h-7 min-w-7 min-h-7 max-h-7 max-w-7 text-gray-600' />
                   )}
                 </button>
                 <button
                   className='text-black font-semibold font-inter text-base hover:text-blue-600'
-                  onClick={() => handelClickOnLikesComments(data, 'likes')}
+                  onClick={() => {
+                    setCommentData('');
+                    setShowCommentField('');
+                    handelClickOnLikesComments(data, 'likes');
+                  }}
                 >
-                  {data?.likes?.length || likedPosts?.length || 0}
+                  {data?.likes?.length || 0}
                 </button>
               </div>
             )}
@@ -370,7 +386,11 @@ function FeedPostCard(props: propsInterface) {
                 </button>
                 <button
                   className='text-black font-semibold font-inter text-base hover:text-blue-600'
-                  onClick={() => handelClickOnLikesComments(data, 'comments')}
+                  onClick={() => {
+                    setCommentData('');
+                    setShowCommentField('');
+                    handelClickOnLikesComments(data, 'comments');
+                  }}
                 >
                   {data?.comments?.length || 0}
                 </button>
@@ -390,11 +410,12 @@ function FeedPostCard(props: propsInterface) {
                       ref={buttonRef}
                       onClick={() => setShowPicker((prev) => !prev)}
                     >
-                      <BsEmojiSmile className='text-black text-base' />
+                      😄
                     </button>
 
                     {showPicker && (
                       <div
+                        ref={emojiPickerRef}
                         className={`absolute z-50 ${
                           position === 'bottom'
                             ? 'top-full mt-2'
@@ -402,7 +423,13 @@ function FeedPostCard(props: propsInterface) {
                         } -right-full`}
                       >
                         <EmojiPicker
-                          allowExpandReactions
+                          height={350}
+                          theme={Theme.DARK}
+                          allowExpandReactions={false}
+                          previewConfig={{ showPreview: false }}
+                          skinTonesDisabled
+                          categories={[]}
+                          width={300}
                           lazyLoadEmojis
                           onEmojiClick={handelClickOnEmoji}
                         />
@@ -424,7 +451,10 @@ function FeedPostCard(props: propsInterface) {
                 <Button
                   type='button'
                   className='border border-black/45 px-3 py-1.5 text-black rounded-lg text-base'
-                  onClick={() => setShowCommentField('')}
+                  onClick={() => {
+                    setCommentData('');
+                    setShowCommentField('');
+                  }}
                 >
                   Cancel
                 </Button>
