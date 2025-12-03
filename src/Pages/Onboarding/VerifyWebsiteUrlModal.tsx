@@ -9,6 +9,7 @@ import { MdContentCopy } from 'react-icons/md';
 
 import Input from '../../common/Input';
 import Loader from '../../common/Loader';
+import { WebsiteUrlSafetyCheckErrorMessages } from '../../constant/constant';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -53,12 +54,6 @@ export default function VerifyWebsiteUrlModal({
   const [loading, setLoading] = useState<boolean>(false);
   const [showError, setShowError] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
-
-  const errorMessages: { [key: string]: string } = {
-    invalid: 'The URL format is invalid. Please enter a valid website URL.',
-    unsafe: 'This URL is marked as unsafe. Please check your website security.',
-    error: 'An error occurred while verifying the URL. Try again later.',
-  };
 
   const handleGenerateMetaTag = () => {
     if (websiteUrl && urlSafetyStatus.urlStatus == 'safe') {
@@ -190,7 +185,9 @@ export default function VerifyWebsiteUrlModal({
                         ? 'this is the required field to move further'
                         : ''
                       : urlSafetyStatus.urlStatus != 'safe'
-                        ? errorMessages[urlSafetyStatus.urlStatus]
+                        ? WebsiteUrlSafetyCheckErrorMessages[
+                            urlSafetyStatus.urlStatus
+                          ]
                         : ''
                   }
                 />

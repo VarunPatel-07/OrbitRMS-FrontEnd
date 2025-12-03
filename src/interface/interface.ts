@@ -343,3 +343,13 @@ export interface ResetPasswordLinkModalInterface {
   companyEmail: string;
   personalEmail: string;
 }
+
+export interface OrganizationFormInfoInterface {
+  organizationName: string;
+  primaryEmail: string;
+  defaultPortalUrlSlug: string;
+  websiteUrl: string;
+  contactNumber: string;
+  industry: { label: string; value: string };
+  employeeCount: string;
+}

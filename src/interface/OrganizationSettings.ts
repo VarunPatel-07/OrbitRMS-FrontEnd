@@ -20,6 +20,9 @@ interface GeneralInfo {
   primary_number: string;
   terms_accepted: true;
   website_url: string;
+  industry: string;
+  industry_slug: string;
+  employee_count: string;
 }
 interface OrgAddress {
   address: string;

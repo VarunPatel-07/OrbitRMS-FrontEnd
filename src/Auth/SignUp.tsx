@@ -13,7 +13,13 @@ import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
 import AlertModal from '../common/AlertModal';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
+import SearchDrop from '../common/SearchDrop';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
+import {
+  EmployeeCountArray,
+  industryType,
+  WebsiteUrlSafetyCheckErrorMessages,
+} from '../constant/constant';
 import { publicEmailProviders } from '../constant/PublicEmailArray';
 import {
   NotificationContext,
@@ -34,15 +40,21 @@ import {
   isValidEmail,
   verifyPhoneNumberLength,
 } from '../Helper/HelperFunctions';
+import { URLSafetyCheckerFunction } from '../Helper/URLSafetyCheckerFunction';
 import { useDebounce } from '../Hooks/useDebounce';
 import { signUpForm } from '../interface/funcParamInterface';
+import { OrganizationFormInfoInterface } from '../interface/interface';
 
-const initialOrganizationFormInfo = {
+const defaultPortalUrlSlug = import.meta.env.VITE_FRONT_END_PORTAL_BASE_URL;
+
+const initialOrganizationFormInfo: OrganizationFormInfoInterface = {
   organizationName: '',
   primaryEmail: '',
-  defaultPortalUrlSlug: 'https://orbitrms.com/',
+  defaultPortalUrlSlug: defaultPortalUrlSlug,
   websiteUrl: '',
   contactNumber: '',
+  industry: { label: '', value: '' },
+  employeeCount: '',
 };
 
 const alertModalErrorButtonArray = [
@@ -111,7 +123,14 @@ function SignUp() {
   const [showErrorPageTwo, setShowErrorPageTwo] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [portalUrl, setPortalUrl] = useState('' as string);
-  const [formData, setFormData] = useState(initialOrganizationFormInfo);
+  const [formData, setFormData] = useState<OrganizationFormInfoInterface>(
+    initialOrganizationFormInfo
+  );
+  const [urlSafetyStatus, setUrlSafetyStatus] = useState<{
+    urlStatus: '' | 'invalid' | 'unsafe' | 'safe' | 'error';
+    isError: boolean;
+    isEmptyString: boolean;
+  }>({ urlStatus: '', isError: false, isEmptyString: false });
   const [currentPage, setCurrentPage] = useState(1);
   const [termsAccepted, setTermsAccepted] = useState<string>('');
   const [dropDownSelectedValue, setDropDownSelectedValue] = useState<
@@ -124,15 +143,23 @@ function SignUp() {
   const [countryOptionsDataArray, setCountryOptionsDataArray] = useState<
     Array<countryObject>
   >([]);
-  const [mobileVerified, setMobileVerified] = useState<boolean>(true);
+
   const [resendMailLoader, setResendMailLoader] = useState<boolean>(false);
 
   const hostBlacklistMails = publicEmailProviders?.map((item) => item?.mail);
 
   const handleMoveToNextPage = () => {
+    const is_verified = verifyPhoneNumberLength(
+      formData.contactNumber?.trim(),
+      dropDownSelectedValue
+        ? JSON.parse(dropDownSelectedValue as string)?.country_code
+        : 'IN'
+    );
+
     if (
       formData?.organizationName?.trim() === '' ||
-      !isValidEmail(formData?.primaryEmail, hostBlacklistMails)
+      !isValidEmail(formData?.primaryEmail, hostBlacklistMails) ||
+      !is_verified
     ) {
       setShowError(true);
       setLoading(false);
@@ -150,6 +177,16 @@ function SignUp() {
       return `public email (${check.company} - ${check.mail}) Not Allowed`;
     }
     return 'Please enter a valid email address.';
+  };
+
+  const handelClickOnSearchDrop = (
+    data: string | object,
+    key: 'industry' | 'employeeCount'
+  ) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [key]: data,
+    }));
   };
 
   const handelReSendMailWithDebounce = useDebounce(async (email: string) => {
@@ -170,25 +207,33 @@ function SignUp() {
     setResendMailLoader(true);
     handelReSendMailWithDebounce(email);
   };
-
+  const handleUrlVerificationWithDebounce = async (websiteUrl: string) => {
+    const res = await URLSafetyCheckerFunction(websiteUrl);
+    setUrlSafetyStatus(res);
+    return res;
+  };
   const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setLoading(true);
+    const verificationResponse = await handleUrlVerificationWithDebounce(
+      formData.websiteUrl
+    );
+
     const is_verified = verifyPhoneNumberLength(
       formData.contactNumber?.trim(),
       dropDownSelectedValue
         ? JSON.parse(dropDownSelectedValue as string)?.country_code
         : 'IN'
     );
-    if (!is_verified) {
-      setMobileVerified(false);
-    } else {
-      setMobileVerified(true);
-    }
 
     if (
       is_verified &&
       termsAccepted == 'true' &&
-      isValidEmail(formData?.primaryEmail, hostBlacklistMails)
+      isValidEmail(formData?.primaryEmail, hostBlacklistMails) &&
+      formData.industry.value !== '' &&
+      formData.employeeCount !== '' &&
+      verificationResponse.urlStatus == 'safe' &&
+      !verificationResponse.isError
     ) {
       setLoading(true);
       const data: signUpForm = {
@@ -200,6 +245,8 @@ function SignUp() {
         primaryEmail: formData.primaryEmail,
         termsAccepted: termsAccepted == 'true' ? true : false,
         websiteUrl: formData.websiteUrl,
+        industry: formData?.industry,
+        employeeCount: formData?.employeeCount,
       };
 
       const response = await signUpApiFunction(
@@ -225,6 +272,7 @@ function SignUp() {
       }
     } else {
       setShowErrorPageTwo(true);
+      setLoading(false);
     }
   };
 
@@ -233,12 +281,13 @@ function SignUp() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
   const handelBackPage = () => {
+    setShowErrorPageTwo(false);
     setCurrentPage(1);
   };
 
   const SignUpFormFirstPage = () => {
     return (
-      <div className='grid grid-cols-1 gap-y-5  w-full min-w-full px-5 transition-all duration-100 min-h-[256px]'>
+      <div className='grid grid-cols-1 gap-y-5  w-full min-w-full px-5 transition-all duration-100 min-h-[340px]'>
         <div className='w-full'>
           <Input
             name='organizationName'
@@ -301,23 +350,6 @@ function SignUp() {
             </span>
           )}
         </div>
-      </div>
-    );
-  };
-
-  const SignUpFormSecondPage = () => {
-    return (
-      <div className='flex flex-col gap-y-5 justify-between w-full min-w-full px-5 transition-all duration-100 min-h-[256px]'>
-        <div className='w-full'>
-          <Input
-            name='websiteUrl'
-            className='border border-black/[.65] text-black'
-            labelFieldName='Website URL'
-            type='text'
-            value={formData?.websiteUrl}
-            onChange={(e) => handelInputFieldChange(e)}
-          />
-        </div>
         <div className='w-full'>
           <Input
             type='number'
@@ -333,8 +365,13 @@ function SignUp() {
             )}
             onChange={(e) => handelInputFieldChange(e)}
             showError={
-              (showErrorPageTwo && formData.contactNumber?.trim() == '') ||
-              !mobileVerified
+              showError &&
+              !verifyPhoneNumberLength(
+                formData.contactNumber?.trim(),
+                dropDownSelectedValue
+                  ? JSON.parse(dropDownSelectedValue as string)?.country_code
+                  : 'IN'
+              )
             }
             countryDropDownPosition='bottom'
             dropDownSelectedValue={
@@ -345,15 +382,84 @@ function SignUp() {
             }
             setDropDownSelectedValue={setDropDownSelectedValue}
             errorMessage={
-              showErrorPageTwo && mobileVerified
-                ? formData?.contactNumber?.trim() === ''
-                  ? 'This field is required.'
-                  : ''
-                : !mobileVerified
-                  ? 'Please Enter valid Phone No'
-                  : ''
+              showError &&
+              !verifyPhoneNumberLength(
+                formData.contactNumber?.trim(),
+                dropDownSelectedValue
+                  ? JSON.parse(dropDownSelectedValue as string)?.country_code
+                  : 'IN'
+              )
+                ? 'Please Enter valid Phone No'
+                : ''
             }
             countryOptionsData={countryOptionsDataArray}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const SignUpFormSecondPage = () => {
+    return (
+      <div className='flex flex-col gap-y-5 justify-between w-full min-w-full px-5 transition-all duration-100 min-h-[340px]'>
+        <div className='w-full'>
+          <Input
+            name='websiteUrl'
+            className='border border-black/[.65] text-black'
+            labelFieldName='Website URL'
+            type='text'
+            value={formData?.websiteUrl}
+            onChange={(e) => handelInputFieldChange(e)}
+            showError={showErrorPageTwo && urlSafetyStatus.urlStatus != 'safe'}
+            errorMessage={
+              formData?.websiteUrl.length == 0
+                ? showError
+                  ? 'this is the required field to move further'
+                  : ''
+                : urlSafetyStatus.urlStatus != 'safe'
+                  ? WebsiteUrlSafetyCheckErrorMessages[
+                      urlSafetyStatus.urlStatus
+                    ]
+                  : ''
+            }
+          />
+        </div>
+        <div className='w-full'>
+          <SearchDrop
+            options={industryType}
+            searchKey='value'
+            isRequiredField={true}
+            labelFieldName='Organization Type'
+            selectedValue={formData.industry.value}
+            onSelectValBtn={(data) => handelClickOnSearchDrop(data, 'industry')}
+            position='bottom'
+            emptyDataMessage={'No Option'}
+            showError={showErrorPageTwo}
+            errorMessage={
+              showErrorPageTwo && formData.industry.value?.trim() == ''
+                ? 'this is an required field'
+                : ''
+            }
+          />
+        </div>
+        <div className='w-full'>
+          <SearchDrop
+            options={EmployeeCountArray}
+            searchKey=''
+            isRequiredField={true}
+            labelFieldName='Employee Strength'
+            selectedValue={formData.employeeCount}
+            onSelectValBtn={(data) =>
+              handelClickOnSearchDrop(data, 'employeeCount')
+            }
+            position='bottom'
+            emptyDataMessage={'No Option'}
+            showError={showErrorPageTwo}
+            errorMessage={
+              showErrorPageTwo && formData.employeeCount?.trim() == ''
+                ? 'this is an required field'
+                : ''
+            }
           />
         </div>
         <div className='w-full'>
@@ -448,6 +554,7 @@ function SignUp() {
     loadCountryData();
   }, []);
 
+
   return (
     <>
       <HelmetSeo
@@ -513,7 +620,6 @@ function SignUp() {
                 </div>
                 <div className='w-full'>
                   <div className='w-full flex transition-all'>
-                    {/* First Page */}
                     {currentPage == 1
                       ? SignUpFormFirstPage()
                       : SignUpFormSecondPage()}

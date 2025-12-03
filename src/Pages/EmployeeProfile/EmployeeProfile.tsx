@@ -200,9 +200,7 @@ function EmployeeProfile() {
       ];
       const response = await multiplePostApi(endPointArr);
       const res = response[0];
-      if (res?.success) {
-        callBack(res?.success);
-      }
+      callBack(res?.success);
       handelNotification(res, 'top-right');
     }
   );
@@ -223,7 +221,6 @@ function EmployeeProfile() {
   }, [employee_id, fetchTheUsersProfileInfoWithDebounce]);
 
   const segments = location.pathname.split('/').filter(Boolean);
-
 
   const parentSection = segments[1];
   const childSection = segments[2];
@@ -302,8 +299,6 @@ function EmployeeProfile() {
       link: `/${organization}/employees/employee-profile/${employee_id}/employee-details`,
     },
   ];
-
-
 
   if (
     !permissionData ||

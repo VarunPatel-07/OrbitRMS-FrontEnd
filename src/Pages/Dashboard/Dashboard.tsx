@@ -100,7 +100,7 @@ function Dashboard() {
   const deletePostWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
       {
-        endPoint: `feed/delete-post?id=${deletePostId}`,
+        endPoint: `admin/organization-updates/delete-post?id=${deletePostId}`,
         protected: true,
       },
     ];
