@@ -1,1 +1,34 @@
 /// <reference types="vite/client" />
+interface ImportMetaEnv {
+  readonly VITE_BACKEND_API_BASEURL: string;
+  readonly VITE_GOOGLE_SAFE_BROWSING_CHECKER_API_KEY: string;
+  readonly VITE_ENCRYPTION_KEY: string;
+  readonly VITE_ENVIRONMENT: string;
+  readonly META_AUTHENTICATION_BASE_URL: string;
+  readonly TWITTER_AUTHENTICATION_BASE_URL: string;
+  readonly VITE_LOCATION_FETCHING_API_IP_INFO: string;
+  readonly VITE_LOCATION_FETCHING_API_IPAPI: string;
+  readonly VITE_FRONT_END_PORTAL_BASE_URL: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+declare module '*.svg' {
+  import * as React from 'react';
+  export const ReactComponent: React.FC<React.SVGProps<SVGSVGElement>>;
+  const src: string;
+  export default src;
+}
+
+declare module '*.webp' {
+  const src: string;
+  export default src;
+}
+// vite-env.d.ts
+declare module '*?worker' {
+  const WorkerConstructor: {
+    new (): Worker;
+  };
+  export default WorkerConstructor;
+}

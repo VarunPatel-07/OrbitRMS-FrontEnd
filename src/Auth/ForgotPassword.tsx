@@ -1,73 +1,107 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "./auth.css";
-import HelmetSeo from "../Helper/HelmetSeo";
-import React, { useEffect, useState } from "react";
-import { verifyUsersLoginStatus } from "../Helper/api/api";
-import signInGradientBgImage from "../assets/Images/gradient-bg.png";
-import signIn3dImage from "../assets/Images/sign-in-page-3d-image.webp";
-import orbitLogo from "../assets/Images/OrbitRMS-White-Transperent-Logo.png";
-import Input from "../common/Input";
-import Button from "../common/Button";
-import MainSuspenseLoader from "../Components/Loader/MainSuspenseLoader";
-import { Link } from "react-router-dom";
-import { LiaKeySolid } from "react-icons/lia";
-import { BsArrowLeft } from "react-icons/bs";
-import Loader from "../common/Loader";
-import AlertModal from "../common/AlertModal";
-import { ModalInfoType } from "../interface/propsInterface";
-import { IoMdRefresh } from "react-icons/io";
-import { isValidEmail } from "../Helper/HelperFunctions";
+import './auth.css';
+
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { BsArrowLeft } from 'react-icons/bs';
+import { IoMdRefresh } from 'react-icons/io';
+import { LiaKeySolid } from 'react-icons/lia';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+
+import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
+import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
+import AlertModal from '../common/AlertModal';
+import Button from '../common/Button';
+import Input from '../common/Input';
+import Loader from '../common/Loader';
+import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
+import { PASSWORD_RESET_KEY } from '../constant/constant';
+import { MetaTitleDescription } from '../constant/MetaTitleDescription';
+import {
+  NotificationContext,
+  NotificationContextApiProps,
+} from '../Context/Notification/NotificationContextApi';
+import { verifyUsersLoginStatus } from '../Helper/api/api';
+import { endpointObject, multiplePostApi } from '../Helper/api/multipleAPI';
+import HelmetSeo from '../Helper/HelmetSeo';
+import {
+  getDataFromLocalStorage,
+  isValidEmail,
+  MaxLimitCountDownTimeFormatter,
+  removeDataFromLocalStorage,
+  storeDataInLocalStorage,
+} from '../Helper/HelperFunctions';
+import { useDebounce } from '../Hooks/useDebounce';
+import { ModalInfoType } from '../interface/propsInterface';
 
 const initialModalInfo = {
   success: false,
   protected: false,
-  alertModalTitle: "",
-  alertModelInfo: "",
+  alertModalTitle: '',
+  alertModelInfo: '',
   optionsButtonArray: [],
 };
 
+const AuthLottieAnimation = React.lazy(
+  () => import('../Components/Animation/AuthLottieAnimation')
+);
+
 function ForgotPassword() {
+  const { handelNotification } = useContext(
+    NotificationContext
+  ) as NotificationContextApiProps;
+
+  const navigate = useNavigate();
+  const [queryParameter] = useSearchParams();
+
+  const useEffectRef = useRef(false);
+
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [showGlobalLoader, setShowGlobalLoader] = useState(true as boolean);
   const [loading, setLoading] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>("");
+  const [email, setEmail] = useState<string>('');
   const [showAlertModal, setShowAlertModal] = useState<boolean>(false);
   const [modalInfo, setModalInfo] = useState<ModalInfoType>(initialModalInfo);
   const [showError, setShowError] = useState<boolean>(false);
-
+  const [countDown, setCountDown] = useState<number>();
+  const [expiryTimeUTCString, setExpiryTimeUTCString] = useState<string>('');
   const tryAgainFunction = () => {
     setShowAlertModal(false);
     setTimeout(() => setModalInfo(initialModalInfo), 350);
-    setEmail("");
+    setEmail('');
   };
 
   const errorAlertModalButtonArray = [
     {
-      buttonTitle: "Contact Support",
+      buttonTitle: 'Contact Support',
       showButton: true,
-      link: "support",
-      classNames: "text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-sm font-medium",
+      link: 'support',
+      classNames:
+        'text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-sm font-medium',
     },
     {
-      buttonTitle: "Try a Different Email",
+      buttonTitle: 'Try a Different Email',
       showButton: true,
-      classNames: "font-medium font-inter cursor-pointer text-sm text-black/[0.65]",
-      icon: <IoMdRefresh className="w-5 h-5" />,
+      classNames:
+        'font-medium font-inter cursor-pointer text-sm text-black/[0.65]',
+      icon: <IoMdRefresh className='w-5 h-5' />,
       onclickFunction: () => tryAgainFunction(),
     },
   ];
 
   const successAlertModalButtonArray = [
     {
-      buttonTitle: "Contact Support",
+      buttonTitle: 'Contact Support',
       showButton: true,
-      classNames: "text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-sm font-medium",
+      classNames:
+        'text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-sm font-medium',
     },
     {
-      buttonTitle: "Back To Sign In",
+      buttonTitle: 'Back To Sign In',
       showButton: true,
-      link: "/auth/sign-in",
-      classNames: "font-medium font-inter cursor-pointer text-sm text-black/[0.65]",
-      icon: <BsArrowLeft className="w-5 h-5" />,
+      link: '/auth/sign-in',
+      classNames:
+        'font-medium font-inter cursor-pointer text-sm text-black/[0.65]',
+      icon: <BsArrowLeft className='w-5 h-5' />,
     },
   ];
 
@@ -76,7 +110,7 @@ function ForgotPassword() {
       setModalInfo({
         success: false,
         protected: true,
-        alertModalTitle: "Oops! We Couldn’t Find Your Email",
+        alertModalTitle: 'Oops! We Couldn’t Find Your Email',
         alertModelInfo: `We couldn’t find an account associated with the email <a href="mailto:${email}" class="text-blue-600 font-medium underline cursor-pointer">${email}</a>. Double-check for typos or try another email.`,
         optionsButtonArray: errorAlertModalButtonArray,
       });
@@ -86,109 +120,209 @@ function ForgotPassword() {
     setModalInfo({
       success: true,
       protected: true,
-      alertModalTitle: "You’re One Step Away from Resetting Your Password!",
+      alertModalTitle: 'You’re One Step Away from Resetting Your Password!',
       alertModelInfo: `We’ve just sent a password reset email to <a href="mailto:${email}" class="text-blue-600 font-medium underline cursor-pointer">${email}</a>. Follow the steps inside to regain access. 🚀 Check your spam folder if it doesn’t show up. 🔍`,
       optionsButtonArray: successAlertModalButtonArray,
     });
     setShowAlertModal(true);
   };
 
+  const handelFormSubmitWithDebounce = useDebounce(async () => {
+    const endPointArr: endpointObject[] = [
+      {
+        endPoint: 'auth/password-reset/request',
+        protected: false,
+        data: {
+          email,
+        },
+      },
+    ];
+    const response = await multiplePostApi(endPointArr);
+    const res = response[0];
+
+    if (res?.success) {
+      navigate(`/auth/forgot-password?success=true&email=${email}`);
+      alertModalStateHandlerFunction(res?.success);
+    } else {
+      alertModalStateHandlerFunction(res?.success);
+      if (res?.data?.expiry_time) {
+        setExpiryTimeUTCString(res?.data?.expiry_time);
+        storeDataInLocalStorage(res?.data?.expiry_time, PASSWORD_RESET_KEY);
+      }
+    }
+    setLoading(false);
+  }, 100);
+
   const submitForgotPasswordHandler = async () => {
-    // todo we will not hard cord the value it will totally depend to the api response
     if (email.trim().length < 1 && !isValidEmail(email)) {
       setShowError(true);
       return;
     }
     setLoading(true);
     setShowError(false);
-    try {
-      alertModalStateHandlerFunction(false);
-    } catch {
-      alertModalStateHandlerFunction(false);
-    } finally {
-      setLoading(false);
-    }
+    handelFormSubmitWithDebounce();
   };
+
+  const handelCountDownFunction = (utcString: string) => {
+    if (intervalRef?.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    intervalRef.current = setInterval(() => {
+      const expiryDate = new Date(utcString);
+      const currentDate = new Date();
+      const difference = expiryDate.getTime() - currentDate.getTime();
+      if (difference <= 0) {
+        setCountDown(0);
+        removeDataFromLocalStorage(PASSWORD_RESET_KEY);
+        clearInterval(intervalRef.current!);
+        intervalRef.current = null;
+      } else {
+        setCountDown(difference);
+      }
+    }, 1000);
+  };
+
   useEffect(() => {
-    verifyUsersLoginStatus(setShowGlobalLoader);
+    const filterQuery = queryParameter.get('success');
+    const queryEmail = queryParameter.get('email');
+    if (filterQuery && queryEmail) {
+      setModalInfo({
+        success: true,
+        protected: true,
+        alertModalTitle: 'You’re One Step Away from Resetting Your Password!',
+        alertModelInfo: `We’ve just sent a password reset email to <a href="mailto:${queryEmail}" class="text-blue-600 font-medium underline cursor-pointer">${queryEmail}</a>. Follow the steps inside to regain access. 🚀 Check your spam folder if it doesn’t show up. 🔍`,
+        optionsButtonArray: successAlertModalButtonArray,
+      });
+      setShowAlertModal(true);
+    }
+    if (useEffectRef.current) return;
+    useEffectRef.current = true;
+    (async () => {
+      const response = await verifyUsersLoginStatus();
+      if (!response) return;
+      if (!response?.success) {
+        handelNotification(response, 'top-right');
+        setShowGlobalLoader(false);
+        removeDataFromLocalStorage('authenticationToken');
+        removeDataFromLocalStorage('organization-info');
+      } else {
+        setShowGlobalLoader(false);
+      }
+    })();
   }, []);
+
+  useEffect(() => {
+    const localData = getDataFromLocalStorage(PASSWORD_RESET_KEY);
+
+    const data = localData || expiryTimeUTCString;
+
+    if (data) {
+      handelCountDownFunction(data);
+    }
+  }, [expiryTimeUTCString]);
+
   return (
     <>
       <HelmetSeo
-        Title="Forgot Password | OrbitRMS"
-        Content="Reset your password for OrbitRMS. Simplify your work and regain access to manage everything in one place effortlessly!"
+        Title={MetaTitleDescription.forgotPassword.title}
+        Content={MetaTitleDescription.forgotPassword.description}
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
-        <div className="h-screen w-screen bg-[var(--them-pink-color)]">
-          <div className="w-full h-full flex items-stretch justify-start relative">
-            <img src={signInGradientBgImage} className="w-2/3 h-full absolute top-0 left-0" />
+        <div className='h-screen w-screen bg-[var(--them-pink-color)] overflow-hidden'>
+          <div className='w-full h-full flex items-stretch justify-start relative'>
             <img
-              src={signIn3dImage}
-              className="w-[43%] absolute bottom-0 left-[20px] lg:left-[8%] z-20 hidden md:block"
-              alt=""
+              src={signInGradientBgImage}
+              className='w-2/3 h-full absolute top-0 z-10 left-0'
             />
-            <div className="w-1/3 relative hidden md:block">
-              <div className="w-full h-full p-7">
-                <div>
-                  <img src={orbitLogo} className="max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]" alt="" />
+
+            {/* Auth Lottie Animation  */}
+            <AuthLottieAnimation />
+
+            <div className='w-1/3 relative z-20 hidden md:block'>
+              <div className='w-full h-full p-7 relative z-20'>
+                <div className='w-full'>
+                  <img
+                    src={orbitLogo}
+                    className='max-w-[250px] h-fit max-h-[55px] lg:max-h-[75px]'
+                    alt=''
+                  />
                 </div>
-                <div className="pt-7 ">
-                  <h1 className="font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5">
+                <div className='pt-7 '>
+                  <h1 className='font-syne text-base lg:text-xl text-white font-extrabold text-balance pl-0.5'>
                     OrbitRMS: Simplify, Streamline, Succeed.
                   </h1>
                 </div>
               </div>
             </div>
-            <div className="rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10">
-              <div className="login-form w-full h-full relative z-20 flex items-center justify-center">
-                <div className="flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0">
-                  <div className="w-full flex flex-col items-center justify-center gap-7">
-                    <div className="border border-black/[0.5] text-black rounded-lg p-3">
-                      <LiaKeySolid className="w-8 h-8" />
+            <div className='rounded-none z-20 w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative'>
+              <div className='login-form w-full h-full relative z-20 flex items-center justify-center'>
+                <div className='flex flex-col gap-8 sm:gap-10 items-start justify-start w-full max-w-[400px] p-4 md:p-0'>
+                  <div className='w-full flex flex-col items-center justify-center gap-7'>
+                    <div className='border border-black/[0.5] text-black rounded-lg p-3'>
+                      <LiaKeySolid className='w-8 h-8' />
                     </div>
-                    <div className="w-full flex flex-col items-center justify-center gap-2">
-                      <h1 className="font-inter text-2xl md:text-3xl text-center font-bold text-black">
+                    <div className='w-full flex flex-col items-center justify-center gap-2'>
+                      <h1 className='font-inter text-2xl md:text-3xl text-center font-bold text-black'>
                         Forgot your password?
                       </h1>
-                      <p className="text-black text-sm text-center font-light font-inter">
-                        Enter your email, and we’ll send you a reset link!{" "}
+                      <p className='text-black text-sm text-center font-light font-inter'>
+                        Enter your email, and we’ll send you a reset link!{' '}
                       </p>
                     </div>
                   </div>
-                  <div className="w-full">
+                  <div className='w-full'>
                     <Input
-                      name="organizationEmail"
-                      className="border border-black/[.65] text-black"
-                      labelFieldName="Organization Email"
+                      name='organizationEmail'
+                      className='border border-black/[.65] text-black'
+                      labelFieldName='Organization Email'
                       isRequiredField={true}
                       value={email}
-                      type="email"
+                      type='email'
                       setValue={setEmail}
                       showError={showError}
                       errorMessage={
                         showError && email.trim().length < 1
-                          ? "this is a required field"
+                          ? 'this is a required field'
                           : !isValidEmail(email)
-                          ? "please enter a valid email address."
-                          : ""
+                            ? 'please enter a valid email address.'
+                            : ''
                       }
+                      disabled={countDown ? true : false}
                     />
+                    {countDown ? (
+                      <p className='text-red-600 flex items-center gap-1 justify-end text-sm mt-1'>
+                        <span className='inline-block'>Try Again After:</span>
+                        <span className='inline-block'>
+                          {MaxLimitCountDownTimeFormatter(countDown)}
+                        </span>
+                      </p>
+                    ) : (
+                      ''
+                    )}
                   </div>
-                  <div className="w-full grid grid-cols-1 gap-y-8">
+
+                  <div className='w-full grid grid-cols-1 gap-y-8'>
                     <Button
-                      Type="button"
-                      className="bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all"
-                      disabled={loading}
-                      onClick={submitForgotPasswordHandler}>
-                      {loading ? <Loader loaderText="Submitting..." /> : <span>Submit</span>}
+                      type='button'
+                      className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all'
+                      disabled={loading || countDown ? true : false}
+                      onClick={submitForgotPasswordHandler}
+                    >
+                      {loading ? (
+                        <Loader loaderText='Submitting...' />
+                      ) : (
+                        <span>Submit</span>
+                      )}
                     </Button>
                     <Link
-                      to={"/auth/sign-in"}
-                      className="font-medium text-[var(--them-orange-color)] cursor-pointer text-sm">
-                      <span className="flex items-center text-black/[0.65] justify-center gap-2">
-                        <BsArrowLeft className="w-5 h-5" />
+                      to={'/auth/sign-in'}
+                      className='font-medium text-[var(--them-orange-color)] cursor-pointer text-sm'
+                    >
+                      <span className='flex items-center text-black/[0.65] justify-center gap-2'>
+                        <BsArrowLeft className='w-5 h-5' />
                         <span>Back To Sign In</span>
                       </span>
                     </Link>
@@ -200,7 +334,11 @@ function ForgotPassword() {
         </div>
       )}
 
-      <AlertModal ModalInfo={modalInfo} showAlertModal={showAlertModal} setShowAlertModal={setShowAlertModal} />
+      <AlertModal
+        ModalInfo={modalInfo}
+        showAlertModal={showAlertModal}
+        setShowAlertModal={setShowAlertModal}
+      />
     </>
   );
 }
