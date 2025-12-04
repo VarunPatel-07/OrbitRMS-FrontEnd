@@ -15,47 +15,63 @@ function Breadcrumbs({
     <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
       <div className='w-full bg-white py-2 px-3 absolute z-10 border-b border-b-black/20'>
         <div className='w-full flex items-center gap-2'>
-          {BreadcrumbsNavigationFlow.map((item, index) => (
-            <div
-              key={index}
-              className='text-base flex items-center justify-start gap-2'
-            >
-              {['dashboard', 'home'].includes(item.name.toLocaleLowerCase()) ? (
-                <Link to={item.link} className='text-black'>
-                  <FaHome />
-                </Link>
-              ) : navigation.pathname == item.link ? (
-                <span className='text-blue-700 font-medium cursor-default inline-block text-sm'>
-                  {item.name ? (
-                    item?.name
-                  ) : (
-                    <Skeleton
-                      width={100}
-                      height={18}
-                      className='inline-block'
-                    />
-                  )}
-                </span>
-              ) : (
-                <Link to={item.link} className='text-black font-medium text-sm'>
-                  {item.name ? (
-                    item?.name
-                  ) : (
-                    <Skeleton
-                      width={100}
-                      height={18}
-                      className='inline-block'
-                    />
-                  )}
-                </Link>
-              )}
-              {BreadcrumbsNavigationFlow.length !== index + 1 && (
-                <span className='text-black'>
-                  <GoChevronRight />
-                </span>
-              )}
-            </div>
-          ))}
+          {BreadcrumbsNavigationFlow.map((item, index) => {
+            const isLast = BreadcrumbsNavigationFlow.length === index + 1;
+            const isActive = (link: string) => {
+              const currentURL = navigation.pathname + navigation.search;
+              if (navigation.search) {
+                return currentURL === link;
+              }
+              return navigation.pathname.includes(link) && isLast;
+            };
+
+            return (
+              <div
+                key={index}
+                className='text-base flex items-center justify-start gap-2'
+              >
+                {['dashboard', 'home'].includes(
+                  item?.name?.toLocaleLowerCase()
+                ) ? (
+                  <Link to={item.link} className='text-black'>
+                    <FaHome />
+                  </Link>
+                ) : isActive(item.link) ? (
+                  <span className='text-blue-700 font-medium cursor-default inline-block text-sm'>
+                    {item.name ? (
+                      item?.name
+                    ) : (
+                      <Skeleton
+                        width={100}
+                        height={18}
+                        className='inline-block'
+                      />
+                    )}
+                  </span>
+                ) : (
+                  <Link
+                    to={item.link}
+                    className='text-black font-medium text-sm'
+                  >
+                    {item.name ? (
+                      item?.name
+                    ) : (
+                      <Skeleton
+                        width={100}
+                        height={18}
+                        className='inline-block'
+                      />
+                    )}
+                  </Link>
+                )}
+                {BreadcrumbsNavigationFlow.length !== index + 1 && (
+                  <span className='text-black'>
+                    <GoChevronRight />
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </SkeletonTheme>

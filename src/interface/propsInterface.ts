@@ -1,4 +1,4 @@
-import React, { SetStateAction } from 'react';
+import React, { HTMLAttributes, RefObject, SetStateAction } from 'react';
 import { Editor } from '@tiptap/react';
 
 import { countryObject } from '../Helper/countryDataHelper';
@@ -35,6 +35,29 @@ export interface InputProps {
   disabled?: boolean;
   countryDropDownMaxHeight?: number;
   countryOptionsData?: Array<countryObject>;
+  InfoIconContent?: string;
+  InfoIconToolTipPlace?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
+}
+
+export interface ImageCommonComponent extends HTMLAttributes<HTMLImageElement> {
+  src: string;
+  loading?: 'eager' | 'lazy';
+  height?: number;
+  width?: number;
+  className?: string;
+  alt: string;
 }
 
 export interface DragDropUploaderProps {
@@ -46,6 +69,7 @@ export interface DragDropUploaderProps {
   maxCropHeight: number;
   maxCropWidth: number;
   setImageUrl: (url: string) => void;
+  disabled: boolean;
 }
 
 export interface MultipleImageUploaderPropsInterface {
@@ -62,6 +86,9 @@ export interface MultipleImageUploaderPropsInterface {
   asPlusIcon?: boolean;
   disabled?: boolean;
   remainingImages?: number;
+  showError?: boolean;
+  errorMessage?: string;
+  maxSize?: number;
 }
 
 export interface commonDatePickerProps {
@@ -87,6 +114,7 @@ export interface commonDatePickerProps {
   showError?: boolean;
   errorMessage?: string;
   year?: number;
+  disabled?: boolean;
 }
 
 export interface TextAreaProps {
@@ -101,6 +129,7 @@ export interface TextAreaProps {
   isRequiredField?: boolean;
   showError?: boolean;
   errorMessage?: string;
+  disabled?: boolean;
 }
 
 export interface RichTextEditorApiCallIngReturnInterface {
@@ -132,13 +161,16 @@ export interface RichTextEditorInterface {
   isRequiredField?: boolean;
   showError?: boolean;
   errorMessage?: string;
-  handelApiCallingFunction: (
+  handelApiCallingFunction?: (
     query: string
   ) => Promise<RichTextEditorApiCallIngReturnInterface[]>;
   GlobalStateProvider: GlobalContextStore;
   handelOnUpdateFunction: (data: string) => void;
   onEditorReady?: (editor: Editor) => void;
   feedContent: string;
+  classNames?: string;
+  height?: number;
+  showMenuBar?: boolean;
 }
 
 export interface SearchDropProps {
@@ -146,9 +178,9 @@ export interface SearchDropProps {
   className?: string;
   labelFieldName?: string;
   isRequiredField?: boolean;
-  selectedValue?: string;
+  selectedValue?: string | string[];
   setSelectedValue?: React.Dispatch<SetStateAction<string>>;
-  onSelectValBtn?: (data: string | object) => void;
+  onSelectValBtn?: (data: string | object, index?: number) => void;
   placeHolderName?: string;
   options: Array<string | object>;
   searchKey: string;
@@ -158,6 +190,8 @@ export interface SearchDropProps {
   showSearchBar?: boolean;
   showError?: boolean;
   errorMessage?: string;
+  disabled?: boolean;
+  type?: 'select' | 'multi-select';
 }
 
 export interface Column {
@@ -208,6 +242,7 @@ export interface AlertModalProps {
   ModalInfo: ModalInfoType;
   showAlertModal: boolean;
   setShowAlertModal: React.Dispatch<SetStateAction<boolean>>;
+  loader?: boolean;
 }
 
 export interface TableInfoHeaderInterfaceButtonArrayObject {
@@ -223,6 +258,8 @@ export interface TableInfoHeaderInterface {
   renderDateSelector?: boolean;
   year?: number;
   handelYearButton?: (type: 'increment' | 'decrement') => void;
+  loading?: boolean;
+  renderElement?: React.ReactElement;
 }
 
 export interface ClonedRolePermissionInterface {
@@ -261,4 +298,93 @@ export interface MetaDataInterface {
   total_pages: number;
   current_page: number;
   record_per_page: number;
+}
+
+export interface ModuleValueInterface {
+  label: string;
+  value: string;
+  type: string;
+}
+
+export interface FilterObjectInterface {
+  id: string;
+  moduleValue: ModuleValueInterface[];
+  optionType?: 'text' | 'select' | 'multi-select' | 'date';
+}
+
+export interface handleMultiInputChangeInterface {
+  filterObject: FilterObjectInterface[];
+  selectedFilterObject: FilterObjectInterface[];
+  inputFieldRef: RefObject<HTMLInputElement>;
+  inputValue: string;
+  setInputValue: React.Dispatch<SetStateAction<string>>;
+  setShowFilterDropDownMenu: React.Dispatch<SetStateAction<boolean>>;
+  optionType: 'text' | 'select' | 'multi-select' | 'date' | undefined;
+  searchInputValue: string;
+  setSearchInputValue: React.Dispatch<SetStateAction<string>>;
+}
+
+export interface FiltersOptionsDropdownInterface {
+  showCurrentOptionDropdown: boolean;
+  filterColumnsArray: SearchBarFilterOptionsInterface[];
+  currentFilterId: string;
+  filterObject: FilterObjectInterface[];
+  setShowCurrentOperatorDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowCurrentOptionDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  updateFilterObject: (
+    newItem: ModuleValueInterface,
+    id: string,
+    callback?: (updatedArray: FilterObjectInterface[]) => void
+  ) => void;
+  setFilterObject: React.Dispatch<
+    React.SetStateAction<FilterObjectInterface[]>
+  >;
+  updateFinalFilterQuery: (newData: FilterObjectInterface[]) => void;
+  setInputValue: React.Dispatch<React.SetStateAction<string>>;
+  showFilterDropDownMenu: boolean;
+  searchInputValue: string;
+  enterClickHandler: () => void;
+}
+
+export interface FilterInputMainFilterDropdownInterface {
+  showFilterDropDownMenu: boolean;
+  currentFilterId: string;
+  filterColumnsArray: SearchBarFilterOptionsInterface[];
+  selectedFilterObject: FilterObjectInterface[];
+  setShowFilterDropDownMenu: React.Dispatch<SetStateAction<boolean>>;
+  setCurrentFilterId: React.Dispatch<SetStateAction<string>>;
+  setFilterObject: React.Dispatch<SetStateAction<FilterObjectInterface[]>>;
+  setShowCurrentOperatorDropdown: React.Dispatch<SetStateAction<boolean>>;
+}
+
+export interface FiltersOperatorDropdownInterface {
+  showCurrentOperatorDropdown: boolean;
+  filterColumnsArray: SearchBarFilterOptionsInterface[];
+  currentFilterId: string;
+  updateFilterObject: (
+    newItem: ModuleValueInterface,
+    id: string,
+    callback?: (updatedArray: FilterObjectInterface[]) => void
+  ) => void;
+  setShowCurrentOperatorDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowCurrentOptionDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  handelInputFieldFocus: () => void;
+  showFilterDropDownMenu: boolean;
+}
+
+export interface FilterInputDateSelectorInterface {
+  showCurrentOptionDropdown: boolean;
+  setShowCurrentOptionDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  currentFilterId: string;
+  filterObject: FilterObjectInterface[];
+  setFilterObject: React.Dispatch<
+    React.SetStateAction<FilterObjectInterface[]>
+  >;
+  updateFilterObject: (
+    newItem: ModuleValueInterface,
+    id: string,
+    callback?: (updatedArray: FilterObjectInterface[]) => void
+  ) => void;
+  updateFinalFilterQuery: (newData: FilterObjectInterface[]) => void;
+  setInputValue: React.Dispatch<React.SetStateAction<string>>;
 }

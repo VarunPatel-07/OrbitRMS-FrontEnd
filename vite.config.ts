@@ -1,7 +1,9 @@
 import react from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
+
 import eslint from 'vite-plugin-eslint';
 import svgr from 'vite-plugin-svgr';
 
@@ -13,6 +15,12 @@ export default defineConfig({
       fix: true,
       failOnWarning: false,
       failOnError: true,
+    }),
+    visualizer({
+      open: true,
+      filename: 'stats.html',
+      gzipSize: true,
+      brotliSize: true,
     }),
   ],
   assetsInclude: ['**/*.lottie'],
@@ -38,8 +46,8 @@ export default defineConfig({
             '@tiptap/starter-kit',
             '@tiptap/suggestion',
           ],
-
-          lodash: ['lodash'],
+          reactDatePicker: ['react-datepicker'],
+          EmojiPickerReact: ['emoji-picker-react'],
         },
       },
     },

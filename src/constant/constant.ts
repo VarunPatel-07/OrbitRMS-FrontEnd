@@ -1,3 +1,5 @@
+import { MetaDataInterface } from '../interface/propsInterface';
+
 export const getEnterAnimationClass = {
   'top-right': 'animate-enter-top-right',
   'top-left': 'animate-enter-top-left',
@@ -59,6 +61,13 @@ export const OrganizationEmployeeStatusArray = [
   'Confirmed',
 ];
 
+export const SocialMediaPostStatusArray = [
+  'queued',
+  'scheduled',
+  'posted',
+  'cancelled',
+];
+
 export const employeeTypesArray = [
   'Technical',
   'Support',
@@ -75,8 +84,57 @@ export const unauthorizedStatusCodes = [
   407, // Proxy Authentication Required (rare, but still access-related)
 ];
 
+export const MaintenanceModeIsActiveStatusCode = [503];
+
 export const NotAllowedObjectField = ['client_inquire_id', 'id'];
 
 export const PASSWORD_RESET_KEY = 'expiry_time';
 
 export const MAX_SIGN_IN_ATTEMPT = 'sign_in_attempt';
+
+export const MAINTENANCE_MODE_LOCAL_STORAGE_KEY = 'MAINTENANCE_MODE';
+
+export const defaultCountryInfo = {
+  country_code: 'IN',
+  country_flag: '🇮🇳',
+  country_name: 'India',
+  country_number_code: '+91',
+};
+
+export const initialMetadata: MetaDataInterface = {
+  total_data: 0,
+  total_pages: 1,
+  current_page: 1,
+  record_per_page: 10,
+};
+
+export const EmployeeCountArray = [
+  'Less than 10',
+  '10 - 20',
+  '21 - 30',
+  '31 - 40',
+  '41 - 50',
+  '51 - 60',
+  '61 - 70',
+  '71 - 80',
+  '81 - 90',
+  '91 - 100',
+  'More than 100',
+];
+
+export const industryType: { label: string; value: string }[] = [
+  { label: 'software_company', value: 'Software Company' },
+  { label: 'consultancy_firm', value: 'Consultancy Firm' },
+  { label: 'media_agency', value: 'Media Agency' },
+  {
+    label: 'architecture_interior_design_studio',
+    value: 'Architecture & Interior Design Studio',
+  },
+  { label: 'marketing_agency', value: 'Marketing Agency' },
+];
+
+export const WebsiteUrlSafetyCheckErrorMessages: { [key: string]: string } = {
+  invalid: 'The URL format is invalid. Please enter a valid website URL.',
+  unsafe: 'This URL is marked as unsafe. Please check your website security.',
+  error: 'An error occurred while verifying the URL. Try again later.',
+};

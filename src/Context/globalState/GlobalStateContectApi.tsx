@@ -95,6 +95,7 @@ const initialState: GlobalContextStore = {
     created_at: '',
     updated_at: '',
   },
+  roles_permissions: { id: '', role_name: '', permissions: [] },
 };
 
 export interface GlobalStateContextApiProps {

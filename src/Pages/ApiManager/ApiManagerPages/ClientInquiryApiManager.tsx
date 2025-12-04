@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { AiOutlineRedo } from 'react-icons/ai';
 import { FaEye, FaEyeSlash, FaStarOfLife } from 'react-icons/fa';
-import { MdContentCopy, MdDelete, MdEdit } from 'react-icons/md';
+import { MdContentCopy } from 'react-icons/md';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 import Breadcrumbs from '../../../common/Breadcrumbs';
-import Input from '../../../common/Input';
 import Loader from '../../../common/Loader';
 import {
   GlobalStateContext,
@@ -20,12 +19,11 @@ import {
   multipleFetchApi,
   multiplePutApi,
 } from '../../../Helper/api/multipleAPI';
-import {
-  CompareTwoArrayOfString,
-  getDataFromLocalStorage,
-} from '../../../Helper/HelperFunctions';
+import { getDataFromLocalStorage } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
 import { ClientInquiry } from '../../../interface/ClientInquiryInterFace';
+import HelmetSeo from '../../../Helper/HelmetSeo';
+import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
 
 function ClientInquiryApiManager() {
   const { GlobalStateProvider } = useContext(
@@ -52,19 +50,6 @@ function ClientInquiryApiManager() {
     api_key: boolean;
     api_secrete: boolean;
   }>({ api_key: false, api_secrete: false });
-
-  const [isReceiveEmail, setIsReceiveEmail] = useState<boolean>(false);
-  const [receivingAuthorityMail, setReceivingAuthorityMail] = useState<
-    Array<string>
-  >(['']);
-  const [dummyReceivingAuthorityMail, setDummyReceivingAuthorityMail] =
-    useState<Array<string>>(['']);
-  const [receivingEmailLoader, setReceivingEmailLoader] =
-    useState<boolean>(false);
-  const [
-    saveReceivingAuthorityMailLoader,
-    setSaveReceivingAuthorityMailLoader,
-  ] = useState<boolean>(false);
 
   const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
@@ -99,14 +84,6 @@ function ClientInquiryApiManager() {
     const res = response[0];
     if (res?.success) {
       setFormData(res?.data);
-      setIsReceiveEmail(res?.data?.email_notification);
-      if (res?.data?.authorized_recipient_emails?.length >= 1) {
-        setReceivingAuthorityMail(res?.data?.authorized_recipient_emails);
-        setDummyReceivingAuthorityMail(res?.data?.authorized_recipient_emails);
-      } else {
-        setReceivingAuthorityMail(['']);
-        setDummyReceivingAuthorityMail(['']);
-      }
 
       setLoading(false);
     } else {
@@ -165,52 +142,8 @@ function ClientInquiryApiManager() {
     handelReGenerateApiCredentialWithDebounce(id, field_name);
   };
 
-  const handelEnableMailNotificationWithDebounce = useDebounce(
-    async (id: string) => {
-      const endpointArr: endpointObject[] = [
-        {
-          endPoint: `api-manager/client-inquiry/enable-mail-notification?id=${id}`,
-          protected: true,
-        },
-      ];
-      const response = await multiplePutApi(endpointArr);
-      const res = response[0];
-      if (res?.success) {
-        setReceivingEmailLoader(false);
-        setIsReceiveEmail(res?.data?.email_notification);
-      }
-    },
-    1000
-  );
-
-  const handelEnableMailNotification = (id: string) => {
-    setReceivingEmailLoader(true);
-    handelEnableMailNotificationWithDebounce(id);
-  };
-
-  const handelOnEditButton = () => {
-    setReceivingAuthorityMail((perValue) => {
-      if (perValue.every((item) => item?.trim() !== '')) {
-        return [...perValue, ''];
-      } else return [...perValue];
-    });
-  };
-  const handelInputFieldOnChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    setReceivingAuthorityMail((perValue) =>
-      perValue?.map((item, i) => (i === index ? e.target.value : item))
-    );
-  };
-  const handelDeleteButton = (index: number) => {
-    const dummyArray = [...receivingAuthorityMail];
-    const finalArray = dummyArray.filter((_, i) => i !== index);
-    setReceivingAuthorityMail(finalArray);
-  };
-
   const handelClickOnCopyButton = () => {
-    const metaUrl = `${BACKEND_API_BASEURL}/app/v1/app/v1/client-inquires/submit?api_key=YOUR_API_KEY&api_secret=YOUR_API_SECRET`;
+    const metaUrl = `${BACKEND_API_BASEURL}/app/v1/app/v1/client-inquires/submit?api_key=YOUR_API_KEY&api_secret=YOUR_API_SECRET&form_id=YOUR_FORM_ID`;
     window.navigator.clipboard
       .writeText(metaUrl)
       .then(() => {
@@ -221,54 +154,17 @@ function ClientInquiryApiManager() {
         console.error('Failed to copy');
       });
   };
-
-  const handelAddRecipientEmailWithDebounce = useDebounce(
-    async (id: string) => {
-      const endpointArr: endpointObject[] = [
-        {
-          endPoint: `api-manager/client-inquiry/add-authorized-recipient?id=${id}`,
-          protected: true,
-          data: { authorized_recipient: receivingAuthorityMail },
-        },
-      ];
-      const response = await multiplePutApi(endpointArr);
-      const res = response[0];
-      if (res?.success) {
-        setSaveReceivingAuthorityMailLoader(false);
-        setReceivingAuthorityMail(res?.data?.authorized_recipient_email);
-        setDummyReceivingAuthorityMail(res?.data?.authorized_recipient_email);
-      }
-    }
-  );
-  const handelClickOnSaveButton = () => {
-    const isValid = CompareTwoArrayOfString(
-      receivingAuthorityMail,
-      dummyReceivingAuthorityMail
-    );
-    if (!isValid && formData?.id) {
-      setSaveReceivingAuthorityMailLoader(true);
-      handelAddRecipientEmailWithDebounce(formData?.id);
-    }
+  const handleClickOnCopyBtn = (text: string, message: string) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        const data = { success: true, message: message };
+        handelNotification(data, 'center');
+      })
+      .catch(() => {
+        console.error('Failed to copy');
+      });
   };
-
-  const handelResetReceivingAuthorityMail = () => {
-    setReceivingAuthorityMail(dummyReceivingAuthorityMail);
-  };
-
-  useEffect(() => {
-    const handelKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        if (formData?.id) handelClickOnSaveButton();
-      }
-    };
-
-    window.addEventListener('keydown', handelKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handelKeyDown);
-    };
-  });
-
   useEffect(() => {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
@@ -276,529 +172,518 @@ function ClientInquiryApiManager() {
   }, []);
 
   return (
-    <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
-      <div className='w-full h-full relative'>
-        <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
-        <div className='pt-9 w-full h-full'>
-          <div className='p-4 2xl:p-5'>
-            {/* Header */}
-            {loading ? (
-              <div className='w-full h-fit flex items-center justify-between py-3 px-5 border border-black/15 bg-white border-b-0 rounded-t-lg'>
-                <Skeleton width={200} height={22} className='inline-block' />
-                <Skeleton
-                  width={80}
-                  height={30}
-                  className='inline-block'
-                  borderRadius={100}
-                />
-              </div>
-            ) : (
-              <div className='w-full h-fit flex items-center justify-between py-3 px-5 border border-black/15 bg-white rounded-t-lg border-b-0'>
-                <h3 className='font-inter font-medium text-base text-black'>
-                  Client Inquiry Api
-                </h3>
-                {formData?.status ? (
-                  <span className='py-1 px-4 font-inter text-sm bg-green-200 border border-green-500 text-green-700 rounded-full'>
-                    Active
-                  </span>
-                ) : (
-                  <span className='py-1 px-4 font-inter text-sm bg-red-200 border border-red-500 text-red-700 rounded-full'>
-                    Inactive
-                  </span>
-                )}
-              </div>
-            )}
-            {/* Body */}
-            <div className='w-full h-[calc(100vh-250px)] overflow-auto hide-scrollbar bg-white border border-black/15 relative'>
+    <>
+      <HelmetSeo
+        Title={MetaTitleDescription.clientInquiryApiManager.title}
+        Content={MetaTitleDescription.clientInquiryApiManager.description}
+      />
+      <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
+        <div className='w-full h-full relative'>
+          <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+          <div className='pt-9 w-full h-full'>
+            <div className='p-4 2xl:p-5'>
+              {/* Header */}
               {loading ? (
-                <div className='w-full h-full bg-white p-5'>
-                  <div className='flex flex-col items-start justify-start gap-5 w-full'>
-                    {Array.from({ length: 2 }).map((_, index) => (
-                      <div
-                        className='flex items-stretch justify-start overflow-auto w-full'
-                        key={index}
-                      >
-                        <p className='font-inter text-black/80 font-medium text-base w-fit border border-black/10 bg-gray-100 px-3 py-2 rounded-l-lg flex items-center'>
-                          <Skeleton
-                            width={80}
-                            height={17}
-                            className='inline-block'
-                          />
-                        </p>
-                        <p className='flex-grow font-inter text-black/80 font-medium text-base border border-black/10 bg-gray-100 px-3 py-2 border-x-0 flex items-center justify-start relative group overflow-auto'>
-                          <Skeleton
-                            width={400}
-                            height={17}
-                            className='inline-block'
-                          />
-                        </p>
-                        <div className='border border-black/10 bg-gray-100 px-3 py-2 pb-2.5 rounded-r-lg'>
-                          <Skeleton
-                            width={80}
-                            height={30}
-                            borderRadius={100}
-                            className='inline-block'
-                          />
+                <div className='w-full h-fit flex items-center justify-between py-3 px-5 border border-black/15 bg-white border-b-0 rounded-t-lg'>
+                  <Skeleton width={200} height={22} className='inline-block' />
+                  <Skeleton
+                    width={80}
+                    height={30}
+                    className='inline-block'
+                    borderRadius={100}
+                  />
+                </div>
+              ) : (
+                <div className='w-full h-fit flex items-center justify-between py-3 px-5 border border-black/15 bg-white rounded-t-lg border-b-0'>
+                  <h3 className='font-inter font-medium text-base text-black'>
+                    Client Inquiry Api
+                  </h3>
+                  {formData?.status ? (
+                    <span className='py-1 px-4 font-inter text-sm bg-green-200 border border-green-500 text-green-700 rounded-full'>
+                      Active
+                    </span>
+                  ) : (
+                    <span className='py-1 px-4 font-inter text-sm bg-red-200 border border-red-500 text-red-700 rounded-full'>
+                      Inactive
+                    </span>
+                  )}
+                </div>
+              )}
+              {/* Body */}
+              <div className='w-full h-[calc(100vh-250px)] overflow-auto hide-scrollbar bg-white border border-black/15 relative'>
+                {loading ? (
+                  <div className='w-full h-full bg-white p-5'>
+                    <div className='flex flex-col items-start justify-start gap-5 w-full'>
+                      {Array.from({ length: 2 }).map((_, index) => (
+                        <div
+                          className='flex items-stretch justify-start overflow-auto w-full'
+                          key={index}
+                        >
+                          <p className='font-inter text-black/80 font-medium text-base w-fit border border-black/10 bg-gray-100 px-3 py-2 rounded-l-lg flex items-center'>
+                            <Skeleton
+                              width={80}
+                              height={17}
+                              className='inline-block'
+                            />
+                          </p>
+                          <p className='flex-grow font-inter text-black/80 font-medium text-base border border-black/10 bg-gray-100 px-3 py-2 border-x-0 flex items-center justify-start relative group overflow-auto'>
+                            <Skeleton
+                              width={400}
+                              height={17}
+                              className='inline-block'
+                            />
+                          </p>
+                          <div className='border border-black/10 bg-gray-100 px-3 py-2 pb-2.5 rounded-r-lg'>
+                            <Skeleton
+                              width={80}
+                              height={30}
+                              borderRadius={100}
+                              className='inline-block'
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    <div className='bg-gray-100/80 border border-black/10 rounded-lg w-full'>
-                      <div className='w-full flex items-center justify-between p-4 border-b border-b-black/10'>
-                        <Skeleton
-                          width={300}
-                          height={20}
-                          className='inline-block'
-                        />
-
-                        <Skeleton
-                          width={60}
-                          height={20}
-                          className='inline-block'
-                          borderRadius={100}
-                        />
-                      </div>
-                      <div className='p-4'>
-                        <div className='w-full pb-3 border-b border-b-black/10'>
+                      ))}
+                      <div className='bg-gray-100/80 border border-black/10 rounded-lg w-full'>
+                        <div className='w-full flex items-center justify-between p-4 border-b border-b-black/10'>
                           <Skeleton
                             width={300}
                             height={20}
                             className='inline-block'
                           />
+
+                          <Skeleton
+                            width={60}
+                            height={20}
+                            className='inline-block'
+                            borderRadius={100}
+                          />
                         </div>
-                        <div className='flex items-stretch justify-between pt-7 gap-4'>
-                          <div className='flex-grow'>
+                        <div className='p-4'>
+                          <div className='w-full pb-3 border-b border-b-black/10'>
                             <Skeleton
-                              width={'100%'}
-                              height={40}
+                              width={300}
+                              height={20}
                               className='inline-block'
                             />
                           </div>
-                          <div className='flex items-center justify-end gap-2 w-fit'>
-                            <Skeleton
-                              width={40}
-                              height={40}
-                              className='inline-block'
-                            />
-                            <Skeleton
-                              width={40}
-                              height={40}
-                              className='inline-block'
-                            />
+                          <div className='flex items-stretch justify-between pt-7 gap-4'>
+                            <div className='flex-grow'>
+                              <Skeleton
+                                width={'100%'}
+                                height={40}
+                                className='inline-block'
+                              />
+                            </div>
+                            <div className='flex items-center justify-end gap-2 w-fit'>
+                              <Skeleton
+                                width={40}
+                                height={40}
+                                className='inline-block'
+                              />
+                              <Skeleton
+                                width={40}
+                                height={40}
+                                className='inline-block'
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className='w-full pb-5'>
-                      <Skeleton
-                        width={'100%'}
-                        height={150}
-                        className='inline-block'
-                      />
+                      <div className='w-full pb-5'>
+                        <Skeleton
+                          width={'100%'}
+                          height={150}
+                          className='inline-block'
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className='w-full h-full'>
+                ) : (
                   <div className='w-full h-full'>
-                    <div className='w-full px-5 py-5'>
-                      <div className='flex flex-col items-start justify-start gap-5 w-full'>
-                        {' '}
-                        <div className='flex items-stretch justify-start overflow-auto w-full hide-scrollbar'>
-                          <p className='font-inter text-black/80 font-medium text-base w-fit border border-black/10 bg-gray-100 px-3 py-2 rounded-l-lg flex items-center min-w-[115px]'>
-                            api_key
-                          </p>
-                          <p className='flex-grow font-inter text-black/80 font-medium text-base border border-black/10 bg-gray-100 px-8 pr-12 py-2 border-x-0 flex items-center justify-start relative group'>
-                            {showApiKey ? (
-                              formData?.api_key
-                            ) : (
-                              <span className='flex items-center justify-start w-full h-full gap-0.5'>
-                                {Array.from({
-                                  length: formData?.api_key?.length,
-                                }).map((_, index) => (
-                                  <FaStarOfLife
-                                    key={index}
-                                    className='text-[8px]'
-                                  />
-                                ))}
-                              </span>
-                            )}
-                            <button
-                              className='absolute top-1/2 -translate-y-1/2 right-5 invisible group-hover:visible transition-all'
-                              onClick={() => setShowApiKey(!showApiKey)}
-                            >
-                              {showApiKey ? (
-                                <FaEye className='transition-all' />
-                              ) : (
-                                <FaEyeSlash className='transition-all' />
-                              )}
-                            </button>
-                          </p>
-                          <div className='border border-black/10 bg-gray-100 px-3 py-2 rounded-r-lg'>
-                            <button
-                              className='py-1.5 px-3 border rounded-full flex items-center justify-center gap-1 bg-[#EEF4FF] border-[#C7D7FE] text-[#3538CD] text-sm w-fit disabled:opacity-80'
-                              disabled={reGenerateCredentialLoader?.api_key}
-                              onClick={() =>
-                                handelReGenerateApiCredential(
-                                  formData?.id,
-                                  'api_key'
-                                )
-                              }
-                            >
-                              {reGenerateCredentialLoader?.api_key ? (
-                                <Loader
-                                  loaderText='ReGenerating...'
-                                  theme='dark'
-                                />
-                              ) : (
-                                <>
-                                  {' '}
-                                  <AiOutlineRedo className='text-lg rotate-180' />
-                                  <span>Regenerate</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                        <div className='flex items-stretch justify-start overflow-auto w-full hide-scrollbar'>
-                          <p className='font-inter text-black/80 font-medium text-base w-fit border border-black/10 bg-gray-100 px-3 py-2 rounded-l-lg flex items-center min-w-[115px]'>
-                            api_secrete
-                          </p>
-                          <p className='flex-grow font-inter text-black/80 font-medium text-base border border-black/10 bg-gray-100 px-8 pr-12 py-2 border-x-0 flex items-center justify-start relative group'>
-                            {showApiSecrete ? (
-                              formData?.api_secrete
-                            ) : (
-                              <span className='flex items-center justify-start w-full h-full gap-0.5'>
-                                {Array.from({
-                                  length: formData?.api_secrete?.length,
-                                }).map((_, index) => (
-                                  <FaStarOfLife
-                                    key={index}
-                                    className='text-[8px]'
-                                  />
-                                ))}
-                              </span>
-                            )}
-                            <button
-                              className='absolute top-1/2 -translate-y-1/2 right-5 invisible group-hover:visible transition-all'
-                              onClick={() => setShowApiSecrete(!showApiSecrete)}
-                            >
-                              {showApiSecrete ? (
-                                <FaEye className='transition-all' />
-                              ) : (
-                                <FaEyeSlash className='transition-all' />
-                              )}
-                            </button>
-                          </p>
-                          <div className='border border-black/10 bg-gray-100 px-3 py-2 rounded-r-lg'>
-                            <button
-                              className='py-1.5 px-3 border rounded-full flex items-center justify-center gap-1 bg-[#EEF4FF] border-[#C7D7FE] text-[#3538CD] text-sm w-fit disabled:opacity-80'
-                              onClick={() =>
-                                handelReGenerateApiCredential(
-                                  formData?.id,
-                                  'api_secrete'
-                                )
-                              }
-                              disabled={reGenerateCredentialLoader?.api_secrete}
-                            >
-                              {reGenerateCredentialLoader?.api_secrete ? (
-                                <Loader
-                                  loaderText='ReGenerating...'
-                                  theme='dark'
-                                />
-                              ) : (
-                                <>
-                                  {' '}
-                                  <AiOutlineRedo className='text-lg rotate-180' />
-                                  <span>Regenerate</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                        <div className='bg-gray-100/80 border border-black/10 rounded-lg w-full'>
-                          <div className='w-full flex items-center justify-between p-4 border-b border-b-black/10'>
-                            <p className='font-inter text-black/80 font-medium text-base w-fit flex items-center'>
-                              Get notified by email when a new client inquiry is
-                              received.
+                    <div className='w-full h-full'>
+                      <div className='w-full px-5 py-5'>
+                        <div className='flex flex-col items-start justify-start gap-5 w-full'>
+                          {' '}
+                          <div className='flex items-stretch justify-start overflow-auto w-full hide-scrollbar'>
+                            <p className='font-inter text-black/80 font-medium text-base w-fit border border-black/10 bg-gray-100 px-3 py-2 rounded-l-lg flex items-center min-w-[115px]'>
+                              api_key
                             </p>
-
-                            {receivingEmailLoader ? (
-                              <Loader loaderText=' ' theme='dark' />
-                            ) : (
-                              <button
-                                className={`w-10 h-[18px] rounded-full relative transition-all duration-200 border border-transparent disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:border-black/20 ${isReceiveEmail ? 'bg-green-500' : 'bg-red-500'}`}
-                                onClick={() =>
-                                  handelEnableMailNotification(formData?.id)
-                                }
-                              >
-                                <span
-                                  className={`w-3.5 h-3.5 bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${isReceiveEmail ? 'left-[22px]' : 'left-0.5'}`}
-                                ></span>
-                              </button>
-                            )}
-                          </div>
-                          <div className='p-4'>
-                            <div className='w-full pb-3 border-b border-b-black/10 flex items-center justify-between'>
-                              <p className='font-inter text-black/80 font-medium text-base w-fit flex items-center'>
-                                Add the recipient's email for client inquiry
-                                alerts.
-                              </p>
-                              <div className='flex items-center justify-end gap-2'>
+                            <p className='flex-grow font-inter text-black/80 font-medium text-base border border-black/10 bg-gray-100 px-8 pr-12 py-2 border-x-0 flex items-center justify-start relative group'>
+                              {showApiKey ? (
+                                formData?.api_key
+                              ) : (
+                                <span className='flex items-center justify-start w-full h-full gap-0.5'>
+                                  {Array.from({
+                                    length: formData?.api_key?.length,
+                                  }).map((_, index) => (
+                                    <FaStarOfLife
+                                      key={index}
+                                      className='text-[8px]'
+                                    />
+                                  ))}
+                                </span>
+                              )}
+                              <div className='absolute top-1/2 -translate-y-1/2 right-5 invisible group-hover:visible transition-all flex items-center justify-end gap-2'>
                                 <button
-                                  className='font-inter text-black font-medium border border-black/20 px-4 py-1.5 text-sm rounded-lg disabled:opacity-70 disabled:cursor-not-allowed'
-                                  onClick={handelResetReceivingAuthorityMail}
-                                  disabled={CompareTwoArrayOfString(
-                                    receivingAuthorityMail,
-                                    dummyReceivingAuthorityMail
-                                  )}
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  className='font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-sm rounded-lg disabled:opacity-70 disabled:cursor-not-allowed'
-                                  onClick={handelClickOnSaveButton}
-                                  disabled={
-                                    CompareTwoArrayOfString(
-                                      receivingAuthorityMail,
-                                      dummyReceivingAuthorityMail
-                                    ) || saveReceivingAuthorityMailLoader
+                                  className='w-fit hover:bg-black p-1 pl-[5px] rounded-md hover:text-white flex items-center justify-center transition-all'
+                                  onClick={() =>
+                                    handleClickOnCopyBtn(
+                                      formData?.api_key,
+                                      'Api Key Copied Successfully'
+                                    )
                                   }
                                 >
-                                  {saveReceivingAuthorityMailLoader ? (
-                                    <Loader loaderText='Saving...' />
+                                  <MdContentCopy />
+                                </button>
+                                <button
+                                  className='w-fit hover:bg-black p-1 pl-[5px] rounded-md hover:text-white flex items-center justify-center transition-all'
+                                  onClick={() => setShowApiKey(!showApiKey)}
+                                >
+                                  {showApiKey ? (
+                                    <FaEye className='transition-all' />
                                   ) : (
-                                    'Save'
+                                    <FaEyeSlash className='transition-all' />
                                   )}
                                 </button>
                               </div>
-                            </div>
-                            <div className='flex items-stretch flex-col justify-between pt-7 gap-4'>
-                              {saveReceivingAuthorityMailLoader ? (
-                                <>
-                                  {Array.from({ length: 3 })?.map(
-                                    (_, index) => (
-                                      <div
-                                        className='flex items-stretch justify-between gap-4'
-                                        key={index}
-                                      >
-                                        <div className='flex-grow'>
-                                          <Skeleton
-                                            width={'100%'}
-                                            height={40}
-                                            className='inline-block'
-                                            borderRadius={8}
-                                          />
-                                        </div>
-                                        <div className='flex items-center justify-end gap-2 w-fit'>
-                                          <Skeleton
-                                            width={40}
-                                            height={40}
-                                            className='inline-block'
-                                            borderRadius={8}
-                                          />
-                                          <Skeleton
-                                            width={40}
-                                            height={40}
-                                            className='inline-block'
-                                            borderRadius={8}
-                                          />
-                                        </div>
-                                      </div>
-                                    )
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  {receivingAuthorityMail?.map(
-                                    (item, index) => (
-                                      <div
-                                        className='flex items-stretch justify-between gap-4'
-                                        key={index}
-                                      >
-                                        <div className='flex-grow'>
-                                          <Input
-                                            name='ReceivingAuthorityMail'
-                                            type='email'
-                                            className='border border-black/45'
-                                            value={item}
-                                            disabled={!isReceiveEmail}
-                                            onChange={(e) =>
-                                              handelInputFieldOnChange(e, index)
-                                            }
-                                          />
-                                        </div>
-                                        <div className='flex items-center justify-end gap-2 w-fit'>
-                                          {receivingAuthorityMail.length ==
-                                            index + 1 && (
-                                            <button
-                                              className='text-black text-lg p-2 bg-white hover:bg-gray-100 h-full min-w-[40px] flex items-center justify-center border border-black/15 rounded-lg disabled:opacity-65 disabled:bg-white disabled:cursor-not-allowed'
-                                              onClick={handelOnEditButton}
-                                              disabled={!isReceiveEmail}
-                                            >
-                                              <MdEdit />
-                                            </button>
-                                          )}
-                                          {(receivingAuthorityMail.length !==
-                                            index + 1 ||
-                                            index !== 0) && (
-                                            <button
-                                              className='text-black text-lg p-2 bg-white hover:bg-gray-100 h-full min-w-[40px] flex items-center justify-center border border-black/15 rounded-lg disabled:opacity-65 disabled:bg-white disabled:cursor-not-allowed'
-                                              onClick={() =>
-                                                handelDeleteButton(index)
-                                              }
-                                              disabled={!isReceiveEmail}
-                                            >
-                                              <MdDelete />
-                                            </button>
-                                          )}
-                                        </div>
-                                      </div>
-                                    )
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <div className='border border-black/10 rounded-lg w-full'>
-                          <div className='p-2.5 border-b border-b-black/15'>
-                            <p className='font-inter text-black/80 font-medium text-base'>
-                              How To Use The API
                             </p>
-                          </div>
-                          <div className='p-2.5 space-y-4'>
-                            <p className='font-inter text-sm text-black/70'>
-                              To submit a new client inquiry, make a{' '}
-                              <span className='font-semibold'>POST</span>{' '}
-                              request to the following endpoint. You must
-                              include a valid{' '}
-                              <code className='bg-slate-950/20 text-black font-semibold font-inter p-1 rounded'>
-                                api_key
-                              </code>{' '}
-                              and{' '}
-                              <code className='bg-slate-950/20 text-black font-semibold font-inter p-1 rounded'>
-                                api_secret
-                              </code>{' '}
-                              as query parameters for authentication.
-                            </p>
-
-                            <div className='bg-black p-2 rounded relative group'>
-                              <span className='font-inter text-white/85 font-medium'>
-                                {BACKEND_API_BASEURL}
-                                /app/v1/client-inquires/submit?api_key=
-                                <span className='font-semibold text-white'>
-                                  YOUR_API_KEY
-                                </span>
-                                &api_secret=
-                                <span className='font-semibold text-white'>
-                                  YOUR_API_SECRET
-                                </span>
-                              </span>
+                            <div className='border border-black/10 bg-gray-100 px-3 py-2 rounded-r-lg'>
                               <button
-                                className='absolute top-1/2 -translate-y-1/2 right-2 invisible group-hover:visible'
-                                onClick={handelClickOnCopyButton}
+                                className='py-1.5 px-3 border rounded-full flex items-center justify-center gap-1 bg-[#EEF4FF] border-[#C7D7FE] text-[#3538CD] text-sm w-fit disabled:opacity-80'
+                                disabled={reGenerateCredentialLoader?.api_key}
+                                onClick={() =>
+                                  handelReGenerateApiCredential(
+                                    formData?.id,
+                                    'api_key'
+                                  )
+                                }
                               >
-                                <MdContentCopy />
+                                {reGenerateCredentialLoader?.api_key ? (
+                                  <Loader
+                                    loaderText='ReGenerating...'
+                                    theme='dark'
+                                  />
+                                ) : (
+                                  <>
+                                    {' '}
+                                    <AiOutlineRedo className='text-lg rotate-180' />
+                                    <span>Regenerate</span>
+                                  </>
+                                )}
                               </button>
                             </div>
-
-                            <p className='font-inter text-sm text-black/70'>
-                              <span className='font-semibold'>
-                                Request Method:
-                              </span>{' '}
-                              POST
-                              <br />
-                              <span className='font-semibold'>
-                                Content-Type:
-                              </span>{' '}
-                              application/json
+                          </div>
+                          <div className='flex items-stretch justify-start overflow-auto w-full hide-scrollbar'>
+                            <p className='font-inter text-black/80 font-medium text-base w-fit border border-black/10 bg-gray-100 px-3 py-2 rounded-l-lg flex items-center min-w-[115px]'>
+                              api_secrete
                             </p>
-
-                            <p className='font-inter text-sm text-black/70'>
-                              <span className='font-semibold'>Important:</span>{' '}
-                              The request body must include all the fields that
-                              are defined in the{' '}
-                              <span className='font-semibold'>
-                                config module
-                              </span>
-                              . Any field marked as{' '}
-                              <span className='font-semibold'>required</span>{' '}
-                              cannot be empty or missing. Additionally, the data
-                              types of the submitted values must strictly match
-                              the types defined in the config module’s form
-                              field (e.g., string, number, array).
+                            <p className='flex-grow font-inter text-black/80 font-medium text-base border border-black/10 bg-gray-100 px-8 pr-12 py-2 border-x-0 flex items-center justify-start relative group'>
+                              {showApiSecrete ? (
+                                formData?.api_secrete
+                              ) : (
+                                <span className='flex items-center justify-start w-full h-full gap-0.5'>
+                                  {Array.from({
+                                    length: formData?.api_secrete?.length,
+                                  }).map((_, index) => (
+                                    <FaStarOfLife
+                                      key={index}
+                                      className='text-[8px]'
+                                    />
+                                  ))}
+                                </span>
+                              )}
+                              <div className='absolute top-1/2 -translate-y-1/2 right-5 invisible group-hover:visible transition-all flex items-center justify-end gap-2'>
+                                <button
+                                  className='w-fit hover:bg-black p-1 pl-[5px] rounded-md hover:text-white flex items-center justify-center transition-all'
+                                  onClick={() =>
+                                    handleClickOnCopyBtn(
+                                      formData?.api_secrete,
+                                      'Api Secrete Copied Successfully'
+                                    )
+                                  }
+                                >
+                                  <MdContentCopy />
+                                </button>
+                                <button
+                                  className='w-fit hover:bg-black p-1 pl-[5px] rounded-md hover:text-white flex items-center justify-center transition-all'
+                                  onClick={() =>
+                                    setShowApiSecrete(!showApiSecrete)
+                                  }
+                                >
+                                  {showApiSecrete ? (
+                                    <FaEye className='transition-all' />
+                                  ) : (
+                                    <FaEyeSlash className='transition-all' />
+                                  )}
+                                </button>
+                              </div>
                             </p>
+                            <div className='border border-black/10 bg-gray-100 px-3 py-2 rounded-r-lg'>
+                              <button
+                                className='py-1.5 px-3 border rounded-full flex items-center justify-center gap-1 bg-[#EEF4FF] border-[#C7D7FE] text-[#3538CD] text-sm w-fit disabled:opacity-80'
+                                onClick={() =>
+                                  handelReGenerateApiCredential(
+                                    formData?.id,
+                                    'api_secrete'
+                                  )
+                                }
+                                disabled={
+                                  reGenerateCredentialLoader?.api_secrete
+                                }
+                              >
+                                {reGenerateCredentialLoader?.api_secrete ? (
+                                  <Loader
+                                    loaderText='ReGenerating...'
+                                    theme='dark'
+                                  />
+                                ) : (
+                                  <>
+                                    {' '}
+                                    <AiOutlineRedo className='text-lg rotate-180' />
+                                    <span>Regenerate</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                          <div className='border border-black/10 rounded-lg w-full'>
+                            <div className='p-2.5 border-b border-b-black/15 bg-gradient-to-r from-blue-50 to-indigo-50'>
+                              <p className='font-inter text-black/80 font-medium text-base'>
+                                How To Use The API
+                              </p>
+                            </div>
+                            <div className='p-2.5 space-y-4'>
+                              <p className='font-inter text-sm text-black/70'>
+                                To submit a new client inquiry, make a{' '}
+                                <span className='font-semibold'>POST</span>{' '}
+                                request to the following endpoint. You must
+                                include a valid{' '}
+                                <code className='bg-slate-950/20 text-black font-semibold font-inter px-1.5 py-0.5 rounded'>
+                                  api_key
+                                </code>
+                                ,{' '}
+                                <code className='bg-slate-950/20 text-black font-semibold font-inter px-1.5 py-0.5 rounded'>
+                                  api_secret
+                                </code>
+                                , and{' '}
+                                <code className='bg-blue-950/20 text-blue-900 font-semibold font-inter px-1.5 py-0.5 rounded'>
+                                  form_id
+                                </code>{' '}
+                                as query parameters for authentication and
+                                routing.
+                              </p>
+                              <div className='bg-gradient-to-r from-slate-900 to-slate-800 p-2 rounded relative group'>
+                                <div className='w-full max-w-[97%] break-words'>
+                                  <span className='font-inter text-white/85 font-medium break-words'>
+                                    {BACKEND_API_BASEURL}
+                                    /app/v1/client-inquires/submit?api_key=
+                                    <span className='font-semibold text-white'>
+                                      YOUR_API_KEY
+                                    </span>
+                                    &api_secret=
+                                    <span className='font-semibold text-white'>
+                                      YOUR_API_SECRET
+                                    </span>
+                                    &form_id=
+                                    <span className='font-semibold text-white'>
+                                      YOUR_FORM_ID
+                                    </span>
+                                  </span>
+                                </div>
+                                <button
+                                  className='absolute top-1/2 -translate-y-1/2 right-2 invisible group-hover:visible'
+                                  onClick={handelClickOnCopyButton}
+                                >
+                                  <MdContentCopy />
+                                </button>
+                              </div>
 
-                            <p className='font-inter text-sm text-black/70'>
-                              <span className='font-semibold'>
+                              <div className='bg-amber-50 border border-amber-200 rounded-lg p-3'>
+                                <p className='font-inter text-sm text-amber-900'>
+                                  <span className='font-semibold'>
+                                    📋 About form_id:
+                                  </span>{' '}
+                                  The{' '}
+                                  <code className='bg-amber-200/50 px-1.5 py-0.5 rounded font-semibold'>
+                                    form_id
+                                  </code>{' '}
+                                  is the unique identifier of the form to which
+                                  you are submitting the inquiry. This ensures
+                                  your submission is routed to the correct form
+                                  configuration.
+                                </p>
+                                <p className='font-inter text-sm text-amber-900 mt-2'>
+                                  <span className='font-semibold'>
+                                    How to get the form_id:
+                                  </span>{' '}
+                                  Navigate to{' '}
+                                  <code className='bg-amber-200/50 px-1.5 py-0.5 rounded font-semibold'>
+                                    Config → Inquiry Forms
+                                  </code>
+                                  . You will see all the forms for your
+                                  organization. You can retrieve the{' '}
+                                  <code className='bg-amber-200/50 px-1.5 py-0.5 rounded font-semibold'>
+                                    form_id
+                                  </code>{' '}
+                                  from there. Note that you can edit the form
+                                  details, but the{' '}
+                                  <span className='font-semibold'>Form ID</span>{' '}
+                                  and{' '}
+                                  <span className='font-semibold'>
+                                    Form Name
+                                  </span>{' '}
+                                  cannot be changed.
+                                </p>
+                                <p className='font-inter text-sm text-amber-900 mt-2'>
+                                  <span className='font-semibold'>
+                                    Why form_id is important:
+                                  </span>{' '}
+                                  The form_id is used to retrieve the complete
+                                  schema of all fields for that specific form.
+                                  This schema provides critical information
+                                  including:
+                                </p>
+                                <ul className='font-inter text-sm text-amber-900 mt-1 ml-4 list-disc space-y-1'>
+                                  <li>
+                                    Which fields are available in the form
+                                  </li>
+                                  <li>Which fields are required vs optional</li>
+                                  <li>
+                                    The data type expected for each field
+                                    (string, number, array, etc.)
+                                  </li>
+                                  <li>
+                                    Validation rules and constraints for each
+                                    field
+                                  </li>
+                                  <li>
+                                    Field-specific configurations and settings
+                                  </li>
+                                </ul>
+                              </div>
+
+                              <div className='grid grid-cols-2 gap-3'>
+                                <div className='bg-slate-50 p-3 rounded-lg border border-slate-200'>
+                                  <p className='font-inter text-sm text-black/70'>
+                                    <span className='font-semibold text-black/90'>
+                                      Request Method:
+                                    </span>
+                                    <br />
+                                    <code className='text-green-700 font-semibold'>
+                                      POST
+                                    </code>
+                                  </p>
+                                </div>
+                                <div className='bg-slate-50 p-3 rounded-lg border border-slate-200'>
+                                  <p className='font-inter text-sm text-black/70'>
+                                    <span className='font-semibold text-black/90'>
+                                      Content-Type:
+                                    </span>
+                                    <br />
+                                    <code className='text-blue-700 font-semibold'>
+                                      application/json
+                                    </code>
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className='border-l-4 border-red-500 bg-red-50 p-3 rounded-r-lg'>
+                                <p className='font-inter text-sm text-red-900'>
+                                  <span className='font-semibold'>
+                                    ⚠️ Important:
+                                  </span>{' '}
+                                  The request body must include all the fields
+                                  that are defined in the{' '}
+                                  <span className='font-semibold'>
+                                    config module
+                                  </span>
+                                  . Any field marked as{' '}
+                                  <span className='font-semibold'>
+                                    required
+                                  </span>{' '}
+                                  cannot be empty or missing. Additionally, the
+                                  data types of the submitted values must
+                                  strictly match the types defined in the config
+                                  module's form field (e.g., string, number,
+                                  array).
+                                </p>
+                              </div>
+
+                              <p className='font-inter text-sm text-black/80 font-semibold mt-6'>
                                 Sample Request Body:
-                              </span>
-                            </p>
+                              </p>
 
-                            <div className='bg-black p-2 rounded text-sm font-mono overflow-auto'>
-                              <pre>
-                                {`{
+                              <div className='bg-slate-900 p-4 rounded-lg text-sm font-mono overflow-auto shadow-lg'>
+                                <pre className='text-slate-100'>
+                                  {`{
   "name": "John Doe",
   "email": "john@example.com",
   "phone": "+91-9876543210",
   "message": "I'm interested in your services."
 }`}
-                              </pre>
-                            </div>
+                                </pre>
+                              </div>
 
-                            <p className='font-inter text-sm text-black/70'>
-                              Ensure that all required fields are provided and
-                              that the API key and secret are kept confidential.
-                              If your credentials are invalid or missing, the
-                              API will respond with an authentication error.
-                            </p>
+                              <div className='bg-blue-50 border border-blue-200 rounded-lg p-3'>
+                                <p className='font-inter text-sm text-blue-900'>
+                                  <span className='font-semibold'>
+                                    🔒 Security Notice:
+                                  </span>{' '}
+                                  Ensure that all required fields are provided
+                                  and that your API key, secret, and form ID are
+                                  kept confidential. If your credentials are
+                                  invalid or missing, the API will respond with
+                                  an authentication error.
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                )}
+              </div>
+              {/* footer */}
+              {loading ? (
+                <div className='w-full h-fit border border-black/15 border-t-0 pt-1.5 pb-2.5 px-5 flex items-center justify-end gap-4 bg-white rounded-b-lg'>
+                  <Skeleton
+                    width={140}
+                    height={35}
+                    className='inline-block'
+                    borderRadius={10}
+                  />
+                </div>
+              ) : (
+                <div className='w-full h-fit border border-black/15 border-t-0 py-2 px-5 flex items-center justify-end gap-4 bg-white rounded-b-lg'>
+                  <button
+                    className={`px-5 py-2 rounded-lg border-0 text-white font-inter font-semibold text-base disabled:opacity-75 ${
+                      formData?.status
+                        ? 'bg-rose-600'
+                        : 'bg-[var(--them-green-color)]'
+                    }`}
+                    onClick={handelEnableDisableOnClick}
+                    disabled={buttonLoader}
+                  >
+                    {buttonLoader ? (
+                      <Loader
+                        loaderText={
+                          formData?.status ? 'Disabling....' : 'Enabling....'
+                        }
+                      />
+                    ) : formData?.status ? (
+                      'Disable Api'
+                    ) : (
+                      'Enable Api'
+                    )}
+                  </button>
                 </div>
               )}
             </div>
-            {/* footer */}
-            {loading ? (
-              <div className='w-full h-fit border border-black/15 border-t-0 pt-1.5 pb-2.5 px-5 flex items-center justify-end gap-4 bg-white rounded-b-lg'>
-                <Skeleton
-                  width={140}
-                  height={35}
-                  className='inline-block'
-                  borderRadius={10}
-                />
-              </div>
-            ) : (
-              <div className='w-full h-fit border border-black/15 border-t-0 py-2 px-5 flex items-center justify-end gap-4 bg-white rounded-b-lg'>
-                <button
-                  className={`px-5 py-2 rounded-lg border-0 text-white font-inter font-semibold text-base disabled:opacity-75 ${
-                    formData?.status
-                      ? 'bg-rose-600'
-                      : 'bg-[var(--them-green-color)]'
-                  }`}
-                  onClick={handelEnableDisableOnClick}
-                  disabled={buttonLoader}
-                >
-                  {buttonLoader ? (
-                    <Loader
-                      loaderText={
-                        formData?.status ? 'Disabling....' : 'Enabling....'
-                      }
-                    />
-                  ) : formData?.status ? (
-                    'Disable Api'
-                  ) : (
-                    'Enable Api'
-                  )}
-                </button>
-              </div>
-            )}
           </div>
         </div>
-      </div>
-    </SkeletonTheme>
+      </SkeletonTheme>
+    </>
   );
 }
 

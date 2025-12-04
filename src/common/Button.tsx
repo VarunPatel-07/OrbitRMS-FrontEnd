@@ -1,10 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 import Loader from './Loader';
 
 interface ButtonProps {
-  Type: 'button' | 'submit';
+  type: 'button' | 'submit';
   children: React.ReactElement | string;
   className: string;
   disabled?: boolean;
@@ -12,10 +13,12 @@ interface ButtonProps {
   loader?: boolean;
   loaderText?: string;
   theme?: 'light' | 'dark';
+  dataTooltipId?: string;
+  dataTooltipContent?: string;
 }
 
 function Button({
-  Type = 'button',
+  type = 'button',
   children,
   className,
   disabled = false,
@@ -23,16 +26,22 @@ function Button({
   loader,
   loaderText,
   theme,
+  dataTooltipId,
+  dataTooltipContent,
 }: ButtonProps) {
   return (
     <button
-      type={Type}
-      className={clsx(
-        'disabled:opacity-75 disabled:cursor-not-allowed',
-        className
+      type={type}
+      className={twMerge(
+        clsx(
+          'disabled:opacity-75 disabled:cursor-not-allowed  cursor-pointer',
+          className
+        )
       )}
       disabled={disabled}
       onClick={onClick}
+      data-tooltip-id={dataTooltipId}
+      data-tooltip-content={dataTooltipContent}
     >
       {loader ? (
         <span className='flex items-center justify-start'>

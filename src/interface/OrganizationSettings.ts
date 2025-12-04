@@ -20,6 +20,9 @@ interface GeneralInfo {
   primary_number: string;
   terms_accepted: true;
   website_url: string;
+  industry: string;
+  industry_slug: string;
+  employee_count: string;
 }
 interface OrgAddress {
   address: string;
@@ -77,6 +80,27 @@ export interface OrganizationHolidays {
   date: Date | null;
   year: number;
   config_module_id: string;
+  created_at: string;
+  created_by: object | null;
+  source_type: string;
+  updated_at: object | null;
+  updated_by: string | null;
+}
+
+export interface LeavesTypesInterface {
+  id: string;
+  leave_name: string;
+  leave_code: string;
+  is_paid: boolean;
+  max_number_of_leave: number;
+  refill_quarterly: boolean;
+  refill_from: string;
+  description: string;
+  gender: string;
+  employee_status: string;
+  marital_status: string;
+  status: boolean;
+  organization_id: string;
   created_at: string;
   created_by: object | null;
   source_type: string;

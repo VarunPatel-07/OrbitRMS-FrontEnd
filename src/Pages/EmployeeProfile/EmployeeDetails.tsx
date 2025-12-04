@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { LuUser } from 'react-icons/lu';
 import { MdOutlineEmail } from 'react-icons/md';
 import { Link } from 'react-router-dom';
@@ -6,10 +6,12 @@ import { Link } from 'react-router-dom';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
 import EmployeeProfileSkeletonLoader from '../../Components/Loader/EmployeeProfileSkeletonLoader';
 import { AlignableForChildInfo } from '../../constant/constant';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
+import HelmetSeo from '../../Helper/HelmetSeo';
 import { BeautifulAccountStatusRenderer, InfoField } from '../../Helper/Helper';
 import {
   classNames,
@@ -42,6 +44,7 @@ function EmployeeDetails(props: {
   // * ------ Start Of The Function That Help In The Rendering -----
   //
   const employee_general_info = () => {
+    if (data?.employee_info === null) return <></>;
     return (
       <div className='bg-white rounded-xl border border-black/15'>
         <div className='w-full'>
@@ -96,7 +99,7 @@ function EmployeeDetails(props: {
                   </span>
                   {data?.employee_info?.reporting_manager?.first_name ? (
                     <Link
-                      to={`/${organization}/employee-profile/${data?.employee_info?.reporting_manager?.id}/employee-details`}
+                      to={`/${organization}/employees/employee-profile/${data?.employee_info?.reporting_manager?.id}/employee-details`}
                       className='text-base text-black font-inter font-medium block hover:text-[#3538CD]'
                       target='_blank'
                     >
@@ -122,6 +125,7 @@ function EmployeeDetails(props: {
     );
   };
   const personal_information = () => {
+    if (data?.personal_info === null) return <></>;
     return (
       <div className='bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -186,6 +190,7 @@ function EmployeeDetails(props: {
     );
   };
   const employee_information = () => {
+    if (data?.employee_info === null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -262,6 +267,7 @@ function EmployeeDetails(props: {
     );
   };
   const personal_contact_information = () => {
+    if (data?.personal_contact_info === null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -330,6 +336,7 @@ function EmployeeDetails(props: {
     );
   };
   const family_info = () => {
+    if (data?.family_info === null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -433,11 +440,12 @@ function EmployeeDetails(props: {
   };
 
   const RenderAddressComponent = () => {
+    if (data?.current_address == null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
           <span className='font-inter text-lg text-black font-semibold capitalize'>
-            Current Information
+            Current Address
           </span>
         </div>
         <div className='w-full'>
@@ -513,13 +521,13 @@ function EmployeeDetails(props: {
     },
     {
       id: 5,
-      label: 'family_info',
+      label: 'family_information',
       module: family_info(),
       title: 'Family information',
     },
     {
       id: 6,
-      label: 'address',
+      label: 'employee_address',
       module: RenderAddressComponent(),
       title: 'Address',
     },
@@ -528,19 +536,25 @@ function EmployeeDetails(props: {
   // * ------ End Of The Function That Help In The Rendering -----
   //
   return (
-    <div className='w-full flex flex-col gap-6 pb-5'>
-      {isFetching ? (
-        <EmployeeProfileSkeletonLoader />
-      ) : (
-        <>
-          {UserInformationDataModules?.map((section) => (
-            <div className='w-full' key={section?.id}>
-              {section?.module}
-            </div>
-          ))}
-        </>
-      )}
-    </div>
+    <>
+      <HelmetSeo
+        Title={MetaTitleDescription.employeeProfileGeneralInfo.title}
+        Content={MetaTitleDescription.employeeProfileGeneralInfo.description}
+      />
+      <div className='w-full flex flex-col gap-6 pb-5'>
+        {isFetching ? (
+          <EmployeeProfileSkeletonLoader />
+        ) : (
+          <>
+            {UserInformationDataModules?.map((section) => (
+              <React.Fragment key={section?.id}>
+                {section?.module}
+              </React.Fragment>
+            ))}
+          </>
+        )}
+      </div>
+    </>
   );
 }
 

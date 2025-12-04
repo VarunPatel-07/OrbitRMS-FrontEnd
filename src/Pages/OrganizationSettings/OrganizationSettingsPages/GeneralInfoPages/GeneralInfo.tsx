@@ -47,6 +47,9 @@ const initialData: OrganizationSettingsInterface = {
     primary_number: '',
     terms_accepted: true,
     website_url: '',
+    industry: '',
+    industry_slug: '',
+    employee_count: '',
   },
   address: {
     address: '',
@@ -134,6 +137,7 @@ function GeneralInfo() {
   ];
 
   const organizationGeneralInfo = () => {
+    if (data?.general_info == null) return <></>;
     return (
       <div className='bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -239,12 +243,29 @@ function GeneralInfo() {
                 </div>
               </div>
             </div>
+            <div className='w-full'>
+              <div className='w-full grid grid-cols-3 gap-5'>
+                <div className='w-full'>
+                  <InfoField
+                    label='Industry'
+                    value={data?.general_info?.industry}
+                  />
+                </div>
+                <div className='w-full'>
+                  <InfoField
+                    label='Employee Count'
+                    value={data?.general_info?.employee_count}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     );
   };
   const organizationAddress = () => {
+    if (data?.address == null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -280,6 +301,7 @@ function GeneralInfo() {
     );
   };
   const organizationAboutInfo = () => {
+    if (data?.about_info == null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -315,6 +337,7 @@ function GeneralInfo() {
     );
   };
   const organizationContactInfo = () => {
+    if (data?.contact_info == null) return <></>;
     return (
       <div className='w-full bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>
@@ -365,6 +388,7 @@ function GeneralInfo() {
     );
   };
   const organizationSettings = () => {
+    if (data?.organization_settings == null) return <></>;
     return (
       <div className='bg-white rounded-xl border border-black/15'>
         <div className='flex items-start flex-col justify-start gap-1 px-6 py-4 border-b border-b-black/20'>

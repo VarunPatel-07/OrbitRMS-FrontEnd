@@ -2,6 +2,10 @@
 import React, { SetStateAction } from 'react';
 import axios, { AxiosRequestHeaders } from 'axios';
 
+import {
+  MAINTENANCE_MODE_LOCAL_STORAGE_KEY,
+  MaintenanceModeIsActiveStatusCode,
+} from '../../constant/constant';
 import { loginForm, signUpForm } from '../../interface/funcParamInterface';
 import { GlobalContextStore } from '../../interface/UserProfileInterface';
 import {
@@ -13,6 +17,8 @@ import {
 } from '../HelperFunctions';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
+const fetchUserPositionApiUrl = import.meta.env
+  .VITE_LOCATION_FETCHING_API_IPAPI;
 const defaultHeader = {
   'Content-Type': 'application/json',
 };
@@ -31,9 +37,26 @@ export interface verifyUsersLoginStatusResponse {
   message: string;
   data: GlobalContextStore | null;
   status_code?: number;
+  encrypted_org_id: string;
 }
 
 // * The Function That Are HelpFull For Sign-IN And Sign-UP
+
+const fetchUsersPosition = async (): Promise<{
+  success: boolean;
+  data: object;
+}> => {
+  try {
+    const response = await fetch(fetchUserPositionApiUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return { success: true, data: data }; // Return country name after the fetch completes
+  } catch {
+    return { success: false, data: {} }; // Return undefined in case of an error
+  }
+};
 
 export const signInApiFunction = async (
   endpoint: string,
@@ -48,6 +71,7 @@ export const signInApiFunction = async (
     const payload = {
       email: data?.email,
       password: data?.password,
+      user_position: {},
     };
 
     const config = {
@@ -56,6 +80,12 @@ export const signInApiFunction = async (
       headers: headers || defaultHeader,
       data: payload,
     };
+    const userPosition = await fetchUsersPosition();
+
+    if (userPosition.success) {
+      config.data.user_position = userPosition.data;
+    }
+
     const response = await axios(config);
     const res = response?.data;
 
@@ -104,6 +134,9 @@ export const signUpApiFunction = async (
       terms_accepted: data.termsAccepted,
       email_verified: false,
       organization_profile_picture: '',
+      industry: data?.industry?.value,
+      industry_slug: data?.industry?.label,
+      employee_count: data?.employeeCount,
     };
 
     const config = {
@@ -142,6 +175,17 @@ export const signUpApiFunction = async (
   }
 };
 
+const MaintenanceModeChecker = (error: any) => {
+  const status = error?.response?.status || error?.status;
+
+  const data = ErrorHandler(error);
+  if (MaintenanceModeIsActiveStatusCode.includes(status)) {
+    storeDataInLocalStorage(data.data, MAINTENANCE_MODE_LOCAL_STORAGE_KEY);
+    window.location.href = '/maintenance-mode';
+    return;
+  }
+};
+
 export const verifyUsersLoginStatus = async () => {
   try {
     const url = `${BASE_URL}/auth/verify-user`;
@@ -175,7 +219,11 @@ export const verifyUsersLoginStatus = async () => {
     const response = await axios(config);
 
     return response?.data as verifyUsersLoginStatusResponse;
-  } catch (error) {
-    return ErrorHandler(error as Error) as verifyUsersLoginStatusResponse;
+  } catch (error: any) {
+    if (MaintenanceModeIsActiveStatusCode.includes(error?.status)) {
+      MaintenanceModeChecker(error);
+    } else {
+      return ErrorHandler(error as Error) as verifyUsersLoginStatusResponse;
+    }
   }
 };

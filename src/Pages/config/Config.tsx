@@ -1,16 +1,21 @@
-import { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
+import AccessDeniedRedirect from '../../Components/AccessDeniedRedirect';
 import PageNotFound from '../../Components/PageNotFound';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
+import HelmetSeo from '../../Helper/HelmetSeo';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
-import ClientFormSchema from './ConfigModulePages/ClientFormSchema';
+import { ConfigModuleSideBarListingInterface } from '../../interface/interface';
 import AttachmentTypes from './ConfigModulePages/Department';
 import Designations from './ConfigModulePages/Designations';
+import InquiryFormFields from './ConfigModulePages/InquiryForm/InquiryFormFields';
+import InquiryFormSchema from './ConfigModulePages/InquiryForm/InquiryFormSchema';
 import ProjectStatus from './ConfigModulePages/ProjectStatus';
 import RolesAndPermission from './ConfigModulePages/RolesAndPermission/RolesAndPermission';
 import ViewPermissions from './ConfigModulePages/RolesAndPermission/ViewPermissions';
@@ -34,44 +39,110 @@ function Config() {
     }
   }, [location.pathname, navigate, organization]);
 
-  return (
-    <div className='w-full h-full'>
-      <div className='w-full h-full flex items-stretch justify-start'>
-        <div className='w-[30%] max-w-[300px] border-r border-r-black/15'>
-          <ConfigSidebar />
-        </div>
+  const segments = location.pathname.split('/').filter(Boolean);
 
-        <div className='flex-1 overflow-auto'>
-          <Routes>
-            <Route
-              path='/project-status'
-              element={<ProtectedRoute element={<ProjectStatus />} />}
-            />
-            <Route
-              path='/department'
-              element={<ProtectedRoute element={<AttachmentTypes />} />}
-            />
-            <Route
-              path='/designations'
-              element={<ProtectedRoute element={<Designations />} />}
-            />
-            <Route
-              path='/roles-permission'
-              element={<ProtectedRoute element={<RolesAndPermission />} />}
-            />
-            <Route
-              path='/roles-permission/:id'
-              element={<ProtectedRoute element={<ViewPermissions />} />}
-            />
-            <Route
-              path='/client-form'
-              element={<ProtectedRoute element={<ClientFormSchema />} />}
-            />
-            <Route path='*' element={<PageNotFound />} />
-          </Routes>
+  const currentSection = segments[1];
+
+  const permissionData = GlobalStateProvider.roles_permissions.permissions.find(
+    (item) => item.module_label == currentSection
+  );
+
+  const ConfigModuleSideBarListing: ConfigModuleSideBarListingInterface[] = [
+    {
+      label: 'project_status',
+      path: 'project-status',
+      module: <ProjectStatus />,
+    },
+    {
+      label: 'department',
+      path: 'department',
+      module: <AttachmentTypes />,
+    },
+    {
+      label: 'designations',
+      path: 'designations',
+      module: <Designations />,
+    },
+    {
+      label: 'roles_permission',
+      path: 'roles-permission',
+      module: <RolesAndPermission />,
+    },
+    {
+      label: 'roles_permission',
+      path: 'roles-permission/:id',
+      module: <ViewPermissions />,
+    },
+    {
+      label: 'inquiry_forms',
+      path: 'inquiry-forms',
+      module: <InquiryFormSchema />,
+    },
+    {
+      label: 'inquiry_forms',
+      path: 'inquiry-forms/:id/fields',
+      module: <InquiryFormFields />,
+    },
+  ];
+
+  if (!permissionData || !permissionData.is_active) {
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission For ConfigModule."
+        isAccessDenied={!permissionData || !permissionData.is_active}
+      />
+    );
+  }
+  if (!permissionData) return null;
+  return (
+    <>
+      <HelmetSeo
+        Title={MetaTitleDescription.configModule.title}
+        Content={MetaTitleDescription.configModule.description}
+      />
+      <div className='w-full h-full'>
+        <div className='w-full h-full flex items-stretch justify-start'>
+          <div className='w-[30%] max-w-[300px] border-r border-r-black/15'>
+            <ConfigSidebar permissionData={permissionData} />
+          </div>
+
+          <div className='flex-1 overflow-auto'>
+            <Routes>
+              {ConfigModuleSideBarListing?.map((sideBarData) => {
+                const modulePermission = permissionData?.sub_modules?.find(
+                  (item) => item.module_label === sideBarData?.label
+                );
+
+                const hasViewPermission = modulePermission?.permissions?.some(
+                  (perm) => perm.label === 'view' && perm.is_allowed
+                );
+
+                if (!hasViewPermission) return null;
+
+                const moduleWithPermissionData = React.cloneElement(
+                  sideBarData?.module,
+                  {
+                    permissions: modulePermission?.permissions || [],
+                  }
+                );
+
+                return (
+                  <Route
+                    key={sideBarData?.path}
+                    path={sideBarData?.path}
+                    element={
+                      <ProtectedRoute element={moduleWithPermissionData} />
+                    }
+                  />
+                );
+              })}
+
+              <Route path='*' element={<PageNotFound />} />
+            </Routes>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

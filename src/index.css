@@ -69,3 +69,54 @@ input[type='number'] {
   scrollbar-width: none; /* Hides the scrollbar */
   -ms-overflow-style: none; /* For Internet Explorer 10+ */
 }
+
+.animate-spin-smooth {
+  animation: spin 1.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+.epr-category-nav {
+  display: none !important;
+}
+.epr-emoji-img {
+  width: 35px !important;
+  height: 35px !important;
+  min-width: 35px !important;
+  max-height: 35px !important;
+  object-fit: contain;
+}
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}

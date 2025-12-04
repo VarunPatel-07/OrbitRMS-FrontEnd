@@ -13,6 +13,8 @@ export interface signUpForm {
   portalUrl: string;
   termsAccepted: boolean;
   countryInfo: string;
+  industry: { label: string; value: string };
+  employeeCount: string;
 }
 
 // const initialOrganizationFormInfo = {

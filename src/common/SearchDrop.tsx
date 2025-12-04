@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaStarOfLife } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
+import { IoClose } from 'react-icons/io5';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { FixedSizeList as VirtualList } from 'react-window';
 import clsx from 'clsx';
@@ -25,6 +26,8 @@ export default function SearchDrop(props: SearchDropProps) {
     showSearchBar = true,
     showError,
     errorMessage,
+    disabled = false,
+    type = 'select',
   } = props;
 
   const boxRef = useRef<HTMLDivElement>(null);
@@ -166,18 +169,50 @@ export default function SearchDrop(props: SearchDropProps) {
           onKeyDown={handelKeyPress}
           ref={buttonRef}
           className={clsx(
-            'px-2.5 py-2.5 bg-white border border-black/45 rounded-lg w-full flex justify-between items-center',
+            'px-2.5 py-2.5 bg-white border border-black/45 rounded-lg w-full flex justify-between items-center disabled:bg-[#7fab98]/15 disabled:border disabled:border-[#7fab98] disabled:cursor-not-allowed text-sm',
             className
           )}
           style={{ border: showError && errorMessage ? '1px solid red' : '' }}
+          disabled={disabled}
         >
-          <span className='text-black font-inter text-sm capitalize text-nowrap text-ellipsis overflow-hidden'>
-            {selectedValue
-              ? selectedValue
-              : placeHolderName
-                ? placeHolderName
-                : 'Select Value'}
-          </span>
+          {selectedValue ? (
+            <>
+              {type == 'select' && !Array.isArray(selectedValue) ? (
+                <span className='text-black font-inter capitalize text-nowrap text-ellipsis overflow-hidden'>
+                  {selectedValue}
+                </span>
+              ) : (
+                <>
+                  {Array.isArray(selectedValue) && (
+                    <div className='flex items-center justify-start flex-wrap gap-1'>
+                      {selectedValue?.map((data: string, index: number) => (
+                        <span
+                          className='text-black font-inter capitalize text-nowrap text-ellipsis overflow-hidden px-2 py-1 bg-gray-200 text-xs rounded-[4px] flex items-center justify-start gap-1.5'
+                          key={index}
+                        >
+                          <span className='text-xs text-black'>{data}</span>
+                          <span
+                            className='text-sm text-black'
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (onSelectValBtn) onSelectValBtn(data, index);
+                            }}
+                          >
+                            <IoClose />
+                          </span>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          ) : (
+            <span className='text-black font-inter capitalize text-nowrap text-ellipsis overflow-hidden'>
+              {placeHolderName ? placeHolderName : 'Select Value'}
+            </span>
+          )}
+
           <IoIosArrowDown
             className={`text-gray-600 text-base transition-transform ${isOpen ? 'rotate-180' : ''}`}
           />
@@ -236,6 +271,12 @@ export default function SearchDrop(props: SearchDropProps) {
                           typeof option === 'object'
                             ? (option as Record<string, string>)[searchKey]
                             : option;
+
+                        const isSelected =
+                          type === 'select'
+                            ? selectedValue === val
+                            : !!selectedValue?.includes(val);
+
                         return (
                           <li
                             style={style}
@@ -243,17 +284,18 @@ export default function SearchDrop(props: SearchDropProps) {
                             className={classNames(
                               'px-3 py-2 cursor-pointer w-full text-black text-nowrap text-ellipsis overflow-hidden',
                               {
-                                'bg-[var(--them-green-color)] text-white !hover:bg-[var(--them-green-color)]':
-                                  selectedValue === val,
+                                'bg-[var(--them-green-color)] text-white hover:!bg-[var(--them-green-color)] !cursor-not-allowed opacity-70':
+                                  isSelected,
                                 'hover:bg-[#7fab98]/20 hover:text-black':
-                                  selectedValue !== val &&
-                                  highlightIndex !== index,
+                                  !isSelected && highlightIndex !== index,
                                 'bg-[#7fab98]/20 text-black':
-                                  highlightIndex === index &&
-                                  selectedValue !== val,
+                                  highlightIndex === index && !isSelected,
                               }
                             )}
-                            onClick={() => handleOnClick(option)}
+                            onClick={() => {
+                              if (!isSelected) handleOnClick(option);
+                            }}
+                            aria-disabled={isSelected}
                           >
                             {typeof option === 'object'
                               ? (option as Record<string, string>)[searchKey]

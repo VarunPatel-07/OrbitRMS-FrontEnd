@@ -14,6 +14,7 @@ import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import { PASSWORD_RESET_KEY } from '../constant/constant';
+import { MetaTitleDescription } from '../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -199,6 +200,7 @@ function ForgotPassword() {
     useEffectRef.current = true;
     (async () => {
       const response = await verifyUsersLoginStatus();
+      if (!response) return;
       if (!response?.success) {
         handelNotification(response, 'top-right');
         setShowGlobalLoader(false);
@@ -223,8 +225,8 @@ function ForgotPassword() {
   return (
     <>
       <HelmetSeo
-        Title='Forgot Password | OrbitRMS'
-        Content='Reset your password for OrbitRMS. Simplify your work and regain access to manage everything in one place effortlessly!'
+        Title={MetaTitleDescription.forgotPassword.title}
+        Content={MetaTitleDescription.forgotPassword.description}
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />
@@ -304,7 +306,7 @@ function ForgotPassword() {
 
                   <div className='w-full grid grid-cols-1 gap-y-8'>
                     <Button
-                      Type='button'
+                      type='button'
                       className='bg-[var(--them-green-color)] w-full text-base py-2 font-semibold rounded-lg transition-all'
                       disabled={loading || countDown ? true : false}
                       onClick={submitForgotPasswordHandler}

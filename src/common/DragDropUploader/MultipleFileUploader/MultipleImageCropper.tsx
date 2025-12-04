@@ -27,6 +27,7 @@ function MultipleImageCropper({
   maxCropWidth,
   handelImageUploadation,
   setIsImageCropperActive,
+  imageProcessingLoader,
 }: {
   DroppedFilesArray: SelectedFileArrayObjInterface[];
   setDroppedFilesArray: React.Dispatch<
@@ -37,6 +38,7 @@ function MultipleImageCropper({
   maxCropWidth: number;
   handelImageUploadation: (fieData: SelectedFileArrayObjInterface[]) => void;
   setIsImageCropperActive?: React.Dispatch<SetStateAction<boolean>>;
+  imageProcessingLoader: boolean;
 }) {
   const [loading, setLoading] = useState<boolean>(false);
   const [renderingImage, setRenderingImage] = useState<boolean>(false);
@@ -118,7 +120,12 @@ function MultipleImageCropper({
 
       setSelectedFileObj((pervItem) => {
         if (!pervItem) return null;
-        return { ...pervItem, croppedImagePreview: dataUrl };
+        return {
+          ...pervItem,
+          croppedImagePreview: dataUrl,
+          croppedArea: croppedArea,
+          rotation: rotation,
+        };
       });
 
       setDroppedFilesArray((fileArray) => {
@@ -132,7 +139,12 @@ function MultipleImageCropper({
 
         return fileArray?.map((item) =>
           item?.id === selectedFileObj?.id
-            ? { ...item, croppedImagePreview: dataUrl }
+            ? {
+                ...item,
+                croppedImagePreview: dataUrl,
+                croppedArea: croppedArea,
+                rotation: rotation,
+              }
             : item
         );
       });
@@ -165,6 +177,8 @@ function MultipleImageCropper({
     });
   };
 
+
+
   const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
     setCroppedArea(croppedAreaPixels);
   };
@@ -194,6 +208,9 @@ function MultipleImageCropper({
         file: file?.file,
         previewUrl: previewUrl,
         croppedImagePreview: file?.croppedImagePreview,
+        originalFile: file.originalFile,
+        croppedArea: file?.croppedArea,
+        rotation: file?.rotation,
       });
       setRenderingImage(false);
     }, 150);
@@ -223,6 +240,9 @@ function MultipleImageCropper({
                 id: data?.id,
                 croppedImagePreview: data?.croppedImagePreview,
                 file: file,
+                originalFile: item.originalFile,
+                croppedArea: item?.croppedArea,
+                rotation: item?.rotation,
               }
             : item
         );
@@ -245,6 +265,9 @@ function MultipleImageCropper({
         file: filteredData[0]?.file,
         previewUrl: previewUrl,
         croppedImagePreview: filteredData[0]?.croppedImagePreview,
+        originalFile: filteredData[0]?.originalFile,
+        croppedArea: filteredData[0]?.croppedArea,
+        rotation: filteredData[0]?.rotation,
       });
     }
   };
@@ -275,6 +298,9 @@ function MultipleImageCropper({
             file: file?.file,
             previewUrl: previewUrl,
             croppedImagePreview: file.croppedImagePreview || '',
+            originalFile: file?.originalFile,
+            croppedArea: file?.croppedArea,
+            rotation: file?.rotation,
           });
         }
       }
@@ -290,6 +316,9 @@ function MultipleImageCropper({
         file: DroppedFilesArray[0]?.file,
         previewUrl: previewUrl,
         croppedImagePreview: DroppedFilesArray[0]?.croppedImagePreview,
+        originalFile: DroppedFilesArray[0]?.originalFile,
+        croppedArea: DroppedFilesArray[0]?.croppedArea,
+        rotation: DroppedFilesArray[0]?.rotation,
       });
     }
   }, [DroppedFilesArray, selectedFileObj]);
@@ -306,50 +335,69 @@ function MultipleImageCropper({
           </button>
         </div>
         <div className='w-[450px] h-[400px] m-auto bg-white rounded-lg p-4 overflow-hidden relative'>
-          {loading && (
-            <div className='w-full h-full flex items-center justify-center bg-black/20 backdrop-blur-md absolute top-0 left-0 z-20 transition-all duration-200'>
-              <HamsterLoader theme='light' />
+          {imageProcessingLoader ? (
+            <div className='w-full h-full flex flex-col-reverse items-center justify-center bg-white backdrop-blur-md absolute top-0 left-0 z-20 transition-all duration-200 gap-8'>
+              <p className='text-black font-medium text-lg animate-bounce'>
+                Wait, we are processing your images...
+              </p>
+
+              <HamsterLoader theme='dark' />
             </div>
-          )}
-          {selectedFileObj && (
+          ) : (
             <>
-              {renderingImage ? (
-                <div className='w-full h-full flex items-center justify-center border border-black/15 backdrop-blur-md absolute top-0 left-0 z-20 transition-all duration-200'>
+              {loading && (
+                <div className='w-full h-full flex items-center justify-center bg-black/20 backdrop-blur-md absolute top-0 left-0 z-20 transition-all duration-200'>
                   <HamsterLoader theme='light' />
                 </div>
-              ) : (
+              )}
+              {selectedFileObj && (
                 <>
-                  {selectedFileObj?.croppedImagePreview ? (
-                    <div className='w-full h-full flex items-center justify-center bg-black/10 rounded-md overflow-hidden'>
-                      <img
-                        src={selectedFileObj?.croppedImagePreview}
-                        className={`w-full h-full m-auto ${cropShape === 'round' ? 'rounded-full' : 'rounded-md'}`}
-                        alt='cropped Image Preview'
-                        loading='lazy'
-                        style={{
-                          maxWidth: maxCropWidth,
-                          maxHeight: maxCropHeight,
-                        }}
-                      />
+                  {renderingImage ? (
+                    <div className='w-full h-full flex flex-col-reverse items-center justify-center bg-white backdrop-blur-md absolute top-0 left-0 z-20 transition-all duration-200 gap-8'>
+                      <p className='text-black font-medium text-lg animate-bounce'>
+                        Loading...
+                      </p>
+
+                      <HamsterLoader theme='dark' />
                     </div>
                   ) : (
-                    <Cropper
-                      image={selectedFileObj?.previewUrl}
-                      crop={crop}
-                      zoom={zoom}
-                      rotation={rotation}
-                      onCropChange={setCrop}
-                      onCropComplete={onCropComplete}
-                      onZoomChange={setZoom}
-                      onRotationChange={setRotation}
-                      cropSize={{ width: maxCropWidth, height: maxCropHeight }}
-                      restrictPosition={false}
-                      cropShape={cropShape}
-                      objectFit='contain'
-                      style={{
-                        containerStyle: { backgroundColor: 'transparent' },
-                      }}
-                    />
+                    <>
+                      {selectedFileObj?.croppedImagePreview ? (
+                        <div className='w-full h-full flex items-center justify-center bg-black/10 rounded-md overflow-hidden'>
+                          <img
+                            src={selectedFileObj?.croppedImagePreview}
+                            className={`w-full h-full m-auto ${cropShape === 'round' ? 'rounded-full' : 'rounded-md'}`}
+                            alt='cropped Image Preview'
+                            loading='lazy'
+                            style={{
+                              maxWidth: maxCropWidth,
+                              maxHeight: maxCropHeight,
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <Cropper
+                          image={selectedFileObj?.previewUrl}
+                          crop={crop}
+                          zoom={zoom}
+                          rotation={rotation}
+                          onCropChange={setCrop}
+                          onCropComplete={onCropComplete}
+                          onZoomChange={setZoom}
+                          onRotationChange={setRotation}
+                          cropSize={{
+                            width: maxCropWidth,
+                            height: maxCropHeight,
+                          }}
+                          restrictPosition={false}
+                          cropShape={cropShape}
+                          objectFit='contain'
+                          style={{
+                            containerStyle: { backgroundColor: 'transparent' },
+                          }}
+                        />
+                      )}
+                    </>
                   )}
                 </>
               )}

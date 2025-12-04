@@ -6,7 +6,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../common/Breadcrumbs';
-import { FilterObjectInterface } from '../../common/Table/FilterInput';
+import Button from '../../common/Button';
 import Table from '../../common/Table/Table';
 import TableFilterSearchBar from '../../common/Table/TableFilterSearchBar';
 import TableInfoHeader from '../../common/Table/TableInfoHeader';
@@ -32,11 +32,14 @@ import {
 } from '../../interface/EmployeeInterface';
 import {
   Column,
+  FilterObjectInterface,
   MetaDataInterface,
   TableInfoHeaderInterfaceButtonArrayObject,
   UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
 import { EmployeeListingFiltersArray } from './EmployeeListingFiltersArray';
+import HelmetSeo from '../../Helper/HelmetSeo';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 
 const initialMetadata: MetaDataInterface = {
   total_data: 0,
@@ -83,12 +86,12 @@ function EmployeeListing() {
     {
       name: 'Employee Listing',
       label: 'employee-listing',
-      link: `/${organization}/employee/employee-listing`,
+      link: `/${organization}/employees/employee-listing`,
     },
   ];
 
   const handelShowModal = () => {
-    navigate(`/${organization}/employee/add`);
+    navigate(`/${organization}/employees/manage/add`);
   };
   //
   // * This Is An OptionsButton Array That Is Being Render On The Table Header
@@ -243,7 +246,7 @@ function EmployeeListing() {
             />
             <div className='w-fit'>
               <Link
-                to={`/${organization}/employee-profile/${data?.reporting_to_id}/employee-details`}
+                to={`/${organization}/employees/employee-profile/${data?.reporting_to_id}/employee-details`}
                 className='flex items-center justify-start gap-1 text-black hover:text-[#3538CD]'
                 target='_blank'
               >
@@ -273,30 +276,38 @@ function EmployeeListing() {
       renderContent: (data: EmployeeFieldInterface) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
-            <button
+            <Button
+              type='button'
               className='text-black/80 p-1.5'
-              data-tooltip-id='project_status_edit_button'
-              data-tooltip-content='Edit'
+              dataTooltipId='project_status_edit_button'
+              dataTooltipContent='Edit'
+              disabled={permissionData?.permissions?.some(
+                (item) => item?.label == 'edit' && !item?.is_allowed
+              )}
               onClick={() => {
                 navigate(
-                  `/${organization}/employee/edit/${data?.personal_info?.user_id}`
+                  `/${organization}/employees/manage/edit/${data?.personal_info?.user_id}`
                 );
               }}
             >
               <MdModeEdit className='text-[22px]' />
-            </button>
-            <button
+            </Button>
+            <Button
+              type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='project_status_view_profile_button'
-              data-tooltip-content='View Profile'
+              dataTooltipId='project_status_view_profile_button'
+              dataTooltipContent='View Profile'
+              disabled={permissionData?.permissions?.some(
+                (item) => item?.label == 'view' && !item?.is_allowed
+              )}
               onClick={() => {
                 navigate(
-                  `/${organization}/employee-profile/${data?.personal_info?.user_id}/employee-details`
+                  `/${organization}/employees/employee-profile/${data?.personal_info?.user_id}/employee-details`
                 );
               }}
             >
               <IoEye className='text-[22px]' />
-            </button>
+            </Button>
             <Tooltip
               id='project_status_edit_button'
               opacity={'100'}
@@ -365,7 +376,16 @@ function EmployeeListing() {
             obj.operator = moduleValue?.label;
           }
           if (moduleValue?.type === FilterFieldsTypeEnums[2]) {
-            obj.value = moduleValue?.value;
+            if (queryObj?.optionType == 'multi-select') {
+              const MultiSelectArr: string[] = [];
+              queryObj?.moduleValue
+                ?.filter((tem) => tem.type === FilterFieldsTypeEnums[2])
+                ?.map((data) => MultiSelectArr.push(data?.value));
+
+              obj.value = JSON.stringify(MultiSelectArr);
+            } else {
+              obj.value = moduleValue?.value;
+            }
           }
         });
         return obj;
@@ -379,7 +399,7 @@ function EmployeeListing() {
 
     // Then navigate after the state updates are complete
     setTimeout(() => {
-      navigate(`/${organization}/employee/employee-listing?${queryString}`);
+      navigate(`/${organization}/employees/employee-listing?${queryString}`);
     }, 0);
   };
 
@@ -428,81 +448,117 @@ function EmployeeListing() {
 
     fetchAllEmployeeWithDebounce(queryString);
   }, [fetchAllEmployeeWithDebounce, queryParameter]);
+
+  const segments = location.pathname.split('/').filter(Boolean);
+
+  const parentSection = segments[1];
+  const childSection = segments[2];
+
+  const permissionData = GlobalStateProvider.roles_permissions.permissions
+    .find((item) => item.module_label == parentSection)
+    ?.sub_modules?.find(
+      (item) => item?.module_label == childSection?.replace('-', '_')
+    );
+
   return (
-    <div className='w-full h-full relative'>
-      <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
-      <div className='w-full h-full pt-9'>
-        <div className='w-full h-full p-4 2xl:p-5'>
-          {isInitialFetching ? (
-            <div className='w-full h-full overflow-hidden'>
-              <TableSkeletonLoader
-                tableHeaderCount={5}
-                tableValueCount={13}
-                maxHeight='calc(-350px + 100vh)'
-              />
-            </div>
-          ) : (
-            <>
-              <TableInfoHeader
-                moduleName='Employees'
-                badgeValue={`${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length * selectedPage} of  ${metaData?.total_data}  Employee`}
-                buttonsArray={optionsButtonArray}
-              />
-              <TableFilterSearchBar
-                filterColumnsArray={EmployeeListingFiltersArray}
-                handelApplyFilterFunc={handelApplyFilterEmployeeListing}
-                urlDecodedFilterQuery={urlDecodedFilterQuery || ''}
-              />
-              {isFetchingData ? (
+    <>
+      <HelmetSeo
+        Title={MetaTitleDescription.employeeListing.title}
+        Content={MetaTitleDescription.employeeListing.description}
+      />
+      <div className='w-full h-full relative'>
+        <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+        <div className='w-full h-full pt-9'>
+          <div className='w-full h-full p-4 2xl:p-5'>
+            {isInitialFetching ? (
+              <div className='w-full h-full overflow-hidden'>
                 <TableSkeletonLoader
                   tableHeaderCount={5}
                   tableValueCount={13}
                   maxHeight='calc(-350px + 100vh)'
-                  showFilterLoader={false}
-                  showHeaderLoader={false}
                 />
-              ) : (
-                <>
-                  {data?.length > 0 ? (
-                    <>
-                      <Table
-                        columns={columns}
-                        data={data}
+              </div>
+            ) : (
+              <>
+                <TableInfoHeader
+                  moduleName='Employees'
+                  badgeValue={
+                    data?.length > 0
+                      ? `${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length * selectedPage} of  ${metaData?.total_data}  Employees`
+                      : `0 Employee`
+                  }
+                  buttonsArray={
+                    permissionData?.permissions?.some(
+                      (item) => item?.label == 'edit' && item?.is_allowed
+                    )
+                      ? optionsButtonArray
+                      : []
+                  }
+                  loading={isFetchingData}
+                />
+                <TableFilterSearchBar
+                  filterColumnsArray={EmployeeListingFiltersArray}
+                  handelApplyFilterFunc={handelApplyFilterEmployeeListing}
+                  urlDecodedFilterQuery={urlDecodedFilterQuery || ''}
+                />
+                {isFetchingData ? (
+                  <TableSkeletonLoader
+                    tableHeaderCount={5}
+                    tableValueCount={13}
+                    maxHeight='calc(-350px + 100vh)'
+                    showFilterLoader={false}
+                    showHeaderLoader={false}
+                  />
+                ) : (
+                  <>
+                    {data?.length > 0 ? (
+                      <>
+                        <Table
+                          columns={columns}
+                          data={data}
+                          tableWrapperClass={
+                            'overflow-auto max-h-[calc(100vh-340px)] h-full bg-white'
+                          }
+                          stickyHeaderClass='sticky top-0'
+                        />
+                        <TablePagination
+                          paginationDropDownArray={dropdownMenuArray}
+                          recordsPerPage={recordsPerPage}
+                          handelClickOnDroDownVal={handelClickOnRecordPerPage}
+                          clickOnPaginationVal={handelClickOnPaginationButtons}
+                          selectedPage={selectedPage}
+                          totalPage={metaData?.total_pages}
+                        />
+                      </>
+                    ) : (
+                      <TableNoDataFound
                         tableWrapperClass={
-                          'overflow-auto max-h-[calc(100vh-330px)] h-full bg-white'
+                          'max-h-[calc(100%-150px)] rounded-b-lg'
                         }
-                        stickyHeaderClass='sticky top-0'
+                        notFoundTitle={'No Employees Found'}
+                        notFoundMessage={
+                          'No matching employee found. Try refining your search or add a new employee.'
+                        }
+                        notFoundOptionsButtonsArray={
+                          queryParameter
+                            ? []
+                            : permissionData?.permissions?.some(
+                                  (item) =>
+                                    item?.label == 'edit' && item?.is_allowed
+                                )
+                              ? optionsButtonArray
+                              : []
+                        }
                       />
-                      <TablePagination
-                        paginationDropDownArray={dropdownMenuArray}
-                        recordsPerPage={recordsPerPage}
-                        handelClickOnDroDownVal={handelClickOnRecordPerPage}
-                        clickOnPaginationVal={handelClickOnPaginationButtons}
-                        selectedPage={selectedPage}
-                        totalPage={metaData?.total_pages}
-                      />
-                    </>
-                  ) : (
-                    <TableNoDataFound
-                      tableWrapperClass={
-                        'max-h-[calc(100%-150px)] rounded-b-lg'
-                      }
-                      notFoundTitle={'No Employees Found'}
-                      notFoundMessage={
-                        'No matching employee found. Try refining your search or add a new employee.'
-                      }
-                      notFoundOptionsButtonsArray={
-                        queryParameter ? [] : optionsButtonArray
-                      }
-                    />
-                  )}
-                </>
-              )}
-            </>
-          )}
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

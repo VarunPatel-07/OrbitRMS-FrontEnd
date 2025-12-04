@@ -1,14 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  Suspense,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { MdDelete, MdModeEdit, MdOutlineRemoveRedEye } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../../../common/Breadcrumbs';
+import Button from '../../../../common/Button';
 import Table from '../../../../common/Table/Table';
 import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
+import AccessDeniedRedirect from '../../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
 import {
   GlobalStateContext,
@@ -26,12 +34,15 @@ import {
 } from '../../../../Helper/api/multipleAPI';
 import { formateDate } from '../../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../../Hooks/useDebounce';
+import { PermissionObjectInterface } from '../../../../interface/interface';
 import {
   AddRolesAndPermissionInterFace,
   Column,
   RolesPermissionInterface,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../../interface/propsInterface';
+import HelmetSeo from '../../../../Helper/HelmetSeo';
+import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
 
 const AddEditRolePermission = React.lazy(
   () => import('./AddEditRolePermission')
@@ -51,7 +62,11 @@ const initialState = {
   },
 };
 
-function RolesAndPermission() {
+function RolesAndPermission({
+  permissions,
+}: {
+  permissions?: PermissionObjectInterface[];
+}) {
   const navigate = useNavigate();
   const { handelNotification } = useContext(
     NotificationContext
@@ -241,36 +256,58 @@ function RolesAndPermission() {
       renderContent: (data: any) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
-            <button
+            <Button
+              type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='roles_permission_view_button'
-              data-tooltip-content='View'
+              dataTooltipId='roles_permission_view_button'
+              dataTooltipContent='View'
               onClick={() => {
                 handleRolesPermissionViewButton(data);
               }}
+              disabled={
+                permissions &&
+                permissions.some(
+                  (perm) => perm.label === 'view' && !perm.is_allowed
+                )
+              }
             >
               <MdOutlineRemoveRedEye className='text-[22px]' />
-            </button>
-            <button
+            </Button>
+            <Button
+              type='button'
               className='text-black/80 p-1.5'
-              data-tooltip-id='roles_permission_edit_button'
-              data-tooltip-content='Edit'
+              dataTooltipId='roles_permission_edit_button'
+              dataTooltipContent='Edit'
               onClick={() => handelEditButtonClick(data)}
+              disabled={
+                !data?.is_editable ||
+                (permissions &&
+                  permissions.some(
+                    (perm) => perm.label === 'edit' && !perm.is_allowed
+                  ))
+              }
             >
               <MdModeEdit className='text-[22px]' />
-            </button>
-            <button
+            </Button>
+            <Button
+              type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='roles_permission_delete_button'
-              data-tooltip-content='Delete'
-              disabled={data?.source_type == 'default'}
+              dataTooltipId='roles_permission_delete_button'
+              dataTooltipContent='Delete'
+              disabled={
+                data?.source_type == 'default' ||
+                (permissions &&
+                  permissions.some(
+                    (perm) => perm.label === 'delete' && !perm.is_allowed
+                  ))
+              }
               onClick={() => {
                 setShowDeleteModal(true);
                 setDeleteItemId(data?.id);
               }}
             >
               <MdDelete className='text-[22px]' />
-            </button>
+            </Button>
 
             <Tooltip
               id='roles_permission_edit_button'
@@ -421,9 +458,25 @@ function RolesAndPermission() {
     setIsFetchingData(true);
     fetchRolesAndPermission();
   }, []);
-
+  if (
+    !permissions ||
+    !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
+  )
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission For Roles & Permission."
+        isAccessDenied={
+          !permissions ||
+          !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
+        }
+      />
+    );
   return (
     <>
+     <HelmetSeo
+        Title={MetaTitleDescription.roleAndPermission.title}
+        Content={MetaTitleDescription.roleAndPermission.description}
+      />
       <div className='relative w-full h-full'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>
@@ -445,7 +498,13 @@ function RolesAndPermission() {
                       ? filterData.length?.toString()
                       : data.length?.toString()
                   }
-                  buttonsArray={optionsButtonArray}
+                  buttonsArray={
+                    permissions.some(
+                      (perm) => perm.label === 'edit' && perm.is_allowed
+                    )
+                      ? optionsButtonArray
+                      : []
+                  }
                 />
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
@@ -478,7 +537,13 @@ function RolesAndPermission() {
                         : 'Add Role manually by clicking Add Role button.'
                     }
                     notFoundOptionsButtonsArray={
-                      showSearchFilterData ? [] : optionsButtonArray
+                      showSearchFilterData
+                        ? []
+                        : permissions.some(
+                              (perm) => perm.label === 'edit' && perm.is_allowed
+                            )
+                          ? optionsButtonArray
+                          : []
                     }
                   />
                 )}
@@ -488,24 +553,30 @@ function RolesAndPermission() {
         </div>
       </div>
 
-      <AddEditRolePermission
-        modalTitle={modalType == 'add' ? 'Add Role' : 'Edit Role'}
-        loading={loading}
-        value={value}
-        setValue={setValue}
-        modalType={modalType}
-        handelFormSubmitFunction={handelFormSubmitFunction}
-        setShowModal={setShowModal}
-        showModal={showModal}
-        ActiveRolesPermissionArray={data}
-      />
-      <DeleteModal
-        loading={isDeleteLoading}
-        showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
-        handelDelete={handelDeleteItem}
-        name='Role'
-      />
+      <Suspense fallback={null}>
+        {showModal && (
+          <AddEditRolePermission
+            modalTitle={modalType == 'add' ? 'Add Role' : 'Edit Role'}
+            loading={loading}
+            value={value}
+            setValue={setValue}
+            modalType={modalType}
+            handelFormSubmitFunction={handelFormSubmitFunction}
+            setShowModal={setShowModal}
+            showModal={showModal}
+            ActiveRolesPermissionArray={data}
+          />
+        )}
+        {showDeleteModal && (
+          <DeleteModal
+            loading={isDeleteLoading}
+            showDeleteModal={showDeleteModal}
+            setShowDeleteModal={setShowDeleteModal}
+            handelDelete={handelDeleteItem}
+            name='Role'
+          />
+        )}
+      </Suspense>
     </>
   );
 }

@@ -1,13 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  Suspense,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
 import Breadcrumbs from '../../../common/Breadcrumbs';
+import Button from '../../../common/Button';
 import Table from '../../../common/Table/Table';
 import TableInfoHeader from '../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../common/Table/TableNoDataFound';
+import AccessDeniedRedirect from '../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
 import {
   GlobalStateContext,
@@ -25,17 +33,24 @@ import {
 } from '../../../Helper/api/multipleAPI';
 import { formateDate, hexToRgb } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
+import { PermissionObjectInterface } from '../../../interface/interface';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
+import HelmetSeo from '../../../Helper/HelmetSeo';
+import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
 
 const AddModal = React.lazy(() => import('../../../Components/Modal/AddModal'));
 const DeleteModal = React.lazy(
   () => import('../../../Components/Modal/DeleteModal')
 );
 
-function ProjectStatus() {
+function ProjectStatus({
+  permissions,
+}: {
+  permissions?: PermissionObjectInterface[];
+}) {
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
@@ -106,6 +121,7 @@ function ProjectStatus() {
 
       const response = await multiplePostApi(endPointArr);
       const res = response[0];
+
       if (res?.success) {
         setEditId('');
         setModalType('add');
@@ -121,7 +137,7 @@ function ProjectStatus() {
         handelNotification(res, 'top-right');
       }
     },
-    200
+    100
   );
 
   const handelFormSubmitFunction = (value: string, color?: string) => {
@@ -289,26 +305,40 @@ function ProjectStatus() {
       renderContent: (data: any) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
-            <button
-              className='text-black/80 p-1.5'
-              data-tooltip-id='project_status_edit_button'
-              data-tooltip-content='Edit'
+            <Button
+              type='button'
+              className='text-black/80 p-1.5 cursor-pointer'
+              dataTooltipId='project_status_edit_button'
+              dataTooltipContent='Edit'
               onClick={() => handelEditButtonClick(data)}
+              disabled={
+                permissions &&
+                permissions.some(
+                  (perm) => perm.label === 'edit' && !perm.is_allowed
+                )
+              }
             >
               <MdModeEdit className='text-[22px]' />
-            </button>
-            <button
-              className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='project_status_delete_button'
-              data-tooltip-content='Delete'
-              disabled={data?.source_type == 'default'}
+            </Button>
+            <Button
+              type='button'
+              className='text-black/80 p-1.5 cursor-pointer'
+              dataTooltipId='project_status_delete_button'
+              dataTooltipContent='Delete'
+              disabled={
+                data?.source_type == 'default' ||
+                (permissions &&
+                  permissions.some(
+                    (perm) => perm.label === 'delete' && !perm.is_allowed
+                  ))
+              }
               onClick={() => {
                 setShowDeleteModal(true);
                 setDeleteItemId(data?.id);
               }}
             >
               <MdDelete className='text-[22px]' />
-            </button>
+            </Button>
             <Tooltip
               id='project_status_edit_button'
               opacity={'100'}
@@ -336,8 +366,26 @@ function ProjectStatus() {
     fetchProjectStatus();
   }, []);
 
+  if (
+    !permissions ||
+    !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
+  )
+    return (
+      <AccessDeniedRedirect
+        message="You don't have permission For Project Status."
+        isAccessDenied={
+          !permissions ||
+          !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
+        }
+      />
+    );
+
   return (
     <>
+      <HelmetSeo
+        Title={MetaTitleDescription.projectStatus.title}
+        Content={MetaTitleDescription.projectStatus.description}
+      />
       <div className='relative w-full h-full'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>
@@ -359,7 +407,13 @@ function ProjectStatus() {
                       ? filterData.length?.toString()
                       : data.length?.toString()
                   }
-                  buttonsArray={optionsButtonArray}
+                  buttonsArray={
+                    permissions.some(
+                      (perm) => perm.label === 'edit' && perm.is_allowed
+                    )
+                      ? optionsButtonArray
+                      : []
+                  }
                 />
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
@@ -391,7 +445,13 @@ function ProjectStatus() {
                         : 'Add Projects Status manually by clicking Add Projects Status button.'
                     }
                     notFoundOptionsButtonsArray={
-                      showSearchFilterData ? [] : optionsButtonArray
+                      showSearchFilterData
+                        ? []
+                        : permissions.some(
+                              (perm) => perm.label === 'edit' && perm.is_allowed
+                            )
+                          ? optionsButtonArray
+                          : []
                     }
                   />
                 )}
@@ -401,30 +461,37 @@ function ProjectStatus() {
         </div>
       </div>
 
-      <AddModal
-        modalTitle={
-          modalType == 'add' ? 'Add Project Status' : 'Edit Project Status'
-        }
-        labelFieldName='Project Status'
-        showColorPicker={true}
-        showPreview={true}
-        showModal={showModal}
-        setShowModal={setShowModal}
-        loading={loading}
-        handelFormSubmitFunction={handelFormSubmitFunction}
-        value={value}
-        setValue={setValue}
-        modalType={modalType}
-        color={statusColor}
-        setColor={setStatusColor}
-      />
-      <DeleteModal
-        loading={isDeleteLoading}
-        showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
-        handelDelete={handelDeleteItem}
-        name='Project Status'
-      />
+      <Suspense fallback={null}>
+        {showModal && (
+          <AddModal
+            modalTitle={
+              modalType == 'add' ? 'Add Project Status' : 'Edit Project Status'
+            }
+            labelFieldName='Project Status'
+            showColorPicker={true}
+            showPreview={true}
+            showModal={showModal}
+            setShowModal={setShowModal}
+            loading={loading}
+            handelFormSubmitFunction={handelFormSubmitFunction}
+            value={value}
+            setValue={setValue}
+            modalType={modalType}
+            color={statusColor}
+            setColor={setStatusColor}
+          />
+        )}
+
+        {showDeleteModal && (
+          <DeleteModal
+            loading={isDeleteLoading}
+            showDeleteModal={showDeleteModal}
+            setShowDeleteModal={setShowDeleteModal}
+            handelDelete={handelDeleteItem}
+            name='Project Status'
+          />
+        )}
+      </Suspense>
     </>
   );
 }

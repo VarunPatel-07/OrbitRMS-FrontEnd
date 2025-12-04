@@ -25,13 +25,13 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
     options: [], // No options for text filters
   },
   {
-    id: 'status',
-    value: 'Status',
+    id: 'account_status',
+    value: 'Account Status',
     label: (
       <div className='flex items-start'>
         <span className='icon-user text-gray-600 text-lg pe-2' />
         <span className='font-inter text-base text-black font-medium'>
-          Status
+          Account Status
         </span>
       </div>
     ),
@@ -50,6 +50,43 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
       },
     ], // No options for text filters
   },
+
+  {
+    id: 'status',
+    value: 'Status',
+    label: (
+      <div className='flex items-start'>
+        <span className='icon-user text-gray-600 text-lg pe-2' />
+        <span className='font-inter text-base text-black font-medium'>
+          Status
+        </span>
+      </div>
+    ),
+    optionType: 'select',
+    operator: [Is],
+    options: [
+      {
+        label: 'intern',
+        value: 'Intern',
+        type: FilterFieldsTypeEnums[2],
+      },
+      {
+        label: 'trainee',
+        value: 'Trainee',
+        type: FilterFieldsTypeEnums[2],
+      },
+      {
+        label: 'probation',
+        value: 'Probation',
+        type: FilterFieldsTypeEnums[2],
+      },
+      {
+        label: 'confirmed',
+        value: 'Confirmed',
+        type: FilterFieldsTypeEnums[2],
+      },
+    ], // No options for text filters
+  },
   {
     id: 'employee_type',
     value: 'Employee Type',
@@ -61,7 +98,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
         </span>
       </div>
     ),
-    optionType: 'select',
+    optionType: 'multi-select',
     operator: [Equals],
     options: [
       {

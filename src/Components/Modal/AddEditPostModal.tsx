@@ -8,24 +8,20 @@ import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../Context/Notification/NotificationContextApi';
-import { multipleFetchApi } from '../../Helper/api/multipleAPI';
 import {
   classNames,
   isRichTextEditorIsEmpty,
 } from '../../Helper/HelperFunctions';
-import { useMentionSearchDebounce } from '../../Hooks/useMentionSearchDebounce';
 import {
   AddEditPostModalInterface,
   SelectedFileArrayObjInterface,
 } from '../../interface/interface';
-import { RichTextEditorApiResponseInterface } from '../../interface/propsInterface';
 
 const AddEditPostModal = React.memo(function AddEditPostModal(
   props: AddEditPostModalInterface
 ) {
   const {
     showAddEditPostModal,
-
     GlobalStateProvider,
     handelOnSubmit,
     onEditorReady,
@@ -34,6 +30,7 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
     loading,
     setLoading,
     handelCancelButton,
+    handelApiCallingFunction,
   } = props as AddEditPostModalInterface;
 
   const { handelNotification } = useContext(
@@ -74,41 +71,6 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
     setFormData((pervData) => ({ ...pervData, description: data }));
   };
 
-  const handelApiCallingFunction = useMentionSearchDebounce(
-    async (query: string) => {
-      const response = await multipleFetchApi([
-        {
-          endPoint: `employee/fetch-employee?query=${query}`,
-          protected: true,
-        },
-      ]);
-
-      if (!response[0]?.success) throw new Error('Failed to fetch');
-
-      const data = await response[0]?.data;
-
-      if (data?.length !== 0) {
-        return data.map((item: RichTextEditorApiResponseInterface) => ({
-          id: item.id,
-          label: `${item?.full_name ? item?.full_name : item?.first_name + ' ' + item?.middle_name + ' ' + item?.last_name}`,
-          employeeCode: `(<span className="text-blue-600">${item?.employee_code}</span>)`,
-          success: true,
-        }));
-      } else {
-        return [
-          {
-            id: '',
-            label: '',
-            employeeCode: '',
-            success: false,
-            message: 'No matches found.',
-          },
-        ];
-      }
-    },
-    400
-  );
-
   const handelClickOnTheDeleteBtn = (id: string) => {
     const _filterData = formData?.new_images?.filter((item) => item?.id !== id);
 
@@ -148,6 +110,7 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
       cropShape='rect'
       maxCropHeight={350}
       maxCropWidth={350}
+      maxSize={100 * 1048576}
       isImageCropperActive={isImageCropperActive}
       setIsImageCropperActive={setIsImageCropperActive}
       handelUploadImage={handelUploadImage}
@@ -207,7 +170,7 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
                 className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'
               >
                 <span className='flex gap-1'>
-                  <span className='font-inter'>Images (Max: 2MB)</span>
+                  <span className='font-inter'>Images (Max: 100MB)</span>
                 </span>
               </label>
               {formData?.new_images?.length !== 0 ||

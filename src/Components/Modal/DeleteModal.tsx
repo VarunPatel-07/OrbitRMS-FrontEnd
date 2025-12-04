@@ -10,12 +10,16 @@ function DeleteModal({
   loading,
   handelDelete,
   name,
+  ExtraErrorMessage,
+  minHeight,
 }: {
   showDeleteModal: boolean;
   setShowDeleteModal: React.Dispatch<SetStateAction<boolean>>;
   loading: boolean;
   handelDelete: () => void;
   name?: string;
+  ExtraErrorMessage?: React.ReactElement;
+  minHeight?: number;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
 
@@ -45,12 +49,13 @@ function DeleteModal({
       <div className='w-full h-full flex items-center justify-center'>
         <div
           className={classNames(
-            'delete-modal bg-white min-h-[300px] min-w-[600px] transition-all px-8 rounded-lg relative overflow-hidden flex flex-col items-start justify-end',
+            `delete-modal bg-white min-w-[600px] transition-all px-8 rounded-lg relative overflow-hidden flex flex-col items-start justify-end`,
             {
               'scale-50 opacity-0': !showDeleteModal,
               'scale-100 opacity-100': showDeleteModal,
             }
           )}
+          style={{ minHeight: `${minHeight || 300}px` }}
           ref={boxRef}
         >
           <div className='delete absolute -top-[15%]  -left-[10%]'>
@@ -65,14 +70,22 @@ function DeleteModal({
             </span>
           </div>
           <div className='relative z-10 w-full h-full flex flex-col items-start justify-end pb-5 gap-7'>
-            <div className='flex flex-col items-start justify-start gap-1'>
-              <h4 className='text-[26px] text-slate-950 font-bold font-inter'>
-                Delete {name}
-              </h4>
-              <p className='text-base text-slate-950 font-inter'>
-                Are you sure you want to delete {name?.toLocaleLowerCase()}?
-                This action is irreversible.
-              </p>
+            <div
+              className={classNames('w-full', {
+                'flex flex-col items-start justify-start gap-5':
+                  !!ExtraErrorMessage,
+              })}
+            >
+              <div className='flex flex-col items-start justify-start gap-1'>
+                <h4 className='text-[26px] text-slate-950 font-bold font-inter'>
+                  Delete {name}
+                </h4>
+                <p className='text-base text-slate-950 font-inter'>
+                  Are you sure you want to delete {name?.toLocaleLowerCase()}?
+                  This action is irreversible.
+                </p>
+              </div>
+              {ExtraErrorMessage && ExtraErrorMessage}
             </div>
             <div className='grid grid-cols-2 w-full gap-x-2'>
               <button

@@ -10,6 +10,7 @@ import {
   NotificationContextApiProps,
 } from '../../../Context/Notification/NotificationContextApi';
 import { classNames } from '../../../Helper/HelperFunctions';
+import { ImageDownscaler } from '../../../Helper/ImageDownscaler';
 import { SelectedFileArrayObjInterface } from '../../../interface/interface';
 import { MultipleImageUploaderPropsInterface } from '../../../interface/propsInterface';
 import MultipleImageCropper from './MultipleImageCropper';
@@ -25,10 +26,14 @@ const MultipleDragAndDropFileUploader = React.memo(
       maxCropHeight,
       maxCropWidth,
       setIsImageCropperActive,
+      isImageCropperActive,
       handelUploadImage,
       asPlusIcon = false,
       disabled,
       remainingImages,
+      showError,
+      errorMessage,
+      maxSize,
     } = props as MultipleImageUploaderPropsInterface;
 
     const { handelNotification } = useContext(
@@ -37,6 +42,9 @@ const MultipleDragAndDropFileUploader = React.memo(
     const [droppedFilesArray, setDroppedFilesArray] = useState<
       SelectedFileArrayObjInterface[]
     >([]);
+
+    const [imageProcessingLoader, setImageProcessingLoader] =
+      useState<boolean>(false);
 
     const uploadingFilesTypeCheckingFunction = useCallback(
       (file: File) => {
@@ -49,27 +57,55 @@ const MultipleDragAndDropFileUploader = React.memo(
       [RequiredFileTypeArray]
     );
     const onDrop = useCallback(
-      (acceptedFiles: Array<File>) => {
-        acceptedFiles.map((eachFile: File) => {
-          if (uploadingFilesTypeCheckingFunction(eachFile)) {
-            const imgObject: SelectedFileArrayObjInterface = {
-              id: uuidv4(),
-              file: eachFile,
-              croppedImagePreview: '',
-            };
-            setDroppedFilesArray((pervFile) => [
-              ...(pervFile || []),
-              imgObject,
-            ]);
-            if (setIsImageCropperActive) setIsImageCropperActive(true);
-          } else {
-            const res = {
-              success: false,
-              message: `Oops! That file format isn't supported. Try ${RequiredFileTypeArray?.map((item) => item.split('/')[1]).join(', ')}`,
-            };
-            handelNotification(res, 'top-right');
+      async (acceptedFiles: Array<File>) => {
+        if (acceptedFiles?.length >= 1) {
+          setImageProcessingLoader(true);
+
+          try {
+            await Promise.all(
+              acceptedFiles.map(async (eachFile: File) => {
+                if (uploadingFilesTypeCheckingFunction(eachFile)) {
+                  if (setIsImageCropperActive) setIsImageCropperActive(true);
+
+                  let processedFile = eachFile;
+                  if (eachFile.size > 2 * 1024 * 1024) {
+                    try {
+                      processedFile = await ImageDownscaler(eachFile, 2); // downscale to ~2MB
+                    } catch (err) {
+                      console.error('Scaling failed, using original file', err);
+                    }
+                  }
+
+                  const imgObject: SelectedFileArrayObjInterface = {
+                    id: uuidv4(),
+                    file: processedFile,
+                    croppedImagePreview: '',
+                    originalFile: eachFile,
+                    croppedArea: {
+                      width: 0,
+                      height: 0,
+                      x: 0,
+                      y: 0,
+                    },
+                    rotation: 0,
+                  };
+                  setDroppedFilesArray((pervFile) => [
+                    ...(pervFile || []),
+                    imgObject,
+                  ]);
+                } else {
+                  const res = {
+                    success: false,
+                    message: `Oops! That file format isn't supported. Try ${RequiredFileTypeArray?.map((item) => item.split('/')[1]).join(', ')}`,
+                  };
+                  handelNotification(res, 'top-right');
+                }
+              })
+            );
+          } finally {
+            setImageProcessingLoader(false);
           }
-        });
+        }
       },
       [uploadingFilesTypeCheckingFunction]
     );
@@ -77,19 +113,25 @@ const MultipleDragAndDropFileUploader = React.memo(
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
       onDrop,
       maxFiles: remainingImages || 5,
-      maxSize: 2 * 1024 * 1024,
+      maxSize: maxSize || 2 * 1024 * 1024,
       onDropRejected: (fileRejections) => {
-        if (
-          fileRejections?.some((item) => item?.file?.size > 3 * 1024 * 1024)
-        ) {
+        setImageProcessingLoader(false);
+        if (setIsImageCropperActive) setIsImageCropperActive(false);
+        const maxFileSize = maxSize || 2 * 1024 * 1024;
+
+        if (fileRejections?.some((item) => item?.file?.size > maxFileSize)) {
           const res = {
-            message: 'File too large! Keep it under 2MB',
+            message: 'File too large! Keep it under 100MB',
             success: false,
           };
 
           handelNotification(res, 'top-right');
         }
-        if (remainingImages) {
+
+        if (
+          remainingImages &&
+          !fileRejections?.some((item) => item?.file?.size > maxFileSize)
+        ) {
           const res = {
             message: `Max limit! ${remainingImages} image${remainingImages > 1 ? 's' : ''} left.`,
 
@@ -98,6 +140,7 @@ const MultipleDragAndDropFileUploader = React.memo(
           if (setIsImageCropperActive) setIsImageCropperActive(false);
           handelNotification(res, 'top-right');
         }
+
         if (fileRejections.length > 6) {
           const res = {
             message: 'Too many files! Max 5 at a time',
@@ -157,19 +200,29 @@ const MultipleDragAndDropFileUploader = React.memo(
                 )
               ) : (
                 <>
-                  <div className='py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]'>
+                  <div
+                    className='py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]'
+                    style={{
+                      border: showError && errorMessage ? '1px solid red' : '',
+                    }}
+                  >
                     <FaCloudUploadAlt className='w-20 h-20 text-indigo-600' />
                     <p className='text-base text-black'>
                       Drag & Drop Files or <span>Browse</span>
                     </p>
                   </div>
+                  {showError && errorMessage && (
+                    <span className='text-rose-600  text-xs  mt-1 block px-1.5 font-inter'>
+                      {errorMessage}
+                    </span>
+                  )}
                 </>
               )}
             </>
           )}
         </div>
 
-        {droppedFilesArray?.length !== 0 &&
+        {isImageCropperActive &&
           createPortal(
             <MultipleImageCropper
               DroppedFilesArray={droppedFilesArray}
@@ -179,6 +232,7 @@ const MultipleDragAndDropFileUploader = React.memo(
               maxCropHeight={maxCropHeight}
               maxCropWidth={maxCropWidth}
               setIsImageCropperActive={setIsImageCropperActive}
+              imageProcessingLoader={imageProcessingLoader}
             />,
             document.body
           )}

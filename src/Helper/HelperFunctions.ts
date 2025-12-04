@@ -12,8 +12,11 @@ const current_environment = import.meta.env.VITE_ENVIRONMENT;
 
 //  * Validates if the given email is in a correct format.
 
-export const isValidEmail = (email: string): boolean => {
-  const isValid = validator.isEmail(email);
+export const isValidEmail = (
+  email: string,
+  host_blacklist: string[] = []
+): boolean => {
+  const isValid = validator.isEmail(email, { host_blacklist: host_blacklist });
   return isValid;
 };
 
@@ -51,7 +54,7 @@ export const ErrorHandler = (error: Error | AxiosError) => {
     const errorData = {
       success: error?.response?.data?.detail?.success ?? false,
       message: error?.response?.data?.detail?.message ?? 'something went wrong',
-      data: null,
+      data: error?.response?.data?.detail?.data ?? null,
     };
     return errorData;
   } else {
@@ -101,7 +104,7 @@ export const getDataFromLocalStorage = (
       const decryptedData = CryptoJS.AES.decrypt(
         localStorageData,
         encryptionKey
-      ).toString();
+      ).toString(CryptoJS.enc.Utf8);
       if (key != 'authenticationToken') {
         return JSON.parse(decryptedData);
       } else {
@@ -155,7 +158,7 @@ export const getDataFromTheSessionStorage = (
     const decryptedData = CryptoJS.AES.decrypt(
       sessionStorageData,
       encryptionKey
-    ).toString();
+    ).toString(CryptoJS.enc.Utf8);
     if (key != 'authenticationToken') {
       return JSON.parse(decryptedData);
     } else {
@@ -316,7 +319,7 @@ export const formateDate = (
   for (const token of tokenOrder) {
     // Replace exact tokens only (use \b boundaries or match whole token)
     const regex = new RegExp(`\\b${token}\\b`, 'g');
-    formattedDate = formattedDate.replace(regex, replacements[token]);
+    formattedDate = formattedDate?.replace(regex, replacements[token]);
   }
 
   if (showTime) {

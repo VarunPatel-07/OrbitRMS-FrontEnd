@@ -9,6 +9,7 @@ import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import { MAX_SIGN_IN_ATTEMPT } from '../constant/constant';
+import { MetaTitleDescription } from '../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -81,7 +82,7 @@ function SignIn() {
         storeDataInLocalStorage(res?.data?.expiry_time, MAX_SIGN_IN_ATTEMPT);
       }
     }
-  }, 300);
+  }, 100);
 
   const isFormValid = useMemo(() => {
     return (
@@ -141,13 +142,24 @@ function SignIn() {
           return;
         }
         const response = await verifyUsersLoginStatus();
+        if (!response) return;
         if (!response?.success) {
           handelNotification(response, 'top-right');
           clearLocalSessionStorage();
         } else {
-          navigate(
-            `/${response?.data?.organization?.general_info?.portal_slug}/dashboard`
-          );
+          if (
+            response?.data?.organization?.organization_created &&
+            !response?.encrypted_org_id
+          ) {
+            navigate(
+              `/${response?.data?.organization?.general_info?.portal_slug}/dashboard`,
+              { replace: true, state: null }
+            );
+          } else {
+            navigate(
+              `/onboarding?organization_id=${response?.encrypted_org_id}`
+            );
+          }
         }
       } finally {
         if (document.readyState === 'complete') {
@@ -174,8 +186,8 @@ function SignIn() {
   return (
     <>
       <HelmetSeo
-        Title='Sign In | OrbitRMS'
-        Content='Log in to OrbitRMS and start managing everything in one place with ease and efficiency!'
+        Title={MetaTitleDescription.signIn.title}
+        Content={MetaTitleDescription.signIn.description}
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />

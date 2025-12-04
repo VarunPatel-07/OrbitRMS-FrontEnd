@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 import SpaceBoyDeveloper from '../../assets/lottie/SpaceBoyDeveloper.lottie';
 import { NoHolidayCardPropsInterface } from '../../interface/interface';
+import React from 'react';
+const DotLottieReact = React.lazy(() =>
+  import('@lottiefiles/dotlottie-react').then((mod) => ({
+    default: mod.DotLottieReact,
+  }))
+);
 
 function NoHolidayAnimationCard(props: NoHolidayCardPropsInterface) {
   const { portalSlug } = props;

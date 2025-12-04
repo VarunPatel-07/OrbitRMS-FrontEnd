@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FaSortDown, FaSortUp } from 'react-icons/fa';
 
 import { classNames } from '../../Helper/HelperFunctions';
 
@@ -42,7 +41,8 @@ function Table({
                   <span className='font-inter text-[15px] text-black/80 font-medium'>
                     {column.title}
                   </span>
-                  {column.isSortable && (
+                  {/*  We Will Make It UseFull In The Future */}
+                  {/* {column.isSortable && (
                     <span className='flex flex-col items-center justify-center w-3.5'>
                       <button className='h-3.5 flex items-center justify-center relative'>
                         <FaSortUp className='h-3.5 w-3.5 absolute bottom-[-7px] text-gray-500' />
@@ -51,7 +51,7 @@ function Table({
                         <FaSortDown className='h-3.5 w-3.5 absolute top-[-6px] text-gray-500' />
                       </button>
                     </span>
-                  )}
+                  )} */}
                 </span>
               </th>
             ))}

@@ -83,7 +83,7 @@ function RolesAndPermissionLoader() {
           </div>
         </div>
       </div>
-      <div className='overflow-auto hide-scrollbar max-h-[calc(100vh-210px)] rounded-b-lg'>
+      <div className='overflow-auto hide-scrollbar max-h-[calc(100vh-220px)] rounded-b-lg'>
         <table className='table-auto border-collapse w-full relative'>
           <thead>
             <tr className='shadow sticky top-0 z-30'>

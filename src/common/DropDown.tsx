@@ -15,6 +15,7 @@ interface DropDownProps {
   dropdownPosition?: 'top' | 'bottom'; // New prop for dropdown position
   maxHeight: number;
   minWidth?: number;
+  disabled?: boolean;
 }
 
 function DropDown({
@@ -26,6 +27,7 @@ function DropDown({
   dropdownPosition = 'bottom',
   maxHeight,
   minWidth = 200,
+  disabled = false,
 }: DropDownProps) {
   const refBox = useRef<HTMLDivElement>(null);
   const [showDropDownMenu, setShowDropDownMenu] = useState(false);
@@ -181,10 +183,11 @@ function DropDown({
       ) : (
         <button
           className={clsx(
-            'px-2.5 pr-8 py-1 bg-white border border-[#D0D5DD] rounded-lg relative min-w-16 h-full',
+            'px-2.5 pr-8 py-1 bg-white border border-[#D0D5DD] rounded-lg relative min-w-16 h-full disabled:bg-[#7fab98]/15 disabled:cursor-not-allowed',
             styleDropdownButton
           )}
           onClick={handelOnClick}
+          disabled={disabled}
         >
           <span className='text-black font-inter text-sm'>
             {dropDownSelectedValue}

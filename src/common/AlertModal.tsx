@@ -5,9 +5,11 @@ import { Link } from 'react-router-dom';
 
 import { classNames } from '../Helper/HelperFunctions';
 import { AlertModalProps } from '../interface/propsInterface';
+import Button from './Button';
+import Loader from './Loader';
 
 function AlertModal(props: AlertModalProps) {
-  const { ModalInfo, showAlertModal, setShowAlertModal } = props;
+  const { ModalInfo, showAlertModal, setShowAlertModal, loader } = props;
 
   const [showModalAnimation, setShowModalAnimation] = useState<boolean>(false);
   const [renderComponent, setRenderComponent] = useState<boolean>(false);
@@ -154,14 +156,15 @@ function AlertModal(props: AlertModalProps) {
                     );
 
                     return isButton ? (
-                      <button
+                      <Button
                         type='button'
                         className={item?.classNames || 'default-class'}
                         onClick={item?.onclickFunction}
                         key={index}
+                        disabled={loader}
                       >
-                        {commonContent}
-                      </button>
+                        {loader ? <Loader loaderText='' /> : commonContent}
+                      </Button>
                     ) : (
                       <Link
                         to={item?.link || '#'}

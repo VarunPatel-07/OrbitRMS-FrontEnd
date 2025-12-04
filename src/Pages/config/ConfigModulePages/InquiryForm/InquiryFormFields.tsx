@@ -1,45 +1,61 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
+import { useParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
-import Breadcrumbs from '../../../common/Breadcrumbs';
-import Table from '../../../common/Table/Table';
-import TableInfoHeader from '../../../common/Table/TableInfoHeader';
-import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
-import TableNoDataFound from '../../../common/Table/TableNoDataFound';
-import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
+import Breadcrumbs from '../../../../common/Breadcrumbs';
+import Table from '../../../../common/Table/Table';
+import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
+import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
+import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
+import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
+import { AddEditInquiryFormFields } from '../../../../constant/ConfigModuleConstant';
+import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
+// import DeleteModal from '../../../Components/Modal/DeleteModal';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
-} from '../../../Context/globalState/GlobalStateContectApi';
+} from '../../../../Context/globalState/GlobalStateContectApi';
 import {
   NotificationContext,
   NotificationContextApiProps,
-} from '../../../Context/Notification/NotificationContextApi';
+} from '../../../../Context/Notification/NotificationContextApi';
 import {
   endpointObject,
   multipleDeleteApi,
   multipleFetchApi,
   multiplePostApi,
-} from '../../../Helper/api/multipleAPI';
+} from '../../../../Helper/api/multipleAPI';
+import HelmetSeo from '../../../../Helper/HelmetSeo';
 import {
   formateDate,
   getDataFromLocalStorage,
-} from '../../../Helper/HelperFunctions';
-import { useDebounce } from '../../../Hooks/useDebounce';
-import { DesignationConfig } from '../../../interface/interface';
+} from '../../../../Helper/HelperFunctions';
+import { useDebounce } from '../../../../Hooks/useDebounce';
+import {
+  InquiryFormFieldInterface,
+  InquiryFormFieldsDataInterface,
+} from '../../../../interface/interface';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
-} from '../../../interface/propsInterface';
+} from '../../../../interface/propsInterface';
 
-const AddModal = React.lazy(() => import('../../../Components/Modal/AddModal'));
+const AddModal = React.lazy(
+  () => import('../../../../Components/Modal/AddModal')
+);
 const DeleteModal = React.lazy(
-  () => import('../../../Components/Modal/DeleteModal')
+  () => import('../../../../Components/Modal/DeleteModal')
 );
 
-function ClientFormSchema() {
+const initialData: InquiryFormFieldsDataInterface = {
+  form_id: '',
+  form_name: '',
+  form_fields: [],
+};
+
+export default function InquiryFormFields() {
+  const { id: form_schema_id } = useParams();
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
@@ -52,31 +68,15 @@ function ClientFormSchema() {
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const [value, setValue] = useState<string>('');
-  const [data, setData] = useState<Array<DesignationConfig>>([]);
-  const [filterData, setFilterData] = useState<Array<DesignationConfig>>([]);
+  const [data, setData] = useState<InquiryFormFieldsDataInterface>(initialData);
+  const [filterData, setFilterData] = useState<InquiryFormFieldInterface[]>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [deleteItemId, setDeleteItemId] = useState<string>('');
   const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
-
   const [fieldType, setFieldType] = useState<string>('');
   const [isRequiredField, setIsRequiredField] = useState<string>('');
-
-  const handelShowModal = () => {
-    setModalType('add');
-    setEditId('');
-    setShowModal(!showModal);
-  };
-
-  const handelEditButtonClick = (data: any) => {
-    setModalType('edit');
-    setShowModal(!showModal);
-    setValue(data?.field_name);
-    setFieldType(data?.type);
-    setIsRequiredField(data?.is_required_field ? 'true' : 'false');
-    setEditId(data?.id);
-  };
 
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
@@ -87,24 +87,31 @@ function ClientFormSchema() {
     GlobalStateProvider?.organization?.general_info?.portal_slug ||
     JSON.parse(localStorageData)?.portal_slug;
 
-  const BreadcrumbsObjects = [
-    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
-    {
-      name: 'Config',
-      label: 'config-module',
-      link: `${organization}/config/project-status`,
-    },
-    {
-      name: 'Client Form Fields',
-      label: 'client-form-field',
-      link: `/${organization}/config/client-form`,
-    },
-  ];
+  const BreadcrumbsObjects = AddEditInquiryFormFields(
+    organization,
+    form_schema_id || '',
+    data?.form_name
+  );
 
-  const fetchClientFormFieldsWithDebounce = useDebounce(async () => {
+  const handelShowModal = () => {
+    setModalType('add');
+    setEditId('');
+    setShowModal(!showModal);
+  };
+
+  const handelEditButtonClick = (data: InquiryFormFieldInterface) => {
+    setModalType('edit');
+    setShowModal(!showModal);
+    setValue(data?.field_name);
+    setEditId(data?.id);
+    setFieldType(data?.type);
+    setIsRequiredField(data?.is_required_field ? 'true' : 'false');
+  };
+
+  const fetchAttachmentTypesWithDebounce = useDebounce(async () => {
     const endPointArr: Array<endpointObject> = [
       {
-        endPoint: 'config/client_form_schema/fetch',
+        endPoint: `config/inquiry_form_fields/fetch?form_schema_id=${form_schema_id}`,
         protected: true,
       },
     ];
@@ -124,14 +131,14 @@ function ClientFormSchema() {
     }
   }, 50);
 
-  const fetchClientFormFields = () => {
+  const fetchAttachmentTypes = () => {
     setIsFetchingData(true);
-    fetchClientFormFieldsWithDebounce();
+    fetchAttachmentTypesWithDebounce();
   };
 
   const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
     {
-      buttonTitle: 'Add Form Field',
+      buttonTitle: 'Add Field',
       classNames:
         'font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg',
       onclickFunction: handelShowModal,
@@ -139,18 +146,17 @@ function ClientFormSchema() {
   ];
 
   const handelFormSubmitWithDebounce = useDebounce(async (value: string) => {
-    let endPoint = `config/client_form_schema/add-edit`;
+    let endPoint = `config/inquiry_form_fields/add-edit`;
 
     if (modalType === 'edit') {
-      endPoint += `?type=edit&id=${editId}`;
+      endPoint += `?type=edit&id=${editId}&form_schema_id=${form_schema_id}`;
     } else {
-      endPoint += `?type=add`;
+      endPoint += `?type=add&form_schema_id=${form_schema_id}`;
     }
 
     const data = {
       field_name: value,
-      is_required_field:
-        isRequiredField.toLocaleLowerCase() == 'true' ? true : false,
+      is_required_field: isRequiredField,
       type: fieldType,
     };
 
@@ -169,10 +175,10 @@ function ClientFormSchema() {
       setShowModal(false);
       setIsFetchingData(true);
       handelNotification(res, 'top-right');
-      fetchClientFormFields();
+      fetchAttachmentTypes();
       setValue('');
-      setIsRequiredField('');
       setFieldType('');
+      setIsRequiredField('');
     } else {
       setLoading(false);
       handelNotification(res, 'top-right');
@@ -188,7 +194,7 @@ function ClientFormSchema() {
     try {
       const response = await multipleDeleteApi([
         {
-          endPoint: `config/client_form_schema/delete?id=${deleteItemId}`,
+          endPoint: `config/inquiry_form_fields/delete?id=${deleteItemId}&form_schema_id=${form_schema_id}`,
           protected: true,
         },
       ]);
@@ -200,7 +206,7 @@ function ClientFormSchema() {
         setIsDeleteLoading(false);
         setIsFetchingData(true);
         handelNotification(res, 'top-right');
-        fetchClientFormFields();
+        fetchAttachmentTypes();
       } else {
         setDeleteItemId('');
         setShowDeleteModal(false);
@@ -210,7 +216,7 @@ function ClientFormSchema() {
     } catch (error) {
       console.error('Error fetching project status:', error);
     }
-  }, 50);
+  }, 200);
 
   const handelDeleteItem = () => {
     setIsDeleteLoading(true);
@@ -224,7 +230,7 @@ function ClientFormSchema() {
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any) => (
+      renderContent: (data: string) => (
         <span className='w-fit font-inter text-sm font-medium inline-block'>
           {data}
         </span>
@@ -236,7 +242,7 @@ function ClientFormSchema() {
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any) => (
+      renderContent: (data: string) => (
         <span className='w-fit font-inter text-sm font-medium inline-block'>
           {data}
         </span>
@@ -248,7 +254,7 @@ function ClientFormSchema() {
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any) =>
+      renderContent: (data: boolean) =>
         data ? (
           <span className='px-3 py-1 rounded-full text-sm bg-green-100 text-green-700 font-medium border border-green-500'>
             Required
@@ -266,7 +272,7 @@ function ClientFormSchema() {
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any, childKeyData: any) => {
+      renderContent: (data: string, childKeyData: string) => {
         return data ? (
           <div className='flex flex-col w-full'>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>{`${JSON.parse(data).first_name} ${JSON.parse(data).last_name}`}</span>
@@ -301,7 +307,7 @@ function ClientFormSchema() {
       isSortable: true,
       isSticky: false,
       canToggleVisibility: true,
-      renderContent: (data: any, childKeyData: any) => {
+      renderContent: (data: string, childKeyData: string) => {
         return data ? (
           <div className='flex flex-col w-full'>
             <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>{`${JSON.parse(data).first_name} ${JSON.parse(data).last_name}`}</span>
@@ -324,7 +330,7 @@ function ClientFormSchema() {
       isSortable: false,
       isSticky: true,
       canToggleVisibility: true,
-      renderContent: (data: any) => {
+      renderContent: (data: InquiryFormFieldInterface) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
             <button
@@ -338,8 +344,8 @@ function ClientFormSchema() {
             <button
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
               data-tooltip-id='project_status_delete_button'
-              data-tooltip-content='Delete'
               disabled={data?.source_type == 'default'}
+              data-tooltip-content='Delete'
               onClick={() => {
                 setShowDeleteModal(true);
                 setDeleteItemId(data?.id);
@@ -353,6 +359,7 @@ function ClientFormSchema() {
               className='z-[15] bg-white'
               place='left'
             />
+
             {data?.source_type != 'default' && (
               <Tooltip
                 id='project_status_delete_button'
@@ -371,10 +378,15 @@ function ClientFormSchema() {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
     setIsFetchingData(true);
-    fetchClientFormFields();
+    fetchAttachmentTypes();
   }, []);
+
   return (
     <>
+      <HelmetSeo
+        Title={MetaTitleDescription.inquiryFormFields.title}
+        Content={MetaTitleDescription.inquiryFormFields.description}
+      />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>
@@ -390,25 +402,25 @@ function ClientFormSchema() {
             ) : (
               <>
                 <TableInfoHeader
-                  moduleName='Client Form Fields'
+                  moduleName={data?.form_name}
                   badgeValue={
                     showSearchFilterData
-                      ? filterData.length?.toString()
-                      : data.length?.toString()
+                      ? filterData?.length?.toString()
+                      : data?.form_fields?.length?.toString()
                   }
                   buttonsArray={optionsButtonArray}
                 />
                 <TableLocalSearchBar
                   setShowSearchFilterData={setShowSearchFilterData}
-                  data={data}
-                  search_key='designations_name'
+                  data={data?.form_fields}
+                  search_key='field_name'
                   setData={setFilterData}
                 />
-                {(data?.length > 0 && !showSearchFilterData) ||
+                {(data?.form_fields?.length > 0 && !showSearchFilterData) ||
                 (showSearchFilterData && filterData?.length > 0) ? (
                   <Table
                     columns={columns}
-                    data={showSearchFilterData ? filterData : data}
+                    data={showSearchFilterData ? filterData : data?.form_fields}
                     tableWrapperClass={
                       'overflow-auto max-h-[calc(100vh-280px)] rounded-b-lg'
                     }
@@ -420,12 +432,12 @@ function ClientFormSchema() {
                     notFoundTitle={
                       showSearchFilterData
                         ? 'No Data Found For Related Search'
-                        : 'You haven’t added any Form Field yet'
+                        : 'You haven’t added any Department yet'
                     }
                     notFoundMessage={
                       showSearchFilterData
-                        ? 'No matching Form Field found. Try refining your search or adding a new Form Field.'
-                        : 'Add Form Field manually by clicking Add Form Field button.'
+                        ? 'No matching Department found. Try refining your search or adding a new Department.'
+                        : 'Add Fields manually by clicking Add Field button.'
                     }
                     notFoundOptionsButtonsArray={
                       showSearchFilterData ? [] : optionsButtonArray
@@ -447,7 +459,7 @@ function ClientFormSchema() {
         setShowModal={setShowModal}
         loading={loading}
         handelFormSubmitFunction={handelFormSubmitFunction}
-        value={value?.replace(/[\s-]/g, '_')}
+        value={value?.replace(/[\s-]/g, '_').toLocaleLowerCase()}
         setValue={setValue}
         modalType={modalType}
         fieldType={fieldType}
@@ -460,10 +472,8 @@ function ClientFormSchema() {
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
         handelDelete={handelDeleteItem}
-        name='Form Field'
+        name='Department'
       />
     </>
   );
 }
-
-export default ClientFormSchema;

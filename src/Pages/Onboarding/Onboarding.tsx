@@ -45,6 +45,8 @@ import {
   OnboardingFormInterface,
 } from '../../interface/interface';
 import VerifyWebsiteUrlModal from './VerifyWebsiteUrlModal';
+import HelmetSeo from '../../Helper/HelmetSeo';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 
 const initialState = {
   general_info: {
@@ -760,9 +762,13 @@ function Onboarding() {
 
   return (
     <>
+      <HelmetSeo
+        Title={MetaTitleDescription.onboarding.title}
+        Content={MetaTitleDescription.onboarding.description}
+      />
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
-        <div className='h-screen w-screen bg-[var(--them-pink-color)]'>
+        <div className='h-screen w-full bg-[var(--them-pink-color)] overflow-hidden'>
           <div className='w-full h-full flex items-stretch justify-start relative'>
             <img
               src={signInGradientBgImage}
@@ -816,13 +822,13 @@ function Onboarding() {
                         <div className='w-10 flex items-center justify-center relative'>
                           <span
                             className={classNames(
-                              'w-1.5 h-14 bg-green-100/30 inline-block',
+                              'w-1.5 h-10 bg-green-100/30 inline-block',
                               {}
                             )}
                           ></span>
                           <span
                             className={classNames(
-                              'w-1.5 h-14 bg-green-600 inline-block absolute top-0 left-1/2 -translate-x-1/2 transition-all duration-200 origin-top',
+                              'w-1.5 h-10 bg-green-600 inline-block absolute top-0 left-1/2 -translate-x-1/2 transition-all duration-200 origin-top',
                               {
                                 'scale-y-0': page <= item?.id,
                                 'scale-y-100': page > item?.id,
@@ -838,7 +844,7 @@ function Onboarding() {
                 </div>
               </div>
             </div>
-            <div className='rounded-none w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10 p-6'>
+            <div className='rounded-none flex-grow w-full md:w-2/3 bg-white md:rounded-l-[24px] lg:rounded-l-[40px] relative z-10 p-6'>
               <div className='max-w-[850px] mx-auto h-full pb-10 flex items-center justify-center relative'>
                 <div className='w-full flex flex-col items-start justify-start gap-5 overflow-hidden'>
                   <div className='w-full border-b border-black/20'>
@@ -884,6 +890,7 @@ function Onboarding() {
                               maxCropHeight={400}
                               maxCropWidth={400}
                               setImageUrl={handelProfileUploadation}
+                              disabled={false}
                             />
                           </div>
                         ) : (
