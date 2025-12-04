@@ -9,6 +9,7 @@ import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import { MAX_SIGN_IN_ATTEMPT } from '../constant/constant';
+import { MetaTitleDescription } from '../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -185,8 +186,8 @@ function SignIn() {
   return (
     <>
       <HelmetSeo
-        Title='Sign In | OrbitRMS'
-        Content='Log in to OrbitRMS and start managing everything in one place with ease and efficiency!'
+        Title={MetaTitleDescription.signIn.title}
+        Content={MetaTitleDescription.signIn.description}
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />

@@ -4,6 +4,7 @@ import { MdOutlineDashboard } from 'react-icons/md';
 import { Editor } from '@tiptap/react';
 import * as tus from 'tus-js-client';
 
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -19,6 +20,7 @@ import {
   multiplePostApi,
   multiplePutApi,
 } from '../../Helper/api/multipleAPI';
+import HelmetSeo from '../../Helper/HelmetSeo';
 import { generateTimeBasedGreeting } from '../../Helper/HelperFunctions';
 import { getCroppedImageBlob } from '../../Helper/ImageCropper';
 import { ImageDownscaler } from '../../Helper/ImageDownscaler';
@@ -633,6 +635,10 @@ function Dashboard() {
 
   return (
     <>
+      <HelmetSeo
+        Title={MetaTitleDescription.dashboard.title}
+        Content={MetaTitleDescription.dashboard.description}
+      />
       <div className='w-full h-full bg-transparent overflow-hidden'>
         <div className='w-full h-full flex items-stretch justify-between overflow-hidden'>
           <div className='flex-grow w-1/2'>

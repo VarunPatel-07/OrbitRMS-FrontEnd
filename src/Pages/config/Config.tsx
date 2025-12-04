@@ -3,10 +3,12 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import AccessDeniedRedirect from '../../Components/AccessDeniedRedirect';
 import PageNotFound from '../../Components/PageNotFound';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
+import HelmetSeo from '../../Helper/HelmetSeo';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
 import { ConfigModuleSideBarListingInterface } from '../../interface/interface';
@@ -93,48 +95,54 @@ function Config() {
   }
   if (!permissionData) return null;
   return (
-    <div className='w-full h-full'>
-      <div className='w-full h-full flex items-stretch justify-start'>
-        <div className='w-[30%] max-w-[300px] border-r border-r-black/15'>
-          <ConfigSidebar permissionData={permissionData} />
-        </div>
+    <>
+      <HelmetSeo
+        Title={MetaTitleDescription.configModule.title}
+        Content={MetaTitleDescription.configModule.description}
+      />
+      <div className='w-full h-full'>
+        <div className='w-full h-full flex items-stretch justify-start'>
+          <div className='w-[30%] max-w-[300px] border-r border-r-black/15'>
+            <ConfigSidebar permissionData={permissionData} />
+          </div>
 
-        <div className='flex-1 overflow-auto'>
-          <Routes>
-            {ConfigModuleSideBarListing?.map((sideBarData) => {
-              const modulePermission = permissionData?.sub_modules?.find(
-                (item) => item.module_label === sideBarData?.label
-              );
+          <div className='flex-1 overflow-auto'>
+            <Routes>
+              {ConfigModuleSideBarListing?.map((sideBarData) => {
+                const modulePermission = permissionData?.sub_modules?.find(
+                  (item) => item.module_label === sideBarData?.label
+                );
 
-              const hasViewPermission = modulePermission?.permissions?.some(
-                (perm) => perm.label === 'view' && perm.is_allowed
-              );
+                const hasViewPermission = modulePermission?.permissions?.some(
+                  (perm) => perm.label === 'view' && perm.is_allowed
+                );
 
-              if (!hasViewPermission) return null;
+                if (!hasViewPermission) return null;
 
-              const moduleWithPermissionData = React.cloneElement(
-                sideBarData?.module,
-                {
-                  permissions: modulePermission?.permissions || [],
-                }
-              );
-
-              return (
-                <Route
-                  key={sideBarData?.path}
-                  path={sideBarData?.path}
-                  element={
-                    <ProtectedRoute element={moduleWithPermissionData} />
+                const moduleWithPermissionData = React.cloneElement(
+                  sideBarData?.module,
+                  {
+                    permissions: modulePermission?.permissions || [],
                   }
-                />
-              );
-            })}
+                );
 
-            <Route path='*' element={<PageNotFound />} />
-          </Routes>
+                return (
+                  <Route
+                    key={sideBarData?.path}
+                    path={sideBarData?.path}
+                    element={
+                      <ProtectedRoute element={moduleWithPermissionData} />
+                    }
+                  />
+                );
+              })}
+
+              <Route path='*' element={<PageNotFound />} />
+            </Routes>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -19,6 +19,7 @@ import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoad
 import ClientInquirySliderModal from '../../Components/Modal/ClientInquirySliderModal';
 import { AddEditInquiryFormSchemaBreadcrumbs } from '../../constant/ConfigModuleConstant';
 import { dropdownMenuArray, initialMetadata } from '../../constant/constant';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -33,6 +34,7 @@ import {
   multipleDeleteApi,
   multipleFetchApi,
 } from '../../Helper/api/multipleAPI';
+import HelmetSeo from '../../Helper/HelmetSeo';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
 import { AddEditInquiryFormSchemaInterface } from '../../interface/interface';
@@ -551,6 +553,10 @@ function ClientInquiry() {
     );
   return (
     <>
+      <HelmetSeo
+        Title={MetaTitleDescription.clientInquiry.title}
+        Content={MetaTitleDescription.clientInquiry.description}
+      />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>

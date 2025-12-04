@@ -54,14 +54,18 @@ const multipleFetchApiErrorHandler = (error: any) => {
       window.location.href = '/maintenance-mode';
       return;
     }
+
     if (unauthorizedStatusCodes.includes(error?.status)) {
       const status = error?.response?.status || error?.status;
 
       if (unauthorizedStatusCodes.includes(status)) {
-        clearLocalSessionStorage();
         window.location.href = '/auth/sign-in';
         return;
       }
+    } else if (!status && error?.message?.includes('Network')) {
+      clearLocalSessionStorage();
+      window.location.href = '/auth/sign-in';
+      return;
     } else {
       return ErrorHandler(error);
     }

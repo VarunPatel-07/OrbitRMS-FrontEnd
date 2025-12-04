@@ -104,7 +104,7 @@ export const getDataFromLocalStorage = (
       const decryptedData = CryptoJS.AES.decrypt(
         localStorageData,
         encryptionKey
-      ).toString();
+      ).toString(CryptoJS.enc.Utf8);
       if (key != 'authenticationToken') {
         return JSON.parse(decryptedData);
       } else {
@@ -158,7 +158,7 @@ export const getDataFromTheSessionStorage = (
     const decryptedData = CryptoJS.AES.decrypt(
       sessionStorageData,
       encryptionKey
-    ).toString();
+    ).toString(CryptoJS.enc.Utf8);
     if (key != 'authenticationToken') {
       return JSON.parse(decryptedData);
     } else {

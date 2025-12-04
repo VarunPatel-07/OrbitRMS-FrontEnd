@@ -45,6 +45,8 @@ import {
   OnboardingFormInterface,
 } from '../../interface/interface';
 import VerifyWebsiteUrlModal from './VerifyWebsiteUrlModal';
+import HelmetSeo from '../../Helper/HelmetSeo';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 
 const initialState = {
   general_info: {
@@ -760,6 +762,10 @@ function Onboarding() {
 
   return (
     <>
+      <HelmetSeo
+        Title={MetaTitleDescription.onboarding.title}
+        Content={MetaTitleDescription.onboarding.description}
+      />
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
         <div className='h-screen w-full bg-[var(--them-pink-color)] overflow-hidden'>

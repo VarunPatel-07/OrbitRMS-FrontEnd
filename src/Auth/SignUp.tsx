@@ -20,6 +20,7 @@ import {
   industryType,
   WebsiteUrlSafetyCheckErrorMessages,
 } from '../constant/constant';
+import { MetaTitleDescription } from '../constant/MetaTitleDescription';
 import { publicEmailProviders } from '../constant/PublicEmailArray';
 import {
   NotificationContext,
@@ -554,12 +555,11 @@ function SignUp() {
     loadCountryData();
   }, []);
 
-
   return (
     <>
       <HelmetSeo
-        Title='Sign Up | OrbitRMS'
-        Content='Create an account on OrbitRMS to streamline your work, access all features, and manage everything effortlessly!'
+        Title={MetaTitleDescription.signUp.title}
+        Content={MetaTitleDescription.signUp.description}
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />

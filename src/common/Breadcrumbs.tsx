@@ -31,7 +31,7 @@ function Breadcrumbs({
                 className='text-base flex items-center justify-start gap-2'
               >
                 {['dashboard', 'home'].includes(
-                  item.name.toLocaleLowerCase()
+                  item?.name?.toLocaleLowerCase()
                 ) ? (
                   <Link to={item.link} className='text-black'>
                     <FaHome />

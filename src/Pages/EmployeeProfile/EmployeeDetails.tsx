@@ -6,10 +6,12 @@ import { Link } from 'react-router-dom';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
 import EmployeeProfileSkeletonLoader from '../../Components/Loader/EmployeeProfileSkeletonLoader';
 import { AlignableForChildInfo } from '../../constant/constant';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
+import HelmetSeo from '../../Helper/HelmetSeo';
 import { BeautifulAccountStatusRenderer, InfoField } from '../../Helper/Helper';
 import {
   classNames,
@@ -534,17 +536,25 @@ function EmployeeDetails(props: {
   // * ------ End Of The Function That Help In The Rendering -----
   //
   return (
-    <div className='w-full flex flex-col gap-6 pb-5'>
-      {isFetching ? (
-        <EmployeeProfileSkeletonLoader />
-      ) : (
-        <>
-          {UserInformationDataModules?.map((section) => (
-            <React.Fragment key={section?.id}>{section?.module}</React.Fragment>
-          ))}
-        </>
-      )}
-    </div>
+    <>
+      <HelmetSeo
+        Title={MetaTitleDescription.employeeProfileGeneralInfo.title}
+        Content={MetaTitleDescription.employeeProfileGeneralInfo.description}
+      />
+      <div className='w-full flex flex-col gap-6 pb-5'>
+        {isFetching ? (
+          <EmployeeProfileSkeletonLoader />
+        ) : (
+          <>
+            {UserInformationDataModules?.map((section) => (
+              <React.Fragment key={section?.id}>
+                {section?.module}
+              </React.Fragment>
+            ))}
+          </>
+        )}
+      </div>
+    </>
   );
 }
 

@@ -38,6 +38,8 @@ import {
   UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
 import { EmployeeListingFiltersArray } from './EmployeeListingFiltersArray';
+import HelmetSeo from '../../Helper/HelmetSeo';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 
 const initialMetadata: MetaDataInterface = {
   total_data: 0,
@@ -459,98 +461,104 @@ function EmployeeListing() {
     );
 
   return (
-    <div className='w-full h-full relative'>
-      <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
-      <div className='w-full h-full pt-9'>
-        <div className='w-full h-full p-4 2xl:p-5'>
-          {isInitialFetching ? (
-            <div className='w-full h-full overflow-hidden'>
-              <TableSkeletonLoader
-                tableHeaderCount={5}
-                tableValueCount={13}
-                maxHeight='calc(-350px + 100vh)'
-              />
-            </div>
-          ) : (
-            <>
-              <TableInfoHeader
-                moduleName='Employees'
-                badgeValue={
-                  data?.length > 0
-                    ? `${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length * selectedPage} of  ${metaData?.total_data}  Employees`
-                    : `0 Employee`
-                }
-                buttonsArray={
-                  permissionData?.permissions?.some(
-                    (item) => item?.label == 'edit' && item?.is_allowed
-                  )
-                    ? optionsButtonArray
-                    : []
-                }
-                loading={isFetchingData}
-              />
-              <TableFilterSearchBar
-                filterColumnsArray={EmployeeListingFiltersArray}
-                handelApplyFilterFunc={handelApplyFilterEmployeeListing}
-                urlDecodedFilterQuery={urlDecodedFilterQuery || ''}
-              />
-              {isFetchingData ? (
+    <>
+      <HelmetSeo
+        Title={MetaTitleDescription.employeeListing.title}
+        Content={MetaTitleDescription.employeeListing.description}
+      />
+      <div className='w-full h-full relative'>
+        <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+        <div className='w-full h-full pt-9'>
+          <div className='w-full h-full p-4 2xl:p-5'>
+            {isInitialFetching ? (
+              <div className='w-full h-full overflow-hidden'>
                 <TableSkeletonLoader
                   tableHeaderCount={5}
                   tableValueCount={13}
                   maxHeight='calc(-350px + 100vh)'
-                  showFilterLoader={false}
-                  showHeaderLoader={false}
                 />
-              ) : (
-                <>
-                  {data?.length > 0 ? (
-                    <>
-                      <Table
-                        columns={columns}
-                        data={data}
+              </div>
+            ) : (
+              <>
+                <TableInfoHeader
+                  moduleName='Employees'
+                  badgeValue={
+                    data?.length > 0
+                      ? `${(selectedPage - 1) * Number(recordsPerPage) + 1} - ${data?.length * selectedPage} of  ${metaData?.total_data}  Employees`
+                      : `0 Employee`
+                  }
+                  buttonsArray={
+                    permissionData?.permissions?.some(
+                      (item) => item?.label == 'edit' && item?.is_allowed
+                    )
+                      ? optionsButtonArray
+                      : []
+                  }
+                  loading={isFetchingData}
+                />
+                <TableFilterSearchBar
+                  filterColumnsArray={EmployeeListingFiltersArray}
+                  handelApplyFilterFunc={handelApplyFilterEmployeeListing}
+                  urlDecodedFilterQuery={urlDecodedFilterQuery || ''}
+                />
+                {isFetchingData ? (
+                  <TableSkeletonLoader
+                    tableHeaderCount={5}
+                    tableValueCount={13}
+                    maxHeight='calc(-350px + 100vh)'
+                    showFilterLoader={false}
+                    showHeaderLoader={false}
+                  />
+                ) : (
+                  <>
+                    {data?.length > 0 ? (
+                      <>
+                        <Table
+                          columns={columns}
+                          data={data}
+                          tableWrapperClass={
+                            'overflow-auto max-h-[calc(100vh-340px)] h-full bg-white'
+                          }
+                          stickyHeaderClass='sticky top-0'
+                        />
+                        <TablePagination
+                          paginationDropDownArray={dropdownMenuArray}
+                          recordsPerPage={recordsPerPage}
+                          handelClickOnDroDownVal={handelClickOnRecordPerPage}
+                          clickOnPaginationVal={handelClickOnPaginationButtons}
+                          selectedPage={selectedPage}
+                          totalPage={metaData?.total_pages}
+                        />
+                      </>
+                    ) : (
+                      <TableNoDataFound
                         tableWrapperClass={
-                          'overflow-auto max-h-[calc(100vh-340px)] h-full bg-white'
+                          'max-h-[calc(100%-150px)] rounded-b-lg'
                         }
-                        stickyHeaderClass='sticky top-0'
+                        notFoundTitle={'No Employees Found'}
+                        notFoundMessage={
+                          'No matching employee found. Try refining your search or add a new employee.'
+                        }
+                        notFoundOptionsButtonsArray={
+                          queryParameter
+                            ? []
+                            : permissionData?.permissions?.some(
+                                  (item) =>
+                                    item?.label == 'edit' && item?.is_allowed
+                                )
+                              ? optionsButtonArray
+                              : []
+                        }
                       />
-                      <TablePagination
-                        paginationDropDownArray={dropdownMenuArray}
-                        recordsPerPage={recordsPerPage}
-                        handelClickOnDroDownVal={handelClickOnRecordPerPage}
-                        clickOnPaginationVal={handelClickOnPaginationButtons}
-                        selectedPage={selectedPage}
-                        totalPage={metaData?.total_pages}
-                      />
-                    </>
-                  ) : (
-                    <TableNoDataFound
-                      tableWrapperClass={
-                        'max-h-[calc(100%-150px)] rounded-b-lg'
-                      }
-                      notFoundTitle={'No Employees Found'}
-                      notFoundMessage={
-                        'No matching employee found. Try refining your search or add a new employee.'
-                      }
-                      notFoundOptionsButtonsArray={
-                        queryParameter
-                          ? []
-                          : permissionData?.permissions?.some(
-                                (item) =>
-                                  item?.label == 'edit' && item?.is_allowed
-                              )
-                            ? optionsButtonArray
-                            : []
-                      }
-                    />
-                  )}
-                </>
-              )}
-            </>
-          )}
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

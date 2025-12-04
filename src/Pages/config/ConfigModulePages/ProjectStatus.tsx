@@ -38,6 +38,8 @@ import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
+import HelmetSeo from '../../../Helper/HelmetSeo';
+import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
 
 const AddModal = React.lazy(() => import('../../../Components/Modal/AddModal'));
 const DeleteModal = React.lazy(
@@ -380,6 +382,10 @@ function ProjectStatus({
 
   return (
     <>
+      <HelmetSeo
+        Title={MetaTitleDescription.projectStatus.title}
+        Content={MetaTitleDescription.projectStatus.description}
+      />
       <div className='relative w-full h-full'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>

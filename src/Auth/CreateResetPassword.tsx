@@ -14,6 +14,7 @@ import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
+import { MetaTitleDescription } from '../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -134,13 +135,13 @@ function CreateResetPassword() {
       <HelmetSeo
         Title={
           currentPath == 'create-password'
-            ? 'Create Password | OrbitRMS'
-            : 'Reset Password | OrbitRMS'
+            ? MetaTitleDescription.createPassword.title
+            : MetaTitleDescription.resetPassword.title
         }
         Content={
           currentPath == 'create-password'
-            ? 'Create a secure password to protect your OrbitRMS account. Ensure your password is strong and easy to remember.'
-            : 'Reset your password to regain access to OrbitRMS. Set a new password and get back to managing everything securely.'
+            ? MetaTitleDescription.createPassword.description
+            : MetaTitleDescription.resetPassword.description
         }
       />
 
