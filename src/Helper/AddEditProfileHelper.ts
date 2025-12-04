@@ -12,10 +12,11 @@ export const responseToStateDataFeeder = (
   filteredCountry: string
 ) => {
   //   const data: UserProfileInformationInterface = res?.data;
-  const dataObject = {
+  const dataObject: AddEditUserProfileInterFace = {
     personal_info: {
       ...data?.personal_info,
       date_of_birth: new Date(data?.personal_info.date_of_birth),
+      about: data?.personal_info?.about || '',
     },
     employee_info: {
       department: data?.employee_info?.department,

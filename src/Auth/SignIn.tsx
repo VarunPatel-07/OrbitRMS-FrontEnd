@@ -81,7 +81,7 @@ function SignIn() {
         storeDataInLocalStorage(res?.data?.expiry_time, MAX_SIGN_IN_ATTEMPT);
       }
     }
-  }, 300);
+  }, 100);
 
   const isFormValid = useMemo(() => {
     return (

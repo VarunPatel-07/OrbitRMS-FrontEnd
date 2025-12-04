@@ -4,12 +4,22 @@ import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom';
 
 import { HandelPathFunction } from '../../App';
 import Breadcrumbs from '../../common/Breadcrumbs';
+import Button from '../../common/Button';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
+import ResetPasswordLinkModal from '../../Components/Modal/ResetPasswordLinkModal';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
-import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
+import {
+  NotificationContext,
+  NotificationContextApiProps,
+} from '../../Context/Notification/NotificationContextApi';
+import {
+  endpointObject,
+  multipleFetchApi,
+  multiplePostApi,
+} from '../../Helper/api/multipleAPI';
 import {
   classNames,
   getDataFromLocalStorage,
@@ -125,28 +135,13 @@ function EmployeeProfile() {
     GlobalStateContext
   ) as GlobalStateContextApiProps;
 
+  const { handelNotification } = useContext(
+    NotificationContext
+  ) as NotificationContextApiProps;
   const localStorageData = getDataFromLocalStorage('organization-info');
   const organization =
     GlobalStateProvider?.organization?.general_info?.portal_slug ||
     JSON.parse(localStorageData)?.portal_slug;
-
-  const BreadcrumbsObjects = [
-    {
-      name: 'Home',
-      label: 'home',
-      link: `/${organization}/dashboard`,
-    },
-    {
-      name: 'Employee Listing',
-      label: 'employee_listing',
-      link: `/${organization}/employees/employee-listing`,
-    },
-    {
-      name: 'Employee Profile',
-      label: 'employee-profile',
-      link: `/${organization}/employees/employee-profile/${employee_id}/employee-details`,
-    },
-  ];
 
   // * ------- Some Of The Reference That Are Used In This Page ---------------
   //
@@ -160,6 +155,8 @@ function EmployeeProfile() {
   const [data, setData] =
     useState<UserProfileInformationInterface>(initialState);
   const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [showResetPasswordModal, setShowResetPasswordModal] =
+    useState<boolean>(false);
 
   //
   // * ----- The Definition Of The State  END  From Here
@@ -191,7 +188,29 @@ function EmployeeProfile() {
   );
   //
   //* ------ Ending Of The Function With Debounce Used For The Data Fetching -----
-  //
+
+  const proceedSendResetLinkWithDebounce = useDebounce(
+    async (mail: string, callBack: (success: boolean) => void) => {
+      const endPointArr: endpointObject[] = [
+        {
+          endPoint: `auth/employee/password/reset-instructions?user-id=${employee_id}`,
+          protected: true,
+          data: { email: mail },
+        },
+      ];
+      const response = await multiplePostApi(endPointArr);
+      const res = response[0];
+      callBack(res?.success);
+      handelNotification(res, 'top-right');
+    }
+  );
+
+  const handelClickOnProceedButton = (
+    mail: string,
+    callBack: (success: boolean) => void
+  ) => {
+    proceedSendResetLinkWithDebounce(mail, callBack);
+  };
 
   useEffect(() => {
     if (employee_id && useEffectRef.current !== employee_id) {
@@ -211,6 +230,11 @@ function EmployeeProfile() {
     ?.sub_modules?.find(
       (item) => item?.module_label == childSection?.replace('-', '_')
     );
+
+  const employeeListingPermission =
+    GlobalStateProvider.roles_permissions.permissions
+      .find((item) => item.module_label == parentSection)
+      ?.sub_modules?.find((item) => item?.module_label == 'employee_listing');
 
   const EmployeeProfileActionArray: EmployeeProfileActionArrayInterface[] = [
     ...(permissionData?.sub_modules?.find(
@@ -247,6 +271,33 @@ function EmployeeProfile() {
           },
         ]
       : []),
+  ];
+
+  const BreadcrumbsObjects = [
+    {
+      name: 'Home',
+      label: 'home',
+      link: `/${organization}/dashboard`,
+    },
+    ...(!employeeListingPermission ||
+    employeeListingPermission.is_active ||
+    employeeListingPermission?.permissions?.some(
+      (item) => item?.label == 'view' && item?.is_allowed
+    )
+      ? [
+          {
+            name: 'Employee Listing',
+            label: 'employee_listing',
+            link: `/${organization}/employees/employee-listing`,
+          },
+        ]
+      : []),
+
+    {
+      name: 'Employee Profile',
+      label: 'employee-profile',
+      link: `/${organization}/employees/employee-profile/${employee_id}/employee-details`,
+    },
   ];
 
   if (
@@ -306,14 +357,38 @@ function EmployeeProfile() {
                         </p>
                       )}
                     </div>
-
-                    {isFetching ? (
-                      <Skeleton height={42} width={220} borderRadius={8} />
-                    ) : (
-                      <button className='font-inter font-semibold bg-[#EEF4FF] border border-[#C7D7FE] text-[#3538CD] text-base h-full px-5 py-2 rounded-lg capitalize'>
-                        Send Reset Instructions
-                      </button>
-                    )}
+                    {permissionData?.sub_modules?.find(
+                      (item) => item?.module_label == 'employee_details'
+                    )?.is_active &&
+                      permissionData?.sub_modules
+                        ?.find(
+                          (item) => item?.module_label == 'employee_details'
+                        )
+                        ?.permissions?.some(
+                          (item) => item.label == 'edit' && item.is_allowed
+                        ) && (
+                        <>
+                          {isFetching ? (
+                            <Skeleton
+                              height={42}
+                              width={220}
+                              borderRadius={8}
+                            />
+                          ) : (
+                            <Button
+                              type='button'
+                              className='font-inter font-semibold bg-[#EEF4FF] border border-[#C7D7FE] text-[#3538CD] text-base h-full px-5 py-2 rounded-lg capitalize'
+                              onClick={() =>
+                                setShowResetPasswordModal(
+                                  !showResetPasswordModal
+                                )
+                              }
+                            >
+                              Send Reset Instructions
+                            </Button>
+                          )}
+                        </>
+                      )}
                   </div>
                   <div className='px-4 py-5 border-b border-b-black/20'>
                     <div className='flex items-center justify-between'>
@@ -477,35 +552,55 @@ function EmployeeProfile() {
                     />
                   ))}
 
-                  {permissionData?.sub_modules?.find(
-                    (item) => item?.module_label == 'logged_in_device'
-                  )?.is_active &&
-                    permissionData?.sub_modules
-                      ?.find((item) => item?.module_label == 'logged_in_device')
-                      ?.permissions?.some(
-                        (item) => item.label == 'view' && item.is_allowed
-                      ) && (
-                      <Route
-                        path={'/logged-in-device'}
-                        element={
-                          <ProtectedRoute
-                            element={
-                              <LoggedInDevices
-                                organizationInfo={
-                                  GlobalStateProvider?.organization
-                                }
-                              />
-                            }
-                          />
-                        }
-                      />
-                    )}
+                  {(employee_id ===
+                    GlobalStateProvider?.user?.personal_info?.user_id ||
+                    (permissionData?.sub_modules?.find(
+                      (item) => item?.module_label == 'logged_in_device'
+                    )?.is_active &&
+                      permissionData?.sub_modules
+                        ?.find(
+                          (item) => item?.module_label == 'logged_in_device'
+                        )
+                        ?.permissions?.some(
+                          (item) => item.label == 'view' && item.is_allowed
+                        ))) && (
+                    <Route
+                      path={'/logged-in-device'}
+                      element={
+                        <ProtectedRoute
+                          element={
+                            <LoggedInDevices
+                              organizationInfo={
+                                GlobalStateProvider?.organization
+                              }
+                            />
+                          }
+                        />
+                      }
+                    />
+                  )}
                 </Routes>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {permissionData?.sub_modules?.find(
+        (item) => item?.module_label == 'employee_details'
+      )?.is_active &&
+        permissionData?.sub_modules
+          ?.find((item) => item?.module_label == 'employee_details')
+          ?.permissions?.some(
+            (item) => item.label == 'edit' && item.is_allowed
+          ) && (
+          <ResetPasswordLinkModal
+            isOpen={showResetPasswordModal}
+            setIsOpen={setShowResetPasswordModal}
+            handelSubmit={handelClickOnProceedButton}
+            companyEmail={data?.employee_info?.employee_email}
+            personalEmail={data?.personal_contact_info?.personal_email}
+          />
+        )}
     </SkeletonTheme>
   );
 }

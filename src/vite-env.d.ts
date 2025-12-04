@@ -6,7 +6,9 @@ interface ImportMetaEnv {
   readonly VITE_ENVIRONMENT: string;
   readonly META_AUTHENTICATION_BASE_URL: string;
   readonly TWITTER_AUTHENTICATION_BASE_URL: string;
-  // add other env vars here
+  readonly VITE_LOCATION_FETCHING_API_IP_INFO: string;
+  readonly VITE_LOCATION_FETCHING_API_IPAPI: string;
+  readonly VITE_FRONT_END_PORTAL_BASE_URL: string;
 }
 
 interface ImportMeta {

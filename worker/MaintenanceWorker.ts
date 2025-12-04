@@ -20,7 +20,7 @@ self.onmessage = function (e: MessageEvent<WorkerRequest>) {
       WorkerApiFetchFunction(url, token);
     },
     5 * 60 * 1000
-  ); // every 5 mins
+  );
 };
 
 function WorkerApiFetchFunction(url: string, token: string) {

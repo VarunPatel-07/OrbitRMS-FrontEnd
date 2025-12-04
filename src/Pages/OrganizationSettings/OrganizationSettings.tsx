@@ -9,6 +9,7 @@ import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import ProtectedRoute from '../../Helper/ProtectedRoute';
 import GeneralInfo from './OrganizationSettingsPages/GeneralInfoPages/GeneralInfo';
 import Holidays from './OrganizationSettingsPages/Holidays/Holidays';
+import LeavesManager from './OrganizationSettingsPages/LeavesManager/LeavesManager';
 import OrganizationSettingsSidebar from './OrganizationSettingsSidebar/OrganizationSettingsSidebar';
 
 function OrganizationSettings() {
@@ -29,7 +30,6 @@ function OrganizationSettings() {
     }
   }, [location.pathname, navigate, organization]);
 
-
   return (
     <div className='w-full h-full'>
       <div className='w-full h-full flex items-stretch justify-start'>
@@ -46,6 +46,10 @@ function OrganizationSettings() {
             <Route
               path='/holiday'
               element={<ProtectedRoute element={<Holidays />} />}
+            />
+            <Route
+              path='/leaves-manager'
+              element={<ProtectedRoute element={<LeavesManager />} />}
             />
           </Routes>
         </div>

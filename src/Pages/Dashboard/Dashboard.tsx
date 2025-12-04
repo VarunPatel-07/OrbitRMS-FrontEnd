@@ -83,7 +83,7 @@ function Dashboard() {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [deletePostId, setDeletePostId] = useState<string>('');
   const [isLoadingHoliday, setIsLoadingHoliday] = useState<boolean>(true);
-  const [likedPosts, setLikedPosts] = useState<string[]>([]);
+
   const [uploadingPostFormData, setUploadingPostFormData] =
     useState<AddEditPostFormdataInterface>(initialData);
   const [stage, setStage] = useState<
@@ -100,7 +100,7 @@ function Dashboard() {
   const deletePostWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
       {
-        endPoint: `feed/delete-post?id=${deletePostId}`,
+        endPoint: `admin/organization-updates/delete-post?id=${deletePostId}`,
         protected: true,
       },
     ];
@@ -134,50 +134,7 @@ function Dashboard() {
     const res = response[0];
     setIsDeleteLoading(false);
 
-    if (res?.success) {
-      if (res?.data?.liked && res?.data?.action == 'like') {
-        const likedPostArray = [...likedPosts].filter(
-          (item) => item?.trim() !== post_id
-        );
-
-        setLikedPosts(likedPostArray);
-
-        setFeedPostData((pervData) => {
-          return pervData?.map((data) =>
-            data?.id === post_id
-              ? {
-                  ...data,
-                  likes: [
-                    ...data.likes,
-                    GlobalStateProvider?.user?.personal_info?.user_id,
-                  ],
-                }
-              : data
-          );
-        });
-      } else if (!res?.data?.liked && res?.data?.action == 'unlike') {
-        const likedPostArray = [...likedPosts].filter(
-          (item) => item?.trim() !== post_id
-        );
-
-        setLikedPosts(likedPostArray);
-
-        setFeedPostData((pervData) => {
-          return pervData?.map((data) =>
-            data?.id === post_id
-              ? {
-                  ...data,
-                  likes: [...data.likes].filter(
-                    (item) =>
-                      item?.trim() !==
-                      GlobalStateProvider?.user?.personal_info?.user_id
-                  ),
-                }
-              : data
-          );
-        });
-      }
-    } else {
+    if (!res?.success) {
       handelNotification(res, 'top-right');
     }
   }, 100);
@@ -203,13 +160,7 @@ function Dashboard() {
                   ...data,
                   comments: [
                     ...data.comments,
-                    {
-                      comment: res?.data?.comment,
-                      id: '',
-                      is_replay: res?.data?.is_replay,
-                      organization_update_id: res?.data?.post_id,
-                      user_id: res?.data?.user_id,
-                    },
+                    GlobalStateProvider?.user?.personal_info?.user_id,
                   ],
                 }
               : data
@@ -224,7 +175,26 @@ function Dashboard() {
   );
 
   const handelClickOnLikeToggle = (post_id: string) => {
-    setLikedPosts((pervData) => [...pervData, post_id]);
+    setFeedPostData((pervData) =>
+      pervData?.map((item) =>
+        item?.id == post_id
+          ? {
+              ...item,
+              likes: item?.likes?.includes(
+                GlobalStateProvider?.user?.personal_info?.user_id
+              )
+                ? item.likes.filter(
+                    (id) =>
+                      id !== GlobalStateProvider?.user?.personal_info?.user_id
+                  )
+                : [
+                    ...item.likes,
+                    GlobalStateProvider?.user?.personal_info?.user_id,
+                  ],
+            }
+          : item
+      )
+    );
     handelToggleLikeWithDebounce(post_id);
   };
 
@@ -663,7 +633,7 @@ function Dashboard() {
 
   return (
     <>
-      <div className='w-full h-full bg-[var(--main-white-color)] overflow-hidden'>
+      <div className='w-full h-full bg-transparent overflow-hidden'>
         <div className='w-full h-full flex items-stretch justify-between overflow-hidden'>
           <div className='flex-grow w-1/2'>
             <div className='w-full  flex items-stretch justify-between px-3.5 py-3 border-b border-b-black/15 h-[60px] bg-white'>
@@ -696,7 +666,7 @@ function Dashboard() {
               (item) => item.label == 'view' && item.is_allowed
             )
           ) && (
-            <div className='w-1/2 max-w-[500px] bg-white min-w-[200px] h-full border-l border-l-black/15'>
+            <div className='w-1/2 max-w-[550px] bg-white min-w-[200px] h-full border-l border-l-black/15'>
               <Feed
                 setShowAddEditPostModal={setShowAddEditPostModal}
                 feedPostData={feedPostData}
@@ -706,7 +676,6 @@ function Dashboard() {
                 editPostHandler={editPostHandler}
                 handelClickOnDeleteButton={handelClickOnDeleteButton}
                 handelClickOnLikeToggle={handelClickOnLikeToggle}
-                likedPosts={likedPosts}
                 submitCommentOnClick={submitCommentOnClick}
                 progress={progress}
                 stage={stage}

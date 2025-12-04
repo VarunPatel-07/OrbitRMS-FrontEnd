@@ -37,7 +37,6 @@ function Feed(props: OrganizationFeedPropsInterface) {
     editPostHandler,
     handelClickOnDeleteButton,
     handelClickOnLikeToggle,
-    likedPosts,
     submitCommentOnClick,
     stage,
     progress,
@@ -107,13 +106,12 @@ function Feed(props: OrganizationFeedPropsInterface) {
               />
             ) : (
               <div className='w-full h-full grow'>
-                <div className='w-full flex flex-col items-start justify-start gap-4 px-4 py-4'>
+                <div className='w-full flex flex-col items-start justify-start gap-4 px-4 pt-5 pb-10'>
                   {feedPostData?.map((item) => {
                     return (
                       <div key={item?.id} className='w-full'>
                         <FeedPostCard
                           data={item}
-                          likedPosts={likedPosts}
                           GlobalStateProvider={GlobalStateProvider}
                           editPostHandler={editPostHandler}
                           handelClickOnDeleteButton={handelClickOnDeleteButton}
@@ -139,6 +137,8 @@ function Feed(props: OrganizationFeedPropsInterface) {
         postId={postId}
         handelCancelButton={handelCancelButton}
         setFeedPostData={setFeedPostData}
+        feedPostData={feedPostData}
+        GlobalStateProvider={GlobalStateProvider}
       />
     </div>
   );

@@ -335,3 +335,21 @@ export interface appRouterArraysInterface {
   module: React.ReactElement | null;
   subModule: appRouterArraysInterface[];
 }
+
+export interface ResetPasswordLinkModalInterface {
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<SetStateAction<boolean>>;
+  handelSubmit: (mail: string, callBack: (success: boolean) => void) => void;
+  companyEmail: string;
+  personalEmail: string;
+}
+
+export interface OrganizationFormInfoInterface {
+  organizationName: string;
+  primaryEmail: string;
+  defaultPortalUrlSlug: string;
+  websiteUrl: string;
+  contactNumber: string;
+  industry: { label: string; value: string };
+  employeeCount: string;
+}

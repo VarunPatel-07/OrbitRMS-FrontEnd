@@ -7,7 +7,6 @@ import {
 } from '../Context/Notification/NotificationContextApi';
 import { clearLocalSessionStorage } from '../Helper/HelperFunctions';
 
-
 function AccessDeniedRedirect({
   message,
   isAccessDenied,
@@ -37,9 +36,10 @@ function AccessDeniedRedirect({
       );
 
       setTimeout(() => {
+        
         clearLocalSessionStorage();
         navigate('/auth/sign-in');
-      }, 300); 
+      }, 300);
     }
   }, [isAccessDenied, handelNotification, navigate]);
 

@@ -107,3 +107,34 @@ export const initialMetadata: MetaDataInterface = {
   current_page: 1,
   record_per_page: 10,
 };
+
+export const EmployeeCountArray = [
+  'Less than 10',
+  '10 - 20',
+  '21 - 30',
+  '31 - 40',
+  '41 - 50',
+  '51 - 60',
+  '61 - 70',
+  '71 - 80',
+  '81 - 90',
+  '91 - 100',
+  'More than 100',
+];
+
+export const industryType: { label: string; value: string }[] = [
+  { label: 'software_company', value: 'Software Company' },
+  { label: 'consultancy_firm', value: 'Consultancy Firm' },
+  { label: 'media_agency', value: 'Media Agency' },
+  {
+    label: 'architecture_interior_design_studio',
+    value: 'Architecture & Interior Design Studio',
+  },
+  { label: 'marketing_agency', value: 'Marketing Agency' },
+];
+
+export const WebsiteUrlSafetyCheckErrorMessages: { [key: string]: string } = {
+  invalid: 'The URL format is invalid. Please enter a valid website URL.',
+  unsafe: 'This URL is marked as unsafe. Please check your website security.',
+  error: 'An error occurred while verifying the URL. Try again later.',
+};

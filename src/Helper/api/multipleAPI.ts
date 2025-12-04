@@ -36,31 +36,35 @@ export interface ApiReturnInterface {
 }
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
-// const VITE_ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
+const VITE_ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
 
 const defaultHeader = {
   'Content-Type': 'application/json',
 };
 
 const multipleFetchApiErrorHandler = (error: any) => {
-  if (MaintenanceModeIsActiveStatusCode.includes(error?.status)) {
-    storeDataInLocalStorage(
-      error?.response?.data?.detail.data,
-      MAINTENANCE_MODE_LOCAL_STORAGE_KEY
-    );
-    window.location.href = '/maintenance-mode';
-    return;
-  }
-  if (unauthorizedStatusCodes.includes(error?.status)) {
-    const status = error?.response?.status || error?.status;
-
-    if (unauthorizedStatusCodes.includes(status)) {
-      clearLocalSessionStorage();
-      window.location.href = '/auth/sign-in';
+  if (VITE_ENVIRONMENT == 'DEVELOPMENT') {
+    return ErrorHandler(error);
+  } else {
+    if (MaintenanceModeIsActiveStatusCode.includes(error?.status)) {
+      storeDataInLocalStorage(
+        error?.response?.data?.detail.data,
+        MAINTENANCE_MODE_LOCAL_STORAGE_KEY
+      );
+      window.location.href = '/maintenance-mode';
       return;
     }
-  } else {
-    return ErrorHandler(error);
+    if (unauthorizedStatusCodes.includes(error?.status)) {
+      const status = error?.response?.status || error?.status;
+
+      if (unauthorizedStatusCodes.includes(status)) {
+        clearLocalSessionStorage();
+        window.location.href = '/auth/sign-in';
+        return;
+      }
+    } else {
+      return ErrorHandler(error);
+    }
   }
 };
 

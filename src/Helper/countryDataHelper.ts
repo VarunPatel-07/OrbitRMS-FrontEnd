@@ -1,5 +1,8 @@
 import { endpointObject, multipleFetchApi } from './api/multipleAPI';
 
+const fetchUserPositionApiUrl = import.meta.env
+  .VITE_LOCATION_FETCHING_API_IP_INFO;
+
 export interface countryObject {
   country_flag: string;
   country_name: string;
@@ -33,12 +36,12 @@ export const countryDataApiHelper = async (): Promise<
 
 export const fetchUsersPosition = async (): Promise<string> => {
   try {
-    const response = await fetch('https://ipapi.co/json/');
+    const response = await fetch(fetchUserPositionApiUrl);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return data.country_name || 'India'; // Return country name after the fetch completes
+    return data.country || 'India'; // Return country name after the fetch completes
   } catch {
     return 'India'; // Return undefined in case of an error
   }

@@ -76,7 +76,7 @@ function SideBar() {
 
   return (
     <div
-      className={`h-full bg-white text-white flex flex-col  transition-all duration-300 border-r border-r-black/20  ${
+      className={`h-full bg-gradient-to-r from-blue-100/70 to-purple-100/70 text-white flex flex-col  transition-all duration-300 border-r border-r-black/20  ${
         collapsed ? 'max-w-[60px] min-w-[60px]' : 'min-w-[240px] max-w-[250px]'
       }`}
     >
@@ -119,7 +119,7 @@ function SideBar() {
         </div>
         <div className='w-full relative z-50'>
           <button
-            className={`w-full flex items-center border-t border-t-black/20 backdrop-blur bg-gray-100 hover:bg-gray-200 transition-all duration-500  py-3 flex-nowrap overflow-hidden text-black ${
+            className={`w-full flex items-center border-t border-t-black/20 backdrop-blur bg-gradient-to-r from-blue-200 to-purple-200 transition-all duration-500  py-3 flex-nowrap overflow-hidden text-black ${
               collapsed ? 'px-4 justify-start' : 'px-6 justify-center'
             }`}
             onClick={handelSidebarCollapse}

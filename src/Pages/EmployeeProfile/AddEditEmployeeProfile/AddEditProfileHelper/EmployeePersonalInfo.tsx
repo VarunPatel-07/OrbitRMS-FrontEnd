@@ -237,7 +237,11 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
                 <CommonDatePicker
                   disabled={disabled ? disabled : formSubmitLoader}
                   onChange={handelDateOfBirthPickUpChangeFunction}
-                  selectedValue={formData?.personal_info?.date_of_birth as Date}
+                  selectedValue={
+                    formData?.personal_info?.date_of_birth
+                      ? new Date(formData?.personal_info?.date_of_birth)
+                      : new Date()
+                  }
                   name='date_of_birth'
                   labelFieldName='Date Of Birth'
                   isRequiredField={true}

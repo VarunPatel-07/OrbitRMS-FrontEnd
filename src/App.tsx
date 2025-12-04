@@ -45,6 +45,7 @@ import EmployeeListing from './Pages/Employee/EmployeeListing';
 // import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile-Old';
 import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile/AddEditEmployeeProfile';
 import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
+import Leaves from './Pages/Leaves/Leaves';
 import OrganizationSettings from './Pages/OrganizationSettings/OrganizationSettings';
 import SocialMedia from './Pages/SocialMedia/SocialMedia';
 
@@ -105,6 +106,12 @@ function App() {
       label: 'dashboard',
       path: '/dashboard',
       module: <Dashboard />,
+      subModule: [],
+    },
+    {
+      label: 'dashboard',
+      path: '/leaves/*',
+      module: <Leaves />,
       subModule: [],
     },
     {
@@ -330,24 +337,25 @@ function App() {
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />
-      {!showGlobalLoader && (
-        <div className='w-full h-screen bg-white'>
-          <div className='w-full flex flex-col h-full'>
-            <Navbar handelLogout={handelLogoutButtonWithDebounce} />
-            <div className='w-full h-full flex-grow flex justify-stretch'>
-              <div className='w-fit'>
-                <SideBar />
-              </div>
-              <div className='w-[calc(100%-60px)] ml-auto bg-[var(--main-white-color)] overflow-hidden'>
-                <Routes>
-                  {recursiveRoutRender(appRouterArrays, '')}
-                  <Route path='*' element={<HandelPathFunction />} />
-                </Routes>
+      {!showGlobalLoader &&
+        GlobalStateProvider?.roles_permissions?.permissions?.length > 0 && (
+          <div className='w-full h-screen bg-white'>
+            <div className='w-full flex flex-col h-full'>
+              <Navbar handelLogout={handelLogoutButtonWithDebounce} />
+              <div className='w-full h-full flex-grow flex justify-stretch'>
+                <div className='w-fit'>
+                  <SideBar />
+                </div>
+                <div className='w-[calc(100%-60px)] ml-auto bg-[var(--main-white-color)] overflow-hidden'>
+                  <Routes>
+                    {recursiveRoutRender(appRouterArrays, '')}
+                    <Route path='*' element={<HandelPathFunction />} />
+                  </Routes>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
     </>
   );
 }
