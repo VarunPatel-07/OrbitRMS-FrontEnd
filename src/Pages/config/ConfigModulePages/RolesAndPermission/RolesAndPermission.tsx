@@ -41,6 +41,8 @@ import {
   RolesPermissionInterface,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../../interface/propsInterface';
+import HelmetSeo from '../../../../Helper/HelmetSeo';
+import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
 
 const AddEditRolePermission = React.lazy(
   () => import('./AddEditRolePermission')
@@ -471,6 +473,10 @@ function RolesAndPermission({
     );
   return (
     <>
+     <HelmetSeo
+        Title={MetaTitleDescription.roleAndPermission.title}
+        Content={MetaTitleDescription.roleAndPermission.description}
+      />
       <div className='relative w-full h-full'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>

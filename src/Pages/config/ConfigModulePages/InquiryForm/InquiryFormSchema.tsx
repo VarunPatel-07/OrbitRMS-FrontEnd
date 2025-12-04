@@ -59,6 +59,8 @@ import {
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../../interface/propsInterface';
 import AddEditInquiryFormSchema from './AddEditInquiryFormSchema';
+import HelmetSeo from '../../../../Helper/HelmetSeo';
+import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
 
 const DeleteModal = React.lazy(
   () => import('../../../../Components/Modal/DeleteModal')
@@ -549,6 +551,10 @@ function InquiryFormSchema({
     );
   return (
     <>
+      <HelmetSeo
+        Title={MetaTitleDescription.inquiryFormSchema.title}
+        Content={MetaTitleDescription.inquiryFormSchema.description}
+      />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>

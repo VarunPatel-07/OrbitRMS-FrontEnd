@@ -18,6 +18,7 @@ import {
   PermissionsModuleInterface,
 } from '../interface/UserProfileInterface';
 import EmployeeProfilePicture from './EmployeeProfilePicture';
+import { MdVerified } from 'react-icons/md';
 
 interface propsInterface {
   data: FeedPostDataPropsInterface;
@@ -205,24 +206,33 @@ function FeedPostCard(props: propsInterface) {
                 <span>You</span>
               </p>
             ) : (
-              <Link
-                to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employees/employee-profile/${data?.publisher?.id}/employee-details`}
-                target='_blank'
-                className='text-black flex items-center justify-start text-sm font-semibold gap-1 hover:text-blue-700'
-              >
-                <span className='block'>
-                  {data?.publisher?.full_name
-                    ? data?.publisher?.full_name
-                    : data?.publisher?.first_name +
-                      ' ' +
-                      data?.publisher?.middle_name +
-                      ' ' +
-                      data?.publisher?.last_name}
-                </span>
-                <span className='block'>
-                  ({data?.publisher?.employee_code})
-                </span>
-              </Link>
+              <>
+                {data?.source_type == 'announcement_team' ? (
+                  <span className='text-black flex items-center justify-start text-sm font-semibold gap-1.5'>
+                    <span className='block'>{data?.publisher?.full_name}</span>
+                    <MdVerified className='text-sm text-blue-700' />
+                  </span>
+                ) : (
+                  <Link
+                    to={`/${GlobalStateProvider?.organization?.general_info?.portal_slug}/employees/employee-profile/${data?.publisher?.id}/employee-details`}
+                    target='_blank'
+                    className='text-black flex items-center justify-start text-sm font-semibold gap-1 hover:text-blue-700'
+                  >
+                    <span className='block'>
+                      {data?.publisher?.full_name
+                        ? data?.publisher?.full_name
+                        : data?.publisher?.first_name +
+                          ' ' +
+                          data?.publisher?.middle_name +
+                          ' ' +
+                          data?.publisher?.last_name}
+                    </span>
+                    <span className='block'>
+                      ({data?.publisher?.employee_code})
+                    </span>
+                  </Link>
+                )}
+              </>
             )}
 
             <p className='text-black/70 text-xs'>
@@ -236,37 +246,42 @@ function FeedPostCard(props: propsInterface) {
           </div>
         </div>
 
-        {(data?.publisher?.id ==
-          GlobalStateProvider?.user?.employee_info?.user_id ||
-          hasPostDeleteAccess ||
-          hasPotEditAccess) && (
-          <div className='relative' ref={postActionButtonsRef}>
-            <button onClick={toggleMenu} className='text-black'>
-              <BsThreeDotsVertical />
-            </button>
+        {data?.source_type !== 'announcement_team' && (
+          <>
+            {' '}
+            {(data?.publisher?.id ==
+              GlobalStateProvider?.user?.employee_info?.user_id ||
+              hasPostDeleteAccess ||
+              hasPotEditAccess) && (
+              <div className='relative' ref={postActionButtonsRef}>
+                <button onClick={toggleMenu} className='text-black'>
+                  <BsThreeDotsVertical />
+                </button>
 
-            {showMenu && (
-              <ul
-                className={classNames(
-                  'flex flex-col items-start justify-start bg-white shadow-xl absolute top-full z-10 rounded overflow-hidden right-0 transition-all border border-black/15',
-                  { 'opacity-0': !showMenu, 'opacity-100': showMenu }
+                {showMenu && (
+                  <ul
+                    className={classNames(
+                      'flex flex-col items-start justify-start bg-white shadow-xl absolute top-full z-10 rounded overflow-hidden right-0 transition-all border border-black/15',
+                      { 'opacity-0': !showMenu, 'opacity-100': showMenu }
+                    )}
+                  >
+                    {data?.publisher?.id ==
+                    GlobalStateProvider?.user?.personal_info?.user_id
+                      ? renderPostEditButton()
+                      : hasPotEditAccess
+                        ? renderPostEditButton()
+                        : null}
+                    {data?.publisher?.id ==
+                    GlobalStateProvider?.user?.personal_info?.user_id
+                      ? renderPostDeleteButton()
+                      : hasPostDeleteAccess
+                        ? renderPostDeleteButton()
+                        : null}
+                  </ul>
                 )}
-              >
-                {data?.publisher?.id ==
-                GlobalStateProvider?.user?.personal_info?.user_id
-                  ? renderPostEditButton()
-                  : hasPotEditAccess
-                    ? renderPostEditButton()
-                    : null}
-                {data?.publisher?.id ==
-                GlobalStateProvider?.user?.personal_info?.user_id
-                  ? renderPostDeleteButton()
-                  : hasPostDeleteAccess
-                    ? renderPostDeleteButton()
-                    : null}
-              </ul>
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
       <div className='w-full h-fit'>

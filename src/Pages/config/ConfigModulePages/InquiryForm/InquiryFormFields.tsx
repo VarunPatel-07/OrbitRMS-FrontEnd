@@ -10,6 +10,7 @@ import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
 import { AddEditInquiryFormFields } from '../../../../constant/ConfigModuleConstant';
+import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
 // import DeleteModal from '../../../Components/Modal/DeleteModal';
 import {
   GlobalStateContext,
@@ -25,6 +26,7 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../../Helper/api/multipleAPI';
+import HelmetSeo from '../../../../Helper/HelmetSeo';
 import {
   formateDate,
   getDataFromLocalStorage,
@@ -381,6 +383,10 @@ export default function InquiryFormFields() {
 
   return (
     <>
+      <HelmetSeo
+        Title={MetaTitleDescription.inquiryFormFields.title}
+        Content={MetaTitleDescription.inquiryFormFields.description}
+      />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>

@@ -14,6 +14,7 @@ import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import { PASSWORD_RESET_KEY } from '../constant/constant';
+import { MetaTitleDescription } from '../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -224,8 +225,8 @@ function ForgotPassword() {
   return (
     <>
       <HelmetSeo
-        Title='Forgot Password | OrbitRMS'
-        Content='Reset your password for OrbitRMS. Simplify your work and regain access to manage everything in one place effortlessly!'
+        Title={MetaTitleDescription.forgotPassword.title}
+        Content={MetaTitleDescription.forgotPassword.description}
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />

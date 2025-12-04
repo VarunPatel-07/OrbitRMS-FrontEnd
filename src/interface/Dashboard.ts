@@ -54,7 +54,12 @@ export interface FeedPostDataPropsInterface {
   organization_id: string;
   updated_at: null;
   user_id: string;
-  source_type: 'default' | 'system' | 'ser_created';
+  source_type: 'system' | 'announcement_team' | 'user';
+  announcement_type:
+    | 'general'
+    | 'product_update'
+    | 'birthday_wish'
+    | 'work_anniversary_wish';
   publisher: {
     department: string;
     designation: string;

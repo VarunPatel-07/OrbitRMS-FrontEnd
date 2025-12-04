@@ -17,6 +17,7 @@ import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../common/Table/TableNoDataFound';
 import AccessDeniedRedirect from '../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
+import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -32,6 +33,7 @@ import {
   // multipleFetchApi,
   multiplePostApi,
 } from '../../../Helper/api/multipleAPI';
+import HelmetSeo from '../../../Helper/HelmetSeo';
 import {
   formateDate,
   getDataFromLocalStorage,
@@ -380,6 +382,10 @@ function Designations({
     );
   return (
     <>
+      <HelmetSeo
+        Title={MetaTitleDescription.designation.title}
+        Content={MetaTitleDescription.designation.description}
+      />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
         <div className='w-full h-full pt-9'>
