@@ -1,5 +1,5 @@
 export interface OrganizationSettingsSidebarListInterface {
-  id: 'general_info' | 'holiday';
+  id: 'general_info' | 'holiday' | 'leaves_manager';
   name: string;
   label: string;
   link: string;
@@ -27,7 +27,7 @@ export const OrganizationSettingsSidebarList = (
     ToolTipValue: 'Holiday',
   },
   {
-    id: 'holiday',
+    id: 'leaves_manager',
     name: 'Leaves Manager',
     label: 'leaves-manager-tooltip',
     link: `/${organization}/organization-settings/leaves-manager`,

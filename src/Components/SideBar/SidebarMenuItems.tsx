@@ -12,6 +12,7 @@ import { MdAssignment, MdSpaceDashboard } from 'react-icons/md';
 export interface SidebarMenuItemInterface {
   id:
     | 'dashboard'
+    | 'leaves'
     | 'employees'
     | 'client_inquiry'
     | 'social_media'
@@ -41,7 +42,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Dashboard',
   },
   {
-    id: 'dashboard',
+    id: 'leaves',
     name: 'leaves',
     icon: <FaCalendarAlt className='w-5 h-5' />,
     label: 'data-tooltip-leaves',
