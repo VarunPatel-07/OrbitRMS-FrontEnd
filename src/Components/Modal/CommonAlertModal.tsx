@@ -1,9 +1,8 @@
 import React, { SetStateAction, useEffect, useRef } from 'react';
-
+import { IoMdAlert } from 'react-icons/io';
 
 import Loader from '../../common/Loader';
 import { classNames } from '../../Helper/HelperFunctions';
-import { IoMdAlert } from 'react-icons/io';
 
 function CommonAlertModal({
   showDeleteModal,
@@ -30,7 +29,11 @@ function CommonAlertModal({
 
   useEffect(() => {
     const handelClickOutSideTheBox = (event: MouseEvent) => {
-      if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+      if (
+        boxRef.current &&
+        !boxRef.current.contains(event.target as Node) &&
+        !loading
+      ) {
         setShowDeleteModal(false);
       }
     };
@@ -38,7 +41,7 @@ function CommonAlertModal({
       document.addEventListener('mousedown', handelClickOutSideTheBox);
     }
     return () => {
-      document.addEventListener('mouseup', handelClickOutSideTheBox);
+      document.removeEventListener('mousedown', handelClickOutSideTheBox);
     };
   }, [loading, setShowDeleteModal]);
   return (

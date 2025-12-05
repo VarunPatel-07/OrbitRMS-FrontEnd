@@ -24,18 +24,24 @@ function DeleteModal({
   const boxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handelClickOutSideTheBox = (event: MouseEvent) => {
-      if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        boxRef.current &&
+        !boxRef.current.contains(event.target as Node) &&
+        !loading
+      ) {
         setShowDeleteModal(false);
       }
     };
+
     if (!loading) {
-      document.addEventListener('mousedown', handelClickOutSideTheBox);
+      document.addEventListener('mousedown', handleClickOutside);
     }
+
     return () => {
-      document.addEventListener('mouseup', handelClickOutSideTheBox);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [loading, setShowDeleteModal]);
+  }, [loading]);
   return (
     <div
       className={classNames(
