@@ -198,9 +198,9 @@ function LoggedInDevices(props: { organizationInfo: Organization }) {
                                 Location
                               </p>
                               <p className='text-sm text-slate-900 font-semibold truncate'>
-                                {info.user_location_info.city}
+                                {info.user_location_info.region}
                                 <span className='text-slate-500 ml-1'>
-                                  ({info.user_location_info.region})
+                                  ({info.user_location_info.country_name})
                                 </span>
                               </p>
                             </div>
