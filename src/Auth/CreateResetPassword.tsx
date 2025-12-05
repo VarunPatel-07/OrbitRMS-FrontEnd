@@ -210,6 +210,7 @@ function CreateResetPassword() {
                       viewPasswordBtn={true}
                       setValue={setPassword}
                       showError={showError}
+                      disabled={loading}
                       errorMessage={
                         showError && password.trim().length < 1
                           ? 'this field is required.'
@@ -230,6 +231,7 @@ function CreateResetPassword() {
                       viewPasswordBtn={true}
                       setValue={setConformPassword}
                       showError={showError}
+                      disabled={loading}
                       errorMessage={
                         showError && conformPassword.trim().length < 1
                           ? 'This field is required.'

@@ -208,6 +208,7 @@ const ResetPasswordLinkModal = (props: ResetPasswordLinkModalInterface) => {
                   className='border border-black/[.65] text-black min-h-12'
                   placeHolder='Enter custom email...'
                   showError={showError}
+                  disabled={loading}
                   errorMessage={
                     showError
                       ? customEmail.trim() === ''
@@ -226,6 +227,7 @@ const ResetPasswordLinkModal = (props: ResetPasswordLinkModalInterface) => {
                   type='button'
                   onClick={handleCancel}
                   className='text-[var(--them-green-color)] w-full py-2.5 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 hover:text-black transition-all'
+                  disabled={loading}
                 >
                   Cancel
                 </Button>

@@ -22,6 +22,7 @@ import SearchDrop from '../../common/SearchDrop';
 import TextArea from '../../common/TextArea';
 import MainSuspenseLoader from '../../Components/Loader/MainSuspenseLoader';
 import { bloodGroupArray, GenderArray } from '../../constant/constant';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -35,6 +36,7 @@ import {
   countryObject,
   fetchFormattedCountryData,
 } from '../../Helper/countryDataHelper';
+import HelmetSeo from '../../Helper/HelmetSeo';
 import {
   classNames,
   formateAndVerifyPhoneNumber,
@@ -45,8 +47,6 @@ import {
   OnboardingFormInterface,
 } from '../../interface/interface';
 import VerifyWebsiteUrlModal from './VerifyWebsiteUrlModal';
-import HelmetSeo from '../../Helper/HelmetSeo';
-import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 
 const initialState = {
   general_info: {
@@ -366,6 +366,7 @@ function Onboarding() {
       setIsSubmitting(false);
       handelNotification(res, 'top-right');
     }
+    setIsSubmitting(false);
   }, 300);
 
   const handelSubmitButton = async () => {
@@ -1078,6 +1079,7 @@ function Onboarding() {
                                 ? ''
                                 : 'this field is required'
                             }
+                            disabled={isSubmitting}
                           />
                         </div>
                         <div className='w-full'>
@@ -1100,6 +1102,7 @@ function Onboarding() {
                                 ? ''
                                 : 'this field is required'
                             }
+                            disabled={isSubmitting}
                           />
                         </div>
                         <div className='w-full'>
@@ -1126,6 +1129,7 @@ function Onboarding() {
                                 ? ''
                                 : 'this field is required'
                             }
+                            disabled={isSubmitting}
                           />
                         </div>
                         <div className='grid grid-cols-2 gap-4'>
@@ -1153,6 +1157,7 @@ function Onboarding() {
                                   ? ''
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                           <div className='w-full h-full'>
@@ -1177,6 +1182,7 @@ function Onboarding() {
                                     : `Zip code must be ${selectedCountryInfo?.postal_code?.format.length} characters long`
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                         </div>
@@ -1200,6 +1206,7 @@ function Onboarding() {
                                 ? ''
                                 : 'this field is required'
                             }
+                            disabled={isSubmitting}
                           />
                         </div>
                         <div className='grid grid-cols-2 gap-4'>
@@ -1222,6 +1229,7 @@ function Onboarding() {
                                   ? ''
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                           <div className='w-full'>
@@ -1242,6 +1250,7 @@ function Onboarding() {
                                   ? ''
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                         </div>
@@ -1310,6 +1319,7 @@ function Onboarding() {
                                           ? ''
                                           : 'this field is required'
                                       }
+                                      disabled={isSubmitting}
                                     />
                                   </div>
                                   <div className='w-full'>
@@ -1338,6 +1348,7 @@ function Onboarding() {
                                           ? ''
                                           : 'this field is required'
                                       }
+                                      disabled={isSubmitting}
                                     />
                                   </div>
                                 </div>
@@ -1464,6 +1475,7 @@ function Onboarding() {
                                   ? ''
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                           <div className='w-full'>
@@ -1489,6 +1501,7 @@ function Onboarding() {
                                   ? ''
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                         </div>
@@ -1517,6 +1530,7 @@ function Onboarding() {
                                   ? ''
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                           <div className='w-full'>
@@ -1529,6 +1543,7 @@ function Onboarding() {
                                 formData?.employee_profile_info?.middle_name
                               }
                               onChange={handleOnChange}
+                              disabled={isSubmitting}
                             />
                           </div>
                           <div className='w-full'>
@@ -1550,6 +1565,7 @@ function Onboarding() {
                                   ? ''
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                         </div>
@@ -1579,6 +1595,7 @@ function Onboarding() {
                                   ? ''
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                           <div className='w-full'>
@@ -1602,6 +1619,7 @@ function Onboarding() {
                                   ? ''
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                         </div>
@@ -1631,6 +1649,7 @@ function Onboarding() {
                                   ? ''
                                   : 'this field is required'
                               }
+                              disabled={isSubmitting}
                             />
                           </div>
                         </div>

@@ -290,7 +290,7 @@ function ForgotPassword() {
                             ? 'please enter a valid email address.'
                             : ''
                       }
-                      disabled={countDown ? true : false}
+                      disabled={loading ? loading : countDown ? true : false}
                     />
                     {countDown ? (
                       <p className='text-red-600 flex items-center gap-1 justify-end text-sm mt-1'>
