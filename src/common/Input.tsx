@@ -87,7 +87,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           <div
             className={clsx(
-              'bg-transparent rounded-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden !text-black',
+              `${disabled ? 'bg-[#7fab98]/15 !cursor-not-allowed' : 'bg-transparent'} rounded-lg w-full relative focus-within:border-[var(--them-pink-color)] focus-within:outline focus-within:outline-4 focus-within:outline-[rgba(215,139,159,0.2)] font-inter overflow-hidden !text-black disabled:border-[#7fab98]disabled:cursor-not-allowed`,
               className
             )}
             style={{
@@ -106,9 +106,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               onChange={setValue ? updateValue : onChange}
               placeholder={placeHolder}
               className={`bg-transparent caret-black  autofill:!text-black
-              !text-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter resize-none disabled:bg-[#7fab98]/15 disabled:cursor-not-allowed   ${
+              !text-black  w-full h-full text-base focus:outline-none focus:ring-0 py-2.5 font-inter resize-none disabled:bg-[#7fab98]/15 disabled:border disabled:border-[#7fab98]disabled:cursor-not-allowed   ${
                 viewPasswordBtn ? 'pl-4 pr-10' : 'px-4'
-              } placeholder:${placeholderColor}`}
+              } placeholder:${placeholderColor} ${disabled && 'cursor-not-allowed'}`}
               style={{
                 border: 0,
                 color: 'black',
