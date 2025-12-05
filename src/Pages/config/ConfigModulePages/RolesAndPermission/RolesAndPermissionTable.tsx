@@ -137,7 +137,6 @@ function RolesAndPermissionTable({
                     'bg-white group-hover:bg-gray-50': hierarchyLevel != 0,
                   }
                 )}
-                onClick={() => handelPermissionToggler(permission)}
               >
                 {updatingModuleLoaderId == permission?.id ? (
                   <span className='w-full h-6 flex items-center justify-center'>
@@ -150,6 +149,7 @@ function RolesAndPermissionTable({
                       disabled={
                         disabled || !module.is_active || !isParentModuleActive
                       }
+                      onClick={() => handelPermissionToggler(permission)}
                     >
                       <span
                         className={`inline-block w-3 h-3 bg-blue-700 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all ${

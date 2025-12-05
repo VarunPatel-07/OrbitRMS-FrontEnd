@@ -337,7 +337,7 @@ function SignUp() {
           </label>
           <div className='relative w-full flex items-stretch justify-start'>
             <div className='flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-l-lg text-[14px] px-5'>
-              {formData.defaultPortalUrlSlug}
+              <span className='block text-nowrap text-ellipsis overflow-hidden max-w-[180px]'>{formData.defaultPortalUrlSlug}</span>
             </div>
             <Input
               name='portalUrl'
