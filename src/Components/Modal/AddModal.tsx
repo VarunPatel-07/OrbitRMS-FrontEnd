@@ -2,6 +2,7 @@ import React, { SetStateAction, useEffect, useRef, useState } from 'react';
 import { FaStarOfLife } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 
+import Button from '../../common/Button';
 import ColorPicker from '../../common/ColorPicker';
 import Input from '../../common/Input';
 import Loader from '../../common/Loader';
@@ -97,7 +98,8 @@ function AddModal(props: AddModalProps) {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         modalBoxRef.current &&
-        !modalBoxRef.current.contains(event.target as Node)
+        !modalBoxRef.current.contains(event.target as Node) &&
+        !loading
       ) {
         setShowModal(false);
         setShowError(false);
@@ -154,9 +156,14 @@ function AddModal(props: AddModalProps) {
                 <span className='text-xl text-black font-inter font-semibold'>
                   {modalTitle}
                 </span>
-                <button onClick={handelCancelButton}>
+                <Button
+                  type='button'
+                  className=''
+                  disabled={loading}
+                  onClick={handelCancelButton}
+                >
                   <IoCloseOutline className='text-2xl text-black' />
-                </button>
+                </Button>
               </div>
               <div
                 className='px-5 py-10 mx-auto flex flex-col items-start justify-start w-full'
@@ -179,6 +186,7 @@ function AddModal(props: AddModalProps) {
                     isRequiredField={true}
                     value={value}
                     setValue={setValue}
+                    disabled={loading}
                   />
                   {showColorPicker && color && setColor && (
                     <div className='absolute top-1/2 -translate-y-1/2 right-3.5 mt-[-1.5px]'>
@@ -224,6 +232,7 @@ function AddModal(props: AddModalProps) {
                             errorMessage={
                               fieldType ? '' : 'this field is required'
                             }
+                            disabled={loading}
                           />
                         </div>
                         <div className='flex items-center justify-start gap-1.5'>
@@ -242,12 +251,14 @@ function AddModal(props: AddModalProps) {
                   )}
               </div>
               <div className='px-5 pb-6 w-full grid grid-cols-2 gap-2.5'>
-                <button
+                <Button
+                  type='button'
                   className='text-black bg-transparent py-2 rounded-lg border border-black/45 hover:bg-gray-800/5'
                   onClick={handelCancelButton}
+                  disabled={loading}
                 >
                   Cancel
-                </button>
+                </Button>
                 <button
                   className='text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'
                   disabled={loading}
