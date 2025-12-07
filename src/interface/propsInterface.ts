@@ -171,6 +171,7 @@ export interface RichTextEditorInterface {
   classNames?: string;
   height?: number;
   showMenuBar?: boolean;
+  disabled?:boolean;
 }
 
 export interface SearchDropProps {

@@ -395,14 +395,20 @@ function EmployeeProfile() {
                       <p className='text-black text-sm font-medium font-inter'>
                         Account Status:
                       </p>
-                      {data?.account_status ? (
-                        <span className='text-xs font-medium font-inter bg-green-100 text-green-700 border border-green-500 px-4 py-1.5 rounded-full'>
-                          Active
-                        </span>
+                      {isFetching ? (
+                        <Skeleton height={30} width={70} borderRadius={100} />
                       ) : (
-                        <span className='text-xs font-medium font-inter bg-red-100 text-red-700 border border-red-500 px-4 py-1.5 rounded-full'>
-                          Inactive
-                        </span>
+                        <>
+                          {data?.account_status ? (
+                            <span className='text-xs font-medium font-inter bg-green-100 text-green-700 border border-green-500 px-4 py-1.5 rounded-full'>
+                              Active
+                            </span>
+                          ) : (
+                            <span className='text-xs font-medium font-inter bg-red-100 text-red-700 border border-red-500 px-4 py-1.5 rounded-full'>
+                              Inactive
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -411,9 +417,15 @@ function EmployeeProfile() {
                       <p className='text-black text-sm font-medium font-inter'>
                         Experience In {data?.employee_info?.organization_name}:
                       </p>
-                      <span className='text-sm font-medium font-inter text-black text-nowrap rounded-full'>
-                        {getTotalExperience(data?.employee_info?.joining_date)}
-                      </span>
+                      {isFetching ? (
+                        <Skeleton height={20} width={70} borderRadius={4} />
+                      ) : (
+                        <span className='text-sm font-medium font-inter text-black text-nowrap rounded-full'>
+                          {getTotalExperience(
+                            data?.employee_info?.joining_date
+                          )}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className='px-4 py-5'>
@@ -421,9 +433,13 @@ function EmployeeProfile() {
                       <p className='text-black text-sm font-medium font-inter'>
                         Employee Type:
                       </p>
-                      <span className='text-sm font-medium font-inter text-black text-nowrap rounded-full'>
-                        {data?.employee_info?.employee_type}
-                      </span>
+                      {isFetching ? (
+                        <Skeleton height={20} width={70} borderRadius={4} />
+                      ) : (
+                        <span className='text-sm font-medium font-inter text-black text-nowrap rounded-full'>
+                          {data?.employee_info?.employee_type}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 import React, { useContext, useRef, useState } from 'react';
 import { IoClose, IoCloseCircle } from 'react-icons/io5';
 
+import Button from '../../common/Button';
 import MultipleDragAndDropFileUploader from '../../common/DragDropUploader/MultipleFileUploader/MultipleDragDropFileUploader';
 import Loader from '../../common/Loader';
 import RichTextEditor from '../../common/RichTextEditor/RichTextEditor';
@@ -155,12 +156,14 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
               <h2 className='text-black capitalize font-inter font-bold text-xl'>
                 Create Post
               </h2>
-              <button
+              <Button
+                type='button'
+                disabled={loading}
                 className='bg-transparent border-0'
                 onClick={() => handelCancelButton()}
               >
                 <IoClose className='text-black text-3xl' />
-              </button>
+              </Button>
             </div>
           </div>
           <div className='grid grid-cols-1 px-5 gap-5 pt-[80px] pb-10 max-h-[calc(100%-60px)] overflow-auto hide-scrollbar'>
@@ -255,6 +258,7 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
                 }
                 feedContent={formData?.description}
                 className='whitespace-pre-wrap'
+                disabled={loading}
               />
             </div>
             <div className='w-full flex flex-col gap-4'>
@@ -297,13 +301,16 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
             </div>
           </div>
           <div className='py-2 w-full border-t px-5 border-t-black/20 grid grid-cols-2 gap-3 items-center justify-center absolute bottom-0 left-0'>
-            <button
+            <Button
+              type='button'
               className='bg-white border border-black/20 rounded-md text-black font-inter px-5 py-2'
               onClick={handelCancelButton}
+              disabled={loading}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              type='button'
               className='bg-[var(--them-green-color)] rounded-md text-white font-inter px-5 py-2 disabled:opacity-45 disabled:cursor-not-allowed'
               onClick={handelClickOnTheSubmitButton}
               disabled={loading}
@@ -313,7 +320,7 @@ const AddEditPostModal = React.memo(function AddEditPostModal(
               ) : (
                 <span>Post</span>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
