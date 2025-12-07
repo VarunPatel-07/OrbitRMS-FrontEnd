@@ -130,14 +130,6 @@ function ClientInquirySliderModal(props: ClientInquirySidebarModelInterface) {
           </button>
         </div>
         <div className='w-full py-6 px-5 h-[calc(100%-100px)] overflow-auto text-base'>
-          {/* <ReactJson
-            src={filteredObjKey}
-            theme='rjv-default'
-            displayDataTypes={false}
-            defaultValue=''
-            name='Inquiry Data'
-            collapsed={1}
-          /> */}
           <JsonTable data={filteredObjKey} />
         </div>
       </div>

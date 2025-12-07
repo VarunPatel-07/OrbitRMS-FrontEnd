@@ -1,6 +1,7 @@
 import React, { SetStateAction, useEffect, useRef } from 'react';
 import { MdDeleteOutline } from 'react-icons/md';
 
+import Button from '../../common/Button';
 import Loader from '../../common/Loader';
 import { classNames } from '../../Helper/HelperFunctions';
 
@@ -94,13 +95,16 @@ function DeleteModal({
               {ExtraErrorMessage && ExtraErrorMessage}
             </div>
             <div className='grid grid-cols-2 w-full gap-x-2'>
-              <button
+              <Button
+                type='button'
                 className='text-[var(--them-green-color)] w-full py-2.5 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 hover:text-black transition-all'
                 onClick={() => setShowDeleteModal(false)}
+                disabled={loading}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                type='button'
                 className='text-white bg-rose-600 hover:bg-rose-700/90 w-full py-2.5 rounded-lg font-inter text-base font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed'
                 disabled={loading}
                 onClick={handelDelete}
@@ -110,7 +114,7 @@ function DeleteModal({
                 ) : (
                   <span>Delete</span>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

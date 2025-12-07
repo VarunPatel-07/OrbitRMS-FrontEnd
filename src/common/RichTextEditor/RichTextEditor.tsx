@@ -30,6 +30,7 @@ function RichTextEditor(props: RichTextEditorInterface) {
     classNames,
     height,
     showMenuBar,
+    disabled,
   } = props;
 
   const editorDefaultExtensionsArray = [
@@ -185,7 +186,12 @@ function RichTextEditor(props: RichTextEditorInterface) {
         >
           {showMenuBar && <MenuBar editor={editor} />}
           <div className='relative'>
-            <EditorContent editor={editor} height={height} />
+            <EditorContent
+              editor={editor}
+              height={height}
+              disabled={disabled}
+              className='disabled:bg-[#7fab98]/15 disabled:border disabled:border-[#7fab98]disabled:cursor-not-allowed'
+            />
           </div>
         </div>
         {showError && errorMessage && (

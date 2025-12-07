@@ -19,12 +19,17 @@ function AlertModal(props: AlertModalProps) {
   useEffect(() => {
     const handelClickOutSideTheBox = (event: MouseEvent) => {
       if (!ModalInfo?.protected) {
-        if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+        if (
+          boxRef.current &&
+          !boxRef.current.contains(event.target as Node) &&
+          !loader
+        ) {
           setShowAlertModal(false);
         }
       }
     };
-    document.addEventListener('mousedown', handelClickOutSideTheBox);
+    if (!loader)
+      document.addEventListener('mousedown', handelClickOutSideTheBox);
     return () => {
       document.removeEventListener('mousedown', handelClickOutSideTheBox);
     };
