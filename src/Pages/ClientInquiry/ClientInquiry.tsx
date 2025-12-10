@@ -204,6 +204,8 @@ function ClientInquiry() {
     const response = await multipleFetchApi(endPointArr);
 
     const res = response[0];
+    setIsFetchingData(false);
+    setIsInitialFetching(false);
     if (res?.success) return { success: true, data: res?.data };
     return { success: false, data: [] };
   };
@@ -215,45 +217,51 @@ function ClientInquiry() {
       form_id: string,
       form_schema_id: string
     ) => {
-      const filter_form_id = queryParameter.get('form-id');
-      const formSchemaId = form_schema_id || selectedInquiryForm.id;
-      const formId = form_id || filter_form_id || selectedInquiryForm?.formId;
-      const endPointArr: endpointObject[] = [
-        {
-          endPoint:
-            queryString == undefined || queryString?.trim() == ''
-              ? `client-inquires/fetch?page=${page}&limit=${limit}&form_id=${formId}`
-              : `client-inquires/fetch?page=${page}&limit=${limit}&${queryString}&form_id=${formId}`,
-          protected: true,
-        },
-      ];
+      try {
+        const filter_form_id = queryParameter.get('form-id');
+        const formSchemaId = form_schema_id || selectedInquiryForm.id;
+        const formId = form_id || filter_form_id || selectedInquiryForm?.formId;
+        const endPointArr: endpointObject[] = [
+          {
+            endPoint:
+              queryString == undefined || queryString?.trim() == ''
+                ? `client-inquires/fetch?page=${page}&limit=${limit}&form_id=${formId}`
+                : `client-inquires/fetch?page=${page}&limit=${limit}&${queryString}&form_id=${formId}`,
+            protected: true,
+          },
+        ];
 
-      const response = await multipleFetchApi(endPointArr);
+        const response = await multipleFetchApi(endPointArr);
 
-      const res = response[0];
-      setColumns(initialColumns);
-      const data = await fetchClientFormSchema(formSchemaId);
+        const res = response[0];
+        setColumns(initialColumns);
 
-      if (data?.success) {
-        await handelGeneratingDynamicClientColumn(
-          data?.data,
-          setClientInquiryFiltersArray,
-          setColumns
+        const data = await fetchClientFormSchema(formSchemaId);
+        
+        if (data?.success) {
+          await handelGeneratingDynamicClientColumn(
+            data?.data?.form_fields,
+            setClientInquiryFiltersArray,
+            setColumns
+          );
+        } else {
+          handelNotification(res, 'top-right');
+        }
+
+        if (res?.success) {
+          setData(res?.data);
+          setMetaData(res?.metadata);
+          setSelectedPage(res?.metadata?.current_page);
+          setRecordsPerPage(res?.metadata?.record_per_page);
+        } else {
+          handelNotification(res, 'top-right');
+        }
+      } catch {
+        handelNotification(
+          { success: false, message: 'Some Thing Went Wrong' },
+          'top-right'
         );
-      } else {
-        handelNotification(res, 'top-right');
       }
-      if (res?.success) {
-        setData(res?.data);
-        setMetaData(res?.metadata);
-        setSelectedPage(res?.metadata?.current_page);
-        setRecordsPerPage(res?.metadata?.record_per_page);
-      } else {
-        handelNotification(res, 'top-right');
-      }
-
-      setIsFetchingData(false);
-      setIsInitialFetching(false);
     },
     100
   );
@@ -306,8 +314,6 @@ function ClientInquiry() {
       } else {
         handelNotification(res, 'top-right');
       }
-      setIsInitialFetching(false);
-      setIsFetchingData(false);
     },
     50
   );
@@ -586,7 +592,7 @@ function ClientInquiry() {
                   <TableSkeletonLoader
                     tableHeaderCount={5}
                     tableValueCount={13}
-                    maxHeight='calc(-350px + 100vh)'
+                    maxHeight='calc(-300px + 100vh)'
                     showFilterLoader={false}
                     showHeaderLoader={false}
                   />

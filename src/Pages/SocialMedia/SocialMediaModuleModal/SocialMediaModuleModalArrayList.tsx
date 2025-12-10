@@ -56,8 +56,7 @@ export const SocialMediaModuleModalArrayList = (
         );
 
         const authToken = `Bearer ${_localToken || _sessionToken}`;
-        window.location.href = `${TWITTER_AUTHENTICATION_BASE_URL}?org-id=${GlobalStateProvider?.organization?.id}&token=${encodeURIComponent(authToken)}
-  `;
+        window.location.href = `${TWITTER_AUTHENTICATION_BASE_URL}?org-id=${GlobalStateProvider?.organization?.id}&token=${encodeURIComponent(authToken)}`;
       }
     },
   },

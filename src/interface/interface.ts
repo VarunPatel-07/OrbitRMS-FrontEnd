@@ -353,3 +353,27 @@ export interface OrganizationFormInfoInterface {
   industry: { label: string; value: string };
   employeeCount: string;
 }
+
+export type SocialMediaErrorCode =
+  | 'fb_auth_denied'
+  | 'fb_token_exchange_failed'
+  | 'fb_no_pages_found'
+  | 'fb_permission_missing'
+  | 'fb_unexpected'
+  | 'tw_auth_denied'
+  | 'tw_token_exchange_failed'
+  | 'tw_account_deactivated'
+  | 'tw_org_deactivated'
+  | 'tw_permission_missing'
+  | 'tw_unexpected'
+  | 'li_auth_denied'
+  | 'li_token_exchange_failed'
+  | 'li_no_pages_found'
+  | 'li_permission_missing'
+  | 'li_unexpected'
+  | 'default';
+
+export interface USER_FRIENDLY_ERRORS_INTERFACE {
+  showModal: boolean;
+  errorCode: SocialMediaErrorCode;
+}

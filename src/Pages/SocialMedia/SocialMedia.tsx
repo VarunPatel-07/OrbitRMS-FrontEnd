@@ -2,11 +2,13 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { GoAlert } from 'react-icons/go';
 import { SkeletonTheme } from 'react-loading-skeleton';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import * as tus from 'tus-js-client';
 
 import AccessDeniedRedirect from '../../Components/AccessDeniedRedirect';
 import UploadingPostDefaultLoader from '../../Components/Loader/UploadingPostDefaultLoader';
+import ErrorModal from '../../Components/Modal/ErrorModal';
+import { USER_FRIENDLY_ERRORS } from '../../constant/constant';
 import { AddEditPostFormData } from '../../constant/SocialMediaConstatnt';
 import {
   GlobalStateContext,
@@ -26,7 +28,11 @@ import { getCroppedImageBlob } from '../../Helper/ImageCropper';
 import { ImageDownscaler } from '../../Helper/ImageDownscaler';
 import { useDebounce } from '../../Hooks/useDebounce';
 import { cloudSignDataInterface } from '../../interface/Dashboard';
-import { CloudinaryUploadResult } from '../../interface/interface';
+import {
+  CloudinaryUploadResult,
+  SocialMediaErrorCode,
+  USER_FRIENDLY_ERRORS_INTERFACE,
+} from '../../interface/interface';
 import {
   AddEditSocialMediaPostFormdataInterface,
   ConnectedSocialMediaAccountInterface,
@@ -49,6 +55,8 @@ const SocialMediaModuleModal = React.lazy(
 
 function SocialMedia() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [queryParameter] = useSearchParams();
 
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
@@ -93,6 +101,11 @@ function SocialMedia() {
   const [progress, setProgress] = useState(0);
   const [renderExtraMessageForDelete, setRenderExtraMessageForDelete] =
     useState<boolean>(false);
+  const [showErrorModal, setShowErrorModal] =
+    useState<USER_FRIENDLY_ERRORS_INTERFACE>({
+      showModal: false,
+      errorCode: 'default',
+    });
 
   //
   //* This Is The Function That Fetch All The Linked SocialMedia Account
@@ -489,6 +502,19 @@ function SocialMedia() {
   }, []);
 
   useEffect(() => {
+    const status = queryParameter.get('status');
+    const modal = queryParameter.get('modal');
+    const code = queryParameter.get('code');
+
+    if (status == 'error' && modal == 'oauthError') {
+      setShowErrorModal({
+        showModal: true,
+        errorCode: (code || 'default') as SocialMediaErrorCode,
+      });
+    }
+  }, [queryParameter]);
+
+  useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (
         uploadingPostFormData?.caption !== '' ||
@@ -609,6 +635,19 @@ function SocialMedia() {
           renderExtraMessageForDelete ? ExtraErrorMessageRender() : <></>
         }
         minHeight={renderExtraMessageForDelete ? 400 : 300}
+      />
+      <ErrorModal
+        showErrorModal={showErrorModal.showModal}
+        title={USER_FRIENDLY_ERRORS[showErrorModal.errorCode].title}
+        errorDetails={''}
+        message={USER_FRIENDLY_ERRORS.fb_unexpected.message}
+        onClose={() => {
+          setShowErrorModal({ errorCode: 'default', showModal: false });
+          navigate(
+            `/${GlobalStateProvider?.organization?.general_info?.portal_slug}/social-media`,
+            { replace: true }
+          );
+        }}
       />
     </>
   );
