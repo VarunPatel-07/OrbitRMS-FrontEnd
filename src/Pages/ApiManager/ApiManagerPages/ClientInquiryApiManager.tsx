@@ -476,7 +476,7 @@ function ClientInquiryApiManager() {
                                 <div className='w-full max-w-[97%] break-words'>
                                   <span className='font-inter text-white/85 font-medium break-words'>
                                     {BACKEND_API_BASEURL}
-                                    /app/v1/client-inquires/submit?api_key=
+                                    /client-inquires/submit?api_key=
                                     <span className='font-semibold text-white'>
                                       YOUR_API_KEY
                                     </span>
