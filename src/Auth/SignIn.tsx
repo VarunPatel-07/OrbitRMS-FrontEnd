@@ -17,6 +17,7 @@ import {
 import { signInApiFunction, verifyUsersLoginStatus } from '../Helper/api/api';
 import HelmetSeo from '../Helper/HelmetSeo';
 import {
+  classNames,
   clearLocalSessionStorage,
   getDataFromLocalStorage,
   getDataFromTheSessionStorage,
@@ -182,7 +183,19 @@ function SignIn() {
       handelCountDownFunction(data);
     }
   }, [expiryTimeUTCString]);
+  
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
 
+    if (loading) window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [loading]);
   return (
     <>
       <HelmetSeo
@@ -253,6 +266,7 @@ function SignIn() {
                               : ''
                           : ''
                       }
+                      disabled={loading}
                     />
                   </div>
                   <div className='w-full grid grid-cols-1 gap-y-3'>
@@ -276,6 +290,7 @@ function SignIn() {
                                 : ''
                             : ''
                         }
+                        disabled={loading}
                       />
                     </div>
                     <div className='w-full flex items-center justify-between'>
@@ -292,8 +307,16 @@ function SignIn() {
                       </div>
 
                       <Link
-                        to={'/auth/forgot-password'}
-                        className='text-[var(--them-orange-color)] font-semibold font-inter text-sm cursor-pointer'
+                        to={loading ? '#' : '/auth/forgot-password'}
+                        className={classNames(
+                          'text-[var(--them-orange-color)] font-semibold font-inter text-sm',
+
+                          {
+                            'cursor-pointer': !loading,
+                            'cursor-not-allowed opacity-50': loading,
+                          }
+                        )}
+                        aria-disabled={loading}
                       >
                         Forgot Password?
                       </Link>

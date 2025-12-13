@@ -42,6 +42,8 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
   const modalBoxRef = useRef<HTMLDivElement>(null);
 
   const [showError, setShowError] = useState<boolean>(false);
+  const [emailFiledShowError, setEmailFieldShowError] =
+    useState<boolean>(false);
   const [isVisible, setIsVisible] = useState<boolean>(showModal);
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
@@ -51,11 +53,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
       !formData?.form_name?.trim() ||
       !formData?.description?.trim();
 
-    const hasInvalidEmail = !formData?.authorized_recipient_emails?.every(
-      (item) => isValidEmail(item)
-    );
-
-    if (isEmpty || hasInvalidEmail) {
+    if (isEmpty) {
       setShowError(true);
       return;
     }
@@ -125,9 +123,9 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
           '',
         ],
       }));
-      setShowError(false);
+      setEmailFieldShowError(false);
     } else {
-      setShowError(true);
+      setEmailFieldShowError(true);
     }
   };
 
@@ -221,7 +219,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       value={formData?.form_id}
                       onChange={handelOnChange}
                       showError={showError}
-                      // disabled={modalType == 'edit'}
+                      disabled={loading}
                       errorMessage={
                         showError && formData?.form_id?.length <= 0
                           ? 'this is a require field'
@@ -239,7 +237,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       value={formData?.form_name}
                       onChange={handelOnChange}
                       showError={showError}
-                      // disabled={modalType == 'edit'}
+                      disabled={loading}
                       errorMessage={
                         showError && formData?.form_name?.length <= 0
                           ? 'this is a require field'
@@ -257,6 +255,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       value={formData?.description}
                       onChange={handelOnChange}
                       showError={showError}
+                      disabled={loading}
                       errorMessage={
                         showError && formData?.description?.length <= 0
                           ? 'this is a require field'
@@ -323,9 +322,10 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                                 isRequiredField={true}
                                 value={email}
                                 onChange={(e) => handelOnChange(e, index)}
-                                showError={showError}
+                                showError={emailFiledShowError}
+                                disabled={loading}
                                 errorMessage={
-                                  showError && !isValidEmail(email)
+                                  emailFiledShowError && !isValidEmail(email)
                                     ? 'pls enter a valid email'
                                     : ''
                                 }
@@ -360,13 +360,16 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                 </div>
               </div>
               <div className='px-5 py-5 w-full grid grid-cols-2 gap-2.5 border-t border-t-black/20'>
-                <button
+                <Button
+                  type='button'
                   className='text-black bg-transparent py-2 rounded-lg border border-black/45 hover:bg-gray-800/5'
                   onClick={handelCancelButton}
+                  disabled={loading}
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
+                  type='button'
                   className='text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'
                   disabled={loading}
                   onClick={handelSubmitButton}
@@ -382,7 +385,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                   ) : (
                     <span>Update</span>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

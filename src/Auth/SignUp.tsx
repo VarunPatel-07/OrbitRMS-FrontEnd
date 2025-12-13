@@ -300,6 +300,7 @@ function SignUp() {
             onChange={(e) => handelInputFieldChange(e)}
             showError={showError && formData?.organizationName?.trim() === ''}
             errorMessage='This field is required.'
+            disabled={loading}
           />
         </div>
         <div className='w-full'>
@@ -321,6 +322,7 @@ function SignUp() {
                     : ''
                 : ''
             }
+            disabled={loading}
           />
         </div>
         <div className='w-full'>
@@ -335,7 +337,7 @@ function SignUp() {
           </label>
           <div className='relative w-full flex items-stretch justify-start'>
             <div className='flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-l-lg text-[14px] px-5'>
-              {formData.defaultPortalUrlSlug}
+              <span className='block text-nowrap text-ellipsis overflow-hidden max-w-[180px]'>{formData.defaultPortalUrlSlug}</span>
             </div>
             <Input
               name='portalUrl'
@@ -343,6 +345,7 @@ function SignUp() {
               type='text'
               value={portalUrl?.toLocaleLowerCase()}
               setValue={setPortalUrl}
+              disabled={loading}
             />
           </div>
           {showError && portalUrl.trim() === '' && (
@@ -394,6 +397,7 @@ function SignUp() {
                 : ''
             }
             countryOptionsData={countryOptionsDataArray}
+            disabled={loading}
           />
         </div>
       </div>
@@ -423,6 +427,7 @@ function SignUp() {
                     ]
                   : ''
             }
+            disabled={loading}
           />
         </div>
         <div className='w-full'>
@@ -441,6 +446,7 @@ function SignUp() {
                 ? 'this is an required field'
                 : ''
             }
+            disabled={loading}
           />
         </div>
         <div className='w-full'>
@@ -461,6 +467,7 @@ function SignUp() {
                 ? 'this is an required field'
                 : ''
             }
+            disabled={loading}
           />
         </div>
         <div className='w-full'>
@@ -554,6 +561,19 @@ function SignUp() {
     };
     loadCountryData();
   }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    if (loading) window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [loading]);
 
   return (
     <>

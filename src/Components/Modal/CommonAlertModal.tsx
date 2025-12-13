@@ -1,9 +1,9 @@
 import React, { SetStateAction, useEffect, useRef } from 'react';
+import { IoMdAlert } from 'react-icons/io';
 
-
+import Button from '../../common/Button';
 import Loader from '../../common/Loader';
 import { classNames } from '../../Helper/HelperFunctions';
-import { IoMdAlert } from 'react-icons/io';
 
 function CommonAlertModal({
   showDeleteModal,
@@ -30,7 +30,11 @@ function CommonAlertModal({
 
   useEffect(() => {
     const handelClickOutSideTheBox = (event: MouseEvent) => {
-      if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+      if (
+        boxRef.current &&
+        !boxRef.current.contains(event.target as Node) &&
+        !loading
+      ) {
         setShowDeleteModal(false);
       }
     };
@@ -38,7 +42,7 @@ function CommonAlertModal({
       document.addEventListener('mousedown', handelClickOutSideTheBox);
     }
     return () => {
-      document.addEventListener('mouseup', handelClickOutSideTheBox);
+      document.removeEventListener('mousedown', handelClickOutSideTheBox);
     };
   }, [loading, setShowDeleteModal]);
   return (
@@ -92,13 +96,16 @@ function CommonAlertModal({
               {ExtraErrorMessage && ExtraErrorMessage}
             </div>
             <div className='grid grid-cols-2 w-full gap-x-2'>
-              <button
+              <Button
+                type='button'
                 className='text-[var(--them-green-color)] w-full py-2.5 rounded-lg font-inter border border-[var(--them-green-color)] text-base font-semibold hover:bg-gray-800/5 hover:text-black transition-all'
                 onClick={() => setShowDeleteModal(false)}
+                disabled={loading}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                type='button'
                 className='text-white bg-yellow-600 hover:bg-yellow-600 w-full py-2.5 rounded-lg font-inter text-base font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed'
                 disabled={loading}
                 onClick={handelDelete}
@@ -108,7 +115,7 @@ function CommonAlertModal({
                 ) : (
                   <span>{secondaryButtonTitle}</span>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
