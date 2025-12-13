@@ -4,9 +4,6 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -26,12 +23,12 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  border: 0;
-  -webkit-text-fill-color: black;
-  -webkit-box-shadow: 0 0 0px 1000px transparent inset;
-  box-shadow: 0 0 0px 1000px transparent inset;
-  transition: background-color 5000s ease-in-out 0s;
-  color: black;
+  -webkit-text-fill-color: black !important;
+  color: black !important;
+  background-color: transparent !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
+  background-clip: content-box !important;
+  transition: background-color 9999999s ease-in-out 0s !important;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -42,12 +39,12 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
 .tooltiptext::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   right: 100%;
@@ -71,4 +68,55 @@ input[type="number"] {
 .hide-scrollbar {
   scrollbar-width: none; /* Hides the scrollbar */
   -ms-overflow-style: none; /* For Internet Explorer 10+ */
+}
+
+.animate-spin-smooth {
+  animation: spin 1.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+.epr-category-nav {
+  display: none !important;
+}
+.epr-emoji-img {
+  width: 35px !important;
+  height: 35px !important;
+  min-width: 35px !important;
+  max-height: 35px !important;
+  object-fit: contain;
+}
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }

@@ -1,66 +1,124 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
-import { ErrorHandler, getDataFromLocalStorage } from "../HelperFunctions";
+
+import axios from 'axios';
+
+import {
+  MAINTENANCE_MODE_LOCAL_STORAGE_KEY,
+  MaintenanceModeIsActiveStatusCode,
+  unauthorizedStatusCodes,
+} from '../../constant/constant';
+import {
+  clearLocalSessionStorage,
+  ErrorHandler,
+  getDataFromLocalStorage,
+  getDataFromTheSessionStorage,
+  storeDataInLocalStorage,
+} from '../HelperFunctions';
 
 export interface endpointObject {
   endPoint: string;
   protected: boolean;
   data?: object;
+  header?: object;
 }
 export interface URLObject {
   url: string;
-  Method: "GET" | "POST";
+  Method: 'GET' | 'POST';
   data?: object;
   header?: object;
 }
+export interface ApiReturnInterface {
+  message: string;
+  success: boolean;
+  data?: any;
+  metadata?: any;
+  current_session_id?: string;
+}
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
+const VITE_ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
 
 const defaultHeader = {
-  "Content-Type": "application/json",
+  'Content-Type': 'application/json',
 };
 
-export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
+const multipleFetchApiErrorHandler = (error: any) => {
+  if (VITE_ENVIRONMENT == 'DEVELOPMENT') {
+    return ErrorHandler(error);
+  } else {
+    if (MaintenanceModeIsActiveStatusCode.includes(error?.status)) {
+      storeDataInLocalStorage(
+        error?.response?.data?.detail.data,
+        MAINTENANCE_MODE_LOCAL_STORAGE_KEY
+      );
+      window.location.href = '/maintenance-mode';
+      return;
+    }
+
+    if (unauthorizedStatusCodes.includes(error?.status)) {
+      const status = error?.response?.status || error?.status;
+
+      if (unauthorizedStatusCodes.includes(status)) {
+        window.location.href = '/auth/sign-in';
+        return;
+      }
+    } else if (!status && error?.message?.includes('Network')) {
+      clearLocalSessionStorage();
+      window.location.href = '/auth/sign-in';
+      return;
+    } else {
+      return ErrorHandler(error);
+    }
+  }
+};
+
+export const multipleFetchApi = async (
+  endPointArr: Array<endpointObject>,
+  signal?: AbortSignal
+): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
-      const _token = getDataFromLocalStorage("authenticationToken");
+      const _localToken = getDataFromLocalStorage('authenticationToken');
+      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
       //   todo we will show the error in the form of the notification
-      if (!_token) return null; // return null or an error message if there's no token
 
-      const authToken = `Bearer ${_token}`;
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: authToken,
-      };
+      const authToken = `Bearer ${_localToken || _sessionToken}`;
+      const headers: Record<string, string> = eachEndPoint?.header
+        ? (eachEndPoint.header as Record<string, string>)
+        : {
+            'Content-Type': 'application/json',
+            Authorization: authToken,
+          };
+
+      if (!headers?.Authorization) {
+        headers.Authorization = authToken;
+      }
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
 
       const config = {
-        method: "GET",
+        method: 'GET',
         url,
         headers: headers,
+        signal,
       };
 
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error) {
-        // Handle error (e.g., return an error object or log it)
-        console.error(`Error fetching data from ${eachEndPoint.endPoint}`, error);
-        return null;
+      } catch (error: any) {
+        return multipleFetchApiErrorHandler(error);
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
       const config = {
-        method: "GET",
+        method: 'GET',
         url,
       };
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error) {
-        // Handle error (e.g., return an error object or log it)
-        console.error(`Error fetching data from ${eachEndPoint.endPoint}`, error);
-        return null;
+      } catch (error: any) {
+        return multipleFetchApiErrorHandler(error);
       }
     }
   });
@@ -69,24 +127,89 @@ export const multipleFetchApi = async (endPointArr: Array<endpointObject>) => {
   return await Promise.all(promises);
 };
 
-export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
+export const multiplePostApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
-      const _token = getDataFromLocalStorage("authenticationToken");
+      const _localToken = getDataFromLocalStorage('authenticationToken');
+      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
+      //   todo we will show the error in the form of the notification
 
-      if (!_token) return;
+      const authToken = `Bearer ${_localToken || _sessionToken}`;
 
-      const authToken = `Bearer ${_token}`;
+      const headers: Record<string, string> = eachEndPoint?.header
+        ? (eachEndPoint.header as Record<string, string>)
+        : {
+            'Content-Type': 'application/json',
+            Authorization: authToken,
+          };
 
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: authToken,
-      };
+      if (!headers?.Authorization) {
+        headers.Authorization = authToken;
+      }
 
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
 
       const config = {
-        method: "POST",
+        method: 'POST',
+        url,
+        headers: headers,
+        data: eachEndPoint.data,
+      };
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error: any) {
+        return multipleFetchApiErrorHandler(error);
+      }
+    } else {
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
+
+      const config = {
+        method: 'POST',
+        url,
+        headers: eachEndPoint?.header ? eachEndPoint.header : defaultHeader,
+        data: eachEndPoint.data,
+      };
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error: any) {
+        return multipleFetchApiErrorHandler(error);
+      }
+    }
+  });
+
+  return await Promise.all(promises);
+};
+
+// todo we need to add put api helper for editing api
+
+export const multiplePutApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
+  const promises = endPointArr.map(async (eachEndPoint) => {
+    if (eachEndPoint.protected) {
+      const _localToken = getDataFromLocalStorage('authenticationToken');
+      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
+      const authToken = `Bearer ${_localToken || _sessionToken}`;
+
+      const headers: Record<string, string> = eachEndPoint.header
+        ? (eachEndPoint.header as Record<string, string>)
+        : {
+            'Content-Type': 'application/json',
+            Authorization: authToken,
+          };
+
+      if (!headers.Authorization) {
+        headers.Authorization = authToken;
+      }
+
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
+
+      const config = {
+        method: 'PUT',
         url,
         headers,
         data: eachEndPoint.data,
@@ -94,27 +217,80 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error) {
-        // Handle error (e.g., return an error object or log it)
-        console.error(`Error fetching data from ${eachEndPoint.endPoint}`, error);
-        return null;
+      } catch (error: any) {
+        return multipleFetchApiErrorHandler(error);
       }
     } else {
       const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
 
       const config = {
-        method: "POST",
+        method: 'PUT',
         url,
-        headers: defaultHeader,
+        headers: eachEndPoint?.header ? eachEndPoint.header : defaultHeader,
         data: eachEndPoint.data,
       };
       try {
         const res = await axios(config);
         return res?.data;
       } catch (error: any) {
-        // Handle error (e.g., return an error object or log it)
+        return multipleFetchApiErrorHandler(error);
+      }
+    }
+  });
 
-        return ErrorHandler(error);
+  return await Promise.all(promises);
+};
+
+export const multipleDeleteApi = async (
+  endPointArr: Array<endpointObject>
+): Promise<ApiReturnInterface[]> => {
+  const promises = endPointArr.map(async (eachEndPoint) => {
+    if (eachEndPoint.protected) {
+      const _localToken = getDataFromLocalStorage('authenticationToken');
+      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
+      //   todo we will show the error in the form of the notification
+
+      const authToken = `Bearer ${_localToken || _sessionToken}`;
+
+      const headers: Record<string, string> = eachEndPoint?.header
+        ? (eachEndPoint.header as Record<string, string>)
+        : {
+            'Content-Type': 'application/json',
+            Authorization: authToken,
+          };
+
+      if (!headers?.Authorization) {
+        headers.Authorization = authToken;
+      }
+
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
+
+      const config = {
+        method: 'DELETE',
+        url,
+        headers: headers,
+        data: eachEndPoint.data,
+      };
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error: any) {
+        return multipleFetchApiErrorHandler(error);
+      }
+    } else {
+      const url = `${BASE_URL}/${eachEndPoint.endPoint}`;
+
+      const config = {
+        method: 'DELETE',
+        url,
+        headers: eachEndPoint?.header ? eachEndPoint.header : defaultHeader,
+        data: eachEndPoint.data,
+      };
+      try {
+        const res = await axios(config);
+        return res?.data;
+      } catch (error: any) {
+        return multipleFetchApiErrorHandler(error);
       }
     }
   });
@@ -124,7 +300,7 @@ export const multiplePostApi = async (endPointArr: Array<endpointObject>) => {
 
 export const multiUrlFetcher = async (urlArray: Array<URLObject>) => {
   const promises = urlArray.map(async (eachURL: URLObject) => {
-    if (eachURL.Method == "GET") {
+    if (eachURL.Method == 'GET') {
       const config = {
         method: eachURL.Method,
         url: eachURL.url,
@@ -133,11 +309,11 @@ export const multiUrlFetcher = async (urlArray: Array<URLObject>) => {
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error) {
+      } catch (error: any) {
         console.error(`Error fetching data from ${eachURL.url}`, error);
-        return null;
+        return ErrorHandler(error);
       }
-    } else if (eachURL.Method == "POST") {
+    } else if (eachURL.Method == 'POST') {
       const config = {
         method: eachURL.Method,
         url: eachURL.url,
@@ -147,9 +323,9 @@ export const multiUrlFetcher = async (urlArray: Array<URLObject>) => {
       try {
         const res = await axios(config);
         return res?.data;
-      } catch (error) {
+      } catch (error: any) {
         console.error(`Error fetching data from ${eachURL.url}`, error);
-        return null;
+        return ErrorHandler(error);
       }
     }
   });

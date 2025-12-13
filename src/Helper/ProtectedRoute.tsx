@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
-import { getDataFromLocalStorage } from "./HelperFunctions";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+
+import {
+  getDataFromLocalStorage,
+  getDataFromTheSessionStorage,
+} from './HelperFunctions';
 
 function ProtectedRoute({ element }: { element: React.ReactElement }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return !!getDataFromLocalStorage("authenticationToken");
-  });
+  const isAuthenticated =
+    getDataFromLocalStorage('authenticationToken') ||
+    getDataFromTheSessionStorage('authenticationToken');
 
-  useEffect(() => {
-    const token = getDataFromLocalStorage("authenticationToken");
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, []);
-
-  return isAuthenticated ? element : <Navigate to="/auth/login" />;
+  return typeof isAuthenticated === 'string' &&
+    isAuthenticated.trim() !== '' ? (
+    element
+  ) : (
+    <Navigate to='/auth/sign-in' />
+  );
 }
 
 export default ProtectedRoute;
