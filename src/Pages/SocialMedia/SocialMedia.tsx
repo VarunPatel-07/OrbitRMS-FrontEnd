@@ -23,6 +23,7 @@ import {
   multipleDeleteApi,
   multipleFetchApi,
   multiplePostApi,
+  multiplePutApi,
 } from '../../Helper/api/multipleAPI';
 import { getCroppedImageBlob } from '../../Helper/ImageCropper';
 import { ImageDownscaler } from '../../Helper/ImageDownscaler';
@@ -84,6 +85,8 @@ function SocialMedia() {
   const [formSubmitLoading, setFormSubmitLoading] = useState<boolean>(false);
   const [formData, setFormData] =
     useState<AddEditSocialMediaPostFormdataInterface>(AddEditPostFormData);
+  const [dummyFormData, setDummyFormData] =
+    useState<AddEditSocialMediaPostFormdataInterface>(AddEditPostFormData);
   const [loadingSocialMediaPost, setLoadingSocialMediaPost] =
     useState<boolean>(true);
   const [socialPostArray, setSocialPostArray] = useState<
@@ -106,6 +109,8 @@ function SocialMedia() {
       showModal: false,
       errorCode: 'default',
     });
+  const [statusToggleLoaderId, setStatusToggleLoaderId] = useState<string>('');
+  const [disconnectLoaderId, setDisconnectLoaderId] = useState<string>('');
 
   //
   //* This Is The Function That Fetch All The Linked SocialMedia Account
@@ -122,8 +127,8 @@ function SocialMedia() {
     if (res?.success) {
       setConnectedSocialMediaAccount(res?.data);
       setSelectedAccountArr(
-        res?.data?.map(
-          (item: ConnectedSocialMediaAccountInterface) => item?.platform
+        res?.data?.flatMap((item: ConnectedSocialMediaAccountInterface) =>
+          item?.is_active ? [item.platform] : []
         )
       );
     } else {
@@ -131,6 +136,53 @@ function SocialMedia() {
     }
     setIsLoadingConnectedSocialMediaAccount(false);
   }, 100);
+
+  const handelStatusTogglerWithDebounce = useDebounce(async (account_id) => {
+    const endpointObj: endpointObject[] = [
+      {
+        endPoint: `social/media/accounts/status/toggle?id=${account_id}`,
+        protected: true,
+      },
+    ];
+    const response = await multiplePutApi(endpointObj);
+    const res = response[0];
+
+    handelNotification(res, 'top-right');
+    setStatusToggleLoaderId('false');
+    if (res?.success) {
+      setIsLoadingConnectedSocialMediaAccount(true);
+      fetchSocialMediaAccountWithDebounce();
+    }
+  }, 100);
+  const handelDisconnectAccountWithDebounce = useDebounce(
+    async (account_id) => {
+      const endpointObj: endpointObject[] = [
+        {
+          endPoint: `social/media/accounts/disconnect?id=${account_id}`,
+          protected: true,
+        },
+      ];
+      const response = await multiplePutApi(endpointObj);
+      const res = response[0];
+
+      handelNotification(res, 'top-right');
+      setDisconnectLoaderId('');
+      if (res?.success) {
+        setIsLoadingConnectedSocialMediaAccount(true);
+        fetchSocialMediaAccountWithDebounce();
+      }
+    },
+    100
+  );
+  const handelStatusToggler = (account_id: string) => {
+    setStatusToggleLoaderId(account_id);
+    handelStatusTogglerWithDebounce(account_id);
+  };
+
+  const handelDisconnectAccount = (account_id: string) => {
+    setDisconnectLoaderId(account_id);
+    handelDisconnectAccountWithDebounce(account_id);
+  };
 
   //
   //*  This Is The Function That Handel Adding Of The Social Media Post From OrbitRMS
@@ -362,6 +414,7 @@ function SocialMedia() {
         handelUploadPostWithDebounce(formData, responseData);
       }
       setFormData(AddEditPostFormData);
+      setDummyFormData(AddEditPostFormData);
     }
   }, 100);
   //
@@ -445,6 +498,7 @@ function SocialMedia() {
   const handelCancelButton = () => {
     setShowAddEditPostModal(false);
     setFormData(AddEditPostFormData);
+    setDummyFormData(AddEditPostFormData);
   };
 
   const handelClickOnDeleteButton = (
@@ -577,6 +631,10 @@ function SocialMedia() {
               showModal={showModal}
               setHandelClickOnDropDown={setHandelClickOnDropDown}
               permissionData={permissionData}
+              handelStatusToggler={handelStatusToggler}
+              statusToggleLoaderId={statusToggleLoaderId}
+              handelDisconnectAccount={handelDisconnectAccount}
+              disconnectLoaderId={disconnectLoaderId}
             />
 
             <SocialMediaPosts
@@ -624,6 +682,7 @@ function SocialMedia() {
         formData={formData}
         setFormData={setFormData}
         selectedAccountArr={selectedAccountArr}
+        dummyFormData={dummyFormData}
       />
       <DeleteModal
         loading={isDeleteLoading}

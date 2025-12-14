@@ -18,6 +18,7 @@ import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
 import AccessDeniedRedirect from '../../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
+import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -32,6 +33,7 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../../Helper/api/multipleAPI';
+import HelmetSeo from '../../../../Helper/HelmetSeo';
 import { formateDate } from '../../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../../Hooks/useDebounce';
 import { PermissionObjectInterface } from '../../../../interface/interface';
@@ -41,8 +43,6 @@ import {
   RolesPermissionInterface,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../../interface/propsInterface';
-import HelmetSeo from '../../../../Helper/HelmetSeo';
-import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
 
 const AddEditRolePermission = React.lazy(
   () => import('./AddEditRolePermission')
@@ -87,6 +87,8 @@ function RolesAndPermission({
   const [editId, setEditId] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [value, setValue] =
+    useState<AddRolesAndPermissionInterFace>(initialState);
+  const [dummyValue, setDummyValue] =
     useState<AddRolesAndPermissionInterFace>(initialState);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -386,6 +388,7 @@ function RolesAndPermission({
         handelNotification(res, 'top-right');
         fetchRolesAndPermissionWithDebounce();
         setValue(initialState);
+        setDummyValue(initialState);
       } else {
         setLoading(false);
         handelNotification(res, 'top-right');
@@ -405,7 +408,7 @@ function RolesAndPermission({
   };
 
   const handelEditButtonClick = (_data: RolesPermissionInterface) => {
-    setValue({
+    const data: AddRolesAndPermissionInterFace = {
       role_name: _data?.role_name,
       description: _data?.description,
       status: _data?.status,
@@ -414,7 +417,9 @@ function RolesAndPermission({
         clone_role_id: '',
         config_module_id: '',
       },
-    });
+    };
+    setValue(data);
+    setDummyValue(data);
     setEditId(_data?.id);
     setModalType('edit');
     setShowModal(true);
@@ -473,7 +478,7 @@ function RolesAndPermission({
     );
   return (
     <>
-     <HelmetSeo
+      <HelmetSeo
         Title={MetaTitleDescription.roleAndPermission.title}
         Content={MetaTitleDescription.roleAndPermission.description}
       />
@@ -565,6 +570,7 @@ function RolesAndPermission({
             setShowModal={setShowModal}
             showModal={showModal}
             ActiveRolesPermissionArray={data}
+            dummyValue={dummyValue}
           />
         )}
         {showDeleteModal && (
