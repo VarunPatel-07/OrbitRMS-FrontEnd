@@ -1,6 +1,7 @@
 import { BsThreeDotsVertical } from 'react-icons/bs';
 
 import Button from '../../../common/Button';
+import Loader from '../../../common/Loader';
 import { GetPlatformLogo } from '../../../constant/SocialMediaConstatnt';
 import { classNames } from '../../../Helper/HelperFunctions';
 import { SocialMediaCardInterface } from '../../../interface/SocialMediaModule';
@@ -11,7 +12,12 @@ function SocialMediaCard(props: SocialMediaCardInterface) {
     dropdownRefs,
     setHandelClickOnDropDown,
     handelClickOnDropDown,
+    loadingId,
+    handelStatusToggler,
+    disconnectLoaderId,
+    handelDisconnectAccount,
   } = props;
+
   return (
     <div
       key={data?.id}
@@ -19,8 +25,10 @@ function SocialMediaCard(props: SocialMediaCardInterface) {
       className='min-w-52 min-h-52 max-w-52 max-h-52 border border-black/20 rounded-lg flex flex-col items-center justify-center p-3 relative'
     >
       <div className='absolute left-0 top-3 w-full flex items-center justify-between px-3'>
-        <span className='text-green-700 bg-green-50 border border-green-600 text-xs font-semibold font-inter px-3 py-1 rounded-full'>
-          Active
+        <span
+          className={`border ${data?.is_active ? 'border-green-600 text-green-700 bg-green-50' : 'border-rose-600 text-rose-700 bg-rose-50'} text-xs font-semibold font-inter px-3 py-1 rounded-full`}
+        >
+          {data?.is_active ? 'Active' : 'Inactive'}
         </span>
         <div className='relative'>
           <Button
@@ -42,9 +50,19 @@ function SocialMediaCard(props: SocialMediaCardInterface) {
             <li className='w-full'>
               <Button
                 type='button'
-                className='text-black text-sm font-inter px-2 py-1 hover:bg-gray-200'
+                className='text-black text-sm font-inter px-2 py-1 h-full flex hover:bg-gray-200'
+                onClick={() => handelStatusToggler(data?.id)}
               >
-                Deactivate
+                {loadingId == data?.id ? (
+                  <Loader
+                    theme='dark'
+                    loaderText={
+                      data?.is_active ? 'Deactivating...' : 'Activating...'
+                    }
+                  />
+                ) : (
+                  <> {data?.is_active ? 'Deactivate' : 'Activate'}</>
+                )}
               </Button>
             </li>
           </ul>
@@ -71,8 +89,14 @@ function SocialMediaCard(props: SocialMediaCardInterface) {
           <Button
             type='button'
             className='bg-blue-700 text-white w-full rounded-md text-sm font-inter font-medium capitalize py-1.5 px-2'
+            disabled={disconnectLoaderId == data?.id}
+            onClick={() => handelDisconnectAccount(data?.id)}
           >
-            disconnect
+            {disconnectLoaderId == data?.id ? (
+              <Loader loaderText='Disconnecting...' />
+            ) : (
+              'disconnect'
+            )}
           </Button>
         </div>
       </div>

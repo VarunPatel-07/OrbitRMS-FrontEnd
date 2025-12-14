@@ -77,6 +77,8 @@ function Dashboard() {
 
   const [formData, setFormData] =
     useState<AddEditPostFormdataInterface>(initialData);
+  const [dummyFormData, setDummyFormData] =
+    useState<AddEditPostFormdataInterface>(initialData);
   const [formSubmitLoader, setFormSubmitLoader] = useState<boolean>(false);
   const [feedPostLoader, setFeedPostLoader] = useState<boolean>(true);
   const [editPostId, setEditPostId] = useState<string>('');
@@ -102,7 +104,7 @@ function Dashboard() {
   const deletePostWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
       {
-        endPoint: `admin/organization-updates/delete-post?id=${deletePostId}`,
+        endPoint: `feed/delete-post?id=${deletePostId}`,
         protected: true,
       },
     ];
@@ -501,19 +503,20 @@ function Dashboard() {
       handelNotification(res, 'top-right');
 
       if (res?.success) {
-        setShowAddEditPostModal(false);
-        setFormData(initialData);
-        editorRef.current?.commands.clearContent();
-        setStage('done');
-        setProgress(100);
-        setTimeout(() => {
-          setUploadingPostFormData(initialData);
-        }, 500);
         setTimeout(() => {
           setFeedPostLoader(true);
           fetchTheFeedPostsWithDebounce();
         }, 800);
       }
+      setShowAddEditPostModal(false);
+      setFormData(initialData);
+      setDummyFormData(initialData);
+      editorRef.current?.commands.clearContent();
+      setStage('done');
+      setProgress(100);
+      setTimeout(() => {
+        setUploadingPostFormData(initialData);
+      }, 500);
     },
     100
   );
@@ -543,21 +546,25 @@ function Dashboard() {
         handelUploadPostWithDebounce(formData, responseData);
       }
       setFormData(initialData);
+      setDummyFormData(initialData);
     }
   }, 100);
 
   const editPostHandler = (feedData: FeedPostDataPropsInterface) => {
-    setType('edit');
-    setEditPostId(feedData?.id);
-    setShowAddEditPostModal(true);
-    setFormData({
+    const data = {
       description: feedData?.description,
       existing_images: feedData?.images ? JSON.parse(feedData?.images) : [],
       isCommentDisabled: feedData?.isCommentDisabled,
       isLikeDisabled: feedData?.isLikeDisabled,
       new_images: [],
       likes: [],
-    });
+    };
+    setType('edit');
+    setEditPostId(feedData?.id);
+    setShowAddEditPostModal(true);
+
+    setFormData(data);
+    setDummyFormData(data);
   };
 
   const handleEditorReady = (editor: Editor) => {
@@ -567,6 +574,7 @@ function Dashboard() {
   const handelCancelButton = () => {
     setShowAddEditPostModal(false);
     setFormData(initialData);
+    setDummyFormData(initialData);
   };
 
   const handelDeleteItem = () => {
@@ -703,6 +711,7 @@ function Dashboard() {
         setLoading={setFormSubmitLoader}
         handelCancelButton={handelCancelButton}
         handelApiCallingFunction={handelApiCallingFunction}
+        dummyFormData={dummyFormData}
       />
       <DeleteModal
         loading={isDeleteLoading}

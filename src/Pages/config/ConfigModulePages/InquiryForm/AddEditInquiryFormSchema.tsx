@@ -9,7 +9,11 @@ import Button from '../../../../common/Button';
 import Input from '../../../../common/Input';
 import Loader from '../../../../common/Loader';
 import { AddEditInquiryFormSchemaInitialForm } from '../../../../constant/ConfigModuleConstant';
-import { classNames, isValidEmail } from '../../../../Helper/HelperFunctions';
+import {
+  classNames,
+  compareTwoNestedObject,
+  isValidEmail,
+} from '../../../../Helper/HelperFunctions';
 import { AddEditInquiryFormSchemaInterface } from '../../../../interface/interface';
 
 interface AddModalProps {
@@ -21,6 +25,7 @@ interface AddModalProps {
     formData: AddEditInquiryFormSchemaInterface
   ) => void;
   formData: AddEditInquiryFormSchemaInterface;
+  dummyFormData: AddEditInquiryFormSchemaInterface;
   setFormData: React.Dispatch<
     SetStateAction<AddEditInquiryFormSchemaInterface>
   >;
@@ -37,6 +42,7 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
     formData,
     setFormData,
     modalType,
+    dummyFormData,
   } = props;
 
   const modalBoxRef = useRef<HTMLDivElement>(null);
@@ -128,6 +134,8 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
       setEmailFieldShowError(true);
     }
   };
+
+  console.log('formData', formData);
 
   const handelDeleteRecipientEmails = (email: string) => {
     const recipient_emails = formData.authorized_recipient_emails.filter(
@@ -308,52 +316,93 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       place={'top'}
                     />
                     <div className='flex flex-col items-start justify-start gap-5 w-full'>
-                      {formData?.authorized_recipient_emails?.map(
-                        (email: string, index: number) => (
-                          <div
-                            key={index}
-                            className='flex items-start justify-between gap-5 w-full'
-                          >
-                            <div className='flex-grow'>
-                              <Input
-                                name={`authorized_recipient_emails`}
-                                type='text'
-                                className='border border-black/45'
-                                isRequiredField={true}
-                                value={email}
-                                onChange={(e) => handelOnChange(e, index)}
-                                showError={emailFiledShowError}
-                                disabled={loading}
-                                errorMessage={
-                                  emailFiledShowError && !isValidEmail(email)
-                                    ? 'pls enter a valid email'
-                                    : ''
-                                }
-                              />
-                            </div>
-                            <div className='flex items-center justify-end gap-2'>
-                              <Button
-                                className='p-2 border border-black/45 rounded-lg'
-                                type='button'
-                                onClick={handelClickOnTheAddRecipientEmails}
-                              >
-                                <MdModeEdit className='text-black w-6 h-6 min-w-6 min-h-6' />
-                              </Button>
-                              {formData?.authorized_recipient_emails?.length !==
-                                1 && (
-                                <Button
-                                  className='p-2 border border-red-400 rounded-lg'
-                                  type='button'
-                                  onClick={() =>
-                                    handelDeleteRecipientEmails(email)
-                                  }
-                                >
-                                  <MdDelete className='text-red-600 w-6 h-6 min-w-6 min-h-6' />
-                                </Button>
-                              )}
-                            </div>
+                      {formData?.authorized_recipient_emails?.length <= 0 ? (
+                        <div className='flex items-start justify-between gap-5 w-full'>
+                          <div className='flex-grow'>
+                            <Input
+                              name={`authorized_recipient_emails`}
+                              type='text'
+                              className='border border-black/45'
+                              isRequiredField={true}
+                              value={formData?.authorized_recipient_emails[0]}
+                              onChange={(e) => handelOnChange(e, 0)}
+                              showError={emailFiledShowError}
+                              disabled={loading}
+                              errorMessage={
+                                emailFiledShowError &&
+                                !isValidEmail(
+                                  formData?.authorized_recipient_emails[0]
+                                )
+                                  ? 'pls enter a valid email'
+                                  : ''
+                              }
+                            />
                           </div>
-                        )
+                          <div className='flex items-center justify-end gap-2'>
+                            <Button
+                              className='p-2 border border-black/45 rounded-lg'
+                              type='button'
+                              onClick={handelClickOnTheAddRecipientEmails}
+                              disabled={
+                                formData?.authorized_recipient_emails.length <=
+                                0
+                              }
+                            >
+                              <MdModeEdit className='text-black w-6 h-6 min-w-6 min-h-6' />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {formData?.authorized_recipient_emails?.map(
+                            (email: string, index: number) => (
+                              <div
+                                key={index}
+                                className='flex items-start justify-between gap-5 w-full'
+                              >
+                                <div className='flex-grow'>
+                                  <Input
+                                    name={`authorized_recipient_emails`}
+                                    type='text'
+                                    className='border border-black/45'
+                                    isRequiredField={true}
+                                    value={email}
+                                    onChange={(e) => handelOnChange(e, index)}
+                                    showError={emailFiledShowError}
+                                    disabled={loading}
+                                    errorMessage={
+                                      emailFiledShowError &&
+                                      !isValidEmail(email)
+                                        ? 'pls enter a valid email'
+                                        : ''
+                                    }
+                                  />
+                                </div>
+                                <div className='flex items-center justify-end gap-2'>
+                                  <Button
+                                    className='p-2 border border-black/45 rounded-lg'
+                                    type='button'
+                                    onClick={handelClickOnTheAddRecipientEmails}
+                                  >
+                                    <MdModeEdit className='text-black w-6 h-6 min-w-6 min-h-6' />
+                                  </Button>
+                                  {formData?.authorized_recipient_emails
+                                    ?.length !== 1 && (
+                                    <Button
+                                      className='p-2 border border-red-400 rounded-lg'
+                                      type='button'
+                                      onClick={() =>
+                                        handelDeleteRecipientEmails(email)
+                                      }
+                                    >
+                                      <MdDelete className='text-red-600 w-6 h-6 min-w-6 min-h-6' />
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -371,7 +420,9 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                 <Button
                   type='button'
                   className='text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'
-                  disabled={loading}
+                  disabled={
+                    loading || compareTwoNestedObject(formData, dummyFormData)
+                  }
                   onClick={handelSubmitButton}
                 >
                   {loading ? (

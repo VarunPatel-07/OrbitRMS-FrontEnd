@@ -17,6 +17,7 @@ import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../common/Table/TableNoDataFound';
 import AccessDeniedRedirect from '../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
+import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -31,6 +32,7 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../../Helper/api/multipleAPI';
+import HelmetSeo from '../../../Helper/HelmetSeo';
 import { formateDate, hexToRgb } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
 import { PermissionObjectInterface } from '../../../interface/interface';
@@ -38,8 +40,6 @@ import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../interface/propsInterface';
-import HelmetSeo from '../../../Helper/HelmetSeo';
-import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
 
 const AddModal = React.lazy(() => import('../../../Components/Modal/AddModal'));
 const DeleteModal = React.lazy(
@@ -62,6 +62,7 @@ function ProjectStatus({
   const [data, setData] = useState<Array<any>>([]);
   const [filterData, setFilterData] = useState<Array<any>>([]);
   const [value, setValue] = useState<string>('');
+  const [dummyValue, setDummyValue] = useState<string>('');
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -70,6 +71,7 @@ function ProjectStatus({
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
   const [statusColor, setStatusColor] = useState<string>('#ff0000');
+  const [dummyStatusColor, setDummyStatusColor] = useState<string>('#ff0000');
 
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
@@ -84,6 +86,7 @@ function ProjectStatus({
     setEditId('');
     setShowModal(!showModal);
     setStatusColor('#ff0000');
+    setDummyStatusColor('#ff0000');
   };
 
   const BreadcrumbsObjects = [
@@ -131,7 +134,9 @@ function ProjectStatus({
         handelNotification(res, 'top-right');
         fetchProjectStatus();
         setStatusColor('#ff0000');
+        setDummyStatusColor('#ff0000');
         setValue('');
+        setDummyValue('');
       } else {
         setLoading(false);
         handelNotification(res, 'top-right');
@@ -203,7 +208,9 @@ function ProjectStatus({
     setShowModal(true);
     setModalType('edit');
     setValue(data?.status_name);
+    setDummyValue(data?.status_name);
     setStatusColor(data?.status_color);
+    setDummyStatusColor(data?.status_color);
     setEditId(data?.id);
   };
 
@@ -479,6 +486,8 @@ function ProjectStatus({
             modalType={modalType}
             color={statusColor}
             setColor={setStatusColor}
+            dummyValue={dummyValue}
+            dummyColor={dummyStatusColor}
           />
         )}
 

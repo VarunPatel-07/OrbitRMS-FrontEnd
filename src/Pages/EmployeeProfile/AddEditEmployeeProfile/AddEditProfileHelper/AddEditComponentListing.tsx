@@ -197,7 +197,7 @@ const AddEditComponentListing = React.memo(function AddEditComponentListing(
     (item) => item?.module_label == 'employee_address'
   );
 
-
+  console.log(employeeAddressPermissions);
 
   useEffect(() => {
     if (DesignationsDepartmentsRef.current) return;
@@ -291,7 +291,7 @@ const AddEditComponentListing = React.memo(function AddEditComponentListing(
           isEditingCurrentEmployee
             ? !isEditingCurrentEmployee
             : !employeeAddressPermissions?.is_active ||
-              !employeeAddressPermissions?.permissions?.some(
+              employeeAddressPermissions?.permissions?.some(
                 (item) => item?.label == 'edit' && !item?.is_allowed
               )
         }

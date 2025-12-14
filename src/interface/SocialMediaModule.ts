@@ -27,6 +27,10 @@ export interface SocialMediaCardInterface {
   dropdownRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
   setHandelClickOnDropDown: React.Dispatch<SetStateAction<string>>;
   handelClickOnDropDown: string;
+  loadingId: string;
+  handelStatusToggler: (account_id: string) => void;
+  handelDisconnectAccount: (account_id: string) => void;
+  disconnectLoaderId: string;
 }
 
 export interface SocialMediaModuleModalInterface {
@@ -52,6 +56,10 @@ export interface ConnectedPlatformsInterface {
   handelClickOnDropDown: string;
   setHandelClickOnDropDown: React.Dispatch<SetStateAction<string>>;
   permissionData: PermissionsModuleInterface;
+  statusToggleLoaderId: string;
+  handelStatusToggler: (account_id: string) => void;
+  handelDisconnectAccount: (account_id: string) => void;
+  disconnectLoaderId: string;
 }
 export interface SocialMedialPostComponentInterface {
   setShowAddEditPostModal: React.Dispatch<SetStateAction<boolean>>;
@@ -76,6 +84,7 @@ export interface AddEditSocialMediaPostModalInterface {
   showModal: boolean;
   handelOnSubmit: () => void;
   formData: AddEditSocialMediaPostFormdataInterface;
+  dummyFormData: AddEditSocialMediaPostFormdataInterface;
   setFormData: React.Dispatch<
     SetStateAction<AddEditSocialMediaPostFormdataInterface>
   >;

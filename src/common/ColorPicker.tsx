@@ -68,7 +68,7 @@ const ColorPicker = (prop: propsInterface) => {
 
       <div
         ref={pickerRef}
-        className={`absolute left-0 z-10 transition-all duration-150 transform p-5 bg-white border border-black/20 rounded-lg ${position === 'top' ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'} ${
+        className={`absolute left-0 z-[1000] transition-all duration-150 transform p-5 bg-white border border-black/20 rounded-lg ${position === 'top' ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'} ${
           showColorPickerModal
             ? 'scale-y-100 opacity-100'
             : 'opacity-0 scale-y-0 pointer-events-none'
