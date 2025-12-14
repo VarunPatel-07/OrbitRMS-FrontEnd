@@ -6,11 +6,15 @@ import Button from '../../common/Button';
 import CommonDatePicker from '../../common/CommonDatePicker';
 import Input from '../../common/Input';
 import Loader from '../../common/Loader';
-import { classNames } from '../../Helper/HelperFunctions';
+import {
+  classNames,
+  compareTwoNestedObject,
+} from '../../Helper/HelperFunctions';
 import { HolidayFormData } from '../../interface/OrganizationSettings';
 
 interface AddEditHolidayModalProps {
   formData: HolidayFormData;
+  dummyFormData: HolidayFormData;
   setFormData: React.Dispatch<React.SetStateAction<HolidayFormData>>;
   modalTitle: string;
   loading: boolean;
@@ -32,6 +36,7 @@ function AddEditHoliday(props: AddEditHolidayModalProps) {
     handelFormSubmitFunction,
     modalType,
     year,
+    dummyFormData,
   } = props;
   const modalBoxRef = useRef<HTMLDivElement>(null);
 
@@ -222,7 +227,9 @@ function AddEditHoliday(props: AddEditHolidayModalProps) {
                 <Button
                   type='button'
                   className='text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'
-                  disabled={loading}
+                  disabled={
+                    loading || compareTwoNestedObject(formData, dummyFormData)
+                  }
                   onClick={handelSubmitButton}
                 >
                   {loading ? (

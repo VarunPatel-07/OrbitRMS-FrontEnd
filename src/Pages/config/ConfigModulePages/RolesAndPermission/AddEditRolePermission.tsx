@@ -2,11 +2,15 @@
 import React, { SetStateAction, useEffect, useRef, useState } from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
 
+import Button from '../../../../common/Button';
 import Input from '../../../../common/Input';
 import Loader from '../../../../common/Loader';
 import SearchDrop from '../../../../common/SearchDrop';
 import TextArea from '../../../../common/TextArea';
-import { classNames } from '../../../../Helper/HelperFunctions';
+import {
+  classNames,
+  compareTwoNestedObject,
+} from '../../../../Helper/HelperFunctions';
 import {
   AddRolesAndPermissionInterFace,
   RolesPermissionInterface,
@@ -22,6 +26,7 @@ interface AddEditRolePermissionProps {
   setValue: React.Dispatch<SetStateAction<AddRolesAndPermissionInterFace>>;
   modalType: 'add' | 'edit';
   ActiveRolesPermissionArray: RolesPermissionInterface[];
+  dummyValue: AddRolesAndPermissionInterFace;
 }
 
 const initialState = {
@@ -46,6 +51,7 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
     setValue,
     modalType,
     ActiveRolesPermissionArray,
+    dummyValue,
   } = props;
 
   const modalBoxRef = useRef<HTMLDivElement>(null);
@@ -153,9 +159,14 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
               <span className='text-xl text-black font-inter font-semibold'>
                 {modalTitle}
               </span>
-              <button onClick={handelCancelButton}>
+              <Button
+                type='button'
+                className=''
+                onClick={handelCancelButton}
+                disabled={loading}
+              >
                 <IoCloseOutline className='text-2xl text-black' />
-              </button>
+              </Button>
             </div>
             <div
               className='px-5 py-6 mx-auto flex flex-col items-start justify-start w-full gap-4'
@@ -171,6 +182,7 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
                   value={value.role_name}
                   onChange={handelOnChangeFunction}
                   showError={showError}
+                  disabled={loading}
                   errorMessage={
                     showError && value?.role_name.trim().length == 0
                       ? 'this is a required field'
@@ -192,6 +204,7 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
                       ? 'this is a required field'
                       : ''
                   }
+                  disabled={loading}
                 />
               </div>
               {modalType == 'add' && (
@@ -223,6 +236,7 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
                         ? 'this is a required field'
                         : ''
                     }
+                    disabled={loading}
                   />
                 </div>
               )}
@@ -237,8 +251,9 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
                     </span>
                   </p>
                   <button
-                    className={`w-10 h-[18px] rounded-full relative transition-all duration-200 ${value.status ? 'bg-green-500' : 'bg-red-500'}`}
+                    className={`w-10 h-[18px] rounded-full relative transition-all duration-200 disabled:cursor-not-allowed ${value.status ? 'bg-green-500' : 'bg-red-500'}`}
                     onClick={handelRoleTogglerFun}
+                    disabled={loading}
                   >
                     <span
                       className={`w-3 h-3 bg-white rounded-full inline-block absolute top-1/2 -translate-y-1/2 transition-all duration-200 ${value.status ? 'left-6' : 'left-1'}`}
@@ -248,15 +263,18 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
               </div>
             </div>
             <div className='px-5 pb-6 w-full grid grid-cols-2 gap-2.5'>
-              <button
+              <Button
+                type='button'
                 className='text-black bg-transparent py-2 rounded-lg border border-black/45'
                 onClick={handelCancelButton}
+                disabled={loading}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                type='button'
                 className='text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'
-                disabled={loading}
+                disabled={loading || compareTwoNestedObject(value, dummyValue)}
                 onClick={handelSubmitButton}
               >
                 {loading ? (
@@ -270,7 +288,7 @@ function AddEditRolePermission(props: AddEditRolePermissionProps) {
                 ) : (
                   <span>Update</span>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

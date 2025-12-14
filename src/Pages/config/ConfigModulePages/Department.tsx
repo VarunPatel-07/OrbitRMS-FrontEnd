@@ -70,6 +70,7 @@ export default function AttachmentTypes({
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const [value, setValue] = useState<string>('');
+  const [dummyValue, setDummyValue] = useState<string>('');
   const [data, setData] = useState<Array<DepartmentConfig>>([]);
   const [filterData, setFilterData] = useState<Array<DepartmentConfig>>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
@@ -111,6 +112,7 @@ export default function AttachmentTypes({
     setModalType('edit');
     setShowModal(!showModal);
     setValue(data?.department_name);
+    setDummyValue(data?.department_name);
     setEditId(data?.id);
   };
 
@@ -181,6 +183,7 @@ export default function AttachmentTypes({
       handelNotification(res, 'top-right');
       fetchAttachmentTypes();
       setValue('');
+      setDummyValue('');
     } else {
       setLoading(false);
       handelNotification(res, 'top-right');
@@ -480,6 +483,7 @@ export default function AttachmentTypes({
             value={value}
             setValue={setValue}
             modalType={modalType}
+            dummyValue={dummyValue}
           />
         )}
 

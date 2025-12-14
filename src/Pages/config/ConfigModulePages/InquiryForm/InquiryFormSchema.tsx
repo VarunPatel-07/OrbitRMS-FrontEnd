@@ -29,6 +29,7 @@ import {
   AddEditInquiryFormSchemaBreadcrumbs,
   AddEditInquiryFormSchemaInitialForm,
 } from '../../../../constant/ConfigModuleConstant';
+import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -44,6 +45,7 @@ import {
   multiplePostApi,
   multiplePutApi,
 } from '../../../../Helper/api/multipleAPI';
+import HelmetSeo from '../../../../Helper/HelmetSeo';
 import {
   formateDate,
   getDataFromLocalStorage,
@@ -59,8 +61,6 @@ import {
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../../interface/propsInterface';
 import AddEditInquiryFormSchema from './AddEditInquiryFormSchema';
-import HelmetSeo from '../../../../Helper/HelmetSeo';
-import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
 
 const DeleteModal = React.lazy(
   () => import('../../../../Components/Modal/DeleteModal')
@@ -85,6 +85,10 @@ function InquiryFormSchema({
   const [formData, setFormData] = useState<AddEditInquiryFormSchemaInterface>(
     AddEditInquiryFormSchemaInitialForm
   );
+  const [dummyFormData, setDummyFormData] =
+    useState<AddEditInquiryFormSchemaInterface>(
+      AddEditInquiryFormSchemaInitialForm
+    );
   const [data, setData] = useState<Array<DesignationConfig>>([]);
   const [filterData, setFilterData] = useState<Array<DesignationConfig>>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
@@ -105,6 +109,7 @@ function InquiryFormSchema({
     setModalType('edit');
     setShowModal(!showModal);
     setFormData(data);
+    setDummyFormData(data);
   };
 
   const { GlobalStateProvider } = useContext(
@@ -137,7 +142,7 @@ function InquiryFormSchema({
           ...data,
           authorized_recipient_emails: data?.authorized_recipient_emails
             ? JSON.parse(data.authorized_recipient_emails)
-            : [''],
+            : [],
 
           email_notification: data?.email_notification || false,
         });
@@ -194,6 +199,7 @@ function InquiryFormSchema({
         handelNotification(res, 'top-right');
         fetchClientFormFields();
         setFormData(AddEditInquiryFormSchemaInitialForm);
+        setDummyFormData(AddEditInquiryFormSchemaInitialForm);
       } else {
         setLoading(false);
         handelNotification(res, 'top-right');
@@ -444,35 +450,41 @@ function InquiryFormSchema({
             >
               <IoEye className='text-[22px]' />
             </Link>
-            <Button
-              type='button'
-              className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              dataTooltipId='email_notification-toggler_button'
-              dataTooltipContent={
-                data?.email_notification
-                  ? 'Turn Off Email Notification'
-                  : 'Turn On Email Notification'
-              }
-              onClick={() => {
-                setShowAlertModal(true);
-                setDeleteItemId(data?.id);
-                setEmailNotificationStatus(
-                  data?.email_notification ? 'active' : 'inactive'
-                );
-              }}
-              disabled={
-                permissions &&
-                permissions.some(
-                  (perm) => perm.label === 'edit' && !perm.is_allowed
-                )
-              }
-            >
-              {data?.email_notification ? (
-                <MdNotificationsOff className='text-[22px] text-rose-600' />
-              ) : (
-                <MdNotificationsActive className='text-[22px] text-green-600' />
+            {permissions &&
+              permissions.some(
+                (perm) => perm.label === 'edit' && perm.is_allowed
+              ) && (
+                <Button
+                  type='button'
+                  className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
+                  dataTooltipId='email_notification-toggler_button'
+                  dataTooltipContent={
+                    data?.authorized_recipient_emails?.length <= 0
+                      ? 'To enable email notifications, first add an authorized recipient email by clicking the Edit button.'
+                      : data?.email_notification
+                        ? 'Turn Off Email Notification'
+                        : 'Turn On Email Notification'
+                  }
+                  onClick={() => {
+                    setShowAlertModal(true);
+                    setDeleteItemId(data?.id);
+                    setEmailNotificationStatus(
+                      data?.email_notification ? 'active' : 'inactive'
+                    );
+                  }}
+                  disabled={data?.authorized_recipient_emails?.length <= 0}
+                >
+                  {data?.email_notification ? (
+                    <MdNotificationsOff
+                      className={`text-[22px] ${data?.authorized_recipient_emails?.length <= 0 ? 'text-gray-600' : 'text-rose-600'}`}
+                    />
+                  ) : (
+                    <MdNotificationsActive
+                      className={`text-[22px] ${data?.authorized_recipient_emails?.length <= 0 ? 'text-gray-600' : 'text-green-600'}`}
+                    />
+                  )}
+                </Button>
               )}
-            </Button>
 
             <Button
               type='button'
@@ -500,21 +512,12 @@ function InquiryFormSchema({
               className='z-[15] bg-white'
               place='left'
             />
-            {data?.email_notification ? (
-              <Tooltip
-                id='email_notification-toggler_button'
-                opacity={'100'}
-                className='z-[15] bg-white'
-                place='left'
-              />
-            ) : (
-              <Tooltip
-                id='email_notification-toggler_button'
-                opacity={'100'}
-                className='z-[15] bg-white'
-                place='left'
-              />
-            )}
+            <Tooltip
+              id='email_notification-toggler_button'
+              opacity={'100'}
+              className='z-[15] bg-white !max-w-[300px] whitespace-normal text-wrap'
+              place='left'
+            />
             {data?.source_type != 'default' && (
               <Tooltip
                 id='project_status_delete_button'
@@ -641,6 +644,7 @@ function InquiryFormSchema({
             formData={formData}
             setFormData={setFormData}
             modalType={modalType}
+            dummyFormData={dummyFormData}
           />
         )}
         {showDeleteModal && (
@@ -658,7 +662,11 @@ function InquiryFormSchema({
             showDeleteModal={showAlertModal}
             setShowDeleteModal={setShowAlertModal}
             handelDelete={handelToggleEmailNotification}
-            title='Turn Off Email Notifications?'
+            title={
+              emailNotificationStatus == 'active'
+                ? 'Turn Off Email Notifications?'
+                : 'Turn On Email Notifications?'
+            }
             description='You will no longer receive email updates or alerts. Are you sure you want to disable this feature?'
             secondaryButtonTitle={
               emailNotificationStatus == 'active'
