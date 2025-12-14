@@ -92,6 +92,11 @@ function Holidays() {
     holiday_name: '',
     year: new Date()?.getFullYear(),
   });
+  const [dummyFormData, setDummyFromData] = useState<HolidayFormData>({
+    date: null,
+    holiday_name: '',
+    year: new Date()?.getFullYear(),
+  });
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<'add' | 'edit'>('add');
   const [loading, setLoading] = useState<boolean>(false);
@@ -132,6 +137,7 @@ function Holidays() {
     setYear((prevYear) => {
       const newYear = type === 'increment' ? prevYear + 1 : prevYear - 1;
       setFromData((pervVal) => ({ ...pervVal, year: newYear }));
+      setDummyFromData((pervVal) => ({ ...pervVal, year: newYear }));
       fetchAllTheHolidayWithDebounce(newYear); // use the new year here
       return newYear;
     });
@@ -141,6 +147,11 @@ function Holidays() {
     setModalType('edit');
     setShowModal(!showModal);
     setFromData({
+      date: data?.date,
+      holiday_name: data?.holiday_name,
+      year: data?.year,
+    });
+    setDummyFromData({
       date: data?.date,
       holiday_name: data?.holiday_name,
       year: data?.year,
@@ -515,6 +526,7 @@ function Holidays() {
       <AddEditHoliday
         modalTitle='Add Holiday'
         formData={formData}
+        dummyFormData={dummyFormData}
         setFormData={setFromData}
         showModal={showModal}
         setShowModal={setShowModal}

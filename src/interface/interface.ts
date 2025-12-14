@@ -249,6 +249,7 @@ export interface AddEditPostModalInterface {
   handelOnSubmit: () => void;
   onEditorReady?: (editor: Editor) => void;
   formData: AddEditPostFormdataInterface;
+  dummyFormData: AddEditPostFormdataInterface;
   setFormData: React.Dispatch<SetStateAction<AddEditPostFormdataInterface>>;
   loading: boolean;
   setLoading: React.Dispatch<SetStateAction<boolean>>;
@@ -376,4 +377,27 @@ export type SocialMediaErrorCode =
 export interface USER_FRIENDLY_ERRORS_INTERFACE {
   showModal: boolean;
   errorCode: SocialMediaErrorCode;
+}
+
+export interface CommanAddModalPropsInterface {
+  modalTitle: string;
+  showColorPicker: boolean;
+  showPreview: boolean;
+  labelFieldName: string;
+  loading: boolean;
+  showModal: boolean;
+  setShowModal: React.Dispatch<SetStateAction<boolean>>;
+  handelFormSubmitFunction: (value: string, bgColor?: string) => void;
+  value: string;
+  setValue: React.Dispatch<SetStateAction<string>>;
+  modalType: 'add' | 'edit';
+  color?: string;
+  setColor?: React.Dispatch<SetStateAction<string>>;
+  fieldType?: string;
+  setFieldType?: React.Dispatch<SetStateAction<string>>;
+  isRequiredField?: string;
+  setIsRequiredField?: React.Dispatch<SetStateAction<string>>;
+  dummyValue: string;
+  dummyColor?: string;
+  dummyFieldType?: string;
 }

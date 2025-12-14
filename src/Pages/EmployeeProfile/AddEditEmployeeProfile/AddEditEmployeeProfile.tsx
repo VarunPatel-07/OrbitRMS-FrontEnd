@@ -204,6 +204,8 @@ function AddEditEmployeeProfile() {
       if (res?.success) {
         setFormSubmitLoader(false);
         handelNotification(res, 'top-right');
+        setFormData(AddEditEmployeeFormInitialState);
+        setDummyFormData(AddEditEmployeeFormInitialState);
         navigate(`/${organization_slug}/employees/employee-listing`);
       } else {
         setFormSubmitLoader(false);

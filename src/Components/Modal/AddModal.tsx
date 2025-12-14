@@ -1,4 +1,4 @@
-import React, { SetStateAction, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaStarOfLife } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 
@@ -9,28 +9,9 @@ import Loader from '../../common/Loader';
 import SearchDrop from '../../common/SearchDrop';
 import { formFieldAllowedFieldType } from '../../constant/constant';
 import { classNames, hexToRgb } from '../../Helper/HelperFunctions';
+import { CommanAddModalPropsInterface } from '../../interface/interface';
 
-interface AddModalProps {
-  modalTitle: string;
-  showColorPicker: boolean;
-  showPreview: boolean;
-  labelFieldName: string;
-  loading: boolean;
-  showModal: boolean;
-  setShowModal: React.Dispatch<SetStateAction<boolean>>;
-  handelFormSubmitFunction: (value: string, bgColor?: string) => void;
-  value: string;
-  setValue: React.Dispatch<SetStateAction<string>>;
-  modalType: 'add' | 'edit';
-  color?: string;
-  setColor?: React.Dispatch<SetStateAction<string>>;
-  fieldType?: string;
-  setFieldType?: React.Dispatch<SetStateAction<string>>;
-  isRequiredField?: string;
-  setIsRequiredField?: React.Dispatch<SetStateAction<string>>;
-}
-
-function AddModal(props: AddModalProps) {
+function AddModal(props: CommanAddModalPropsInterface) {
   const {
     modalTitle,
     showColorPicker,
@@ -49,6 +30,9 @@ function AddModal(props: AddModalProps) {
     setFieldType,
     isRequiredField,
     setIsRequiredField,
+    dummyValue,
+    dummyColor,
+    dummyFieldType,
   } = props;
 
   const modalBoxRef = useRef<HTMLDivElement>(null);
@@ -261,7 +245,15 @@ function AddModal(props: AddModalProps) {
                 </Button>
                 <button
                   className='text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'
-                  disabled={loading}
+                  disabled={
+                    loading || showColorPicker
+                      ? Boolean(value == dummyValue && color == dummyColor)
+                      : fieldType !== undefined && setFieldType
+                        ? Boolean(
+                            fieldType == dummyFieldType && value == dummyValue
+                          )
+                        : Boolean(value == dummyValue)
+                  }
                   onClick={handelSubmitButton}
                 >
                   {loading ? (

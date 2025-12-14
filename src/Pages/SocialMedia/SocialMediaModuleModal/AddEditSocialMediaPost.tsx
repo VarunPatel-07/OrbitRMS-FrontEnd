@@ -20,7 +20,10 @@ import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../../Context/Notification/NotificationContextApi';
-import { classNames } from '../../../Helper/HelperFunctions';
+import {
+  classNames,
+  compareTwoNestedObject,
+} from '../../../Helper/HelperFunctions';
 import { SelectedFileArrayObjInterface } from '../../../interface/interface';
 import { OrbitAiFormDataInterface } from '../../../interface/OrbitAiChatBotInterface';
 import { AddEditSocialMediaPostModalInterface } from '../../../interface/SocialMediaModule';
@@ -37,6 +40,7 @@ const AddEditSocialMediaPost = React.memo(function AddEditSocialMediaPost(
     setLoading,
     handelCancelButton,
     selectedAccountArr,
+    dummyFormData,
   } = props as AddEditSocialMediaPostModalInterface;
 
   const { handelNotification } = useContext(
@@ -238,12 +242,14 @@ const AddEditSocialMediaPost = React.memo(function AddEditSocialMediaPost(
                   <h2 className='text-black capitalize font-inter font-bold text-xl'>
                     Create Post
                   </h2>
-                  <button
+                  <Button
+                    type='button'
                     className='bg-transparent border-0 p-2 rounded-lg hover:bg-black group transition-all'
                     onClick={() => handelCancelButton()}
+                    disabled={loading}
                   >
                     <IoClose className='text-black text-3xl transition-all group-hover:text-white' />
-                  </button>
+                  </Button>
                 </div>
               </div>
               <div className='grid grid-cols-1 px-5 gap-5 pt-[80px] pb-10 max-h-[calc(100%-60px)] overflow-auto hide-scrollbar'>
@@ -339,6 +345,7 @@ const AddEditSocialMediaPost = React.memo(function AddEditSocialMediaPost(
                         ? 'this is an required field'
                         : ''
                     }
+                    disabled={loading}
                   />
                   <Button
                     type='button'
@@ -360,6 +367,7 @@ const AddEditSocialMediaPost = React.memo(function AddEditSocialMediaPost(
                     selectedValue={formData?.platforms}
                     onSelectValBtn={handelSelectPlatforms}
                     showError={showError}
+                    disabled={loading}
                     emptyDataMessage=''
                     type='multi-select'
                     errorMessage={
@@ -369,7 +377,7 @@ const AddEditSocialMediaPost = React.memo(function AddEditSocialMediaPost(
                     }
                   />
                 </div>
-                <div className='w-full'>
+                <div className='w-full hidden'>
                   <CommonDatePicker
                     name='scheduled_on'
                     labelFieldName='Scheduled On'
@@ -379,27 +387,33 @@ const AddEditSocialMediaPost = React.memo(function AddEditSocialMediaPost(
                         : new Date()
                     }
                     onChange={handelClickOnScheduledDate}
+                    disabled={loading}
                   />
                 </div>
               </div>
               <div className='py-2 w-full border-t px-5 border-t-black/20 grid grid-cols-2 gap-3 items-center justify-center absolute bottom-0 left-0'>
-                <button
+                <Button
+                  type='button'
                   className='bg-white border border-black/20 rounded-md text-black font-inter px-5 py-2'
                   onClick={handelCancelButton}
+                  disabled={loading}
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
+                  type='button'
                   className='bg-[var(--them-green-color)] rounded-md text-white font-inter px-5 py-2 disabled:opacity-45 disabled:cursor-not-allowed'
                   onClick={handelClickOnTheSubmitButton}
-                  disabled={loading}
+                  disabled={
+                    loading || compareTwoNestedObject(formData, dummyFormData)
+                  }
                 >
                   {loading ? (
                     <Loader loaderText='Posting.....' />
                   ) : (
                     <span>Post</span>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

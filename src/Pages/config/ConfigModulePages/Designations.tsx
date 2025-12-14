@@ -70,6 +70,7 @@ function Designations({
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const [value, setValue] = useState<string>('');
+  const [dummyValue, setDummyValue] = useState<string>('');
   const [data, setData] = useState<Array<DesignationConfig>>([]);
   const [filterData, setFilterData] = useState<Array<DesignationConfig>>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
@@ -88,6 +89,7 @@ function Designations({
     setModalType('edit');
     setShowModal(!showModal);
     setValue(data?.designations_name);
+    setDummyValue(data?.designations_name);
     setEditId(data?.id);
   };
 
@@ -181,6 +183,7 @@ function Designations({
       handelNotification(res, 'top-right');
       fetchDesignationsTypes();
       setValue('');
+      setDummyValue('');
     } else {
       setLoading(false);
       handelNotification(res, 'top-right');
@@ -477,6 +480,7 @@ function Designations({
             value={value}
             setValue={setValue}
             modalType={modalType}
+            dummyValue={dummyValue}
           />
         )}
         {showDeleteModal && (

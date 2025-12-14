@@ -17,6 +17,10 @@ function ConnectedPlatforms(props: ConnectedPlatformsInterface) {
     handelClickOnDropDown,
     setHandelClickOnDropDown,
     permissionData,
+    statusToggleLoaderId,
+    handelStatusToggler,
+    disconnectLoaderId,
+    handelDisconnectAccount,
   } = props;
   const SocialMediaModuleModalArray =
     SocialMediaModuleModalArrayList(GlobalStateProvider);
@@ -48,6 +52,10 @@ function ConnectedPlatforms(props: ConnectedPlatformsInterface) {
                 handelClickOnDropDown={handelClickOnDropDown}
                 setHandelClickOnDropDown={setHandelClickOnDropDown}
                 key={data?.id}
+                loadingId={statusToggleLoaderId}
+                handelStatusToggler={handelStatusToggler}
+                disconnectLoaderId={disconnectLoaderId}
+                handelDisconnectAccount={handelDisconnectAccount}
               />
             ))}
             {!(

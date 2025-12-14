@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdHeart, IoMdHeartEmpty } from 'react-icons/io';
 import { IoChatbubbleOutline } from 'react-icons/io5';
+import { MdVerified } from 'react-icons/md';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
@@ -18,7 +19,6 @@ import {
   PermissionsModuleInterface,
 } from '../interface/UserProfileInterface';
 import EmployeeProfilePicture from './EmployeeProfilePicture';
-import { MdVerified } from 'react-icons/md';
 
 interface propsInterface {
   data: FeedPostDataPropsInterface;
@@ -86,10 +86,10 @@ function FeedPostCard(props: propsInterface) {
 
   const renderPostEditButton = () => {
     return (
-      <li className='px-3 w-full py-2 text-black text-nowrap border-b border-b-black/15 hover:bg-gray-50'>
+      <li className='w-full'>
         <Button
           type='button'
-          className=''
+          className='px-3 w-full py-2 text-black text-nowrap border-b border-b-black/15 hover:bg-gray-50 text-start'
           onClick={() => handelClickOnEditPost(data)}
         >
           Edit Post
@@ -100,10 +100,10 @@ function FeedPostCard(props: propsInterface) {
 
   const renderPostDeleteButton = () => {
     return (
-      <li className='px-3 w-full py-2 text-black text-nowrap hover:bg-gray-50'>
+      <li className='w-full'>
         <Button
           type='button'
-          className=''
+          className='px-3 w-full py-2 text-black text-nowrap border-b border-b-black/15 hover:bg-gray-50 text-start'
           onClick={() => handelClickOnDeleteButton(data?.id)}
         >
           Delete Post

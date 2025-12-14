@@ -138,7 +138,16 @@ export default function SearchDrop(props: SearchDropProps) {
       e.preventDefault();
       setHighlightIndex((perv) => Math.max(perv - 1, 0));
     } else if (e.key === 'Enter' && highlightIndex !== -1) {
-      handleOnClick(filteredOptions[highlightIndex]);
+      const option = filteredOptions[highlightIndex];
+      const value =
+        typeof option === 'object'
+          ? (option as Record<string, string>)[searchKey]
+          : option;
+      const isSelected =
+        type === 'select'
+          ? selectedValue === value
+          : Boolean(selectedValue?.includes(value));
+      if (!isSelected) handleOnClick(filteredOptions[highlightIndex]);
     } else if (e.key === 'Escape') {
       setIsOpen(false);
     }
@@ -221,7 +230,7 @@ export default function SearchDrop(props: SearchDropProps) {
         {isOpen && (
           <div
             ref={dropDownRef}
-            className={classNames('absolute w-full z-50 transition-all', {
+            className={classNames('absolute w-full z-[55555] transition-all', {
               'bottom-0': dynamicPosition == 'top',
               'top-0': dynamicPosition == 'bottom',
             })}
@@ -239,7 +248,7 @@ export default function SearchDrop(props: SearchDropProps) {
                 <input
                   ref={inputFieldRef}
                   type='text'
-                  className='w-full py-2 px-3 border-b border-gray-200 focus:outline-none bg-white rounded-lg border border-black/45 text-black focus:border-black/45'
+                  className='w-full min-h-[46px] py-2 px-3 border-b border-gray-200 focus:outline-none bg-white rounded-lg border border-black/45 text-black focus:border-black/45'
                   placeholder='Search...'
                   value={searchTerm}
                   onChange={handleSearch}
@@ -263,7 +272,7 @@ export default function SearchDrop(props: SearchDropProps) {
                       itemCount={filteredOptions?.length}
                       itemSize={40}
                       width={'100%'}
-                      className='hide-scrollbar'
+                      className='hide-scrollbar z-[1111]'
                     >
                       {({ index, style }) => {
                         const option = filteredOptions[index];
@@ -275,7 +284,7 @@ export default function SearchDrop(props: SearchDropProps) {
                         const isSelected =
                           type === 'select'
                             ? selectedValue === val
-                            : !!selectedValue?.includes(val);
+                            : Boolean(selectedValue?.includes(val));
 
                         return (
                           <li
@@ -286,9 +295,9 @@ export default function SearchDrop(props: SearchDropProps) {
                               {
                                 'bg-[var(--them-green-color)] text-white hover:!bg-[var(--them-green-color)] !cursor-not-allowed opacity-70':
                                   isSelected,
-                                'hover:bg-[#7fab98]/20 hover:text-black':
+                                'hover:bg-[#7fab98]/10 hover:text-black':
                                   !isSelected && highlightIndex !== index,
-                                'bg-[#7fab98]/20 text-black':
+                                'bg-[#7fab98]/40 text-black':
                                   highlightIndex === index && !isSelected,
                               }
                             )}
