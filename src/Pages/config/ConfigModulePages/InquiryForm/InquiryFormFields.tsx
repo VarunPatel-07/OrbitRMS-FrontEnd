@@ -68,6 +68,7 @@ export default function InquiryFormFields() {
   const [editId, setEditId] = useState<string>('');
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const [value, setValue] = useState<string>('');
+  const [dummyValue, setDummyValue] = useState<string>('');
   const [data, setData] = useState<InquiryFormFieldsDataInterface>(initialData);
   const [filterData, setFilterData] = useState<InquiryFormFieldInterface[]>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
@@ -76,6 +77,7 @@ export default function InquiryFormFields() {
   const [deleteItemId, setDeleteItemId] = useState<string>('');
   const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
   const [fieldType, setFieldType] = useState<string>('');
+  const [dummyFieldType, setDummyFieldType] = useState<string>('');
   const [isRequiredField, setIsRequiredField] = useState<string>('');
 
   const { GlobalStateProvider } = useContext(
@@ -103,8 +105,10 @@ export default function InquiryFormFields() {
     setModalType('edit');
     setShowModal(!showModal);
     setValue(data?.field_name);
+    setDummyValue(data?.field_name);
     setEditId(data?.id);
     setFieldType(data?.type);
+    setDummyFieldType(data?.type);
     setIsRequiredField(data?.is_required_field ? 'true' : 'false');
   };
 
@@ -177,7 +181,9 @@ export default function InquiryFormFields() {
       handelNotification(res, 'top-right');
       fetchAttachmentTypes();
       setValue('');
+      setDummyValue('');
       setFieldType('');
+      setDummyFieldType('');
       setIsRequiredField('');
     } else {
       setLoading(false);
@@ -466,6 +472,8 @@ export default function InquiryFormFields() {
         setFieldType={setFieldType}
         isRequiredField={isRequiredField}
         setIsRequiredField={setIsRequiredField}
+        dummyValue={dummyValue}
+        dummyFieldType={dummyFieldType}
       />
       <DeleteModal
         loading={isDeleteLoading}

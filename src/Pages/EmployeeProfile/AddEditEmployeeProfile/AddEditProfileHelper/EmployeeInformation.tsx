@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { FaStarOfLife } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 
@@ -64,6 +65,23 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
       },
     }));
   };
+
+  useEffect(() => {
+    setFormData((pervValue) => ({
+      ...pervValue,
+      employee_info: {
+        ...pervValue.employee_info,
+        employee_email:
+          formData?.personal_info?.middle_name?.trim() !== ''
+            ? `${formData?.personal_info?.first_name?.toLocaleLowerCase()}.${formData?.personal_info?.middle_name?.toLocaleLowerCase()}.${formData?.personal_info?.last_name?.toLocaleLowerCase()}`
+            : `${formData?.personal_info?.first_name?.toLocaleLowerCase()}.${formData?.personal_info?.last_name?.toLocaleLowerCase()}`,
+      },
+    }));
+  }, [
+    formData?.personal_info?.first_name,
+    formData?.personal_info?.last_name,
+    formData?.personal_info?.middle_name,
+  ]);
 
   return (
     <div className='w-full bg-white rounded-xl border border-black/15'>
