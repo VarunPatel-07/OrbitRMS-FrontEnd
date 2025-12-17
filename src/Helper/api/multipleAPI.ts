@@ -10,8 +10,7 @@ import {
 import {
   clearLocalSessionStorage,
   ErrorHandler,
-  getDataFromLocalStorage,
-  getDataFromTheSessionStorage,
+  getDataFromSecureCookie,
   storeDataInLocalStorage,
 } from '../HelperFunctions';
 
@@ -78,11 +77,7 @@ export const multipleFetchApi = async (
 ): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
-      const _localToken = getDataFromLocalStorage('authenticationToken');
-      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
-      //   todo we will show the error in the form of the notification
-
-      const authToken = `Bearer ${_localToken || _sessionToken}`;
+      const authToken = `Bearer ${getDataFromSecureCookie('authenticationToken')}`;
       const headers: Record<string, string> = eachEndPoint?.header
         ? (eachEndPoint.header as Record<string, string>)
         : {
@@ -132,11 +127,7 @@ export const multiplePostApi = async (
 ): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
-      const _localToken = getDataFromLocalStorage('authenticationToken');
-      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
-      //   todo we will show the error in the form of the notification
-
-      const authToken = `Bearer ${_localToken || _sessionToken}`;
+      const authToken = `Bearer ${getDataFromSecureCookie('authenticationToken')}`;
 
       const headers: Record<string, string> = eachEndPoint?.header
         ? (eachEndPoint.header as Record<string, string>)
@@ -191,9 +182,7 @@ export const multiplePutApi = async (
 ): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
-      const _localToken = getDataFromLocalStorage('authenticationToken');
-      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
-      const authToken = `Bearer ${_localToken || _sessionToken}`;
+      const authToken = `Bearer ${getDataFromSecureCookie('authenticationToken')}`;
 
       const headers: Record<string, string> = eachEndPoint.header
         ? (eachEndPoint.header as Record<string, string>)
@@ -246,11 +235,7 @@ export const multipleDeleteApi = async (
 ): Promise<ApiReturnInterface[]> => {
   const promises = endPointArr.map(async (eachEndPoint) => {
     if (eachEndPoint.protected) {
-      const _localToken = getDataFromLocalStorage('authenticationToken');
-      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
-      //   todo we will show the error in the form of the notification
-
-      const authToken = `Bearer ${_localToken || _sessionToken}`;
+      const authToken = `Bearer ${getDataFromSecureCookie('authenticationToken')}`;
 
       const headers: Record<string, string> = eachEndPoint?.header
         ? (eachEndPoint.header as Record<string, string>)

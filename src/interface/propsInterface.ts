@@ -1,4 +1,5 @@
 import React, { HTMLAttributes, RefObject, SetStateAction } from 'react';
+
 import { Editor } from '@tiptap/react';
 
 import { countryObject } from '../Helper/countryDataHelper';
@@ -171,7 +172,7 @@ export interface RichTextEditorInterface {
   classNames?: string;
   height?: number;
   showMenuBar?: boolean;
-  disabled?:boolean;
+  disabled?: boolean;
 }
 
 export interface SearchDropProps {
@@ -179,7 +180,7 @@ export interface SearchDropProps {
   className?: string;
   labelFieldName?: string;
   isRequiredField?: boolean;
-  selectedValue?: string | string[];
+  selectedValue?: string;
   setSelectedValue?: React.Dispatch<SetStateAction<string>>;
   onSelectValBtn?: (data: string | object, index?: number) => void;
   placeHolderName?: string;
@@ -192,7 +193,26 @@ export interface SearchDropProps {
   showError?: boolean;
   errorMessage?: string;
   disabled?: boolean;
-  type?: 'select' | 'multi-select';
+}
+
+export interface MultiSelectSearchDropInterface {
+  name?: string;
+  className?: string;
+  labelFieldName?: string;
+  isRequiredField?: boolean;
+  selectedValue?: string[];
+  setSelectedValue?: React.Dispatch<SetStateAction<string>>;
+  onSelectValBtn?: (data: string | object, index?: number) => void;
+  placeHolderName?: string;
+  options: Array<string | object>;
+  searchKey: string;
+  position: 'bottom' | 'top';
+  emptyDataMessage: string;
+  loading?: boolean;
+  showSearchBar?: boolean;
+  showError?: boolean;
+  errorMessage?: string;
+  disabled?: boolean;
 }
 
 export interface Column {

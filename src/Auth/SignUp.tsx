@@ -1,6 +1,7 @@
 import './auth.css';
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
+
 import { BiSupport } from 'react-icons/bi';
 import { BsArrowLeft } from 'react-icons/bs';
 import { FaStarOfLife } from 'react-icons/fa';
@@ -36,8 +37,7 @@ import HelmetSeo from '../Helper/HelmetSeo';
 import {
   clearLocalSessionStorage,
   formateAndVerifyPhoneNumber,
-  getDataFromLocalStorage,
-  getDataFromTheSessionStorage,
+  getDataFromSecureCookie,
   isValidEmail,
   verifyPhoneNumberLength,
 } from '../Helper/HelperFunctions';
@@ -172,7 +172,7 @@ function SignUp() {
   };
 
   const getEmailErrorMessage = (email: string) => {
-    const domain = email.split('@')[1].toLowerCase();
+    const domain = email.split('@')[1]?.toLowerCase();
     const check = publicEmailProviders.find((p) => p.mail === domain);
     if (check) {
       return `public email (${check.company} - ${check.mail}) Not Allowed`;
@@ -337,7 +337,9 @@ function SignUp() {
           </label>
           <div className='relative w-full flex items-stretch justify-start'>
             <div className='flex items-center justify-center border border-black/[.65] text-black w-fit bg-[#7FAB984D] rounded-l-lg text-[14px] px-5'>
-              <span className='block text-nowrap text-ellipsis overflow-hidden max-w-[180px]'>{formData.defaultPortalUrlSlug}</span>
+              <span className='block text-nowrap text-ellipsis overflow-hidden max-w-[180px]'>
+                {formData.defaultPortalUrlSlug}
+              </span>
             </div>
             <Input
               name='portalUrl'
@@ -502,14 +504,7 @@ function SignUp() {
     useEffectRef.current = true;
     (async () => {
       try {
-        const _localToken = getDataFromLocalStorage('authenticationToken');
-        const _sessionToken = getDataFromTheSessionStorage(
-          'authenticationToken'
-        );
-
-        const authToken = `Bearer ${_localToken || _sessionToken}`;
-        const tokenValue = authToken.split('Bearer')[1]?.trim();
-
+        const tokenValue = getDataFromSecureCookie('authenticationToken');
         if (
           !tokenValue ||
           tokenValue === 'null' ||

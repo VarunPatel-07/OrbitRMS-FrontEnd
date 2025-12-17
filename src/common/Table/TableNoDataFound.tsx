@@ -1,4 +1,5 @@
 import React from 'react';
+
 import DefaultLotiAnimation from '../../assets/lottie/DefaultAnimation.lottie';
 import { TableInfoHeaderInterfaceButtonArrayObject } from '../../interface/propsInterface';
 

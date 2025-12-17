@@ -1,6 +1,7 @@
 import './auth.css';
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
+
 import { BsArrowLeft } from 'react-icons/bs';
 import { IoMdRefresh } from 'react-icons/io';
 import { LiaKeySolid } from 'react-icons/lia';
@@ -27,6 +28,7 @@ import {
   isValidEmail,
   MaxLimitCountDownTimeFormatter,
   removeDataFromLocalStorage,
+  removeDataFromSecureCookie,
   storeDataInLocalStorage,
 } from '../Helper/HelperFunctions';
 import { useDebounce } from '../Hooks/useDebounce';
@@ -204,8 +206,8 @@ function ForgotPassword() {
       if (!response?.success) {
         handelNotification(response, 'top-right');
         setShowGlobalLoader(false);
-        removeDataFromLocalStorage('authenticationToken');
-        removeDataFromLocalStorage('organization-info');
+        removeDataFromSecureCookie('authenticationToken');
+        removeDataFromSecureCookie('organization-info');
       } else {
         setShowGlobalLoader(false);
       }

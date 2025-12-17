@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
+
 import { AiOutlineRedo } from 'react-icons/ai';
 import { FaEye, FaEyeSlash, FaStarOfLife } from 'react-icons/fa';
 import { MdContentCopy } from 'react-icons/md';
@@ -6,6 +7,7 @@ import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 import Breadcrumbs from '../../../common/Breadcrumbs';
 import Loader from '../../../common/Loader';
+import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -19,11 +21,10 @@ import {
   multipleFetchApi,
   multiplePutApi,
 } from '../../../Helper/api/multipleAPI';
+import HelmetSeo from '../../../Helper/HelmetSeo';
 import { getDataFromLocalStorage } from '../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../Hooks/useDebounce';
 import { ClientInquiry } from '../../../interface/ClientInquiryInterFace';
-import HelmetSeo from '../../../Helper/HelmetSeo';
-import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
 
 function ClientInquiryApiManager() {
   const { GlobalStateProvider } = useContext(

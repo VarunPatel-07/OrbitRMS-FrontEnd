@@ -3,6 +3,7 @@
 import { AxiosError } from 'axios';
 import Cleave from 'cleave.js';
 import CryptoJS from 'crypto-js';
+import Cookies from 'js-cookie';
 import validator from 'validator';
 
 import { phoneFormats } from '../constant/NumberFormate';
@@ -66,6 +67,93 @@ export const ErrorHandler = (error: Error | AxiosError) => {
     return errorData;
   }
 };
+const getCookieConfig = () => {
+  const isProd = current_environment === 'PRODUCTION';
+
+  return {
+    secure: isProd,
+    sameSite: 'Strict',
+    path: '/',
+    ...(isProd && { domain: 'app.orbitrms.com' }),
+  };
+};
+
+// here we are writing the function that will store the auth token and every thing in the cookie for the production
+export const storeDataInSecureCookie = (
+  _data: any,
+  key: string,
+  is_persistent: boolean,
+  expire?: number,
+  encrypted: boolean = current_environment == 'PRODUCTION' ? true : false
+) => {
+  if (!key) {
+    console.error('the key is required to store the data');
+    return;
+  }
+
+  const cookieConfig: any = getCookieConfig();
+
+  Cookies.remove(key, cookieConfig);
+
+  let dataToStore: string;
+  if (encrypted) {
+    _data = typeof _data == 'object' ? JSON.stringify(_data) : _data;
+
+    dataToStore = CryptoJS.AES.encrypt(_data, encryptionKey).toString();
+  } else {
+    dataToStore = JSON.stringify(_data);
+  }
+
+  if (is_persistent === true) {
+    cookieConfig.expires = expire ?? 30;
+  }
+
+  Cookies.set(key, dataToStore, cookieConfig);
+};
+
+export const getDataFromSecureCookie = (
+  key: string,
+  encrypted: boolean = current_environment == 'PRODUCTION' ? true : false
+): any | null => {
+  try {
+    
+    const cookieStorageData = Cookies.get(key);
+    console.log(cookieStorageData)
+    if (!cookieStorageData) return null;
+
+    if (encrypted) {
+      if (!encryptionKey)
+        throw new Error('Encryption key is required for decryption');
+
+      const decryptedData = CryptoJS.AES.decrypt(
+        cookieStorageData,
+        encryptionKey
+      ).toString(CryptoJS.enc.Utf8);
+
+      if (key != 'authenticationToken') {
+        return JSON.parse(decryptedData);
+      } else {
+        return decryptedData;
+      }
+    }
+
+    return JSON.parse(cookieStorageData);
+  } catch (error) {
+    console.error(`Error reading from localStorage (key: ${key}):`, error);
+    return null;
+  }
+};
+
+export const removeDataFromSecureCookie = (key: string) => {
+  if (!key) {
+    console.error('the key is required to store the data');
+    return;
+  }
+
+  const cookieConfig: any = getCookieConfig();
+
+  Cookies.remove('authenticationToken', cookieConfig);
+};
 
 //  * To Store The Data In The LocalStorage And This Function Have A Default Argument That If The Environment Is Production Then All The Data Will Be Stored In Encrypted Formate.
 
@@ -125,6 +213,11 @@ export const removeDataFromLocalStorage = (key: string) => {
 export const clearLocalSessionStorage = () => {
   localStorage.clear();
   sessionStorage.clear();
+
+  const cookieConfig: any = getCookieConfig();
+  Object.keys(Cookies.get()).forEach((cookieName) => {
+    Cookies.remove(cookieName, cookieConfig);
+  });
 };
 
 export const storeDataInSessionStorage = (
