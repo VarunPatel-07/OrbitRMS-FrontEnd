@@ -74,7 +74,7 @@ const getCookieConfig = () => {
     secure: isProd,
     sameSite: 'Strict',
     path: '/',
-    ...(isProd && { domain: 'app.orbitrms.com' }),
+    ...(isProd && { domain: 'beta-staging.orbitrms.com' }),
   };
 };
 
@@ -116,9 +116,8 @@ export const getDataFromSecureCookie = (
   encrypted: boolean = current_environment == 'PRODUCTION' ? true : false
 ): any | null => {
   try {
-    
     const cookieStorageData = Cookies.get(key);
-    console.log(cookieStorageData)
+
     if (!cookieStorageData) return null;
 
     if (encrypted) {

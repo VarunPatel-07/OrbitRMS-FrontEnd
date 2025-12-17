@@ -55,7 +55,7 @@ const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
 export const HandelPathFunction = () => {
   const _data = getDataFromSecureCookie('organization-info');
   const _isAuthenticated = getDataFromSecureCookie('authenticationToken');
-  console.log(_data, _isAuthenticated);
+
   if (_data && _isAuthenticated) {
     return (
       <Navigate to={`/${JSON.parse(_data)?.portal_slug}/dashboard`} replace />
