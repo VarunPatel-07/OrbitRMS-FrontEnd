@@ -2,15 +2,18 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { FaStarOfLife } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
+import { IoClose } from 'react-icons/io5';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { FixedSizeList as VirtualList } from 'react-window';
 
 import clsx from 'clsx';
 
 import { classNames } from '../Helper/HelperFunctions';
-import { SearchDropProps } from '../interface/propsInterface';
+import { MultiSelectSearchDropInterface } from '../interface/propsInterface';
 
-export default function SearchDrop(props: SearchDropProps) {
+export default function MultiSelectSearchDrop(
+  props: MultiSelectSearchDropInterface
+) {
   const {
     labelFieldName,
     isRequiredField,
@@ -29,7 +32,6 @@ export default function SearchDrop(props: SearchDropProps) {
     errorMessage,
     disabled = false,
   } = props;
-
   const boxRef = useRef<HTMLDivElement>(null);
   const inputFieldRef = useRef<HTMLInputElement>(null);
   const dropDownRef = useRef<HTMLDivElement | null>(null);
@@ -143,7 +145,7 @@ export default function SearchDrop(props: SearchDropProps) {
         typeof option === 'object'
           ? (option as Record<string, string>)[searchKey]
           : option;
-      const isSelected = Boolean(selectedValue == value);
+      const isSelected = Boolean(selectedValue?.includes(value));
       if (!isSelected) handleOnClick(filteredOptions[highlightIndex]);
     } else if (e.key === 'Escape') {
       setIsOpen(false);
@@ -169,7 +171,8 @@ export default function SearchDrop(props: SearchDropProps) {
           </span>
         </label>
       )}
-      <div className='w-full relative'>
+      <div className='relative w-full'>
+        {/* Dropdown Button */}
         <button
           onClick={handleToggle}
           onKeyDown={handelKeyPress}
@@ -181,12 +184,28 @@ export default function SearchDrop(props: SearchDropProps) {
           style={{ border: showError && errorMessage ? '1px solid red' : '' }}
           disabled={disabled}
         >
-          {selectedValue ? (
-            <span className='text-black font-inter capitalize text-nowrap text-ellipsis overflow-hidden'>
-              {selectedValue}
-            </span>
+          {Array.isArray(selectedValue) && selectedValue.length !== 0 ? (
+            <div className='flex items-center justify-start flex-wrap gap-1'>
+              {selectedValue?.map((data: string, index: number) => (
+                <span
+                  className='text-black font-inter capitalize text-nowrap text-ellipsis overflow-hidden px-2 py-1 bg-gray-200 text-xs rounded-[4px] flex items-center justify-start gap-1.5'
+                  key={index}
+                >
+                  <span className='text-xs text-black'>{data}</span>
+                  <span
+                    className='text-sm text-black'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onSelectValBtn) onSelectValBtn(data, index);
+                    }}
+                  >
+                    <IoClose />
+                  </span>
+                </span>
+              ))}
+            </div>
           ) : (
-            <span className='text-black font-inter capitalize text-nowrap text-ellipsis overflow-hidden'>
+            <span className='text-black/50 font-inter capitalize text-nowrap text-ellipsis overflow-hidden'>
               {placeHolderName ? placeHolderName : 'Select Value'}
             </span>
           )}
@@ -196,14 +215,9 @@ export default function SearchDrop(props: SearchDropProps) {
           />
         </button>
 
+        {/* Dropdown Menu */}
         {isOpen && (
-          <div
-            ref={dropDownRef}
-            className={classNames('absolute w-full z-[55555] transition-all', {
-              'bottom-0': dynamicPosition == 'top',
-              'top-0': dynamicPosition == 'bottom',
-            })}
-          >
+          <div className='absolute z-10 w-full mt-2 bg-white overflow-hidden bottom-0'>
             <div
               className={classNames(
                 'flex items-center justify-center gap-1.5',
@@ -231,30 +245,18 @@ export default function SearchDrop(props: SearchDropProps) {
               >
                 {!loading ? (
                   filteredOptions.length > 0 ? (
-                    <VirtualList
-                      ref={virtualListRef}
-                      height={
-                        filteredOptions?.length >= 4
-                          ? 130
-                          : filteredOptions?.length * 40
-                      }
-                      itemCount={filteredOptions?.length}
-                      itemSize={40}
-                      width={'100%'}
-                      className='hide-scrollbar z-[1111]'
-                    >
-                      {({ index, style }) => {
-                        const option = filteredOptions[index];
+                    <>
+                      {filteredOptions?.map((option, index) => {
                         const val =
                           typeof option === 'object'
                             ? (option as Record<string, string>)[searchKey]
                             : option;
 
-                        const isSelected = Boolean(selectedValue == val);
-
+                        const isSelected = Boolean(
+                          selectedValue?.includes(val)
+                        );
                         return (
                           <li
-                            style={style}
                             key={index}
                             className={classNames(
                               'px-3 py-2 cursor-pointer w-full text-black text-nowrap text-ellipsis overflow-hidden',
@@ -277,8 +279,8 @@ export default function SearchDrop(props: SearchDropProps) {
                               : option}
                           </li>
                         );
-                      }}
-                    </VirtualList>
+                      })}
+                    </>
                   ) : (
                     <li className='px-3 py-2 text-gray-500 text-sm'>
                       {options.length == 0

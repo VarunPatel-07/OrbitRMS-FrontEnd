@@ -1,15 +1,11 @@
 import React from 'react';
+
 import { Navigate } from 'react-router-dom';
 
-import {
-  getDataFromLocalStorage,
-  getDataFromTheSessionStorage,
-} from './HelperFunctions';
+import { getDataFromSecureCookie } from './HelperFunctions';
 
 function ProtectedRoute({ element }: { element: React.ReactElement }) {
-  const isAuthenticated =
-    getDataFromLocalStorage('authenticationToken') ||
-    getDataFromTheSessionStorage('authenticationToken');
+  const isAuthenticated = getDataFromSecureCookie('authenticationToken');
 
   return typeof isAuthenticated === 'string' &&
     isAuthenticated.trim() !== '' ? (

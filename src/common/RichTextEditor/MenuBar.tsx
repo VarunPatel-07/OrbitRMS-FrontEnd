@@ -1,10 +1,12 @@
 import React, { useRef } from 'react';
+
 import {
   MdFormatAlignCenter,
   MdFormatAlignJustify,
   MdFormatAlignLeft,
   MdFormatAlignRight,
 } from 'react-icons/md';
+
 import { Editor } from '@tiptap/react';
 import tippy from 'tippy.js';
 
@@ -13,6 +15,7 @@ import './editor.css';
 import { AiFillHighlight } from 'react-icons/ai';
 import { FaBold, FaItalic, FaLink, FaStrikethrough } from 'react-icons/fa';
 import { FaLinkSlash } from 'react-icons/fa6';
+
 import { Instance } from 'tippy.js';
 
 import { classNames } from '../../Helper/HelperFunctions';

@@ -1,4 +1,5 @@
 import { FaStarOfLife } from 'react-icons/fa';
+
 import clsx from 'clsx';
 
 import { TextAreaProps } from '../interface/propsInterface';

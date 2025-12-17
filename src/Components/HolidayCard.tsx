@@ -1,7 +1,9 @@
 import 'swiper/swiper-bundle.css';
 
 import React, { useRef } from 'react';
+
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
+
 import { Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 

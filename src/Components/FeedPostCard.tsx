@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
+
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdHeart, IoMdHeartEmpty } from 'react-icons/io';
 import { IoChatbubbleOutline } from 'react-icons/io5';
 import { MdVerified } from 'react-icons/md';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
+
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 import { Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
