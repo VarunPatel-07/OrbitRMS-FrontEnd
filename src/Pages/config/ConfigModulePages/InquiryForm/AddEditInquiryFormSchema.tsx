@@ -136,8 +136,6 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
     }
   };
 
-  console.log('formData', formData);
-
   const handelDeleteRecipientEmails = (email: string) => {
     const recipient_emails = formData.authorized_recipient_emails.filter(
       (data) => data !== email
