@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
+
 import { IoClose } from 'react-icons/io5';
 import { MdKeyboardDoubleArrowRight } from 'react-icons/md';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
@@ -119,9 +120,8 @@ function ChatWindowModal(props: ChatWindowModalInterface) {
     }
   }, 100);
 
-
-  const handleCloseBtn =  () => {
-     handelClickOnCloseBtn();
+  const handleCloseBtn = () => {
+    handelClickOnCloseBtn();
     setOrbitAiResponse([]);
     setPreUploadedImages([]);
     setMessage('');

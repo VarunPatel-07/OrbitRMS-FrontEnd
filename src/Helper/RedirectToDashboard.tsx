@@ -2,17 +2,12 @@ import { Navigate } from 'react-router-dom';
 
 import {
   clearLocalSessionStorage,
-  getDataFromLocalStorage,
-  getDataFromTheSessionStorage,
+  getDataFromSecureCookie,
 } from './HelperFunctions';
 
 const RedirectToDashboard = () => {
-  const _data = getDataFromLocalStorage('organization-info');
-  const _localToken = getDataFromLocalStorage('authenticationToken');
-  const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
-
-  const authToken = `Bearer ${_localToken || _sessionToken}`;
-  const tokenValue = authToken.split('Bearer')[1]?.trim();
+  const _data = getDataFromSecureCookie('organization-info');
+  const tokenValue = getDataFromSecureCookie('authenticationToken');
   try {
     if (_data && tokenValue) {
       return (

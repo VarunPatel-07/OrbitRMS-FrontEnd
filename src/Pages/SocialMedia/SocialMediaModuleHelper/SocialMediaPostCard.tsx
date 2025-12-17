@@ -1,6 +1,8 @@
 import { useRef } from 'react';
+
 import { MdDelete, MdEdit } from 'react-icons/md';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
+
 import { Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 

@@ -1,4 +1,5 @@
 import React, { SetStateAction, useEffect, useState } from 'react';
+
 import Cropper, { Area } from 'react-easy-crop';
 import { BiSolidZoomIn, BiSolidZoomOut } from 'react-icons/bi';
 import { FaRotateLeft, FaRotateRight } from 'react-icons/fa6';
@@ -176,8 +177,6 @@ function MultipleImageCropper({
       return { ...pervValue, croppedImagePreview: '' };
     });
   };
-
-
 
   const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
     setCroppedArea(croppedAreaPixels);

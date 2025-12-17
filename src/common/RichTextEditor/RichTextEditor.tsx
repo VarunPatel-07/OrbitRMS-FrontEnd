@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
+
 import { FaStarOfLife } from 'react-icons/fa';
+
 import Bold from '@tiptap/extension-bold';
 import Document from '@tiptap/extension-document';
 import Highlight from '@tiptap/extension-highlight';

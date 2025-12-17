@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
+
 import { IoEye } from 'react-icons/io5';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -237,7 +238,7 @@ function ClientInquiry() {
         setColumns(initialColumns);
 
         const data = await fetchClientFormSchema(formSchemaId);
-        
+
         if (data?.success) {
           await handelGeneratingDynamicClientColumn(
             data?.data?.form_fields,

@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+
 import { IoClose, IoCloseCircle } from 'react-icons/io5';
 
 import OrbitAiIcon from '../../../assets/Images/orbit-ai-icon.png';
@@ -13,7 +14,7 @@ import CommonDatePicker from '../../../common/CommonDatePicker';
 import MultipleDragAndDropFileUploader from '../../../common/DragDropUploader/MultipleFileUploader/MultipleDragDropFileUploader';
 import Image from '../../../common/Image';
 import Loader from '../../../common/Loader';
-import SearchDrop from '../../../common/SearchDrop';
+import MultiSelectSearchDrop from '../../../common/MultiSelectSearchDrop';
 import TextArea from '../../../common/TextArea';
 import ChatWindowModal from '../../../Components/OrbitAIChatBot/ChatWindowModal';
 import {
@@ -355,21 +356,26 @@ const AddEditSocialMediaPost = React.memo(function AddEditSocialMediaPost(
                     <Image src={OrbitAiIcon} alt='OrbitAi Icon' />
                   </Button>
                 </div>
+                <div className='w-full'></div>
                 <div className='w-full'>
-                  <SearchDrop
+                  <MultiSelectSearchDrop
                     name='platforms'
                     labelFieldName='Selected Platforms:'
+                    placeHolderName='Please Select The Platform You Want To Post'
                     isRequiredField
                     searchKey=''
                     position='top'
                     className=''
-                    options={selectedAccountArr}
+                    options={
+                      selectedAccountArr.length == 0
+                        ? ['Instagram', 'Facebook', 'Twitter']
+                        : selectedAccountArr
+                    }
                     selectedValue={formData?.platforms}
                     onSelectValBtn={handelSelectPlatforms}
                     showError={showError}
-                    disabled={loading}
+                    // disabled={loading}
                     emptyDataMessage=''
-                    type='multi-select'
                     errorMessage={
                       showError && formData.platforms.length == 0
                         ? 'this is an required field'
