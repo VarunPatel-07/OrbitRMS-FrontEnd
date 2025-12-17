@@ -108,7 +108,6 @@ export const signInApiFunction = async (
 
     return response?.data;
   } catch (error: any) {
-    console.log(error);
     return ErrorHandler(error);
   }
 };

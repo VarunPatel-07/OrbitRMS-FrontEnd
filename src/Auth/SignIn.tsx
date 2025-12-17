@@ -130,8 +130,6 @@ function SignIn() {
       try {
         const tokenValue = getDataFromSecureCookie('authenticationToken');
 
-        console.log("tokenValue",tokenValue)
-
         if (
           !tokenValue ||
           tokenValue === 'null' ||
