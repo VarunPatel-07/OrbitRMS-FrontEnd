@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 
 import MaintenanceWorker from '../worker/MaintenanceWorker?worker';
@@ -30,9 +31,9 @@ import HelmetSeo from './Helper/HelmetSeo';
 import {
   clearLocalSessionStorage,
   ErrorHandler,
-  getDataFromLocalStorage,
-  getDataFromTheSessionStorage,
+  getDataFromSecureCookie,
   storeDataInLocalStorage,
+  storeDataInSecureCookie,
 } from './Helper/HelperFunctions';
 import ProtectedRoute from './Helper/ProtectedRoute';
 import { useDebounce } from './Hooks/useDebounce';
@@ -52,14 +53,15 @@ import SocialMedia from './Pages/SocialMedia/SocialMedia';
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
 export const HandelPathFunction = () => {
-  const _data = getDataFromLocalStorage('organization-info');
-  const _isAuthenticated = getDataFromLocalStorage('authenticationToken');
+  const _data = getDataFromSecureCookie('organization-info');
+  const _isAuthenticated = getDataFromSecureCookie('authenticationToken');
+
   if (_data && _isAuthenticated) {
     return (
       <Navigate to={`/${JSON.parse(_data)?.portal_slug}/dashboard`} replace />
     );
   } else {
-    clearLocalSessionStorage();
+    // clearLocalSessionStorage();
     return <Navigate to={`/auth/sign-in`} replace />;
   }
 };
@@ -244,9 +246,10 @@ function App() {
           portal_slug: response?.data?.organization?.general_info?.portal_slug,
         };
 
-        storeDataInLocalStorage(
+        storeDataInSecureCookie(
           JSON.stringify(localStorageData),
-          'organization-info'
+          'organization-info',
+          true
         );
         if (response?.data) setGlobalStateProvider(response?.data);
       }
@@ -256,11 +259,7 @@ function App() {
   // Now We Will Create An Worker That Will Run After every Time
 
   useEffect(() => {
-    const _localToken = getDataFromLocalStorage('authenticationToken');
-    const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
-    //   todo we will show the error in the form of the notification
-
-    const authToken = _localToken || _sessionToken;
+    const authToken = getDataFromSecureCookie('authenticationToken');
 
     if (!authToken) return;
 

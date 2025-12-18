@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+
 import { FaStarOfLife } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 
@@ -9,6 +10,7 @@ import {
   employeeTypesArray,
   OrganizationEmployeeStatusArray,
 } from '../../../../constant/constant';
+import { ConstructValidEmail } from '../../../../Helper/Helper';
 import { classNames } from '../../../../Helper/HelperFunctions';
 import { EmployeeEmployerInformationPropsInterface } from '../../../../interface/AddEditUserProfileInterFace';
 import {
@@ -67,14 +69,20 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
   };
 
   useEffect(() => {
+    if (moduleType == 'edit') return;
+    const employeeEmail = ConstructValidEmail(
+      formData?.personal_info?.first_name,
+      formData?.personal_info?.middle_name,
+      formData?.personal_info?.last_name,
+      GlobalStateProvider?.organization?.general_info?.primary_email?.split(
+        '@'
+      )[1]
+    );
     setFormData((pervValue) => ({
       ...pervValue,
       employee_info: {
         ...pervValue.employee_info,
-        employee_email:
-          formData?.personal_info?.middle_name?.trim() !== ''
-            ? `${formData?.personal_info?.first_name?.toLocaleLowerCase()}.${formData?.personal_info?.middle_name?.toLocaleLowerCase()}.${formData?.personal_info?.last_name?.toLocaleLowerCase()}`
-            : `${formData?.personal_info?.first_name?.toLocaleLowerCase()}.${formData?.personal_info?.last_name?.toLocaleLowerCase()}`,
+        employee_email: employeeEmail,
       },
     }));
   }, [

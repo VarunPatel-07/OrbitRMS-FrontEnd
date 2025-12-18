@@ -10,13 +10,14 @@ import {
   clearLocalSessionStorage,
   ErrorHandler,
   getDataFromLocalStorage,
-  getDataFromTheSessionStorage,
+  getDataFromSecureCookie,
   storeDataInLocalStorage,
 } from '../../Helper/HelperFunctions';
 
 import '../../css/text-editor.css';
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
+
 import axios from 'axios';
 
 import Button from '../../common/Button';
@@ -51,10 +52,7 @@ function MaintenanceMode() {
     try {
       const url = `${BASE_URL}/auth/maintenance/check-maintenance-mode`;
 
-      const _localToken = getDataFromLocalStorage('authenticationToken');
-      const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
-
-      const authToken = `Bearer ${_localToken || _sessionToken}`;
+      const authToken = `Bearer ${getDataFromSecureCookie('authenticationToken')}`;
       const tokenValue = authToken.split('Bearer')[1]?.trim();
 
       if (!tokenValue || tokenValue === 'null' || tokenValue === 'undefined') {

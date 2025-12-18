@@ -22,7 +22,6 @@ export const URLSafetyCheckerFunction = async (
   const urlRegex = /^(https?:\/\/)([^\s/?#]+)([^\s]*)$/;
 
   if (!urlRegex.test(url) || url.split('https://').length > 2) {
-   
     return {
       urlStatus: 'invalid',
       isError: false,
@@ -47,14 +46,12 @@ export const URLSafetyCheckerFunction = async (
   try {
     const response = await axios.post(endpoint, requestBody);
     if (response.data && response.data.matches) {
-     
       return {
         urlStatus: 'unsafe',
         isError: false,
         isEmptyString: false,
       };
     } else {
-     
       return {
         urlStatus: 'safe',
         isError: false,
@@ -62,7 +59,6 @@ export const URLSafetyCheckerFunction = async (
       };
     }
   } catch (error) {
-   
     console.error(error);
     return {
       urlStatus: 'error',

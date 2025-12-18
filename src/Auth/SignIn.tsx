@@ -1,6 +1,7 @@
 import './auth.css';
 
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+
 import { Link, useNavigate } from 'react-router-dom';
 
 import signInGradientBgImage from '../assets/Images/gradient-bg.webp';
@@ -20,7 +21,7 @@ import {
   classNames,
   clearLocalSessionStorage,
   getDataFromLocalStorage,
-  getDataFromTheSessionStorage,
+  getDataFromSecureCookie,
   isValidEmail,
   MaxLimitCountDownTimeFormatter,
   removeDataFromLocalStorage,
@@ -127,13 +128,7 @@ function SignIn() {
     useEffectRef.current = true;
     (async () => {
       try {
-        const _localToken = getDataFromLocalStorage('authenticationToken');
-        const _sessionToken = getDataFromTheSessionStorage(
-          'authenticationToken'
-        );
-
-        const authToken = `Bearer ${_localToken || _sessionToken}`;
-        const tokenValue = authToken.split('Bearer')[1]?.trim();
+        const tokenValue = getDataFromSecureCookie('authenticationToken');
 
         if (
           !tokenValue ||
@@ -183,7 +178,7 @@ function SignIn() {
       handelCountDownFunction(data);
     }
   }, [expiryTimeUTCString]);
-  
+
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
@@ -196,6 +191,7 @@ function SignIn() {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [loading]);
+
   return (
     <>
       <HelmetSeo

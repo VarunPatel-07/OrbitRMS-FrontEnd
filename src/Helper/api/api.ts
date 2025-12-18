@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { SetStateAction } from 'react';
+
 import axios, { AxiosRequestHeaders } from 'axios';
 
 import {
@@ -10,10 +11,9 @@ import { loginForm, signUpForm } from '../../interface/funcParamInterface';
 import { GlobalContextStore } from '../../interface/UserProfileInterface';
 import {
   ErrorHandler,
-  getDataFromLocalStorage,
-  getDataFromTheSessionStorage,
+  getDataFromSecureCookie,
   storeDataInLocalStorage,
-  storeDataInSessionStorage,
+  storeDataInSecureCookie,
 } from '../HelperFunctions';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
@@ -92,14 +92,16 @@ export const signInApiFunction = async (
     if (res?.success) {
       setLoader(true);
       if (data?.rememberMe) {
-        storeDataInLocalStorage(
+        storeDataInSecureCookie(
           response?.data?.data?.authenticationToken,
-          'authenticationToken'
+          'authenticationToken',
+          true
         );
       } else {
-        storeDataInSessionStorage(
+        storeDataInSecureCookie(
           response?.data?.data?.authenticationToken,
-          'authenticationToken'
+          'authenticationToken',
+          false
         );
       }
     }
@@ -190,11 +192,7 @@ export const verifyUsersLoginStatus = async () => {
   try {
     const url = `${BASE_URL}/auth/verify-user`;
 
-    const _localToken = getDataFromLocalStorage('authenticationToken');
-    const _sessionToken = getDataFromTheSessionStorage('authenticationToken');
-    //   todo we will show the error in the form of the notification
-
-    const authToken = `Bearer ${_localToken || _sessionToken}`;
+    const authToken = `Bearer ${getDataFromSecureCookie('authenticationToken')}`;
     const tokenValue = authToken.split('Bearer')[1]?.trim();
 
     if (!tokenValue || tokenValue === 'null' || tokenValue === 'undefined') {

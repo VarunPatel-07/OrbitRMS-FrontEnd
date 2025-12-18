@@ -1,7 +1,9 @@
 import { useContext, useEffect, useRef, useState } from 'react';
+
 import { FiLoader } from 'react-icons/fi';
 import { IoMdHeart } from 'react-icons/io';
 import { LuMessageCircleReply } from 'react-icons/lu';
+
 import { Editor } from '@tiptap/react';
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 

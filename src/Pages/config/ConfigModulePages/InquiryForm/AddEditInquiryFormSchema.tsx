@@ -1,4 +1,5 @@
 import React, { SetStateAction, useEffect, useRef, useState } from 'react';
+
 import { BsInfoCircleFill } from 'react-icons/bs';
 import { FaStarOfLife } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
@@ -134,8 +135,6 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
       setEmailFieldShowError(true);
     }
   };
-
-  console.log('formData', formData);
 
   const handelDeleteRecipientEmails = (email: string) => {
     const recipient_emails = formData.authorized_recipient_emails.filter(

@@ -1,7 +1,4 @@
-import {
-  getDataFromLocalStorage,
-  getDataFromTheSessionStorage,
-} from '../../../Helper/HelperFunctions';
+import { getDataFromSecureCookie } from '../../../Helper/HelperFunctions';
 import { SocialMediaModuleModalArrayListInterface } from '../../../interface/SocialMediaModule';
 import { GlobalContextStore } from '../../../interface/UserProfileInterface';
 
@@ -18,12 +15,7 @@ export const SocialMediaModuleModalArrayList = (
     platform: 'facebook',
     onClickFunction: () => {
       {
-        const _localToken = getDataFromLocalStorage('authenticationToken');
-        const _sessionToken = getDataFromTheSessionStorage(
-          'authenticationToken'
-        );
-
-        const authToken = `Bearer ${_localToken || _sessionToken}`;
+        const authToken = `Bearer ${getDataFromSecureCookie('authenticationToken')}`;
         window.location.href = `${META_AUTHENTICATION_BASE_URL}?org-id=${GlobalStateProvider?.organization?.id}&token=${encodeURIComponent(authToken)}
   `;
       }
@@ -34,12 +26,7 @@ export const SocialMediaModuleModalArrayList = (
     platform: 'instagram',
     onClickFunction: () => {
       {
-        const _localToken = getDataFromLocalStorage('authenticationToken');
-        const _sessionToken = getDataFromTheSessionStorage(
-          'authenticationToken'
-        );
-
-        const authToken = `Bearer ${_localToken || _sessionToken}`;
+        const authToken = `Bearer ${getDataFromSecureCookie('authenticationToken')}`;
         window.location.href = `${META_AUTHENTICATION_BASE_URL}?org-id=${GlobalStateProvider?.organization?.id}&token=${encodeURIComponent(authToken)}
   `;
       }
@@ -50,12 +37,7 @@ export const SocialMediaModuleModalArrayList = (
     platform: 'twitter',
     onClickFunction: () => {
       {
-        const _localToken = getDataFromLocalStorage('authenticationToken');
-        const _sessionToken = getDataFromTheSessionStorage(
-          'authenticationToken'
-        );
-
-        const authToken = `Bearer ${_localToken || _sessionToken}`;
+        const authToken = `Bearer ${getDataFromSecureCookie('authenticationToken')}`;
         window.location.href = `${TWITTER_AUTHENTICATION_BASE_URL}?org-id=${GlobalStateProvider?.organization?.id}&token=${encodeURIComponent(authToken)}`;
       }
     },

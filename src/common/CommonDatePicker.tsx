@@ -3,7 +3,9 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { forwardRef } from 'react';
+
 import { FaCalendarAlt, FaStarOfLife } from 'react-icons/fa';
+
 import clsx from 'clsx';
 
 import { commonDatePickerProps } from '../interface/propsInterface';
