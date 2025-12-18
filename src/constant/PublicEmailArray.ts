@@ -76,7 +76,6 @@ export const publicEmailProviders = [
   { company: 'BigPond', mail: 'bigpond.com' },
   { company: 'Live UK', mail: 'live.co.uk' },
 
-
   { company: 'Mailinator', mail: 'mailinator.com' },
   { company: '10 Minute Mail', mail: '10minutemail.com' },
   { company: 'TempMail', mail: 'tempmail.net' },

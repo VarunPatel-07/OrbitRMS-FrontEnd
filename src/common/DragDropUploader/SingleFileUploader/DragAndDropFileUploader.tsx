@@ -1,4 +1,5 @@
 import { useCallback, useContext, useState } from 'react';
+
 import { createPortal } from 'react-dom';
 import { useDropzone } from 'react-dropzone';
 import { Area } from 'react-easy-crop';

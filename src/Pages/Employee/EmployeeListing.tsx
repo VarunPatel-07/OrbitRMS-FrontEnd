@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
+
 import { FaRegCircleCheck } from 'react-icons/fa6';
 import { IoCloseCircleOutline, IoEye } from 'react-icons/io5';
 import { MdModeEdit } from 'react-icons/md';
@@ -15,12 +16,14 @@ import TablePagination from '../../common/Table/TablePagination';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
 import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoader';
 import { dropdownMenuArray } from '../../constant/constant';
+import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
 import { FilterFieldsTypeEnums } from '../../enums/enums';
 import { endpointObject, multipleFetchApi } from '../../Helper/api/multipleAPI';
+import HelmetSeo from '../../Helper/HelmetSeo';
 import { BeautifulAccountStatusRenderer } from '../../Helper/Helper';
 import { getDataFromLocalStorage } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
@@ -38,8 +41,6 @@ import {
   UrlEncodedFilterQueryInterface,
 } from '../../interface/propsInterface';
 import { EmployeeListingFiltersArray } from './EmployeeListingFiltersArray';
-import HelmetSeo from '../../Helper/HelmetSeo';
-import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
 
 const initialMetadata: MetaDataInterface = {
   total_data: 0,
