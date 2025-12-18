@@ -197,8 +197,6 @@ const AddEditComponentListing = React.memo(function AddEditComponentListing(
     (item) => item?.module_label == 'employee_address'
   );
 
-  
-
   useEffect(() => {
     if (DesignationsDepartmentsRef.current) return;
     DesignationsDepartmentsRef.current = true;
