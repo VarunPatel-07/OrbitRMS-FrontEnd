@@ -113,3 +113,33 @@ export const InfoField = ({
     )}
   </div>
 );
+
+const sanitizeInput = (value: string) => {
+  return value
+    ?.toLowerCase()
+    ?.trim()
+    ?.replace(/[^a-z0-9\s]/g, '')
+    ?.replace(/\s+/g, '.');
+};
+
+export const ConstructValidEmail = (
+  firstName: string,
+  middleName: string,
+  lastName: string,
+  emailSlug: string
+) => {
+  const sanitizeFirstName = sanitizeInput(firstName);
+  const sanitizeMiddleName = sanitizeInput(middleName);
+  const sanitizeLastName = sanitizeInput(lastName);
+
+  const emailPrefix =
+    sanitizeMiddleName && sanitizeMiddleName !== ''
+      ? `${sanitizeFirstName}.${sanitizeMiddleName}.${sanitizeLastName}`
+      : `${sanitizeFirstName}.${sanitizeLastName}`;
+
+  const validateEmailPrefix = emailPrefix
+    ?.replace(/\.{2,}/g, '.')
+    ?.replace(/^\.+|\.+$/g, '');
+
+  return validateEmailPrefix + '@' + emailSlug;
+};

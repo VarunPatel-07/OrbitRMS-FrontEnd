@@ -248,6 +248,7 @@ export interface EmployeeEmployerInformationPropsInterface {
   GlobalStateProvider: GlobalContextStore;
   formSubmitLoader: boolean;
   formData: AddEditUserProfileInterFace;
+
   setFormData: React.Dispatch<SetStateAction<AddEditUserProfileInterFace>>;
   showEmptyFieldError: boolean;
   employeeFormDropdowns: employeeFormDropdownsInterface;
