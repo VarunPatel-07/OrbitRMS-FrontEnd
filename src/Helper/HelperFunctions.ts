@@ -74,7 +74,14 @@ const getCookieConfig = () => {
     secure: isProd,
     sameSite: 'Strict',
     path: '/',
-    ...(isProd && { domain: 'beta-staging.orbitrms.com' }),
+    ...(isProd && {
+      domain:
+        current_environment === 'PRODUCTION'
+          ? 'app.orbitrms.com'
+          : current_environment === 'BETA-STAGING'
+            ? 'beta-staging.orbitrms.com'
+            : 'localhost',
+    }),
   };
 };
 
