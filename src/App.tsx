@@ -57,9 +57,7 @@ export const HandelPathFunction = () => {
   const _isAuthenticated = getDataFromSecureCookie('authenticationToken');
 
   if (_data && _isAuthenticated) {
-    return (
-      <Navigate to={`/${JSON.parse(_data)?.portal_slug}/dashboard`} replace />
-    );
+    return <Navigate to={`/${_data?.portal_slug}/dashboard`} replace />;
   } else {
     // clearLocalSessionStorage();
     return <Navigate to={`/auth/sign-in`} replace />;

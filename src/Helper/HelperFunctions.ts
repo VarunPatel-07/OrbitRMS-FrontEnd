@@ -104,7 +104,7 @@ export const storeDataInSecureCookie = (
 
   let dataToStore: string;
   if (encrypted) {
-    _data = typeof _data == 'object' ? JSON.stringify(_data) : _data;
+    _data = typeof _data == 'object' ? JSON.stringify(_data) : String(_data);
 
     dataToStore = CryptoJS.AES.encrypt(_data, encryptionKey).toString();
   } else {
@@ -136,9 +136,11 @@ export const getDataFromSecureCookie = (
         encryptionKey
       ).toString(CryptoJS.enc.Utf8);
 
-      if (key != 'authenticationToken') {
+      if (typeof decryptedData !== 'string') return decryptedData;
+
+      try {
         return JSON.parse(decryptedData);
-      } else {
+      } catch {
         return decryptedData;
       }
     }
