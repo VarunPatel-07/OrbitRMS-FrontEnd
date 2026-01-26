@@ -12,7 +12,6 @@ import {
   getEnterAnimationClass,
   getExitAnimationClass,
 } from '../../constant/constant';
-import { getDataFromSecureCookie } from '../../Helper/HelperFunctions';
 
 export interface NotificationObject {
   id: string;
@@ -55,9 +54,6 @@ const NotificationContextApiProvider: React.FC<{ children: ReactNode }> = ({
   const [notificationInfoArray, setNotificationInfoArray] = useState<
     Array<NotificationObject>
   >([]);
-
-  const getCokkie = getDataFromSecureCookie('authenticationToken');
-  console.log('getCokkie', getCokkie);
 
   const handelNotification = useCallback(
     (

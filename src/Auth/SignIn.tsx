@@ -96,8 +96,8 @@ function SignIn() {
     e.preventDefault();
 
     if (isFormValid) {
-      setLoading(true); // Set loading state immediately
-      signInApiHandlerFunction(); // Await the API call
+      setLoading(true);
+      signInApiHandlerFunction();
     } else {
       setShowError(true);
     }
@@ -129,7 +129,6 @@ function SignIn() {
     (async () => {
       try {
         const tokenValue = getDataFromSecureCookie('authenticationToken');
-        console.log('tokenValue From Login', tokenValue);
 
         if (
           !tokenValue ||
@@ -169,10 +168,6 @@ function SignIn() {
       }
     })();
   }, [handelNotification, navigate]);
-  const tokenValue = getDataFromSecureCookie('authenticationToken');
-  const _data = getDataFromSecureCookie('organization-info');
-
-  console.log('tokenValue From Login', tokenValue, _data);
 
   useEffect(() => {
     const localData = getDataFromLocalStorage(MAX_SIGN_IN_ATTEMPT);
