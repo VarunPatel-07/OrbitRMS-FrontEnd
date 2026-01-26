@@ -153,20 +153,20 @@ function AddEditEmployeeProfile() {
         handelNotification(res, 'top-right');
 
         if (employee_id == GlobalStateProvider.user.personal_info.user_id) {
-          const endPointArr: endpointObject[] = [
-            {
-              endPoint: `employee/fetch-profile?employee_id=${id}`,
-              protected: true,
-            },
-          ];
-
-          const response = await multipleFetchApi(endPointArr);
-          const _res = response[0];
-
           setGlobalStateProvider((perValue) => ({
             ...perValue,
             organization: perValue.organization,
-            user: _res.data,
+            user: {
+              ...perValue?.user,
+              personal_info: {
+                ...perValue.user?.personal_info,
+                ...data?.personal_info,
+              },
+              employee_info: {
+                ...perValue.user?.employee_info,
+                ...data?.employee_info,
+              },
+            },
           }));
         }
         if (

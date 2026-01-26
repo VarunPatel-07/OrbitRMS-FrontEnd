@@ -68,19 +68,14 @@ export const ErrorHandler = (error: Error | AxiosError) => {
   }
 };
 const getCookieConfig = () => {
-  const isProd = current_environment === 'PRODUCTION';
+  const isDev = current_environment === 'DEVELOPMENT';
 
   return {
-    secure: isProd,
-    sameSite: 'Strict',
+    secure: !isDev,
+    sameSite: !isDev ? 'None' : 'Lax',
     path: '/',
-    ...(isProd && {
-      domain:
-        current_environment === 'PRODUCTION'
-          ? 'app.orbitrms.com'
-          : current_environment === 'BETA-STAGING'
-            ? 'beta-staging.orbitrms.com'
-            : 'localhost',
+    ...(!isDev && {
+      domain: '.orbitrms.com',
     }),
   };
 };
@@ -100,8 +95,6 @@ export const storeDataInSecureCookie = (
 
   const cookieConfig: any = getCookieConfig();
 
-  Cookies.remove(key, cookieConfig);
-
   let dataToStore: string;
   if (encrypted) {
     _data = typeof _data == 'object' ? JSON.stringify(_data) : String(_data);
@@ -112,7 +105,7 @@ export const storeDataInSecureCookie = (
   }
 
   if (is_persistent === true) {
-    cookieConfig.expires = expire ?? 30;
+    cookieConfig.expires = expire && expire > 0 ? expire : 30;
   }
 
   Cookies.set(key, dataToStore, cookieConfig);
