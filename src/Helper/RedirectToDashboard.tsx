@@ -12,9 +12,10 @@ const RedirectToDashboard = () => {
   try {
     if (_data && tokenValue) {
       return (
-        <Navigate to={`${JSON.parse(_data)?.portal_slug}/dashboard`} replace />
+        <Navigate to={`${_data?.portal_slug}/dashboard`} replace />
       );
     } else {
+      console.log("we don't have the cred??")
       clearLocalSessionStorage();
       return <Navigate to='/auth/sign-in' replace />;
     }
