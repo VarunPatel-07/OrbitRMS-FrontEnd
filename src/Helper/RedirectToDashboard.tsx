@@ -8,6 +8,7 @@ import {
 const RedirectToDashboard = () => {
   const _data = getDataFromSecureCookie('organization-info');
   const tokenValue = getDataFromSecureCookie('authenticationToken');
+  console.log(_data, tokenValue);
   try {
     if (_data && tokenValue) {
       return (
