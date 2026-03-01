@@ -16,7 +16,7 @@ import TablePagination from '../../common/Table/TablePagination';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
 import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoader';
 import { dropdownMenuArray } from '../../constant/constant';
-import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -280,8 +280,8 @@ function EmployeeListing() {
             <Button
               type='button'
               className='text-black/80 p-1.5'
-              dataTooltipId='project_status_edit_button'
-              dataTooltipContent='Edit'
+              data-tooltip-id='project_status_edit_button'
+              data-tooltip-content='Edit'
               disabled={permissionData?.permissions?.some(
                 (item) => item?.label == 'edit' && !item?.is_allowed
               )}
@@ -296,8 +296,8 @@ function EmployeeListing() {
             <Button
               type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              dataTooltipId='project_status_view_profile_button'
-              dataTooltipContent='View Profile'
+              data-tooltip-id='project_status_view_profile_button'
+              data-tooltip-content='View Profile'
               disabled={permissionData?.permissions?.some(
                 (item) => item?.label == 'view' && !item?.is_allowed
               )}
@@ -464,8 +464,8 @@ function EmployeeListing() {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.employeeListing.title}
-        Content={MetaTitleDescription.employeeListing.description}
+        Title={META_TITLE_DESCRIPTION.EMPLOYEE_LISTING.title}
+        Content={META_TITLE_DESCRIPTION.EMPLOYEE_LISTING.description}
       />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />

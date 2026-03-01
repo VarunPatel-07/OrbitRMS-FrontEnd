@@ -27,11 +27,12 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
   const {
     RequiredFileTypeArray,
     showDropFileScreenInFullScreen,
-    cropShape,
     maxCropHeight,
     maxCropWidth,
     setImageUrl,
     disabled,
+    cropShape = 'round',
+    enableCropping = true,
   } = props as DragDropUploaderProps;
 
   const { handelNotification } = useContext(
@@ -53,19 +54,24 @@ function DragAndDropFileUploader(props: DragDropUploaderProps) {
   );
   const onDrop = useCallback(
     (acceptedFiles: Array<File>) => {
-      acceptedFiles.map((eachFile: File) => {
-        if (uploadingFilesTypeCheckingFunction(eachFile)) {
+      acceptedFiles.forEach((eachFile: File) => {
+        if (!uploadingFilesTypeCheckingFunction(eachFile)) {
+          handelNotification(
+            { success: false, message: 'The Format Is Not Allowed' },
+            'top-right'
+          );
+          return;
+        }
+
+        if (enableCropping) {
           setSelectedFile(eachFile);
         } else {
-          const res = {
-            success: false,
-            message: `The Formate Is Not Allowed`,
-          };
-          handelNotification(res, 'top-right');
+          const imageUrl = URL.createObjectURL(eachFile);
+          handelImageUploadation(imageUrl);
         }
       });
     },
-    [uploadingFilesTypeCheckingFunction]
+    [uploadingFilesTypeCheckingFunction, enableCropping]
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

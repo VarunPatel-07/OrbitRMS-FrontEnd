@@ -36,6 +36,7 @@ const MultipleDragAndDropFileUploader = React.memo(
       showError,
       errorMessage,
       maxSize,
+      enableCropping = true,
     } = props as MultipleImageUploaderPropsInterface;
 
     const { handelNotification } = useContext(
@@ -66,41 +67,42 @@ const MultipleDragAndDropFileUploader = React.memo(
           try {
             await Promise.all(
               acceptedFiles.map(async (eachFile: File) => {
-                if (uploadingFilesTypeCheckingFunction(eachFile)) {
+                if (!uploadingFilesTypeCheckingFunction(eachFile)) {
+                  handelNotification(
+                    {
+                      success: false,
+                      message: `Oops! That file format isn't supported. Try ${RequiredFileTypeArray?.map((item) => item.split('/')[1]).join(', ')}`,
+                    },
+                    'top-right'
+                  );
+                  return;
+                }
+
+                let processedFile = eachFile;
+
+                if (eachFile.size > 2 * 1024 * 1024) {
+                  try {
+                    processedFile = await ImageDownscaler(eachFile, 2);
+                  } catch (err) {
+                    console.error('Scaling failed, using original file', err);
+                  }
+                }
+
+                const imgObject: SelectedFileArrayObjInterface = {
+                  id: uuidv4(),
+                  file: processedFile,
+                  croppedImagePreview: '',
+                  originalFile: eachFile,
+                  croppedArea: { width: 0, height: 0, x: 0, y: 0 },
+                  rotation: 0,
+                };
+
+                if (enableCropping) {
                   if (setIsImageCropperActive) setIsImageCropperActive(true);
 
-                  let processedFile = eachFile;
-                  if (eachFile.size > 2 * 1024 * 1024) {
-                    try {
-                      processedFile = await ImageDownscaler(eachFile, 2); // downscale to ~2MB
-                    } catch (err) {
-                      console.error('Scaling failed, using original file', err);
-                    }
-                  }
-
-                  const imgObject: SelectedFileArrayObjInterface = {
-                    id: uuidv4(),
-                    file: processedFile,
-                    croppedImagePreview: '',
-                    originalFile: eachFile,
-                    croppedArea: {
-                      width: 0,
-                      height: 0,
-                      x: 0,
-                      y: 0,
-                    },
-                    rotation: 0,
-                  };
-                  setDroppedFilesArray((pervFile) => [
-                    ...(pervFile || []),
-                    imgObject,
-                  ]);
+                  setDroppedFilesArray((prev) => [...(prev || []), imgObject]);
                 } else {
-                  const res = {
-                    success: false,
-                    message: `Oops! That file format isn't supported. Try ${RequiredFileTypeArray?.map((item) => item.split('/')[1]).join(', ')}`,
-                  };
-                  handelNotification(res, 'top-right');
+                  handelUploadImage([imgObject]);
                 }
               })
             );

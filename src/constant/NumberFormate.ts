@@ -1,4 +1,4 @@
-export const phoneFormats: Record<string, string> = {
+export const PHONE_NUMBER_FORMATE: Record<string, string> = {
   AF: '000-000-000', // Afghanistan: 070-123-4567
   AL: '000-000-000', // Albania: 067-123-4567
   DZ: '0000-00-00-00', // Algeria: 0555-12-34-56

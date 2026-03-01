@@ -7,7 +7,7 @@ import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 import Breadcrumbs from '../../../common/Breadcrumbs';
 import Loader from '../../../common/Loader';
-import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -175,8 +175,8 @@ function ClientInquiryApiManager() {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.clientInquiryApiManager.title}
-        Content={MetaTitleDescription.clientInquiryApiManager.description}
+        Title={META_TITLE_DESCRIPTION.CLIENT_INQUIRY_API_MANAGER.title}
+        Content={META_TITLE_DESCRIPTION.CLIENT_INQUIRY_API_MANAGER.description}
       />
       <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
         <div className='w-full h-full relative'>

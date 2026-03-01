@@ -6,7 +6,7 @@ import CryptoJS from 'crypto-js';
 import Cookies from 'js-cookie';
 import validator from 'validator';
 
-import { phoneFormats } from '../constant/NumberFormate';
+import { PHONE_NUMBER_FORMATE } from '../constant/NumberFormate';
 
 const encryptionKey = import.meta.env.VITE_ENCRYPTION_KEY;
 const current_environment = import.meta.env.VITE_ENVIRONMENT;
@@ -20,6 +20,8 @@ export const isValidEmail = (
   const isValid = validator.isEmail(email, { host_blacklist: host_blacklist });
   return isValid;
 };
+
+export const IsOdd = (num: number) => num % 2 !== 0;
 
 //  * This function will generate an unique meta tag.
 
@@ -74,7 +76,7 @@ const getCookieConfig = () => {
     secure: isProd,
     sameSite: 'Strict',
     path: '/',
-    ...(isProd && { domain: 'beta-staging.orbitrms.com' }),
+    ...(isProd && { domain: 'localhost' }),
   };
 };
 
@@ -97,7 +99,7 @@ export const storeDataInSecureCookie = (
 
   let dataToStore: string;
   if (encrypted) {
-    _data = typeof _data == 'object' ? JSON.stringify(_data) : _data;
+    _data = typeof _data == 'object' ? JSON.stringify(_data) : String(_data);
 
     dataToStore = CryptoJS.AES.encrypt(_data, encryptionKey).toString();
   } else {
@@ -129,9 +131,11 @@ export const getDataFromSecureCookie = (
         encryptionKey
       ).toString(CryptoJS.enc.Utf8);
 
-      if (key != 'authenticationToken') {
+      if (typeof decryptedData !== 'string') return decryptedData;
+
+      try {
         return JSON.parse(decryptedData);
-      } else {
+      } catch {
         return decryptedData;
       }
     }
@@ -268,7 +272,7 @@ export const formateAndVerifyPhoneNumber = (
   if (!countryCode) return number;
 
   const upperCountryCode = countryCode.toUpperCase();
-  const format = phoneFormats[upperCountryCode];
+  const format = PHONE_NUMBER_FORMATE[upperCountryCode];
 
   if (!format) return number;
   // Create a dummy input element for Cleave
@@ -295,7 +299,7 @@ export const verifyPhoneNumberLength = (
   if (!countryCode) return false;
 
   const upperCountryCode = countryCode.toUpperCase();
-  const format = phoneFormats[upperCountryCode];
+  const format = PHONE_NUMBER_FORMATE[upperCountryCode];
 
   if (!format) return true;
 
@@ -421,6 +425,65 @@ export const formateDate = (
       hour12: true,
     });
     formattedDate += `, ${creationTime.toUpperCase()}`;
+  }
+
+  return formattedDate;
+};
+
+export const formatIsoDate = (
+  dateInput: string | Date,
+  default_dateformat: string
+): string => {
+  let year: number;
+  let month: number;
+  let day: number;
+
+  if (typeof dateInput === 'string') {
+    const match = dateInput.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return '';
+
+    year = Number(match[1]);
+    month = Number(match[2]) - 1;
+    day = Number(match[3]);
+  } else {
+    year = dateInput.getFullYear();
+    month = dateInput.getMonth();
+    day = dateInput.getDate();
+  }
+
+  const monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  const replacements: Record<string, string> = {
+    YYYY: `${year}`,
+    MMM: monthNames[month],
+    YY: `${year % 100}`.padStart(2, '0'),
+    MM: `${month + 1}`.padStart(2, '0'),
+    DD: `${day}`.padStart(2, '0'),
+    D: `${day}`,
+    M: `${month + 1}`,
+    Y: `${year}`,
+  };
+
+  let formattedDate = default_dateformat;
+
+  for (const token of ['YYYY', 'MMM', 'YY', 'MM', 'Y', 'DD', 'D', 'M']) {
+    formattedDate = formattedDate.replace(
+      new RegExp(`\\b${token}\\b`, 'g'),
+      replacements[token]
+    );
   }
 
   return formattedDate;
@@ -562,3 +625,17 @@ export const MaxLimitCountDownTimeFormatter = (seconds: number) => {
   const secs = Math.floor((seconds % (1000 * 60)) / 1000);
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 };
+
+export const getMaxEndDate = (
+  startDate: Date | null,
+  availableLeaves: number
+): Date | undefined => {
+  if (!startDate || !availableLeaves) return undefined;
+
+  const maxDate = new Date(startDate);
+  maxDate.setDate(maxDate.getDate() + availableLeaves - 1);
+
+  return maxDate;
+};
+
+

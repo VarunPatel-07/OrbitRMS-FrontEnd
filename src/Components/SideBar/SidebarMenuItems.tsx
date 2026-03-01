@@ -1,5 +1,3 @@
-import { ReactElement } from 'react';
-
 import {
   FaCalendarAlt,
   FaHashtag,
@@ -10,24 +8,7 @@ import { IoSettings } from 'react-icons/io5';
 import { LuBuilding2 } from 'react-icons/lu';
 import { MdAssignment, MdSpaceDashboard } from 'react-icons/md';
 
-export interface SidebarMenuItemInterface {
-  id:
-    | 'dashboard'
-    | 'leaves'
-    | 'employees'
-    | 'client_inquiry'
-    | 'social_media'
-    | 'config'
-    | 'api_manager'
-    | 'organization_settings';
-  name: string;
-  label: string;
-  icon: ReactElement;
-  link: string;
-  protected: boolean;
-  showToolTip: boolean;
-  ToolTipValue: string;
-}
+import { SidebarMenuItemInterface } from '../../interface/interface';
 
 export const SidebarMenuItems = (
   organization: string
@@ -43,7 +24,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Dashboard',
   },
   {
-    id: 'leaves',
+    id: 'dashboard',
     name: 'leaves',
     icon: <FaCalendarAlt className='w-5 h-5' />,
     label: 'data-tooltip-leaves',
@@ -51,6 +32,7 @@ export const SidebarMenuItems = (
     protected: true,
     showToolTip: true,
     ToolTipValue: 'leaves',
+    queryString: '?tab=Self',
   },
   {
     id: 'employees',

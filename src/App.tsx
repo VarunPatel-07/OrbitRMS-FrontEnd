@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 
 import MaintenanceWorker from '../worker/MaintenanceWorker?worker';
 import MainSuspenseLoader from './Components/Loader/MainSuspenseLoader';
@@ -28,6 +28,8 @@ import {
 import { verifyUsersLoginStatus } from './Helper/api/api';
 import { endpointObject, multiplePostApi } from './Helper/api/multipleAPI';
 import HelmetSeo from './Helper/HelmetSeo';
+// import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile-Old';
+import { HandelPathFunction } from './Helper/Helper';
 import {
   clearLocalSessionStorage,
   ErrorHandler,
@@ -43,7 +45,6 @@ import ClientInquiry from './Pages/ClientInquiry/ClientInquiry';
 import Config from './Pages/config/Config';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import EmployeeListing from './Pages/Employee/EmployeeListing';
-// import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile-Old';
 import AddEditEmployeeProfile from './Pages/EmployeeProfile/AddEditEmployeeProfile/AddEditEmployeeProfile';
 import EmployeeProfile from './Pages/EmployeeProfile/EmployeeProfile';
 import Leaves from './Pages/Leaves/Leaves';
@@ -52,19 +53,6 @@ import SocialMedia from './Pages/SocialMedia/SocialMedia';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
-export const HandelPathFunction = () => {
-  const _data = getDataFromSecureCookie('organization-info');
-  const _isAuthenticated = getDataFromSecureCookie('authenticationToken');
-
-  if (_data && _isAuthenticated) {
-    return (
-      <Navigate to={`/${JSON.parse(_data)?.portal_slug}/dashboard`} replace />
-    );
-  } else {
-    // clearLocalSessionStorage();
-    return <Navigate to={`/auth/sign-in`} replace />;
-  }
-};
 
 function App() {
   const { handelNotification } = useContext(

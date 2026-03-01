@@ -21,6 +21,12 @@ function CommonDatePicker(props: commonDatePickerProps) {
     showError,
     errorMessage,
     year,
+    maxDate,
+    minDate,
+    selectsStart,
+    selectsEnd,
+    startDate,
+    endDate,
     disabled = false,
   } = props;
 
@@ -72,6 +78,8 @@ function CommonDatePicker(props: commonDatePickerProps) {
       <DatePicker
         selected={selectedValue}
         onChange={onChange}
+        maxDate={maxDate}
+        minDate={minDate}
         className='w-full bg-transparent text-black focus-within:ring-0 focus:shadow-none ring-0 focus:outline-none focus:ring-0 border border-black/45 rounded-lg py-2 px-4 cursor-pointer'
         wrapperClassName='w-full bg-transparent text-black focus-within:ring-0 focus:shadow-none ring-0 focus:outline-none focus:ring-0'
         popperPlacement={datePickerPosition}
@@ -80,13 +88,19 @@ function CommonDatePicker(props: commonDatePickerProps) {
         yearDropdownItemNumber={50}
         dateFormat='dd/MM/yyyy'
         disabled={disabled}
+        selectsStart={selectsStart}
+        selectsEnd={selectsEnd}
+        startDate={startDate}
+        endDate={endDate}
         customInput={<CustomInput />}
         openToDate={
-          year
-            ? new Date(new Date().setFullYear(year))
-            : selectedValue
-              ? new Date(selectedValue)
-              : new Date()
+          selectedValue
+            ? new Date(selectedValue)
+            : props.minDate
+              ? new Date(props.minDate) // This forces it to June if Start Date is June
+              : year
+                ? new Date(new Date().setFullYear(year))
+                : new Date()
         }
       />
       {showError && errorMessage && (

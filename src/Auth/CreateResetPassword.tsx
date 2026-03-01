@@ -15,7 +15,7 @@ import orbitLogo from '../assets/Images/orbitrms-white-transperent-logo.webp';
 import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
-import { MetaTitleDescription } from '../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -136,13 +136,13 @@ function CreateResetPassword() {
       <HelmetSeo
         Title={
           currentPath == 'create-password'
-            ? MetaTitleDescription.createPassword.title
-            : MetaTitleDescription.resetPassword.title
+            ? META_TITLE_DESCRIPTION.CREATE_PASSWORD.title
+            : META_TITLE_DESCRIPTION.RESET_PASSWORD.title
         }
         Content={
           currentPath == 'create-password'
-            ? MetaTitleDescription.createPassword.description
-            : MetaTitleDescription.resetPassword.description
+            ? META_TITLE_DESCRIPTION.CREATE_PASSWORD.description
+            : META_TITLE_DESCRIPTION.RESET_PASSWORD.description
         }
       />
 

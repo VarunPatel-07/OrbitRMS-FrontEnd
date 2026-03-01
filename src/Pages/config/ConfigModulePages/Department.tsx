@@ -18,7 +18,7 @@ import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../common/Table/TableNoDataFound';
 import AccessDeniedRedirect from '../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
-import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../../constant/MetaTitleDescription';
 // import DeleteModal from '../../../Components/Modal/DeleteModal';
 import {
   GlobalStateContext,
@@ -313,8 +313,8 @@ export default function AttachmentTypes({
             <Button
               type='button'
               className='text-black/80 p-1.5 cursor-pointer'
-              dataTooltipId='project_status_edit_button'
-              dataTooltipContent='Edit'
+              data-tooltip-id='project_status_edit_button'
+              data-tooltip-content='Edit'
               onClick={() => handelEditButtonClick(data)}
               disabled={
                 permissions &&
@@ -328,7 +328,7 @@ export default function AttachmentTypes({
             <Button
               type='button'
               className='text-black/80 p-1.5 cursor-pointer'
-              dataTooltipId='project_status_delete_button'
+              data-tooltip-id='project_status_delete_button'
               disabled={
                 data?.source_type == 'default' ||
                 (permissions &&
@@ -336,7 +336,7 @@ export default function AttachmentTypes({
                     (perm) => perm.label === 'delete' && !perm.is_allowed
                   ))
               }
-              dataTooltipContent='Delete'
+              data-tooltip-content='Delete'
               onClick={() => {
                 setShowDeleteModal(true);
                 setDeleteItemId(data?.id);
@@ -389,8 +389,8 @@ export default function AttachmentTypes({
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.department.title}
-        Content={MetaTitleDescription.department.description}
+        Title={META_TITLE_DESCRIPTION.DEPARTMENT.title}
+        Content={META_TITLE_DESCRIPTION.DEPARTMENT.description}
       />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />

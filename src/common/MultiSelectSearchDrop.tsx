@@ -217,7 +217,12 @@ export default function MultiSelectSearchDrop(
 
         {/* Dropdown Menu */}
         {isOpen && (
-          <div className='absolute z-10 w-full mt-2 bg-white overflow-hidden bottom-0'>
+          <div
+            className={classNames('absolute w-full z-[55555] transition-all', {
+              'bottom-0': dynamicPosition == 'top',
+              'top-0': dynamicPosition == 'bottom',
+            })}
+          >
             <div
               className={classNames(
                 'flex items-center justify-center gap-1.5',

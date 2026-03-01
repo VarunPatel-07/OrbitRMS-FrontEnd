@@ -7,7 +7,7 @@ import { IoLocationOutline } from 'react-icons/io5';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 import Loader from '../../common/Loader';
-import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -94,8 +94,10 @@ function LoggedInDevices(props: { organizationInfo: Organization }) {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.employeeProfileSessionLogs.title}
-        Content={MetaTitleDescription.employeeProfileSessionLogs.description}
+        Title={META_TITLE_DESCRIPTION.EMPLOYEE_PROFILE_LOG_IN_DEVICEs.title}
+        Content={
+          META_TITLE_DESCRIPTION.EMPLOYEE_PROFILE_LOG_IN_DEVICEs.description
+        }
       />
       <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>
         <div className='w-full h-full pb-4'>

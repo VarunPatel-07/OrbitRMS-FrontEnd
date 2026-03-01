@@ -261,8 +261,8 @@ function Holidays() {
             <Button
               type='button'
               className='text-black/80 p-1.5'
-              dataTooltipId='holiday_edit_button'
-              dataTooltipContent='Edit'
+              data-tooltip-id='holiday_edit_button'
+              data-tooltip-content='Edit'
               onClick={() => handelEditButtonClick(data)}
               disabled={permissionData?.permissions?.some(
                 (item) => item.label == 'edit' && !item.is_allowed
@@ -273,8 +273,8 @@ function Holidays() {
             <Button
               type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              dataTooltipId='holiday_delete_button'
-              dataTooltipContent='Delete'
+              data-tooltip-id='holiday_delete_button'
+              data-tooltip-content='Delete'
               disabled={
                 data?.source_type == 'default' ||
                 permissionData?.permissions?.some(

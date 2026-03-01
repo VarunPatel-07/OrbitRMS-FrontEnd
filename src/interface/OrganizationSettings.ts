@@ -1,3 +1,7 @@
+import React, { SetStateAction } from 'react';
+
+import { SelectedFileArrayObjInterface } from './interface';
+
 interface GeneralInfo {
   country_info: {
     country_code: string;
@@ -94,7 +98,7 @@ export interface LeavesTypesInterface {
   is_paid: boolean;
   max_number_of_leave: number;
   refill_quarterly: boolean;
-  refill_from: string;
+  refill_from: 'January' | 'April' | 'July' | 'October';
   description: string;
   gender: string;
   employee_status: string;
@@ -108,8 +112,71 @@ export interface LeavesTypesInterface {
   updated_by: string | null;
 }
 
+export interface AddEditLeavesTypesInterface {
+  leave_name: string;
+  leave_code: string;
+  is_paid: boolean;
+  max_number_of_leave: number;
+  refill_quarterly: boolean;
+  refill_from: 'January' | 'April' | 'July' | 'October' | '';
+  description: string;
+  gender: string[];
+  employee_status: string[];
+  marital_status: string[];
+  status: boolean;
+}
 export interface HolidayFormData {
   holiday_name: string;
   date: Date | null;
   year: number;
+}
+
+export interface LeaveType {
+  id: string;
+  leave_name: string;
+  leave_code: string;
+  max_number_of_leave: number;
+  is_paid: boolean;
+  description: string;
+  refill_from: string;
+}
+
+export interface LeaveBalanceInterface {
+  available_leaves: number;
+  description: string;
+  employee_status: string;
+  gender: string;
+  id: string;
+  is_paid: true;
+  leave_code: string;
+  leave_name: string;
+  leave_type_id: string;
+  marital_status: string;
+  max_number_of_leave: number;
+  organization_id: string;
+  status: boolean;
+  user_id: string;
+}
+
+export interface LeaveBalanceCardProps {
+  leaveData: LeaveBalanceInterface;
+}
+
+export interface ApplyLeaveForm {
+  leave_type: LeaveBalanceInterface | null;
+  start_date: Date | null;
+  start_half: 'first_half' | 'second_half';
+  end_date: Date | null;
+  end_half: 'first_half' | 'second_half';
+  current_date: string;
+  description: string;
+  documents: SelectedFileArrayObjInterface[];
+}
+
+export interface ApplyLeaveModalProps {
+  showModal: boolean;
+  loading: boolean;
+  leaveTypes: LeaveBalanceInterface[];
+  setShowModal: React.Dispatch<SetStateAction<boolean>>;
+  onApply: (data: ApplyLeaveForm, cb: () => void) => void;
 }

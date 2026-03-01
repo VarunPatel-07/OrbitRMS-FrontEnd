@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import { IoEye } from 'react-icons/io5';
-import { MdModeEdit } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
 import Button from '../../common/Button';
@@ -12,88 +11,65 @@ import TablePagination from '../../common/Table/TablePagination';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
 import LeaveBalanceCardLoader from '../../Components/Loader/LeaveBalanceCardsLoader';
 import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoader';
-import ApplyLeaveModal from '../../Components/Modal/ApplyLeaveModal';
 import ViewLeaveDetailModal from '../../Components/Modal/ViewLeaveDetailModal';
 import {
   dropdownMenuArray,
   initialMetadata,
   LEAVE_STATUS_CONFIG,
+  TEAM_SUMMARY_INITIAL_DATA,
 } from '../../constant/constant';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
 import {
+  NotificationContext,
+  NotificationContextApiProps,
+} from '../../Context/Notification/NotificationContextApi';
+import {
   endpointObject,
   multipleFetchApi,
-  multiplePostApi,
+  multiplePutApi,
 } from '../../Helper/api/multipleAPI';
 import { formateDate, formatIsoDate } from '../../Helper/HelperFunctions';
 import { useDebounce } from '../../Hooks/useDebounce';
 import { LeavesReportingManagerModuleInterface } from '../../interface/interface';
 import {
-  ManageAppliedSelfLeavesInterface,
-  ManageSelfLeaveModuleInterface,
+  ManageAppliedTeamLeavesInterface,
+  TeamLeaveSummaryDataInterface,
 } from '../../interface/LeavesModule';
-import {
-  ApplyLeaveForm,
-  LeaveBalanceInterface,
-} from '../../interface/OrganizationSettings';
 import { Column, MetaDataInterface } from '../../interface/propsInterface';
-import { LeaveBalanceCard } from './LeavesBalanceCard';
+import { TeamLeaveSummaryCard } from './LeavesBalanceCard';
 
-function ManageSelfLeave({
-  setShowModal,
-  showModal,
-}: ManageSelfLeaveModuleInterface) {
+function ManageTeamLeaves() {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
 
+  const { handelNotification } = useContext(
+    NotificationContext
+  ) as NotificationContextApiProps;
+
+  const useEffectRef = useRef(false);
+
   const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
   const [selectedPage, setSelectedPage] = useState<number>(1);
-  const [leavesBalanceData, setLeavesBalanceData] = useState<
-    LeaveBalanceInterface[]
-  >([]);
+
   const [appliedLeaves, setAppliedLeaves] = useState<
-    ManageAppliedSelfLeavesInterface[]
+    ManageAppliedTeamLeavesInterface[]
   >([]);
+  const [teamSummaryDetails, setTeamSummaryDetails] =
+    useState<TeamLeaveSummaryDataInterface>(TEAM_SUMMARY_INITIAL_DATA);
   const [metaData, setMetaData] = useState<MetaDataInterface>(initialMetadata);
   const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
-  const [loading, setLoading] = useState<boolean>(false);
   const [leaveDetailData, setLeaveDetailData] =
-    useState<ManageAppliedSelfLeavesInterface | null>(null);
+    useState<ManageAppliedTeamLeavesInterface | null>(null);
   const [showLeaveDetailModal, setShowLeaveDetailModal] =
     useState<boolean>(false);
 
-  const fetchAllAppliedLeaveWithDebounce = useDebounce(async () => {
-    const endPointArr: endpointObject[] = [
-      {
-        endPoint: `attendance/fetch/leaves?page=1&limit=10`,
-        protected: true,
-      },
-      {
-        endPoint: `attendance/fetch/leave-balance`,
-        protected: true,
-      },
-    ];
-
-    const response = await multipleFetchApi(endPointArr);
-    const res = response[0];
-    const leaveBalance = response[1];
-
-    if (res?.success) {
-      setAppliedLeaves(res?.data);
-      setMetaData(res?.metadata);
-      setRecordsPerPage(res?.metadata?.record_per_page);
-    }
-
-    if (leaveBalance?.success) {
-      setLeavesBalanceData(leaveBalance?.data);
-    }
-    setIsFetchingData(false);
-  }, 100);
-
+  const [updateLeaveLoader, setUpdateLeaveLoader] = useState<
+    'pending' | 'approved' | 'rejected' | 'cancelled' | null
+  >(null);
   const fetchAllLeavesWithDebounce = useDebounce(
     async ({
       page = Number(selectedPage),
@@ -104,7 +80,7 @@ function ManageSelfLeave({
     }) => {
       const endPointArr: endpointObject[] = [
         {
-          endPoint: `attendance/fetch/leaves?page=${page}&limit=${limit}`,
+          endPoint: `attendance/fetch/team/leaves?page=${page}&limit=${limit}`,
           protected: true,
         },
       ];
@@ -113,7 +89,8 @@ function ManageSelfLeave({
       const res = response[0];
 
       if (res?.success) {
-        setAppliedLeaves(res?.data);
+        setAppliedLeaves(res?.data?.applied_leaves);
+        setTeamSummaryDetails(res?.data?.team_summary);
         setMetaData(res?.metadata);
         setRecordsPerPage(res?.metadata?.record_per_page);
       }
@@ -121,6 +98,42 @@ function ManageSelfLeave({
     },
     100
   );
+
+  const updateTheLeaveRequestWithDebounce = useDebounce(
+    async (
+      leave_id: string,
+      leave_status: 'pending' | 'approved' | 'rejected' | 'cancelled'
+    ) => {
+      const endPointArr: endpointObject[] = [
+        {
+          endPoint: `attendance/leave-request/update?id=${leave_id}&status=${leave_status}`,
+          protected: true,
+        },
+      ];
+
+      const response = await multiplePutApi(endPointArr);
+      const res = response[0];
+
+      if (res?.success) {
+        setIsFetchingData(true);
+        setShowLeaveDetailModal(false);
+        setLeaveDetailData(null);
+        fetchAllLeavesWithDebounce(selectedPage, recordsPerPage);
+      } else {
+        handelNotification(res, 'top-right');
+      }
+      setUpdateLeaveLoader(null);
+    },
+    100
+  );
+
+  const updateTheLeaveRequest = (
+    leave_id: string,
+    leave_status: 'pending' | 'approved' | 'rejected' | 'cancelled'
+  ) => {
+    setUpdateLeaveLoader(leave_status);
+    updateTheLeaveRequestWithDebounce(leave_id, leave_status);
+  };
 
   const handelClickOnRecordPerPage = (value: string | number) => {
     setRecordsPerPage(value);
@@ -134,64 +147,8 @@ function ManageSelfLeave({
     fetchAllLeavesWithDebounce({ page: value });
   };
 
-  const addLeaveTypeWithDebounce = useDebounce(
-    async (data: ApplyLeaveForm, callback?: () => void) => {
-      if (!data?.leave_type) return;
-      const multipartFormData = new FormData();
-      multipartFormData.append(
-        'leave_type_id',
-        data?.leave_type?.leave_type_id
-      );
-      if (data?.start_date) {
-        multipartFormData.append(
-          'start_date',
-          formatIsoDate(data?.start_date, 'YYYY-MM-DD')
-        );
-      }
-      multipartFormData.append('start_half', data.start_half);
-      if (data?.end_date) {
-        multipartFormData.append(
-          'end_date',
-          formatIsoDate(data?.end_date, 'YYYY-MM-DD')
-        );
-      }
-
-      multipartFormData.append('end_half', data.end_half);
-      multipartFormData.append('current_date', data.current_date);
-      multipartFormData.append('description', data.description);
-      data?.documents?.map((item) => {
-        multipartFormData.append('documents', item.file);
-      });
-      const endPointArr: endpointObject[] = [
-        {
-          endPoint: `attendance/apply/leave`,
-          protected: true,
-          data: multipartFormData,
-          header: {
-            'Content-Type': 'multipart/form-data;>',
-          },
-        },
-      ];
-
-      const response = await multiplePostApi(endPointArr);
-      const res = response[0];
-      setLoading(false);
-      if (res?.success) {
-        if (callback) callback();
-        setShowModal(false);
-        fetchAllAppliedLeaveWithDebounce();
-      }
-    },
-    100
-  );
-
-  const onApply = (formData: ApplyLeaveForm) => {
-    setLoading(true);
-    addLeaveTypeWithDebounce(formData);
-  };
-
   const toggleViewLeaveDetails = (
-    leaveData?: ManageAppliedSelfLeavesInterface
+    leaveData?: ManageAppliedTeamLeavesInterface
   ) => {
     if (leaveData) {
       setLeaveDetailData(leaveData);
@@ -203,6 +160,35 @@ function ManageSelfLeave({
   };
 
   const columns: Array<Column> = [
+    {
+      key: 'employee_info',
+      title: 'Employee Info',
+      isSortable: true,
+      isSticky: false,
+      canToggleVisibility: true,
+      renderContent: (data: LeavesReportingManagerModuleInterface) => (
+        <div className='w-fit min-w-[250px]'>
+          <div className='w-full flex items-center gap-2' key={data?.id}>
+            <EmployeeProfilePicture
+              width={30}
+              height={30}
+              profilePicture={data?.profile_picture}
+            />
+
+            <div className='flex-1'>
+              <h3 className='font-normal text-base'>
+                <span className='font-medium pr-1 text-gray-900'>
+                  {data.full_name}
+                </span>
+                <span className='text-xs text-gray-700'>
+                  ({data?.employee_code})
+                </span>
+              </h3>
+            </div>
+          </div>
+        </div>
+      ),
+    },
     {
       key: 'start_date',
       childKey: 'end_date',
@@ -225,20 +211,6 @@ function ManageSelfLeave({
               GlobalStateProvider?.organization?.organization_settings
                 ?.default_dateformat
             )}
-          </span>
-        </div>
-      ),
-    },
-    {
-      key: 'total_days',
-      title: 'Total Days',
-      isSortable: true,
-      isSticky: false,
-      canToggleVisibility: true,
-      renderContent: (data: number) => (
-        <div className='w-fit'>
-          <span className='font-inter text-sm font-medium text-gray-900'>
-            {data} {data === 1 ? 'day' : 'days'}
           </span>
         </div>
       ),
@@ -278,6 +250,20 @@ function ManageSelfLeave({
       ),
     },
     {
+      key: 'total_days',
+      title: 'Total Days',
+      isSortable: true,
+      isSticky: false,
+      canToggleVisibility: true,
+      renderContent: (data: number) => (
+        <div className='w-fit'>
+          <span className='font-inter text-sm font-medium text-gray-900'>
+            {data} {data === 1 ? 'day' : 'days'}
+          </span>
+        </div>
+      ),
+    },
+    {
       key: 'status',
       title: 'Status',
       isSortable: true,
@@ -292,9 +278,7 @@ function ManageSelfLeave({
             <span
               className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${status.bg} ${status.text} ${status.border} capitalize`}
             >
-              <span
-                className={`w-1.5 h-1.5 rounded-full capitalize ${status.dot}`}
-              />
+              <span className={`w-1.5 h-1.5 rounded-full capitalize ${status.dot}`} />
               {data}
             </span>
           </div>
@@ -409,39 +393,20 @@ function ManageSelfLeave({
       isSortable: false,
       isSticky: true,
       canToggleVisibility: true,
-      renderContent: (data: ManageAppliedSelfLeavesInterface) => {
+      renderContent: (data: ManageAppliedTeamLeavesInterface) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
-            {data?.status?.toLocaleLowerCase() === 'pending' && (
-              <>
-                <Button
-                  type='button'
-                  className='text-gray-600 hover:bg-gray-100  p-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
-                  data-tooltip-id='edit_leave_button'
-                  data-tooltip-content='Edit Leave'
-                >
-                  <MdModeEdit className='text-[20px]' />
-                </Button>
-                <Tooltip
-                  id='view_leave_button'
-                  opacity={'100'}
-                  className='z-[15] !bg-gray-900 !text-white text-xs !px-3 !py-1.5 !rounded-lg'
-                  place='left'
-                />
-              </>
-            )}
-
             <Button
+              onClick={() => toggleViewLeaveDetails(data)}
               type='button'
               className='text-gray-600 hover:bg-gray-100  p-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
               data-tooltip-id='view_leave_button'
               data-tooltip-content='View Leave'
-              onClick={() => toggleViewLeaveDetails(data)}
             >
               <IoEye className='text-[20px]' />
             </Button>
             <Tooltip
-              id='edit_leave_button'
+              id='view_leave_button'
               opacity={'100'}
               className='z-[15] !bg-gray-900 !text-white text-xs !px-3 !py-1.5 !rounded-lg'
               place='left'
@@ -453,7 +418,9 @@ function ManageSelfLeave({
   ];
 
   useEffect(() => {
-    fetchAllAppliedLeaveWithDebounce();
+    if (useEffectRef?.current) return;
+    useEffectRef.current = true;
+    fetchAllLeavesWithDebounce(selectedPage, recordsPerPage);
   }, []);
 
   return (
@@ -464,15 +431,45 @@ function ManageSelfLeave({
             {isFetchingData ? (
               <LeaveBalanceCardLoader totalNumberOfCards={6} />
             ) : (
-              <>
-                {leavesBalanceData?.map((item) => (
-                  <LeaveBalanceCard leaveData={item} key={item?.id} />
-                ))}
-              </>
+              <div className='w-full flex items-stretch max-w-full flex-nowrap gap-4 overflow-auto hide-scrollbar'>
+                <TeamLeaveSummaryCard
+                  cardTitle='Current Date'
+                  renderDate={true}
+                  default_dateformat={
+                    GlobalStateProvider?.organization?.organization_settings
+                      ?.default_dateformat
+                  }
+                />
+                <TeamLeaveSummaryCard
+                  cardTitle='Total On Leave'
+                  value={`${teamSummaryDetails?.employees_on_leave}/${teamSummaryDetails?.total_employees}`}
+                  renderDate={false}
+                />
+                <TeamLeaveSummaryCard
+                  cardTitle='Planned Leaves'
+                  value={teamSummaryDetails?.planned_leaves}
+                  renderDate={false}
+                />
+                <TeamLeaveSummaryCard
+                  cardTitle='Unplanned Leaves'
+                  value={teamSummaryDetails?.unplanned_leaves}
+                  renderDate={false}
+                />
+                <TeamLeaveSummaryCard
+                  cardTitle='Total Pending Leaves'
+                  value={teamSummaryDetails?.pending_leaves}
+                  renderDate={false}
+                />
+
+                <TeamLeaveSummaryCard
+                  cardTitle='Total Cancelled Leaves'
+                  value={teamSummaryDetails?.cancelled_leaves}
+                  renderDate={false}
+                />
+              </div>
             )}
           </div>
         </div>
-
         <div className='bg-white overflow-hidden grow rounded-b-lg'>
           {isFetchingData ? (
             <TableSkeletonLoader
@@ -520,16 +517,6 @@ function ManageSelfLeave({
         </div>
       </div>
 
-      {showModal && (
-        <ApplyLeaveModal
-          showModal={showModal}
-          setShowModal={setShowModal}
-          leaveTypes={leavesBalanceData}
-          loading={loading}
-          onApply={onApply}
-        />
-      )}
-
       {leaveDetailData && showLeaveDetailModal && (
         <ViewLeaveDetailModal
           leaveDetails={leaveDetailData}
@@ -539,10 +526,12 @@ function ManageSelfLeave({
           }
           showModal={showLeaveDetailModal}
           toggleViewLeaveDetails={toggleViewLeaveDetails}
+          updateTheLeaveRequest={updateTheLeaveRequest}
+          updateLeaveLoader={updateLeaveLoader}
         />
       )}
     </>
   );
 }
 
-export default ManageSelfLeave;
+export default ManageTeamLeaves;

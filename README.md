@@ -110,7 +110,12 @@ Please ensure your code adheres to the project's coding standards and includes r
 
 ## License
 
-This project is licensed under the [MIT License](/LICENSE).
+The source code of this project is licensed under the
+[MIT License](/LICENSE).
+
+The name **OrbitRMS**, the OrbitRMS logo, and all associated branding assets
+are trademarks of OrbitRMS and are **not included** under the MIT License.
+See the [Trademark & Branding Policy](/TRADEMARK.md) for details.
 
 ## Contact
 

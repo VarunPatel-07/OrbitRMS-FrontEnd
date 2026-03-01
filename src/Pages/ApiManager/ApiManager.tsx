@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react';
 
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
-import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -34,8 +34,8 @@ function ApiManager() {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.apiManager.title}
-        Content={MetaTitleDescription.apiManager.description}
+        Title={META_TITLE_DESCRIPTION.API_MANAGER.title}
+        Content={META_TITLE_DESCRIPTION.API_MANAGER.description}
       />
       <div className='w-full h-full'>
         <div className='w-full h-full flex items-stretch justify-start'>

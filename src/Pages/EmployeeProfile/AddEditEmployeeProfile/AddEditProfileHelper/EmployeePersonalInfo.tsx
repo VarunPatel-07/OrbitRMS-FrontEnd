@@ -9,7 +9,7 @@ import DragAndDropFileUploader from '../../../../common/DragDropUploader/SingleF
 import Input from '../../../../common/Input';
 import SearchDrop from '../../../../common/SearchDrop';
 import TextArea from '../../../../common/TextArea';
-import { bloodGroupArray, GenderArray } from '../../../../constant/constant';
+import { BLOOD_GROUP_ARRAY, GENDER_ARRAY } from '../../../../constant/constant';
 import { EmployeePersonalInfoComponentProps } from '../../../../interface/AddEditUserProfileInterFace';
 
 const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
@@ -214,7 +214,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
             <div className='w-full grid grid-cols-3 gap-5'>
               <div className='w-full'>
                 <SearchDrop
-                  options={GenderArray}
+                  options={GENDER_ARRAY}
                   searchKey=''
                   position='bottom'
                   emptyDataMessage=''
@@ -258,7 +258,7 @@ const EmployeePersonalInfo = React.memo(function EmployeePersonalInfo(
               <div className='w-full'>
                 <SearchDrop
                   disabled={disabled ? disabled : formSubmitLoader}
-                  options={bloodGroupArray}
+                  options={BLOOD_GROUP_ARRAY}
                   searchKey=''
                   position='bottom'
                   emptyDataMessage=''

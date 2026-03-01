@@ -8,7 +8,7 @@ import Input from '../../../../common/Input';
 import SearchDrop from '../../../../common/SearchDrop';
 import {
   employeeTypesArray,
-  OrganizationEmployeeStatusArray,
+  ORG_EMPLOYEE_STATUS_ARRAY,
 } from '../../../../constant/constant';
 import { ConstructValidEmail } from '../../../../Helper/Helper';
 import { classNames } from '../../../../Helper/HelperFunctions';
@@ -108,7 +108,7 @@ function EmployeeInformation(props: EmployeeEmployerInformationPropsInterface) {
             <div className='w-full grid grid-cols-3 gap-5'>
               <div className='w-full'>
                 <SearchDrop
-                  options={OrganizationEmployeeStatusArray}
+                  options={ORG_EMPLOYEE_STATUS_ARRAY}
                   searchKey=''
                   position='bottom'
                   emptyDataMessage='No Status Found'

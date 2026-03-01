@@ -1,12 +1,19 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 
+import { Navigate } from 'react-router-dom';
+
+import Button from '../common/Button';
 import {
-  OrganizationEmployeeStatusArray,
+  ORG_EMPLOYEE_STATUS_ARRAY,
   SocialMediaPostStatusArray,
 } from '../constant/constant';
 import { EmployeeStatusInterface } from '../interface/EmployeeInterface';
-import { InfoFieldProps } from '../interface/interface';
-import { formateDate } from './HelperFunctions';
+import { HalfToggleProps, InfoFieldProps } from '../interface/interface';
+import {
+  classNames,
+  formateDate,
+  getDataFromSecureCookie,
+} from './HelperFunctions';
 
 const AccountStatusColor: Record<string, string> = {
   Intern: 'bg-yellow-500',
@@ -31,7 +38,7 @@ const PostStatusParentColor: Record<string, string> = {
 export const BeautifulAccountStatusRenderer = (
   status: EmployeeStatusInterface
 ): React.ReactNode => {
-  if (OrganizationEmployeeStatusArray.includes(status)) {
+  if (ORG_EMPLOYEE_STATUS_ARRAY.includes(status)) {
     return (
       <span className='border border-black/15 rounded-lg px-2.5 py-1 flex items-center justify-between gap-2 w-fit'>
         <span
@@ -142,4 +149,94 @@ export const ConstructValidEmail = (
     ?.replace(/^\.+|\.+$/g, '');
 
   return validateEmailPrefix + '@' + emailSlug;
+};
+
+export const HandelPathFunction = () => {
+  const _data = getDataFromSecureCookie('organization-info');
+  const _isAuthenticated = getDataFromSecureCookie('authenticationToken');
+
+  const data = typeof _data === 'string' ? JSON.parse(_data) : _data;
+
+  if (data && _isAuthenticated) {
+    return <Navigate to={`/${data?.portal_slug}/dashboard`} replace />;
+  } else {
+    return <Navigate to={`/auth/sign-in`} replace />;
+  }
+};
+
+export const FormateLeaveHalf = (half: 'first_half' | 'second_half') => {
+  if (!half) return '—';
+  return half === 'first_half' ? 'First Half' : 'Second Half';
+};
+
+export const LeaveInfoRow = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) => {
+  return (
+    <div className='flex items-start justify-between py-2.5 border-b border-gray-100 last:border-0'>
+      <span className='text-xs font-medium text-gray-400 uppercase tracking-wide w-32 flex-shrink-0 pt-0.5'>
+        {label}
+      </span>
+      <span className='text-sm text-gray-800 text-right font-medium'>
+        {value ?? '—'}
+      </span>
+    </div>
+  );
+};
+
+export const LeaveSectionTitle = ({
+  children,
+}: {
+  children: ReactElement | string;
+}) => {
+  return (
+    <div className='flex items-center gap-2 mb-3 mt-5'>
+      <span className='text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap'>
+        {children}
+      </span>
+      <div className='flex-1 h-px bg-gray-100' />
+    </div>
+  );
+};
+
+export const LeavesHalfToggleButton = ({
+  value,
+  name,
+  onSelect,
+  disabled,
+}: HalfToggleProps) => {
+  return (
+    <div
+      className='flex items-stretch rounded-xl overflow-hidden border border-black/45 bg-white'
+      style={{ minWidth: 200 }}
+    >
+      {(['first_half', 'second_half'] as const).map((half, i) => {
+        const active = value === half;
+        const label = half === 'first_half' ? 'First Half' : 'Second Half';
+        return (
+          <Button
+            key={half}
+            type='button'
+            onClick={() => onSelect(name, half)}
+            disabled={disabled}
+            className={classNames(
+              'flex-1 text-xs font-semibold px-3 py-2 transition-all duration-150 focus:outline-none',
+              {
+                'text-white': active,
+                'text-gray-500 hover:text-gray-700 hover:bg-gray-50': !active,
+                'border-r border-gray-200': i === 0,
+              }
+            )}
+            style={active ? { background: 'var(--them-green-color)' } : {}}
+          >
+            {label}
+          </Button>
+        );
+      })}
+    </div>
+  );
 };
