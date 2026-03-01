@@ -31,16 +31,9 @@ function Leaves() {
         <ManageSelfLeave showModal={showModal} setShowModal={setShowModal} />
       );
     } else if (type === LEAVE_MODULE_TAB_TYPE_OBJECT.TEAM) {
-      return (
-        <ManageTeamLeaves showModal={showModal} setShowModal={setShowModal} />
-      );
+      return <ManageTeamLeaves />;
     } else if (type === LEAVE_MODULE_TAB_TYPE_OBJECT.ORGANIZATION) {
-      return (
-        <ManageOrgTeamLeaves
-          showModal={showModal}
-          setShowModal={setShowModal}
-        />
-      );
+      return <ManageOrgTeamLeaves />;
     } else {
       return <PageNotFound />;
     }
