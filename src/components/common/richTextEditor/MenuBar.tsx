@@ -10,7 +10,7 @@ import {
 import { Editor } from '@tiptap/react';
 import tippy from 'tippy.js';
 
-import '@/components/common/RichTextEditor/editor.css';
+import '@/components/common/richTextEditor/editor.css';
 
 import { AiFillHighlight } from 'react-icons/ai';
 import { FaBold, FaItalic, FaLink, FaStrikethrough } from 'react-icons/fa';

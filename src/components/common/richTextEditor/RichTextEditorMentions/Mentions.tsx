@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RichTextEditorApiCallIngReturnInterface } from '@/interface/ComponentProps.interface';
 
-import '@/components/common/RichTextEditor/editor.css';
+import '@/components/common/richTextEditor/editor.css';
 
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
