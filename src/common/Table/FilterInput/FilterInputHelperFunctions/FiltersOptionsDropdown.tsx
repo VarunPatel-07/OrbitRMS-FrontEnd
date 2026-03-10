@@ -102,7 +102,12 @@ const FiltersOptionsDropdown = React.memo(function FiltersOptionsDropdown(
       if (currentModule?.optionType === 'multi-select') {
         if (memoizedFilteredOptions?.length === 1) {
           updateFilterObject(
-            { label: data.label, value: data.value, type: data?.type },
+            {
+              label: data.label,
+              value: data.value,
+              type: data?.type,
+              ...(data?.customLayout && { customLayout: data?.customLayout }),
+            },
             currentFilterId,
             (updatedArray) => {
               updateFinalFilterQuery(updatedArray);
@@ -122,7 +127,12 @@ const FiltersOptionsDropdown = React.memo(function FiltersOptionsDropdown(
 
           if (!isExist) {
             updateFilterObject(
-              { label: data.label, value: data.value, type: data?.type },
+              {
+                label: data.label,
+                value: data.value,
+                type: data?.type,
+                ...(data?.customLayout && { customLayout: data?.customLayout }),
+              },
               currentFilterId
             );
           } else {
@@ -144,7 +154,12 @@ const FiltersOptionsDropdown = React.memo(function FiltersOptionsDropdown(
         }
       } else if (currentModule?.optionType === 'select') {
         updateFilterObject(
-          { label: data.label, value: data.value, type: data?.type },
+          {
+            label: data.label,
+            value: data.value,
+            type: data?.type,
+            ...(data?.customLayout && { customLayout: data?.customLayout }),
+          },
           currentFilterId,
           (updatedArray) => {
             updateFinalFilterQuery(updatedArray);
@@ -206,7 +221,7 @@ const FiltersOptionsDropdown = React.memo(function FiltersOptionsDropdown(
             onClick={() => onClick(item)}
           >
             <span className='font-inter text-base inline-block whitespace-nowrap w-full text-ellipsis overflow-hidden'>
-              {item.value}
+              {item?.customLayout ? item?.customLayout : item.value}
             </span>
           </div>
         );

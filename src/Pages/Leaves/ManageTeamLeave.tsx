@@ -2,10 +2,12 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 
 import { IoEye } from 'react-icons/io5';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Button from '../../common/Button';
 import Table from '../../common/Table/Table';
+import TableFilterSearchBar from '../../common/Table/TableFilterSearchBar';
 import TableNoDataFound from '../../common/Table/TableNoDataFound';
 import TablePagination from '../../common/Table/TablePagination';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
@@ -26,6 +28,7 @@ import {
   NotificationContext,
   NotificationContextApiProps,
 } from '../../Context/Notification/NotificationContextApi';
+import { FilterFieldsTypeEnums } from '../../enums/enums';
 import {
   endpointObject,
   multipleFetchApi,
@@ -38,8 +41,19 @@ import {
   ManageAppliedTeamLeavesInterface,
   TeamLeaveSummaryDataInterface,
 } from '../../interface/LeavesModule';
-import { Column, MetaDataInterface } from '../../interface/propsInterface';
-import { TeamLeaveSummaryCard } from './LeavesBalanceCard';
+import {
+  Column,
+  FilterObjectInterface,
+  MetaDataInterface,
+  SearchBarFilterOptionsInterface,
+  UrlEncodedFilterQueryInterface,
+} from '../../interface/propsInterface';
+import {
+  AddEmployeeInSearchFilter,
+  AddLeaveTypesInFilterArray,
+} from './LeavesHelper';
+import { LeavesSearchFilterArray } from './LeavesSearchFilterArray';
+import TeamOrgLeaveModuleHeader from './TeamOrgLeaveModuleHeader';
 
 function ManageTeamLeaves() {
   const { GlobalStateProvider } = useContext(
@@ -51,6 +65,13 @@ function ManageTeamLeaves() {
   ) as NotificationContextApiProps;
 
   const useEffectRef = useRef(false);
+
+  const [queryParameter] = useSearchParams();
+
+  const navigate = useNavigate();
+
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug;
 
   const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
   const [selectedPage, setSelectedPage] = useState<number>(1);
@@ -66,21 +87,32 @@ function ManageTeamLeaves() {
     useState<ManageAppliedTeamLeavesInterface | null>(null);
   const [showLeaveDetailModal, setShowLeaveDetailModal] =
     useState<boolean>(false);
+  const [searchFilterArray, setsSearchFilterArray] = useState<
+    SearchBarFilterOptionsInterface[]
+  >(LeavesSearchFilterArray);
+  const [urlDecodedFilterQuery, setUrlDecodedFilterQuery] = useState<
+    UrlEncodedFilterQueryInterface[]
+  >([]);
 
   const [updateLeaveLoader, setUpdateLeaveLoader] = useState<
     'pending' | 'approved' | 'rejected' | 'cancelled' | null
   >(null);
+
   const fetchAllLeavesWithDebounce = useDebounce(
     async ({
       page = Number(selectedPage),
       limit = Number(recordsPerPage),
+      filterQuery,
     }: {
       page?: number;
       limit?: number;
+      filterQuery: string;
     }) => {
       const endPointArr: endpointObject[] = [
         {
-          endPoint: `attendance/fetch/team/leaves?page=${page}&limit=${limit}`,
+          endPoint: filterQuery
+            ? `attendance/fetch/team/leaves?page=${page}&limit=${limit}&${filterQuery}`
+            : `attendance/fetch/team/leaves?page=${page}&limit=${limit}`,
           protected: true,
         },
       ];
@@ -98,6 +130,39 @@ function ManageTeamLeaves() {
     },
     100
   );
+
+  const fetchAllTheLeaveTypesWithDebounce = useDebounce(async () => {
+    const endPointArr: endpointObject[] = [
+      {
+        endPoint: `attendance/fetch/leave-types`,
+        protected: true,
+      },
+      { endPoint: `employee/fetch/employee/all?scope=team`, protected: true },
+    ];
+
+    const response = await multipleFetchApi(endPointArr);
+    const leaveTypeData = response[0];
+    const employeeData = response[1];
+
+    if (leaveTypeData?.success && leaveTypeData?.data?.length > 0) {
+      const structuredArray = AddLeaveTypesInFilterArray(
+        'Leave Type',
+        leaveTypeData?.data
+      );
+
+      setsSearchFilterArray((perv) => [...perv, structuredArray]);
+    }
+
+    if (employeeData?.success && employeeData?.data?.length > 0) {
+      const AddedEmployeeData = AddEmployeeInSearchFilter(
+        'Employee',
+        employeeData?.data
+      );
+      setsSearchFilterArray((perv) => [...perv, AddedEmployeeData]);
+    }
+
+    setIsFetchingData(false);
+  }, 100);
 
   const updateTheLeaveRequestWithDebounce = useDebounce(
     async (
@@ -118,7 +183,10 @@ function ManageTeamLeaves() {
         setIsFetchingData(true);
         setShowLeaveDetailModal(false);
         setLeaveDetailData(null);
-        fetchAllLeavesWithDebounce(selectedPage, recordsPerPage);
+        fetchAllLeavesWithDebounce({
+          page: selectedPage,
+          limit: recordsPerPage,
+        });
       } else {
         handelNotification(res, 'top-right');
       }
@@ -126,7 +194,58 @@ function ManageTeamLeaves() {
     },
     100
   );
+  const handelApplyFilterEmployeeListing = async (
+    filterArray: FilterObjectInterface[]
+  ) => {
+    // setIsFetchingData(true);
+    let queryString = '';
+    if (filterArray?.length > 0) {
+      const queryFilterArray = filterArray?.map((queryObj) => {
+        const obj: UrlEncodedFilterQueryInterface = {
+          field_name: '',
+          operator: '',
+          value: '',
+        };
+        queryObj?.moduleValue?.forEach((moduleValue) => {
+          if (moduleValue?.type === FilterFieldsTypeEnums[0]) {
+            obj.field_name = moduleValue?.label;
+          }
+          if (moduleValue?.type === FilterFieldsTypeEnums[1]) {
+            obj.operator = moduleValue?.label;
+          }
+          if (moduleValue?.type === FilterFieldsTypeEnums[2]) {
+            if (queryObj?.optionType == 'multi-select') {
+              const MultiSelectArr: string[] = [];
+              queryObj?.moduleValue
+                ?.filter((tem) => tem.type === FilterFieldsTypeEnums[2])
+                ?.map((data) => MultiSelectArr.push(data?.value));
 
+              obj.value = JSON.stringify(MultiSelectArr);
+            } else {
+              obj.value = moduleValue?.value;
+            }
+          }
+        });
+        return obj;
+      });
+
+      queryString = `filter=${encodeURIComponent(JSON.stringify(queryFilterArray))}`;
+    }
+
+    fetchAllLeavesWithDebounce({
+      page: 1,
+      limit: 10,
+      filterQuery: queryString,
+    });
+
+    setTimeout(() => {
+      if (queryString === '') {
+        navigate(`/${organization}/leaves?tab=Team`);
+      } else {
+        navigate(`/${organization}/leaves?tab=Team&${queryString}`);
+      }
+    }, 0);
+  };
   const updateTheLeaveRequest = (
     leave_id: string,
     leave_status: 'pending' | 'approved' | 'rejected' | 'cancelled'
@@ -278,7 +397,9 @@ function ManageTeamLeaves() {
             <span
               className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${status.bg} ${status.text} ${status.border} capitalize`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full capitalize ${status.dot}`} />
+              <span
+                className={`w-1.5 h-1.5 rounded-full capitalize ${status.dot}`}
+              />
               {data}
             </span>
           </div>
@@ -418,10 +539,26 @@ function ManageTeamLeaves() {
   ];
 
   useEffect(() => {
-    if (useEffectRef?.current) return;
+    if (useEffectRef.current) return;
     useEffectRef.current = true;
-    fetchAllLeavesWithDebounce(selectedPage, recordsPerPage);
-  }, []);
+
+    const filterQuery = queryParameter.get('filter');
+    let queryString = '';
+    if (filterQuery) {
+      const decodeQuery = decodeURIComponent(filterQuery);
+      const parsedFilter = JSON.parse(decodeQuery);
+
+      setUrlDecodedFilterQuery(parsedFilter);
+      queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
+    }
+
+    fetchAllLeavesWithDebounce({
+      page: 1,
+      limit: recordsPerPage,
+      filterQuery: queryString,
+    });
+    fetchAllTheLeaveTypesWithDebounce();
+  }, [fetchAllLeavesWithDebounce, queryParameter]);
 
   return (
     <>
@@ -431,42 +568,10 @@ function ManageTeamLeaves() {
             {isFetchingData ? (
               <LeaveBalanceCardLoader totalNumberOfCards={6} />
             ) : (
-              <div className='w-full flex items-stretch max-w-full flex-nowrap gap-4 overflow-auto hide-scrollbar'>
-                <TeamLeaveSummaryCard
-                  cardTitle='Current Date'
-                  renderDate={true}
-                  default_dateformat={
-                    GlobalStateProvider?.organization?.organization_settings
-                      ?.default_dateformat
-                  }
-                />
-                <TeamLeaveSummaryCard
-                  cardTitle='Total On Leave'
-                  value={`${teamSummaryDetails?.employees_on_leave}/${teamSummaryDetails?.total_employees}`}
-                  renderDate={false}
-                />
-                <TeamLeaveSummaryCard
-                  cardTitle='Planned Leaves'
-                  value={teamSummaryDetails?.planned_leaves}
-                  renderDate={false}
-                />
-                <TeamLeaveSummaryCard
-                  cardTitle='Unplanned Leaves'
-                  value={teamSummaryDetails?.unplanned_leaves}
-                  renderDate={false}
-                />
-                <TeamLeaveSummaryCard
-                  cardTitle='Total Pending Leaves'
-                  value={teamSummaryDetails?.pending_leaves}
-                  renderDate={false}
-                />
-
-                <TeamLeaveSummaryCard
-                  cardTitle='Total Cancelled Leaves'
-                  value={teamSummaryDetails?.cancelled_leaves}
-                  renderDate={false}
-                />
-              </div>
+              <TeamOrgLeaveModuleHeader
+                GlobalStateProvider={GlobalStateProvider}
+                data={teamSummaryDetails}
+              />
             )}
           </div>
         </div>
@@ -481,13 +586,18 @@ function ManageTeamLeaves() {
             />
           ) : (
             <>
+              <TableFilterSearchBar
+                filterColumnsArray={searchFilterArray}
+                handelApplyFilterFunc={handelApplyFilterEmployeeListing}
+                urlDecodedFilterQuery={urlDecodedFilterQuery || ''}
+              />
               {appliedLeaves?.length > 0 ? (
                 <>
                   <Table
                     columns={columns}
                     data={appliedLeaves}
                     tableWrapperClass={
-                      'overflow-auto max-h-[calc(100vh-378px)] h-full'
+                      'overflow-auto max-h-[calc(100vh-415px)] h-full'
                     }
                     stickyHeaderClass='sticky top-0 bg-gray-50'
                   />

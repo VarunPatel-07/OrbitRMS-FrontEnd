@@ -83,7 +83,10 @@ export default function MultiSelectSearchDrop(
     if (onSelectValBtn) {
       onSelectValBtn(data);
     }
-    setIsOpen(false);
+    if (options.length - 1 === selectedValue?.length) {
+      setIsOpen(false);
+    }
+
     setHighlightIndex(0);
   };
 

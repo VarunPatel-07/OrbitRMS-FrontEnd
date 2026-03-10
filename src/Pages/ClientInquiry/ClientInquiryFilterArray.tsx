@@ -29,7 +29,6 @@ export const ClientInquiryFilterArray: SearchBarFilterOptionsInterface[] = [
     value: 'Form Name',
     label: (
       <div className='flex items-start'>
-        <span className='icon-user text-gray-600 text-lg pe-2' />
         <span className='font-inter text-base text-black font-medium'>
           Form Name
         </span>
@@ -45,7 +44,6 @@ export const ClientInquiryFilterArray: SearchBarFilterOptionsInterface[] = [
     value: 'Status',
     label: (
       <div className='flex items-start'>
-        <span className='icon-user text-gray-600 text-lg pe-2' />
         <span className='font-inter text-base text-black font-medium'>
           Status
         </span>

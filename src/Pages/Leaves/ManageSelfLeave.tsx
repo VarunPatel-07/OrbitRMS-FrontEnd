@@ -490,7 +490,7 @@ function ManageSelfLeave({
                     columns={columns}
                     data={appliedLeaves}
                     tableWrapperClass={
-                      'overflow-auto max-h-[calc(100vh-378px)] h-full'
+                      'overflow-auto max-h-[calc(100vh-415px)] h-full'
                     }
                     stickyHeaderClass='sticky top-0 bg-gray-50'
                   />

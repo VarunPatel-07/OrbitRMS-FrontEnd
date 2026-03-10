@@ -518,6 +518,20 @@ export const getTotalExperience = (dateString: string) => {
   return `${year}Y ${months}M ${day}D`;
 };
 
+export const getLocalDateString = (date: Date | null): string => {
+  if (!date) {
+    return '';
+  }
+  const localDateString =
+    date.getFullYear() +
+    '-' +
+    String(date.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(date.getDate()).padStart(2, '0');
+
+  return localDateString;
+};
+
 export const compareTwoNestedObject = (objOne: any, objTwo: any): boolean => {
   if (objOne === objTwo) return true;
 
@@ -637,5 +651,3 @@ export const getMaxEndDate = (
 
   return maxDate;
 };
-
-

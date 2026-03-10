@@ -1,5 +1,7 @@
 import React, { SetStateAction } from 'react';
 
+import { GlobalContextStore } from './UserProfileInterface';
+
 export interface ManageSelfLeaveModuleInterface {
   showModal: boolean;
   setShowModal: React.Dispatch<SetStateAction<boolean>>;
@@ -123,4 +125,19 @@ export interface ViewLeaveDataModalInterface {
     leave_id: string,
     leave_status: 'pending' | 'approved' | 'rejected' | 'cancelled'
   ) => void;
+}
+
+export interface LeaveUploadedDocumentObject {
+  asset_id: string;
+  public_id: string;
+  file_name: string;
+  file_type: string;
+  folder: string;
+  original_url: string;
+  media_asset_url: string;
+}
+
+export interface TeamOrgLeaveModuleHeaderInterface {
+  GlobalStateProvider: GlobalContextStore;
+  data: TeamLeaveSummaryDataInterface;
 }

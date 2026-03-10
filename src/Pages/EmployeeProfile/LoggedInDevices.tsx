@@ -94,9 +94,9 @@ function LoggedInDevices(props: { organizationInfo: Organization }) {
   return (
     <>
       <HelmetSeo
-        Title={META_TITLE_DESCRIPTION.EMPLOYEE_PROFILE_LOG_IN_DEVICEs.title}
+        Title={META_TITLE_DESCRIPTION.EMPLOYEE_PROFILE_LOG_IN_DEVICE.title}
         Content={
-          META_TITLE_DESCRIPTION.EMPLOYEE_PROFILE_LOG_IN_DEVICEs.description
+          META_TITLE_DESCRIPTION.EMPLOYEE_PROFILE_LOG_IN_DEVICE.description
         }
       />
       <SkeletonTheme baseColor='#dcdce3' highlightColor='#ebebeb'>

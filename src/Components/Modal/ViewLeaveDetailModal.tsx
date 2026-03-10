@@ -16,7 +16,10 @@ import {
   formateDate,
   formatIsoDate,
 } from '../../Helper/HelperFunctions';
-import { ViewLeaveDataModalInterface } from '../../interface/LeavesModule';
+import {
+  LeaveUploadedDocumentObject,
+  ViewLeaveDataModalInterface,
+} from '../../interface/LeavesModule';
 import EmployeeProfilePicture from '../EmployeeProfilePicture';
 
 function ViewLeaveDetailModal({
@@ -43,6 +46,27 @@ function ViewLeaveDetailModal({
     : null;
 
   const reporting_manager = leaveDetails.reporting_manager;
+
+  const downloadFileWithName = async (url: string, fileName: string) => {
+    try {
+      const response = await fetch(url, { mode: 'cors' });
+      const blob = await response.blob();
+
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = blobUrl;
+      link.download = fileName; // ✅ force filename
+      document.body.appendChild(link);
+      link.click();
+
+      // cleanup
+      link.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Download failed:', error);
+    }
+  };
 
   useEffect(() => {
     if (showModal) {
@@ -234,7 +258,7 @@ function ViewLeaveDetailModal({
 
               {leaveDetails.description && (
                 <>
-                  <LeaveSectionTitle>Description</LeaveSectionTitle>
+                  <LeaveSectionTitle>Reason</LeaveSectionTitle>
                   <div className='bg-gray-50 rounded-xl p-4 border border-gray-100'>
                     <p className='text-sm text-gray-700 leading-relaxed'>
                       {leaveDetails.description}
@@ -244,34 +268,62 @@ function ViewLeaveDetailModal({
               )}
 
               <LeaveSectionTitle>Documents</LeaveSectionTitle>
-              {JSON.parse(leaveDetails.documents)?.map(
-                (doc: string, index: number) => (
-                  <div
-                    key={index}
-                    className='bg-gray-50 rounded-xl px-4 py-3 border border-gray-100 flex items-center gap-3 group hover:border-green-200 hover:bg-green-50/40 transition-all duration-150'
-                  >
-                    {/* File icon */}
-                    <div className='w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:border-green-200 transition-colors duration-150'>
-                      <FaRegFileLines className='text-green-500 text-sm' />
-                    </div>
-
-                    {/* File name */}
-                    <p className='text-sm text-gray-700 font-medium flex-1 truncate'>
-                      {doc}
-                    </p>
-
-                    {/* View button */}
-                    <a
-                      href={doc}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      title='Open document'
-                      className='w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-green-600 hover:bg-green-100 transition-all duration-150 flex-shrink-0'
-                    >
-                      <HiOutlineEye className='text-[1.1rem]' />
-                    </a>
+              {leaveDetails?.documents === '[]' ? (
+                <div className='bg-gray-50 rounded-xl px-4 py-3 border border-gray-100 flex items-center gap-3 group hover:border-green-200 hover:bg-green-50/40 transition-all duration-150'>
+                  <div className='w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:border-green-200 transition-colors duration-150'>
+                    <FaRegFileLines className='text-green-500 text-sm' />
                   </div>
-                )
+
+                  <p className='text-sm text-gray-400 font-medium flex-1 truncate'>
+                    No Document Uploaded
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {JSON.parse(leaveDetails.documents)?.map(
+                    (doc: LeaveUploadedDocumentObject, index: number) => (
+                      <div
+                        key={index}
+                        className='bg-gray-50 rounded-xl px-4 py-3 border border-gray-100 flex items-center gap-3 group hover:border-green-200 hover:bg-green-50/40 transition-all duration-150'
+                      >
+                        <div className='w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:border-green-200 transition-colors duration-150'>
+                          <FaRegFileLines className='text-green-500 text-sm' />
+                        </div>
+
+                        <p className='text-sm text-gray-700 font-medium flex-1 truncate'>
+                          {doc?.file_name}
+                        </p>
+
+                        {doc?.file_type
+                          ?.toLocaleLowerCase()
+                          ?.includes('pdf') ? (
+                          <a
+                            href={doc.media_asset_url}
+                            target={'_blank'}
+                            rel='noopener noreferrer'
+                            title='Open document'
+                            className='w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-green-600 hover:bg-green-100 transition-all duration-150 flex-shrink-0'
+                          >
+                            <HiOutlineEye className='text-[1.1rem]' />
+                          </a>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              downloadFileWithName(
+                                doc?.original_url,
+                                doc?.file_name || 'document'
+                              )
+                            }
+                            title='Download document'
+                            className='w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-green-600 hover:bg-green-100 transition-all duration-150 flex-shrink-0'
+                          >
+                            <HiOutlineEye className='text-[1.1rem]' />
+                          </button>
+                        )}
+                      </div>
+                    )
+                  )}
+                </>
               )}
 
               <LeaveSectionTitle>Audit Info</LeaveSectionTitle>

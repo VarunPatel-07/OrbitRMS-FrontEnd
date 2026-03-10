@@ -337,6 +337,7 @@ export interface ModuleValueInterface {
   label: string;
   value: string;
   type: string;
+  customLayout?: React.ReactElement;
 }
 
 export interface FilterObjectInterface {

@@ -149,7 +149,7 @@ function ViewLeaveModal({
                 </div>
                 <div className='px-8 pt-8'>
                   <h2 className='text-[16px] font-semibold text-[#242c40] mb-2 mt-0'>
-                    Description
+                    Reason
                   </h2>
 
                   <p className='text-gray-600 w-full'>

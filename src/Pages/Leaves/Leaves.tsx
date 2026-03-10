@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import { useSearchParams } from 'react-router-dom';
 
+import Breadcrumbs from '../../common/Breadcrumbs';
 import Button from '../../common/Button';
 import LeavesTabs from '../../Components/LeavesTabs';
 import PageNotFound from '../../Components/PageNotFound';
@@ -10,11 +11,19 @@ import {
   LEAVE_MODULE_TAB_TYPE,
   LEAVE_MODULE_TAB_TYPE_OBJECT,
 } from '../../constant/constant';
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '../../Context/globalState/GlobalStateContectApi';
+import { BreadcrumbsProps } from '../../interface/propsInterface';
 import ManageOrgTeamLeaves from './ManageOrgTeamLeaves';
 import ManageSelfLeave from './ManageSelfLeave';
 import ManageTeamLeaves from './ManageTeamLeave';
 
 function Leaves() {
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
   const [searchParam, setSearchParams] = useSearchParams();
   const tabType = searchParam.get('tab');
 
@@ -24,6 +33,32 @@ function Leaves() {
   const handelClickOnAddLeave = () => {
     setShowModal(true);
   };
+
+  const organization =
+    GlobalStateProvider?.organization?.general_info?.portal_slug;
+
+  const BreadcrumbsObjects: BreadcrumbsProps[] = [
+    {
+      name: 'dashboard',
+      label: 'dashboard',
+      link: `/${organization}/dashboard`,
+    },
+
+    {
+      name: 'Leaves Manager',
+      label: 'leaves-manager',
+      link: `/${organization}/leaves`,
+    },
+    ...(tabType && LEAVE_MODULE_TAB_TYPE.includes(tabType)
+      ? [
+          {
+            name: tabType,
+            label: `leaves-manager-${tabType?.toLocaleLowerCase()}`,
+            link: `/${organization}/leaves?tab=${tabType}`,
+          },
+        ]
+      : []),
+  ];
 
   const getLeaveModuleOnTabType = (type: string | null) => {
     if (type === LEAVE_MODULE_TAB_TYPE_OBJECT.SELF) {
@@ -48,10 +83,10 @@ function Leaves() {
   }, []);
 
   return (
-    <div className='w-full h-full bg-transparent'>
-      <div className='p-4 2xl:p-5 h-full'>
+    <div className='w-full h-full bg-transparent relative'>
+      <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+      <div className='p-4 2xl:p-5 h-full pt-14'>
         <div className='bg-white rounded-xl h-full flex flex-col'>
-          {/* header */}
           <div className='bg-white rounded-t-xl border-b border-gray-200 px-6 py-4'>
             <div className='flex items-center justify-between'>
               <div>

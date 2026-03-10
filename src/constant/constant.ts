@@ -78,14 +78,14 @@ export const employeeTypesArray = [
 
 export const dropdownMenuArray = [10, 25, 50, 100];
 
-export const unauthorizedStatusCodes = [
+export const UNAUTHORIZED_STATUS_CODE = [
   404,
   401, // Unauthorized (authentication required or token missing/invalid)
   403, // Forbidden (authenticated but not authorized for the resource)
   407, // Proxy Authentication Required (rare, but still access-related)
 ];
 
-export const MaintenanceModeIsActiveStatusCode = [503];
+export const MAINTENANCE_MODE_IS_ACTIVE_STATUS_CODE = [503];
 
 export const NotAllowedObjectField = ['client_inquire_id', 'id'];
 

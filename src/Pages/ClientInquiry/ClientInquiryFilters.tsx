@@ -41,7 +41,6 @@ export const clientInquiryFiltersArray: SearchBarFilterOptionsInterface[] = [
     value: 'Name',
     label: (
       <div className='flex items-start'>
-        <span className='icon-user text-gray-600 text-lg pe-2' />
         <span>Name</span>
       </div>
     ),

@@ -410,8 +410,6 @@ function LeavesManager() {
     .find((item) => item.module_label == parentSection.replace('-', '_'))
     ?.sub_modules?.find((item) => item.module_label == childSection);
 
-  console.log(permissionData, modalType);
-
   //   const hasNoViewHolidayPermission =
   //     !permissionData ||
   //     !permissionData.is_active ||

@@ -39,7 +39,7 @@ import {
   TeamLeaveSummaryDataInterface,
 } from '../../interface/LeavesModule';
 import { Column, MetaDataInterface } from '../../interface/propsInterface';
-import { TeamLeaveSummaryCard } from './LeavesBalanceCard';
+import TeamOrgLeaveModuleHeader from './TeamOrgLeaveModuleHeader';
 
 function ManageOrgTeamLeaves() {
   const { GlobalStateProvider } = useContext(
@@ -433,41 +433,10 @@ function ManageOrgTeamLeaves() {
             {isFetchingData ? (
               <LeaveBalanceCardLoader totalNumberOfCards={6} />
             ) : (
-              <div className='w-full flex items-stretch max-w-full flex-nowrap gap-4 overflow-auto hide-scrollbar'>
-                <TeamLeaveSummaryCard
-                  cardTitle='Current Date'
-                  renderDate={true}
-                  default_dateformat={
-                    GlobalStateProvider?.organization?.organization_settings
-                      ?.default_dateformat
-                  }
-                />
-                <TeamLeaveSummaryCard
-                  cardTitle='Total On Leave'
-                  value={`${teamSummaryDetails?.employees_on_leave}/${teamSummaryDetails?.total_employees}`}
-                  renderDate={false}
-                />
-                <TeamLeaveSummaryCard
-                  cardTitle='Planned Leaves'
-                  value={teamSummaryDetails?.planned_leaves}
-                  renderDate={false}
-                />
-                <TeamLeaveSummaryCard
-                  cardTitle='Unplanned Leaves'
-                  value={teamSummaryDetails?.unplanned_leaves}
-                  renderDate={false}
-                />
-                <TeamLeaveSummaryCard
-                  cardTitle='Total Pending Leaves'
-                  value={teamSummaryDetails?.pending_leaves}
-                  renderDate={false}
-                />
-                <TeamLeaveSummaryCard
-                  cardTitle='Total Cancelled Leaves'
-                  value={teamSummaryDetails?.cancelled_leaves}
-                  renderDate={false}
-                />
-              </div>
+              <TeamOrgLeaveModuleHeader
+                GlobalStateProvider={GlobalStateProvider}
+                data={teamSummaryDetails}
+              />
             )}
           </div>
         </div>
@@ -488,7 +457,7 @@ function ManageOrgTeamLeaves() {
                     columns={columns}
                     data={appliedLeaves}
                     tableWrapperClass={
-                      'overflow-auto max-h-[calc(100vh-378px)] h-full'
+                      'overflow-auto max-h-[calc(100vh-415px)] h-full'
                     }
                     stickyHeaderClass='sticky top-0 bg-gray-50'
                   />
