@@ -4,7 +4,7 @@ import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
 import { classNames } from '@/utils/helpers/commonHelpers';
 
-import OrbitRMSTransparentLogo from '@/assets/Images/orbitrms-final-logo-transperent.webp';
+import OrbitRMSTransparentLogo from '@/assets/images/orbitrms-final-logo-transperent.webp';
 
 function AppSuspenseLoader({
   loading,

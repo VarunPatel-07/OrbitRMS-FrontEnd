@@ -20,7 +20,7 @@ import {
   getDataFromLocalStorage,
 } from '@/utils/helpers/commonHelpers';
 
-import OrbitRMSLogo from '@/assets/Images/orbitrms-final-logo-transperent.webp';
+import OrbitRMSLogo from '@/assets/images/orbitrms-final-logo-transperent.webp';
 
 interface NavbarProfileDropDownInterface {
   label: string;

@@ -7,7 +7,7 @@ import AppSuspenseLoader from '@/components/loaders/AppSuspenseLoader';
 import { multipleFetchApi } from '@/utils/api/multipleAPI';
 import { classNames } from '@/utils/helpers/commonHelpers';
 
-import orbitLogo from '@/assets/Images/orbitrms-final-logo-transperent.webp';
+import orbitLogo from '@/assets/images/orbitrms-final-logo-transperent.webp';
 
 export default function VerifyEmail() {
   const hasRun = useRef(false);

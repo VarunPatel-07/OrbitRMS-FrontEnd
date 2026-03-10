@@ -29,7 +29,7 @@ import {
   compareTwoNestedObject,
 } from '@/utils/helpers/commonHelpers';
 
-import OrbitAiIcon from '@/assets/Images/orbit-ai-icon.png';
+import OrbitAiIcon from '@/assets/images/orbit-ai-icon.png';
 
 const AddEditSocialMediaPost = React.memo(function AddEditSocialMediaPost(
   props: AddEditSocialMediaPostModalInterface

@@ -22,7 +22,7 @@ import {
   isRichTextEditorIsEmpty,
 } from '@/utils/helpers/commonHelpers';
 
-import OrbitAiIcon from '@/assets/Images/orbit-ai-icon.png';
+import OrbitAiIcon from '@/assets/images/orbit-ai-icon.png';
 
 const AddEditPostModal = React.memo(function AddEditPostModal({
   showAddEditPostModal,

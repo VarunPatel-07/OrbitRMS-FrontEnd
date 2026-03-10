@@ -34,8 +34,8 @@ import {
 } from '@/utils/helpers/commonHelpers';
 import HelmetSeo from '@/utils/helpers/HelmetSeo';
 
-import signInGradientBgImage from '@/assets/Images/gradient-bg.webp';
-import orbitLogo from '@/assets/Images/orbitrms-white-transperent-logo.webp';
+import signInGradientBgImage from '@/assets/images/gradient-bg.webp';
+import orbitLogo from '@/assets/images/orbitrms-white-transperent-logo.webp';
 
 const initialModalInfo = {
   success: false,

@@ -19,8 +19,8 @@ import Input from '@/components/common/Input';
 import { endpointObject, multiplePostApi } from '@/utils/api/multipleAPI';
 import { classNames } from '@/utils/helpers/commonHelpers';
 
-import OrbitAiIcon from '@/assets/Images/orbit-ai-icon-big.png';
-import OrbitAiLogo from '@/assets/Images/orbitai-logo.png';
+import OrbitAiIcon from '@/assets/images/orbit-ai-icon-big.png';
+import OrbitAiLogo from '@/assets/images/orbitai-logo.png';
 
 function ChatWindowModal(props: ChatWindowModalInterface) {
   const { handelNotification } = useContext(

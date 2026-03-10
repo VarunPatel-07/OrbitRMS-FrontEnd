@@ -46,8 +46,8 @@ import {
 import HelmetSeo from '@/utils/helpers/HelmetSeo';
 import { URLSafetyCheckerFunction } from '@/utils/helpers/urlSafetyChecker';
 
-import signInGradientBgImage from '@/assets/Images/gradient-bg.webp';
-import orbitLogo from '@/assets/Images/orbitrms-white-transperent-logo.webp';
+import signInGradientBgImage from '@/assets/images/gradient-bg.webp';
+import orbitLogo from '@/assets/images/orbitrms-white-transperent-logo.webp';
 
 const defaultPortalUrlSlug = import.meta.env.VITE_FRONT_END_PORTAL_BASE_URL;
 

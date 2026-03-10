@@ -1,8 +1,9 @@
-import FaceBookLogo from '@/assets/Images/facebook.png';
-import InstagramLogo from '@/assets/Images/instagram.png';
-import LinkedinLogo from '@/assets/Images/linkedin.png';
-import TwitterLogo from '@/assets/Images/twitter.png';
 import { AddEditSocialMediaPostFormdataInterface } from '@/interface/SocialMedia.interface';
+
+import FaceBookLogo from '@/assets/images/facebook.png';
+import InstagramLogo from '@/assets/images/instagram.png';
+import LinkedinLogo from '@/assets/images/linkedin.png';
+import TwitterLogo from '@/assets/images/twitter.png';
 
 export const GetPlatformLogo = {
   facebook: FaceBookLogo,
