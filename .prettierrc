@@ -15,7 +15,7 @@
     "^types$",
     "^@/env(.*)$",
     "",
-    "^@/config/(.*)$",
+    "^@/modules/config/(.*)$",
     "^@/hooks/(.*)$",
     "",
     "^@/context/(.*)$",
@@ -39,7 +39,6 @@
     "decorators-legacy",
     "js"
   ],
-  
   "plugins": [
     "@ianvs/prettier-plugin-sort-imports"
   ]

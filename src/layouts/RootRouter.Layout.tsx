@@ -1,16 +1,17 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import ErrorFallback from '../common/ErrorFallBack';
-import Notification from '../common/Notification/Notification';
-import { GlobalStateContentApiProvider } from '../Context/globalState/GlobalStateContectApi';
-import { NotificationContextApiProvider } from '../Context/Notification/NotificationContextApi';
-import ProtectedRoute from '../Helper/ProtectedRoute';
-import RedirectToDashboard from '../Helper/RedirectToDashboard';
-import MaintenanceMode from '../Pages/MaintenanceMode/MaintenanceMode';
-import Onboarding from '../Pages/Onboarding/Onboarding';
-import VerifyEmail from '../Pages/VerifyEmail';
-import AuthRoutes from '../routes/AuthRoutes';
-import DashboardLayout from './Dashboard.Layout';
+import { GlobalStateContentApiProvider } from '@/contexts/globalState/GlobalStateContectApi';
+import { NotificationContextApiProvider } from '@/contexts/notification/NotificationContextApi';
+import DashboardLayout from '@/layouts/Dashboard.Layout';
+import MaintenanceMode from '@/modules/maintenanceMode/MaintenanceMode';
+import Onboarding from '@/modules/onboarding/Onboarding';
+import VerifyEmail from '@/modules/verifyEmail/VerifyEmail';
+import AuthRoutes from '@/routes/AuthRoutes';
+
+import ErrorFallback from '@/components/common/ErrorFallBack';
+import Notification from '@/components/common/notification/Notification';
+import ProtectedRoute from '@/utils/helpers/ProtectedRoute';
+import RedirectToDashboard from '@/utils/helpers/RedirectToDashboard';
 
 function RootRouterLayout() {
   return (

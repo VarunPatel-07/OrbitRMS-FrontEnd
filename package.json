@@ -85,6 +85,7 @@
     "prettier": "^3.6.2",
     "rollup-plugin-visualizer": "^6.0.3",
     "tailwindcss": "^3.4.14",
+    "ts-path-alias-fixer": "^1.1.0",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.11.0",
     "utils": "link:@types/lexical/utils",
