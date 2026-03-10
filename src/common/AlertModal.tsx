@@ -64,7 +64,7 @@ function AlertModal(props: AlertModalProps) {
     return (
       <div
         role='dialog'
-        aria-labelledby='alert-modal-title'
+        title='alert-modal-title'
         aria-describedby='alert-modal-description'
         className={classNames(
           'w-screen h-screen absolute top-0 left-0 z-50 bg-black/[0.6] backdrop-blur-[1px] transition-all ease-in-out',

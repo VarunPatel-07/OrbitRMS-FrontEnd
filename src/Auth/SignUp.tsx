@@ -21,8 +21,8 @@ import {
   industryType,
   WebsiteUrlSafetyCheckErrorMessages,
 } from '../constant/constant';
-import { MetaTitleDescription } from '../constant/MetaTitleDescription';
-import { publicEmailProviders } from '../constant/PublicEmailArray';
+import { META_TITLE_DESCRIPTION } from '../constant/MetaTitleDescription';
+import { PUBLIC_EMAIL_PROVIDERS } from '../constant/PublicEmailArray';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -147,7 +147,7 @@ function SignUp() {
 
   const [resendMailLoader, setResendMailLoader] = useState<boolean>(false);
 
-  const hostBlacklistMails = publicEmailProviders?.map((item) => item?.mail);
+  const hostBlacklistMails = PUBLIC_EMAIL_PROVIDERS?.map((item) => item?.mail);
 
   const handleMoveToNextPage = () => {
     const is_verified = verifyPhoneNumberLength(
@@ -173,7 +173,7 @@ function SignUp() {
 
   const getEmailErrorMessage = (email: string) => {
     const domain = email.split('@')[1]?.toLowerCase();
-    const check = publicEmailProviders.find((p) => p.mail === domain);
+    const check = PUBLIC_EMAIL_PROVIDERS.find((p) => p.mail === domain);
     if (check) {
       return `public email (${check.company} - ${check.mail}) Not Allowed`;
     }
@@ -573,8 +573,8 @@ function SignUp() {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.signUp.title}
-        Content={MetaTitleDescription.signUp.description}
+        Title={META_TITLE_DESCRIPTION.SIGN_UP.title}
+        Content={META_TITLE_DESCRIPTION.SIGN_UP.description}
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />

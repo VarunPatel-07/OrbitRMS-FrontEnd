@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
 import EmployeeProfileSkeletonLoader from '../../Components/Loader/EmployeeProfileSkeletonLoader';
 import { AlignableForChildInfo } from '../../constant/constant';
-import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -539,8 +539,10 @@ function EmployeeDetails(props: {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.employeeProfileGeneralInfo.title}
-        Content={MetaTitleDescription.employeeProfileGeneralInfo.description}
+        Title={META_TITLE_DESCRIPTION.EMPLOYEE_PROFILE_GENERAL_INFO.title}
+        Content={
+          META_TITLE_DESCRIPTION.EMPLOYEE_PROFILE_GENERAL_INFO.description
+        }
       />
       <div className='w-full flex flex-col gap-6 pb-5'>
         {isFetching ? (

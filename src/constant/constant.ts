@@ -1,3 +1,4 @@
+import { AddEditLeavesTypesInterface } from '../interface/OrganizationSettings';
 import { MetaDataInterface } from '../interface/propsInterface';
 
 export const getEnterAnimationClass = {
@@ -15,7 +16,7 @@ export const getExitAnimationClass = {
   center: 'animate-exit-center',
 };
 
-export const bloodGroupArray = [
+export const BLOOD_GROUP_ARRAY = [
   'A+',
   'A-',
   'B+',
@@ -27,7 +28,7 @@ export const bloodGroupArray = [
   'Bombay (hh)',
   'Rh-null',
 ];
-export const GenderArray = ['Male', 'Female', 'Other'];
+export const GENDER_ARRAY = ['Male', 'Female', 'Other'];
 
 export const formFieldAllowedFieldType = [
   'string',
@@ -39,7 +40,7 @@ export const formFieldAllowedFieldType = [
   'array of object',
 ];
 
-export const maritalStatus = [
+export const MARITAL_STATUS = [
   'Single',
   'Married',
   'Divorced',
@@ -54,7 +55,7 @@ export const AlignableForChildInfo = [
   'Prefer not to say',
 ];
 
-export const OrganizationEmployeeStatusArray = [
+export const ORG_EMPLOYEE_STATUS_ARRAY = [
   'Intern',
   'Trainee',
   'Probation',
@@ -77,14 +78,14 @@ export const employeeTypesArray = [
 
 export const dropdownMenuArray = [10, 25, 50, 100];
 
-export const unauthorizedStatusCodes = [
+export const UNAUTHORIZED_STATUS_CODE = [
   404,
   401, // Unauthorized (authentication required or token missing/invalid)
   403, // Forbidden (authenticated but not authorized for the resource)
   407, // Proxy Authentication Required (rare, but still access-related)
 ];
 
-export const MaintenanceModeIsActiveStatusCode = [503];
+export const MAINTENANCE_MODE_IS_ACTIVE_STATUS_CODE = [503];
 
 export const NotAllowedObjectField = ['client_inquire_id', 'id'];
 
@@ -242,5 +243,83 @@ export const USER_FRIENDLY_ERRORS = {
     title: 'Some Thing Went Wrong',
     message: 'Some Thing Went Wrong',
     action: 'Retry',
+  },
+};
+
+export const initialLeavePolicy: AddEditLeavesTypesInterface = {
+  leave_name: '',
+  leave_code: '',
+  is_paid: true,
+  max_number_of_leave: 12,
+  refill_quarterly: false,
+  refill_from: '',
+  description: '',
+  gender: [],
+  employee_status: [],
+  marital_status: [],
+  status: true,
+};
+
+export const QUARTER_REFILE_MONTHS = ['January', 'April', 'July', 'October'];
+export const MONTH_INDEX: Record<string, number> = {
+  January: 0,
+  February: 1,
+  March: 2,
+  April: 3,
+  May: 4,
+  June: 5,
+  July: 6,
+  August: 7,
+  September: 8,
+  October: 9,
+  November: 10,
+  December: 11,
+};
+
+export const LEAVE_MODULE_TAB_TYPE = ['Self', 'Team', 'Organization'];
+export const DEFAULT_LEAVE_TAB = 'Self';
+export const LEAVE_MODULE_TAB_TYPE_OBJECT = {
+  SELF: 'Self',
+  TEAM: 'Team',
+  ORGANIZATION: 'Organization',
+};
+
+export const TEAM_SUMMARY_INITIAL_DATA = {
+  total_employees: 0,
+  employees_on_leave: 0,
+  planned_leaves: 0,
+  unplanned_leaves: 0,
+  pending_leaves: 0,
+  cancelled_leaves: 0,
+};
+
+export const LEAVE_STATUS_CONFIG = {
+  pending: {
+    label: 'Pending',
+    bg: 'bg-amber-50',
+    text: 'text-amber-700',
+    border: 'border-amber-200',
+    dot: 'bg-amber-400',
+  },
+  approved: {
+    label: 'Approved',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-700',
+    border: 'border-emerald-200',
+    dot: 'bg-emerald-400',
+  },
+  rejected: {
+    label: 'Rejected',
+    bg: 'bg-red-50',
+    text: 'text-red-700',
+    border: 'border-red-200',
+    dot: 'bg-red-400',
+  },
+  cancelled: {
+    label: 'Cancelled',
+    bg: 'bg-gray-50',
+    text: 'text-gray-700',
+    border: 'border-gray-200',
+    dot: 'bg-gray-400',
   },
 };

@@ -22,7 +22,6 @@ export interface InputProps {
   setValue?: (value: string) => void; // Function that updates the value
   placeHolder?: string; // Optional placeholder
   className?: string;
-  placeholderColor?: string;
   viewPasswordBtn?: boolean;
   showError?: boolean;
   errorMessage?: string;
@@ -66,11 +65,12 @@ export interface DragDropUploaderProps {
   type: 'file' | 'image';
   RequiredFileTypeArray: Array<string>;
   showDropFileScreenInFullScreen: boolean;
-  cropShape: 'round' | 'rect';
   maxCropHeight: number;
   maxCropWidth: number;
   setImageUrl: (url: string) => void;
   disabled: boolean;
+  enableCropping?: boolean;
+  cropShape?: 'round' | 'rect';
 }
 
 export interface MultipleImageUploaderPropsInterface {
@@ -90,15 +90,27 @@ export interface MultipleImageUploaderPropsInterface {
   showError?: boolean;
   errorMessage?: string;
   maxSize?: number;
+  enableCropping?: boolean;
 }
 
 export interface commonDatePickerProps {
   selectedValue: Date | null;
-  onChange: (date: Date | null) => void;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  onChange?: (date: Date | null) => void;
+  onRangeSelect?: (
+    dates: [Date | null, Date | null],
+    _event?: React.MouseEvent | React.KeyboardEvent
+  ) => void;
+  maxDate?: Date;
+  minDate?: Date;
   labelFieldName?: string;
   isRequiredField?: boolean;
+  selectsRange?: boolean;
   name: string;
   className?: string;
+  selectsStart?: boolean;
+  selectsEnd?: boolean;
   datePickerPosition?:
     | 'bottom'
     | 'bottom-end'
@@ -325,6 +337,7 @@ export interface ModuleValueInterface {
   label: string;
   value: string;
   type: string;
+  customLayout?: React.ReactElement;
 }
 
 export interface FilterObjectInterface {

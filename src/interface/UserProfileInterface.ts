@@ -7,8 +7,9 @@ export interface EmployeeInfo {
   employee_code: string;
   department: string;
   designation: string;
-  reporting_to: Record<string, unknown>; // Assuming it's an object, adjust if needed
-  employee_role: string;
+  reporting_to_id: string;
+  employee_role_id: string;
+  employee_type: string;
   employee_email: string;
   user_id: string;
 }

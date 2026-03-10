@@ -1,4 +1,4 @@
-export const publicEmailProviders = [
+export const PUBLIC_EMAIL_PROVIDERS = [
   { company: 'Google', mail: 'gmail.com' },
   { company: 'Google', mail: 'googlemail.com' },
   { company: 'Yahoo', mail: 'yahoo.com' },

@@ -8,11 +8,10 @@ import {
 const RedirectToDashboard = () => {
   const _data = getDataFromSecureCookie('organization-info');
   const tokenValue = getDataFromSecureCookie('authenticationToken');
+  const data = typeof _data === 'string' ? JSON.parse(_data) : _data;
   try {
-    if (_data && tokenValue) {
-      return (
-        <Navigate to={`${JSON.parse(_data)?.portal_slug}/dashboard`} replace />
-      );
+    if (data && tokenValue) {
+      return <Navigate to={`${data?.portal_slug}/dashboard`} replace />;
     } else {
       clearLocalSessionStorage();
       return <Navigate to='/auth/sign-in' replace />;

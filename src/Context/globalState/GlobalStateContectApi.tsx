@@ -11,8 +11,9 @@ const initialState: GlobalContextStore = {
       employee_code: '',
       department: '',
       designation: '',
-      reporting_to: {}, // empty object
-      employee_role: '',
+      reporting_to_id: '', // empty object
+      employee_role_id: '',
+      employee_type: '',
       employee_email: '',
       user_id: '',
     },
@@ -125,4 +126,4 @@ const GlobalStateContentApiProvider: React.FC<{ children: ReactNode }> = ({
   );
 };
 
-export { GlobalStateContext, GlobalStateContentApiProvider };
+export { GlobalStateContentApiProvider, GlobalStateContext };

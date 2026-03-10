@@ -4,17 +4,19 @@ import React, { SetStateAction } from 'react';
 import axios, { AxiosRequestHeaders } from 'axios';
 
 import {
+  MAINTENANCE_MODE_IS_ACTIVE_STATUS_CODE,
   MAINTENANCE_MODE_LOCAL_STORAGE_KEY,
-  MaintenanceModeIsActiveStatusCode,
 } from '../../constant/constant';
 import { loginForm, signUpForm } from '../../interface/funcParamInterface';
 import { GlobalContextStore } from '../../interface/UserProfileInterface';
 import {
+  clearLocalSessionStorage,
   ErrorHandler,
   getDataFromSecureCookie,
   storeDataInLocalStorage,
   storeDataInSecureCookie,
 } from '../HelperFunctions';
+import { endpointObject, multiplePostApi } from './multipleAPI';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_API_BASEURL;
 const fetchUserPositionApiUrl = import.meta.env
@@ -181,7 +183,7 @@ const MaintenanceModeChecker = (error: any) => {
   const status = error?.response?.status || error?.status;
 
   const data = ErrorHandler(error);
-  if (MaintenanceModeIsActiveStatusCode.includes(status)) {
+  if (MAINTENANCE_MODE_IS_ACTIVE_STATUS_CODE.includes(status)) {
     storeDataInLocalStorage(data.data, MAINTENANCE_MODE_LOCAL_STORAGE_KEY);
     window.location.href = '/maintenance-mode';
     return;
@@ -218,10 +220,32 @@ export const verifyUsersLoginStatus = async () => {
 
     return response?.data as verifyUsersLoginStatusResponse;
   } catch (error: any) {
-    if (MaintenanceModeIsActiveStatusCode.includes(error?.status)) {
+    if (MAINTENANCE_MODE_IS_ACTIVE_STATUS_CODE.includes(error?.status)) {
       MaintenanceModeChecker(error);
     } else {
       return ErrorHandler(error as Error) as verifyUsersLoginStatusResponse;
     }
+  }
+};
+
+export const handelClickLogoutBtn = async (
+  setLoading: React.Dispatch<SetStateAction<boolean>>
+) => {
+  const endPointArr: endpointObject[] = [
+    {
+      endPoint: 'auth/logout',
+      protected: true,
+    },
+  ];
+
+  const response = await multiplePostApi(endPointArr);
+  const res = response[0];
+  setLoading(true);
+  // handelNotification(res, 'top-right');
+  if (res?.success) {
+    clearLocalSessionStorage();
+    setTimeout(() => {
+      window.location.href = '/auth/sign-in';
+    }, 100);
   }
 };

@@ -30,7 +30,7 @@ import {
   AddEditInquiryFormSchemaBreadcrumbs,
   AddEditInquiryFormSchemaInitialForm,
 } from '../../../../constant/ConfigModuleConstant';
-import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -431,8 +431,8 @@ function InquiryFormSchema({
             <Button
               type='button'
               className='text-black/80 p-1.5'
-              dataTooltipId='project_status_edit_button'
-              dataTooltipContent='Edit'
+              data-tooltip-id='project_status_edit_button'
+              data-tooltip-content='Edit'
               onClick={() => handelEditButtonClick(data)}
               disabled={
                 permissions &&
@@ -458,8 +458,8 @@ function InquiryFormSchema({
                 <Button
                   type='button'
                   className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-                  dataTooltipId='email_notification-toggler_button'
-                  dataTooltipContent={
+                  data-tooltip-id='email_notification-toggler_button'
+                  data-tooltip-content={
                     data?.authorized_recipient_emails?.length <= 0
                       ? 'To enable email notifications, first add an authorized recipient email by clicking the Edit button.'
                       : data?.email_notification
@@ -490,8 +490,8 @@ function InquiryFormSchema({
             <Button
               type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              dataTooltipId='project_status_delete_button'
-              dataTooltipContent='Delete'
+              data-tooltip-id='project_status_delete_button'
+              data-tooltip-content='Delete'
               disabled={
                 data?.source_type == 'default' ||
                 (permissions &&
@@ -556,8 +556,8 @@ function InquiryFormSchema({
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.inquiryFormSchema.title}
-        Content={MetaTitleDescription.inquiryFormSchema.description}
+        Title={META_TITLE_DESCRIPTION.INQUIRY_FORM_SCHEMA.title}
+        Content={META_TITLE_DESCRIPTION.INQUIRY_FORM_SCHEMA.description}
       />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />

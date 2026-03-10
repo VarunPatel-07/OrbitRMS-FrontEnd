@@ -1,0 +1,66 @@
+import { Is } from '../../constant/FilterOperator';
+import { FilterFieldsTypeEnums } from '../../enums/enums';
+import {
+  ModuleValueInterface,
+  SearchBarFilterOptionsInterface,
+} from '../../interface/propsInterface';
+
+export const AddLeaveTypesInFilterArray = (
+  title: string,
+  optionsArray: string[]
+): SearchBarFilterOptionsInterface => {
+  const options = optionsArray?.map((item) => ({
+    label: item.toLowerCase(), // lowercase label
+    value: item,
+    type: FilterFieldsTypeEnums[2],
+  }));
+
+  return {
+    id: title?.toLocaleLowerCase(),
+    value: title,
+    label: (
+      <div className='flex items-start'>
+        <span className='font-inter text-base text-black font-medium'>
+          {title}
+        </span>
+      </div>
+    ),
+    optionType: 'multi-select',
+    operator: [Is],
+    options: options,
+  };
+};
+
+export const AddEmployeeInSearchFilter = (
+  title: string,
+  optionsArray: [{ id: string; full_name: string; employee_code: string }]
+): SearchBarFilterOptionsInterface => {
+  const options: ModuleValueInterface[] = optionsArray?.map((item) => ({
+    label: item?.id, 
+    value: item?.id,
+    customLayout: (
+      <div className='flex items-start'>
+        <span className='font-inter text-sm text-black font-normal capitalize'>
+          {item?.full_name}{' '}
+          <span className='text-xs text-blue-600'>({item?.employee_code})</span>
+        </span>
+      </div>
+    ),
+    type: FilterFieldsTypeEnums[2],
+  }));
+
+  return {
+    id: title?.toLocaleLowerCase(),
+    value: title,
+    label: (
+      <div className='flex items-start'>
+        <span className='font-inter text-base text-black font-medium'>
+          {title}
+        </span>
+      </div>
+    ),
+    optionType: 'multi-select',
+    operator: [Is],
+    options: options,
+  };
+};

@@ -8,7 +8,8 @@ import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
-import { SidebarMenuItemInterface, SidebarMenuItems } from './SidebarMenuItems';
+import { SidebarMenuItemInterface } from '../../interface/interface';
+import { SidebarMenuItems } from './SidebarMenuItems';
 
 function SideBar() {
   const navigation = useLocation();
@@ -39,7 +40,7 @@ function SideBar() {
         }`}
       >
         <Link
-          to={data.link}
+          to={data?.queryString ? data.link + data?.queryString : data.link}
           className={`w-full overflow-hidden flex gap-3 py-2.5 font-inter ${
             collapsed ? 'px-[12px]' : 'px-4'
           }`}

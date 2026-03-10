@@ -18,7 +18,7 @@ import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../common/Table/TableNoDataFound';
 import AccessDeniedRedirect from '../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
-import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -316,8 +316,8 @@ function ProjectStatus({
             <Button
               type='button'
               className='text-black/80 p-1.5 cursor-pointer'
-              dataTooltipId='project_status_edit_button'
-              dataTooltipContent='Edit'
+              data-tooltip-id='project_status_edit_button'
+              data-tooltip-content='Edit'
               onClick={() => handelEditButtonClick(data)}
               disabled={
                 permissions &&
@@ -331,8 +331,8 @@ function ProjectStatus({
             <Button
               type='button'
               className='text-black/80 p-1.5 cursor-pointer'
-              dataTooltipId='project_status_delete_button'
-              dataTooltipContent='Delete'
+              data-tooltip-id='project_status_delete_button'
+              data-tooltip-content='Delete'
               disabled={
                 data?.source_type == 'default' ||
                 (permissions &&
@@ -391,8 +391,8 @@ function ProjectStatus({
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.projectStatus.title}
-        Content={MetaTitleDescription.projectStatus.description}
+        Title={META_TITLE_DESCRIPTION.PROJECT_STATUS.title}
+        Content={META_TITLE_DESCRIPTION.PROJECT_STATUS.description}
       />
       <div className='relative w-full h-full'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />

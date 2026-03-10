@@ -5,12 +5,20 @@ import { defineConfig } from 'vite';
 // @ts-ignore
 
 import eslint from 'vite-plugin-eslint';
+import { VitePWA } from 'vite-plugin-pwa';
 import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   plugins: [
     react(),
     svgr(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.svg'],
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png}'],
+      },
+    }),
     eslint({
       fix: true,
       failOnWarning: false,

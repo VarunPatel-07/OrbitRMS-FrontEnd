@@ -18,7 +18,7 @@ import TableLocalSearchBar from '../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../common/Table/TableNoDataFound';
 import AccessDeniedRedirect from '../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../Components/Loader/Table/TableSkeletonLoader';
-import { MetaTitleDescription } from '../../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -313,8 +313,8 @@ function Designations({
             <Button
               type='button'
               className='text-black/80 p-1.5'
-              dataTooltipId='project_status_edit_button'
-              dataTooltipContent='Edit'
+              data-tooltip-id='project_status_edit_button'
+              data-tooltip-content='Edit'
               onClick={() => handelEditButtonClick(data)}
               disabled={
                 permissions &&
@@ -328,8 +328,8 @@ function Designations({
             <Button
               type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              dataTooltipId='project_status_delete_button'
-              dataTooltipContent='Delete'
+              data-tooltip-id='project_status_delete_button'
+              data-tooltip-content='Delete'
               disabled={
                 data?.source_type == 'default' ||
                 (permissions &&
@@ -387,8 +387,8 @@ function Designations({
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.designation.title}
-        Content={MetaTitleDescription.designation.description}
+        Title={META_TITLE_DESCRIPTION.DESIGNATION.title}
+        Content={META_TITLE_DESCRIPTION.DESIGNATION.description}
       />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />

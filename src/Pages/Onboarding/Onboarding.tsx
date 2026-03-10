@@ -22,8 +22,8 @@ import Loader from '../../common/Loader';
 import SearchDrop from '../../common/SearchDrop';
 import TextArea from '../../common/TextArea';
 import MainSuspenseLoader from '../../Components/Loader/MainSuspenseLoader';
-import { bloodGroupArray, GenderArray } from '../../constant/constant';
-import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
+import { BLOOD_GROUP_ARRAY, GENDER_ARRAY } from '../../constant/constant';
+import { META_TITLE_DESCRIPTION } from '../../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -96,9 +96,9 @@ const initialState = {
     first_name: '',
     middle_name: '',
     last_name: '',
-    full_name: '', // auto generated based on the first,middle, last name
-    profile_picture: '', // we will send it empty
-    profile_picture_bg: '', // we will send it empty
+    full_name: '',
+    profile_picture: '',
+    profile_picture_bg: '',
     gender: '',
     date_of_birth: new Date(),
     blood_group: '',
@@ -765,8 +765,8 @@ function Onboarding() {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.onboarding.title}
-        Content={MetaTitleDescription.onboarding.description}
+        Title={META_TITLE_DESCRIPTION.ONBOARDING.title}
+        Content={META_TITLE_DESCRIPTION.ONBOARDING.description}
       />
       <MainSuspenseLoader loading={showGlobalLoader} />
       {!showGlobalLoader && (
@@ -1573,7 +1573,7 @@ function Onboarding() {
                         <div className='grid grid-cols-2 gap-4'>
                           <div className='w-full'>
                             <SearchDrop
-                              options={GenderArray}
+                              options={GENDER_ARRAY}
                               searchKey=''
                               position='bottom'
                               emptyDataMessage=''
@@ -1627,7 +1627,7 @@ function Onboarding() {
                         <div className='grid grid-cols-2 gap-4'>
                           <div className='w-full'>
                             <SearchDrop
-                              options={bloodGroupArray}
+                              options={BLOOD_GROUP_ARRAY}
                               searchKey=''
                               position='bottom'
                               emptyDataMessage=''

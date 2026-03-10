@@ -15,7 +15,7 @@ import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import { PASSWORD_RESET_KEY } from '../constant/constant';
-import { MetaTitleDescription } from '../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -227,8 +227,8 @@ function ForgotPassword() {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.forgotPassword.title}
-        Content={MetaTitleDescription.forgotPassword.description}
+        Title={META_TITLE_DESCRIPTION.FORGOT_PASSWORD.title}
+        Content={META_TITLE_DESCRIPTION.FORGOT_PASSWORD.description}
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />

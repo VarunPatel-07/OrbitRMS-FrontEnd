@@ -4,7 +4,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import AccessDeniedRedirect from '../../Components/AccessDeniedRedirect';
 import PageNotFound from '../../Components/PageNotFound';
-import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -98,8 +98,8 @@ function Config() {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.configModule.title}
-        Content={MetaTitleDescription.configModule.description}
+        Title={META_TITLE_DESCRIPTION.CONFIG_MODULE.title}
+        Content={META_TITLE_DESCRIPTION.CONFIG_MODULE.description}
       />
       <div className='w-full h-full'>
         <div className='w-full h-full flex items-stretch justify-start'>

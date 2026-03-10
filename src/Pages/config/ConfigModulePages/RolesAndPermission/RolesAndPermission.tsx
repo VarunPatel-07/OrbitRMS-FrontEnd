@@ -19,7 +19,7 @@ import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
 import AccessDeniedRedirect from '../../../../Components/AccessDeniedRedirect';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
-import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -262,8 +262,8 @@ function RolesAndPermission({
             <Button
               type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              dataTooltipId='roles_permission_view_button'
-              dataTooltipContent='View'
+              data-tooltip-id='roles_permission_view_button'
+              data-tooltip-content='View'
               onClick={() => {
                 handleRolesPermissionViewButton(data);
               }}
@@ -279,8 +279,8 @@ function RolesAndPermission({
             <Button
               type='button'
               className='text-black/80 p-1.5'
-              dataTooltipId='roles_permission_edit_button'
-              dataTooltipContent='Edit'
+              data-tooltip-id='roles_permission_edit_button'
+              data-tooltip-content='Edit'
               onClick={() => handelEditButtonClick(data)}
               disabled={
                 !data?.is_editable ||
@@ -295,8 +295,8 @@ function RolesAndPermission({
             <Button
               type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              dataTooltipId='roles_permission_delete_button'
-              dataTooltipContent='Delete'
+              data-tooltip-id='roles_permission_delete_button'
+              data-tooltip-content='Delete'
               disabled={
                 data?.source_type == 'default' ||
                 (permissions &&
@@ -480,8 +480,8 @@ function RolesAndPermission({
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.roleAndPermission.title}
-        Content={MetaTitleDescription.roleAndPermission.description}
+        Title={META_TITLE_DESCRIPTION.ROLES_AND_PERMISSION.title}
+        Content={META_TITLE_DESCRIPTION.ROLES_AND_PERMISSION.description}
       />
       <div className='relative w-full h-full'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />

@@ -29,7 +29,6 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
     value: 'Account Status',
     label: (
       <div className='flex items-start'>
-        <span className='icon-user text-gray-600 text-lg pe-2' />
         <span className='font-inter text-base text-black font-medium'>
           Account Status
         </span>
@@ -56,7 +55,6 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
     value: 'Status',
     label: (
       <div className='flex items-start'>
-        <span className='icon-user text-gray-600 text-lg pe-2' />
         <span className='font-inter text-base text-black font-medium'>
           Status
         </span>
@@ -92,7 +90,6 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
     value: 'Employee Type',
     label: (
       <div className='flex items-start'>
-        <span className='icon-user text-gray-600 text-lg pe-2' />
         <span className='font-inter text-base text-black font-medium'>
           Employee Type
         </span>

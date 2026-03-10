@@ -13,11 +13,11 @@ import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '../../Context/globalState/GlobalStateContectApi';
+import { handelClickLogoutBtn } from '../../Helper/api/api';
 import {
   classNames,
   getDataFromLocalStorage,
 } from '../../Helper/HelperFunctions';
-import { NavbarPropsInterface } from '../../interface/interface';
 import EmployeeProfilePicture from '../EmployeeProfilePicture';
 
 interface NavbarProfileDropDownInterface {
@@ -29,8 +29,7 @@ interface NavbarProfileDropDownInterface {
   type: 'link' | 'button';
 }
 
-function Navbar(props: NavbarPropsInterface) {
-  const { handelLogout } = props as NavbarPropsInterface;
+function Navbar() {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
@@ -47,7 +46,7 @@ function Navbar(props: NavbarPropsInterface) {
 
   const handelClickOnLogoutButton = () => {
     setLoading(true);
-    handelLogout(setLoading);
+    handelClickLogoutBtn(setLoading);
   };
 
   const NavbarProfileDropDown: NavbarProfileDropDownInterface[] = [

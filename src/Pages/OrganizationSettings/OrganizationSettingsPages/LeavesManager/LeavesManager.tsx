@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { MdDelete, MdModeEdit, MdOutlineRemoveRedEye } from 'react-icons/md';
+import { MdModeEdit, MdOutlineRemoveRedEye } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 
 import HolidayAnimation from '../../../../assets/lottie/HolidayAnimation.lottie';
@@ -12,6 +12,7 @@ import TableInfoHeader from '../../../../common/Table/TableInfoHeader';
 import TableLocalSearchBar from '../../../../common/Table/TableLocalSearchBar';
 import TableNoDataFound from '../../../../common/Table/TableNoDataFound';
 import TableSkeletonLoader from '../../../../Components/Loader/Table/TableSkeletonLoader';
+import AddEditLeavesTypesModal from '../../../../Components/Modal/AddEditLeavesTypesModal';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -22,22 +23,20 @@ import {
 } from '../../../../Context/Notification/NotificationContextApi';
 import {
   endpointObject,
-  multipleDeleteApi,
   multipleFetchApi,
-  //   multiplePostApi,
+  multiplePostApi,
 } from '../../../../Helper/api/multipleAPI';
 import { formateDate } from '../../../../Helper/HelperFunctions';
 import { useDebounce } from '../../../../Hooks/useDebounce';
-import { LeavesTypesInterface } from '../../../../interface/OrganizationSettings';
+import {
+  AddEditLeavesTypesInterface,
+  LeavesTypesInterface,
+} from '../../../../interface/OrganizationSettings';
 import {
   Column,
   TableInfoHeaderInterfaceButtonArrayObject,
 } from '../../../../interface/propsInterface';
 import ViewLeaveModal from './ViewLeaveModal';
-
-const DeleteModal = React.lazy(
-  () => import('../../../../Components/Modal/DeleteModal')
-);
 
 const DotLottieReact = React.lazy(() =>
   import('@lottiefiles/dotlottie-react').then((mod) => ({
@@ -81,19 +80,18 @@ function LeavesManager() {
   const [filterData, setFilterData] = useState<LeavesTypesInterface[]>([]);
   const [showSearchFilterData, setShowSearchFilterData] =
     useState<boolean>(false);
-
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<'add' | 'edit'>('add');
   const [showViewModal, setShowViewModal] = useState<boolean>(false);
-  //   const [loading, setLoading] = useState<boolean>(false);
-  //   const [editId, setEditId] = useState<string>('');
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [editId, setEditId] = useState<string>('');
+  const [editLeaveData, setEditLeaveData] =
+    useState<AddEditLeavesTypesInterface | null>(null);
   const [leaveData, setLeaveData] = useState<LeavesTypesInterface | null>(null);
-  const [deleteItemId, setDeleteItemId] = useState<string>('');
-  const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
+
   const [reFetchingData, setReFetchingData] = useState<boolean>(false);
 
-  const fetchAllTheHolidayWithDebounce = useDebounce(async () => {
+  const fetchAllTheLeavesWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
       {
         endPoint: `org-setting/leaves/leave-type/fetch`,
@@ -112,10 +110,58 @@ function LeavesManager() {
     setReFetchingData(false);
   }, 100);
 
+  const addLeaveTypeWithDebounce = useDebounce(
+    async (data: AddEditLeavesTypesInterface, callback?: () => void) => {
+      const endPointArr: endpointObject[] = [
+        {
+          endPoint: editId
+            ? `org-setting/leaves/leave-type/edit?id=${editId}`
+            : `org-setting/leaves/leave-type/create`,
+          protected: true,
+          data: data,
+        },
+      ];
+
+      const response = await multiplePostApi(endPointArr);
+      const res = response[0];
+      if (res?.success) {
+        setShowModal(false);
+        if (callback) callback();
+        setReFetchingData(true);
+        fetchAllTheLeavesWithDebounce();
+      } else {
+        handelNotification(res, 'top-right');
+      }
+      setLoading(false);
+    },
+    100
+  );
+
+  const handelSaveLeave = (
+    data: AddEditLeavesTypesInterface,
+    callback?: () => void
+  ) => {
+    setLoading(true);
+    addLeaveTypeWithDebounce(data, callback);
+  };
+
   const handelEditButtonClick = (data: LeavesTypesInterface) => {
     setModalType('edit');
     setShowModal(!showModal);
-    console.log(data);
+    setEditId(data?.id);
+    setEditLeaveData({
+      description: data?.description,
+      employee_status: JSON.parse(data?.employee_status),
+      gender: JSON.parse(data?.gender),
+      is_paid: data?.is_paid,
+      leave_code: data?.leave_code,
+      leave_name: data?.leave_name,
+      marital_status: JSON.parse(data?.marital_status),
+      max_number_of_leave: data?.max_number_of_leave,
+      refill_from: data?.refill_from,
+      refill_quarterly: data?.refill_quarterly,
+      status: data?.status,
+    });
   };
 
   const columns: Array<Column> = [
@@ -278,8 +324,8 @@ function LeavesManager() {
             <Button
               type='button'
               className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              dataTooltipId='roles_permission_view_button'
-              dataTooltipContent='View'
+              data-tooltip-id='roles_permission_view_button'
+              data-tooltip-content='View'
               onClick={() => {
                 setShowViewModal(!showViewModal);
                 setLeaveData(data);
@@ -296,8 +342,8 @@ function LeavesManager() {
             <Button
               type='button'
               className='text-black/80 p-1.5'
-              dataTooltipId='holiday_edit_button'
-              dataTooltipContent='Edit'
+              data-tooltip-id='holiday_edit_button'
+              data-tooltip-content='Edit'
               onClick={() => handelEditButtonClick(data)}
               disabled={permissionData?.permissions?.some(
                 (item) => item.label == 'edit' && !item.is_allowed
@@ -305,39 +351,13 @@ function LeavesManager() {
             >
               <MdModeEdit className='text-[22px]' />
             </Button>
-            <Button
-              type='button'
-              className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              dataTooltipId='holiday_delete_button'
-              dataTooltipContent='Delete'
-              disabled={
-                data?.source_type == 'default' ||
-                permissionData?.permissions?.some(
-                  (item) => item.label == 'delete' && !item.is_allowed
-                )
-              }
-              onClick={() => {
-                setShowDeleteModal(true);
-                setDeleteItemId(data?.id);
-              }}
-            >
-              <MdDelete className='text-[22px]' />
-            </Button>
+
             <Tooltip
               id='holiday_edit_button'
               opacity={'100'}
               className='z-[15] bg-white'
               place='left'
             />
-
-            {data?.source_type != 'default' && (
-              <Tooltip
-                id='holiday_delete_button'
-                opacity={'100'}
-                className='z-[15] bg-white'
-                place='left'
-              />
-            )}
           </div>
         );
       },
@@ -347,33 +367,6 @@ function LeavesManager() {
   const handelShowModal = () => {
     setShowModal(true);
     setModalType('add');
-  };
-
-  const handelDeleteHolidayWithDebounce = useDebounce(async () => {
-    const endPointArr: endpointObject[] = [
-      {
-        endPoint: `org-setting/holiday/delete?id=${deleteItemId}`,
-        protected: true,
-      },
-    ];
-    const response = await multipleDeleteApi(endPointArr);
-    const res = response[0];
-    if (res?.success) {
-      setIsDeleteLoading(false);
-      setShowDeleteModal(false);
-      setIsFetchingData(true);
-      setDeleteItemId('');
-      fetchAllTheHolidayWithDebounce();
-    } else {
-      setIsDeleteLoading(false);
-      setDeleteItemId('');
-      handelNotification(res, 'top-right');
-    }
-  }, 100);
-
-  const handelDeleteItem = () => {
-    setIsDeleteLoading(true);
-    handelDeleteHolidayWithDebounce();
   };
 
   const handelCancel = () => {
@@ -405,7 +398,7 @@ function LeavesManager() {
   useEffect(() => {
     if (useEffectRef.current) return;
     useEffectRef.current = true;
-    fetchAllTheHolidayWithDebounce();
+    fetchAllTheLeavesWithDebounce();
   }, []);
 
   const segments = location.pathname.split('/').filter(Boolean);
@@ -416,8 +409,6 @@ function LeavesManager() {
   const permissionData = GlobalStateProvider.roles_permissions.permissions
     .find((item) => item.module_label == parentSection.replace('-', '_'))
     ?.sub_modules?.find((item) => item.module_label == childSection);
-
-  console.log(permissionData, modalType);
 
   //   const hasNoViewHolidayPermission =
   //     !permissionData ||
@@ -525,23 +516,13 @@ function LeavesManager() {
           </div>
         </div>
       </div>
-      {/* <AddEditHoliday
-        modalTitle='Add Leaves Manager'
-        formData={formData}
-        setFormData={setFromData}
+      <AddEditLeavesTypesModal
         showModal={showModal}
-        setShowModal={setShowModal}
-        modalType={modalType}
-        handelFormSubmitFunction={handelFormSubmitFunction}
         loading={loading}
-        
-      /> */}
-      <DeleteModal
-        loading={isDeleteLoading}
-        showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
-        handelDelete={handelDeleteItem}
-        name='Leaves Manager'
+        modalType={modalType}
+        editLeaveData={editLeaveData}
+        setShowModal={setShowModal}
+        onSave={handelSaveLeave}
       />
 
       <ViewLeaveModal

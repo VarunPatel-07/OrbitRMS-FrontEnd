@@ -4,7 +4,7 @@ import OrbitRMSLogo from '../../assets/Images/orbitrms-final-logo-transperent.we
 import Maintenance from '../../assets/lottie/Maintenance.lottie';
 import {
   MAINTENANCE_MODE_LOCAL_STORAGE_KEY,
-  unauthorizedStatusCodes,
+  UNAUTHORIZED_STATUS_CODE,
 } from '../../constant/constant';
 import {
   clearLocalSessionStorage,
@@ -76,10 +76,10 @@ function MaintenanceMode() {
         window.location.href = `/${response?.data?.data?.portal_slug}/dashboard`;
       }
     } catch (error: any) {
-      if (unauthorizedStatusCodes.includes(error?.status)) {
+      if (UNAUTHORIZED_STATUS_CODE.includes(error?.status)) {
         const status = error?.response?.status || error?.status;
 
-        if (unauthorizedStatusCodes.includes(status)) {
+        if (UNAUTHORIZED_STATUS_CODE.includes(status)) {
           clearLocalSessionStorage();
           window.location.href = '/auth/sign-in';
           return;

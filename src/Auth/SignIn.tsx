@@ -10,7 +10,7 @@ import Input from '../common/Input';
 import Loader from '../common/Loader';
 import MainSuspenseLoader from '../Components/Loader/MainSuspenseLoader';
 import { MAX_SIGN_IN_ATTEMPT } from '../constant/constant';
-import { MetaTitleDescription } from '../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../constant/MetaTitleDescription';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -195,8 +195,8 @@ function SignIn() {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.signIn.title}
-        Content={MetaTitleDescription.signIn.description}
+        Title={META_TITLE_DESCRIPTION.SIGN_IN.title}
+        Content={META_TITLE_DESCRIPTION.SIGN_IN.description}
       />
 
       <MainSuspenseLoader loading={showGlobalLoader} />

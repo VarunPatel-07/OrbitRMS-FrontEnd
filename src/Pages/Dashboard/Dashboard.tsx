@@ -6,7 +6,7 @@ import { MdOutlineDashboard } from 'react-icons/md';
 import { Editor } from '@tiptap/react';
 import * as tus from 'tus-js-client';
 
-import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -646,8 +646,8 @@ function Dashboard() {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.dashboard.title}
-        Content={MetaTitleDescription.dashboard.description}
+        Title={META_TITLE_DESCRIPTION.DASHBOARD.title}
+        Content={META_TITLE_DESCRIPTION.DASHBOARD.description}
       />
       <div className='w-full h-full bg-transparent overflow-hidden'>
         <div className='w-full h-full flex items-stretch justify-between overflow-hidden'>

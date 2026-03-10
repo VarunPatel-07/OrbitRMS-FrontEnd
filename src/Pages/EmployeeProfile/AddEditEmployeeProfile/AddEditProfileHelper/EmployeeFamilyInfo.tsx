@@ -7,7 +7,7 @@ import Input from '../../../../common/Input';
 import SearchDrop from '../../../../common/SearchDrop';
 import {
   AlignableForChildInfo,
-  maritalStatus,
+  MARITAL_STATUS,
 } from '../../../../constant/constant';
 import { EmployeeFamilyInfoInterface } from '../../../../interface/AddEditUserProfileInterFace';
 
@@ -143,7 +143,7 @@ function EmployeeFamilyInfo(props: EmployeeFamilyInfoInterface) {
               </div>
               <div className='w-full'>
                 <SearchDrop
-                  options={maritalStatus}
+                  options={MARITAL_STATUS}
                   searchKey=''
                   position='bottom'
                   emptyDataMessage=''

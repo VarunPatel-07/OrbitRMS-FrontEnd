@@ -1,18 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 //? -------------------------- This Is The Start Of The Onboarding Form InterFace -------------------------
 
-import React, { SetStateAction } from 'react';
+import React, {
+  ButtonHTMLAttributes,
+  ReactElement,
+  SetStateAction,
+} from 'react';
 
 import { Area } from 'react-easy-crop';
 
 import { Editor } from '@tiptap/react';
 
 import { AddEditPostFormdataInterface } from './Dashboard';
+import { AddEditLeavesTypesInterface } from './OrganizationSettings';
 import { RichTextEditorApiCallIngReturnInterface } from './propsInterface';
 import { GlobalContextStore } from './UserProfileInterface';
 
 //? -------------------------- Start Of The Onboarding Form InterFace Utility -------------------------
 
+export interface SidebarMenuItemInterface {
+  id:
+    | 'dashboard'
+    | 'leaves'
+    | 'employees'
+    | 'client_inquiry'
+    | 'social_media'
+    | 'config'
+    | 'api_manager'
+    | 'organization_settings';
+  name: string;
+  label: string;
+  icon: ReactElement;
+  link: string;
+  protected: boolean;
+  showToolTip: boolean;
+  ToolTipValue: string;
+  queryString?: string;
+}
 export interface CountryInfo {
   country_code: string;
   country_flag: string;
@@ -402,4 +426,45 @@ export interface CommanAddModalPropsInterface {
   dummyValue: string;
   dummyColor?: string;
   dummyFieldType?: string;
+}
+
+export interface AddEditLeavesTypePropsInterface {
+  showModal: boolean;
+  loading: boolean;
+  modalType: 'add' | 'edit';
+  editLeaveData: AddEditLeavesTypesInterface | null;
+  setShowModal: React.Dispatch<SetStateAction<boolean>>;
+  onSave: (data: AddEditLeavesTypesInterface, callback?: () => void) => void;
+}
+
+export interface LeavesReportingManagerModuleInterface {
+  id: string;
+  middle_name: string;
+  full_name: string;
+  profile_picture_bg: string;
+  first_name: string;
+  last_name: string;
+  profile_picture: string;
+  employee_code: string;
+}
+
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  type: 'button' | 'submit';
+  children: React.ReactElement | string;
+  className?: string;
+  disabled?: boolean;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  loader?: boolean;
+  loaderText?: string;
+  theme?: 'light' | 'dark';
+}
+
+export interface HalfToggleProps {
+  value: 'first_half' | 'second_half';
+  name: 'start_half' | 'end_half';
+  onSelect: (
+    name: 'start_half' | 'end_half',
+    type: 'first_half' | 'second_half'
+  ) => void;
+  disabled?: boolean;
 }

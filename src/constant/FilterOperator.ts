@@ -11,7 +11,11 @@ export const Is = {
   value: 'Is',
   type: FilterFieldsTypeEnums[1],
 };
-
+export const Between = {
+  label: 'between',
+  value: 'Between',
+  type: FilterFieldsTypeEnums[1],
+};
 export const Contains = {
   label: 'contains',
   value: 'Contains',

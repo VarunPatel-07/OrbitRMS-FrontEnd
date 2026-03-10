@@ -3,7 +3,10 @@ import { useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 
 import { FilterFieldsTypeEnums } from '../../../../enums/enums';
-import { classNames } from '../../../../Helper/HelperFunctions';
+import {
+  classNames,
+  getLocalDateString,
+} from '../../../../Helper/HelperFunctions';
 import { FilterInputDateSelectorInterface } from '../../../../interface/propsInterface';
 
 function FilterInputDateSelector(props: FilterInputDateSelectorInterface) {
@@ -37,7 +40,7 @@ function FilterInputDateSelector(props: FilterInputDateSelectorInterface) {
         updateFilterObject(
           {
             label: 'date',
-            value: date?.toISOString(),
+            value: getLocalDateString(date),
             type: FilterFieldsTypeEnums[2],
           },
           currentFilterId,
@@ -54,8 +57,8 @@ function FilterInputDateSelector(props: FilterInputDateSelectorInterface) {
     if (operator == 'between') {
       setDateRange(range);
       const rangeObject = {
-        start_date: range[0]?.toISOString(),
-        end_date: range[1]?.toISOString(),
+        start_date: getLocalDateString(range[0]),
+        end_date: getLocalDateString(range[1]),
       };
       if (range[0] !== null && range[1] !== null) {
         updateFilterObject(

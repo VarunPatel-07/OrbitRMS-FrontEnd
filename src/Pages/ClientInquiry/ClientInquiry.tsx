@@ -20,7 +20,7 @@ import TableSkeletonLoader from '../../Components/Loader/Table/TableSkeletonLoad
 import ClientInquirySliderModal from '../../Components/Modal/ClientInquirySliderModal';
 import { AddEditInquiryFormSchemaBreadcrumbs } from '../../constant/ConfigModuleConstant';
 import { dropdownMenuArray, initialMetadata } from '../../constant/constant';
-import { MetaTitleDescription } from '../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -150,8 +150,8 @@ function ClientInquiry() {
               <Button
                 type='button'
                 className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-                dataTooltipId='client_inquiry_view_button'
-                dataTooltipContent='View Inquiry'
+                data-tooltip-id='client_inquiry_view_button'
+                data-tooltip-content='View Inquiry'
                 onClick={() => handelClickOnViewInquiryButton(data)}
                 disabled={permissionData?.permissions?.some(
                   (item) => item?.label == 'view' && !item?.is_allowed
@@ -162,8 +162,8 @@ function ClientInquiry() {
               <Button
                 type='button'
                 className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-                dataTooltipId='client_inquiry_view_button'
-                dataTooltipContent='Delete Inquiry'
+                data-tooltip-id='client_inquiry_view_button'
+                data-tooltip-content='Delete Inquiry'
                 onClick={() => handelClickOnDeleteButton(data)}
                 disabled={permissionData?.permissions?.some(
                   (item) => item?.label == 'delete' && !item?.is_allowed
@@ -561,8 +561,8 @@ function ClientInquiry() {
   return (
     <>
       <HelmetSeo
-        Title={MetaTitleDescription.clientInquiry.title}
-        Content={MetaTitleDescription.clientInquiry.description}
+        Title={META_TITLE_DESCRIPTION.CLIENT_INQUIRY.title}
+        Content={META_TITLE_DESCRIPTION.CLIENT_INQUIRY.description}
       />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />

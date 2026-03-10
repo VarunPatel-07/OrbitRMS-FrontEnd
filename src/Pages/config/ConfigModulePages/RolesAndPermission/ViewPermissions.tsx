@@ -3,7 +3,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import Breadcrumbs from '../../../../common/Breadcrumbs';
-import { MetaTitleDescription } from '../../../../constant/MetaTitleDescription';
+import { META_TITLE_DESCRIPTION } from '../../../../constant/MetaTitleDescription';
 import {
   GlobalStateContext,
   GlobalStateContextApiProps,
@@ -145,8 +145,8 @@ function ViewPermissions() {
   return (
     <>
       <HelmetSeo
-        Title={`${data?.role_name}${data?.role_name && ` | `}${MetaTitleDescription.permissionViewer.title}`}
-        Content={MetaTitleDescription.permissionViewer.description}
+        Title={`${data?.role_name}${data?.role_name && ` | `}${META_TITLE_DESCRIPTION.VIEW_PERMISSION.title}`}
+        Content={META_TITLE_DESCRIPTION.VIEW_PERMISSION.description}
       />
       <div className='w-full h-full relative'>
         <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />

@@ -3,9 +3,9 @@
 import axios from 'axios';
 
 import {
+  MAINTENANCE_MODE_IS_ACTIVE_STATUS_CODE,
   MAINTENANCE_MODE_LOCAL_STORAGE_KEY,
-  MaintenanceModeIsActiveStatusCode,
-  unauthorizedStatusCodes,
+  UNAUTHORIZED_STATUS_CODE,
 } from '../../constant/constant';
 import {
   clearLocalSessionStorage,
@@ -45,7 +45,7 @@ const multipleFetchApiErrorHandler = (error: any) => {
   if (VITE_ENVIRONMENT == 'DEVELOPMENT') {
     return ErrorHandler(error);
   } else {
-    if (MaintenanceModeIsActiveStatusCode.includes(error?.status)) {
+    if (MAINTENANCE_MODE_IS_ACTIVE_STATUS_CODE.includes(error?.status)) {
       storeDataInLocalStorage(
         error?.response?.data?.detail.data,
         MAINTENANCE_MODE_LOCAL_STORAGE_KEY
@@ -54,10 +54,10 @@ const multipleFetchApiErrorHandler = (error: any) => {
       return;
     }
 
-    if (unauthorizedStatusCodes.includes(error?.status)) {
+    if (UNAUTHORIZED_STATUS_CODE.includes(error?.status)) {
       const status = error?.response?.status || error?.status;
 
-      if (unauthorizedStatusCodes.includes(status)) {
+      if (UNAUTHORIZED_STATUS_CODE.includes(status)) {
         window.location.href = '/auth/sign-in';
         return;
       }

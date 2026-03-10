@@ -3,7 +3,6 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom';
 
-import { HandelPathFunction } from '../../App';
 import Breadcrumbs from '../../common/Breadcrumbs';
 import Button from '../../common/Button';
 import EmployeeProfilePicture from '../../Components/EmployeeProfilePicture';
@@ -21,6 +20,7 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '../../Helper/api/multipleAPI';
+import { HandelPathFunction } from '../../Helper/Helper';
 import {
   classNames,
   getDataFromLocalStorage,
