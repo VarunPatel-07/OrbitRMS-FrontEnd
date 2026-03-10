@@ -141,3 +141,13 @@ export interface TeamOrgLeaveModuleHeaderInterface {
   GlobalStateProvider: GlobalContextStore;
   data: TeamLeaveSummaryDataInterface;
 }
+
+export interface ManageSelfLeaveColumnsInterface {
+  GlobalStateProvider: GlobalContextStore;
+  toggleViewLeaveDetails: (data: ManageAppliedSelfLeavesInterface) => void;
+}
+
+export interface ManageTeamOrgLeaveColumnsInterface {
+  GlobalStateProvider: GlobalContextStore;
+  toggleViewLeaveDetails: (data: ManageAppliedTeamLeavesInterface) => void;
+}

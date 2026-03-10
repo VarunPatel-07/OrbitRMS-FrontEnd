@@ -6,6 +6,7 @@ import {
   ModuleValueInterface,
 } from '@/interface/ComponentProps.interface';
 
+import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
 import { classNames } from '@/utils/helpers/commonHelpers';
 
@@ -40,7 +41,7 @@ const FilterInputMainFilterDropdown = React.memo(
       id: string,
       type: string,
       value: string,
-      optionType: 'text' | 'select' | 'multi-select' | 'date'
+      optionType: keyof typeof OPTION_TYPE
     ) => {
       setShowFilterDropDownMenu(true);
       setCurrentFilterId(id);

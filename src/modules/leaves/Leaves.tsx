@@ -7,9 +7,9 @@ import {
   GlobalStateContextApiProps,
 } from '@/contexts/globalState/GlobalStateContectApi';
 import { BreadcrumbsProps } from '@/interface/ComponentProps.interface';
-import ManageOrgTeamLeaves from '@/modules/leaves/ManageOrgTeamLeaves';
-import ManageSelfLeave from '@/modules/leaves/ManageSelfLeave';
-import ManageTeamLeaves from '@/modules/leaves/ManageTeamLeave';
+import ManageOrgTeamLeaves from '@/modules/leaves/screens/ManageOrganizationTeamLeaves';
+import ManageSelfLeave from '@/modules/leaves/screens/ManageSelfLeave';
+import ManageTeamLeaves from '@/modules/leaves/screens/ManageTeamLeave';
 
 import Breadcrumbs from '@/components/common/Breadcrumbs';
 import Button from '@/components/common/Button';

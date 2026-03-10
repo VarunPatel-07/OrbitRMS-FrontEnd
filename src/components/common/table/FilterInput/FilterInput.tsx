@@ -16,6 +16,7 @@ import FiltersOperatorDropdown from '@/components/common/table/FilterInput/Filte
 import FiltersOptionsDropdown from '@/components/common/table/FilterInput/FilterInputHelperFunctions/FiltersOptionsDropdown';
 import FinalFilterRenderHelper from '@/components/common/table/FilterInput/FilterInputHelperFunctions/FinalFilterRenderHelper';
 import HandleMultiInputChange from '@/components/common/table/FilterInput/FilterInputHelperFunctions/HandleMultiInputChange';
+import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
 import { classNames, convertToTitleCase } from '@/utils/helpers/commonHelpers';
 
@@ -142,7 +143,7 @@ function FilterInput({
       (val) => val.id === currentFilterId
     );
 
-    if (selectedFilter?.optionType == 'text') {
+    if (selectedFilter?.optionType == OPTION_TYPE.TEXT) {
       if (inputValue !== '') {
         const newObject = {
           label: 'input_value',
@@ -329,7 +330,7 @@ function FilterInput({
 
           {currentFilterId?.trim() !== '' &&
             filterColumnsArray?.find((item) => item?.id === currentFilterId)
-              ?.optionType === 'date' && (
+              ?.optionType === OPTION_TYPE.DATE && (
               <FilterInputDateSelector
                 setShowCurrentOptionDropdown={setShowCurrentOptionDropdown}
                 showCurrentOptionDropdown={showCurrentOptionDropdown}

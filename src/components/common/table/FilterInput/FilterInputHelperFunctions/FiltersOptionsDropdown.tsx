@@ -13,6 +13,7 @@ import {
   ModuleValueInterface,
 } from '@/interface/ComponentProps.interface';
 
+import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { classNames } from '@/utils/helpers/commonHelpers';
 
 const FiltersOptionsDropdown = React.memo(function FiltersOptionsDropdown(
@@ -100,7 +101,7 @@ const FiltersOptionsDropdown = React.memo(function FiltersOptionsDropdown(
         (val) => val.id === currentFilterId
       );
 
-      if (currentModule?.optionType === 'multi-select') {
+      if (currentModule?.optionType === OPTION_TYPE.MULTI_SELECT) {
         if (memoizedFilteredOptions?.length === 1) {
           updateFilterObject(
             {
@@ -153,7 +154,7 @@ const FiltersOptionsDropdown = React.memo(function FiltersOptionsDropdown(
             });
           }
         }
-      } else if (currentModule?.optionType === 'select') {
+      } else if (currentModule?.optionType === OPTION_TYPE.SELECT) {
         updateFilterObject(
           {
             label: data.label,

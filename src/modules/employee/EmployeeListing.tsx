@@ -37,6 +37,7 @@ import TablePagination from '@/components/common/table/TablePagination';
 import EmployeeProfilePicture from '@/components/EmployeeProfilePicture';
 import TableSkeletonLoader from '@/components/loaders/table/TableSkeletonLoader';
 import { endpointObject, multipleFetchApi } from '@/utils/api/multipleAPI';
+import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { dropdownMenuArray } from '@/utils/constants/global.constants';
 import { META_TITLE_DESCRIPTION } from '@/utils/constants/seo.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
@@ -379,7 +380,7 @@ function EmployeeListing() {
             obj.operator = moduleValue?.label;
           }
           if (moduleValue?.type === FilterFieldsTypeEnums[2]) {
-            if (queryObj?.optionType == 'multi-select') {
+            if (queryObj?.optionType == OPTION_TYPE.MULTI_SELECT) {
               const MultiSelectArr: string[] = [];
               queryObj?.moduleValue
                 ?.filter((tem) => tem.type === FilterFieldsTypeEnums[2])

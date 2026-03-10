@@ -4,6 +4,7 @@ import { SelectedFileArrayObjInterface } from '@/interface/Global.interface';
 import { GlobalContextStore } from '@/interface/UserProfile.interface';
 import { Editor } from '@tiptap/react';
 
+import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { countryObject } from '@/utils/helpers/countryData';
 
 import { AddEditPostFormdataInterface } from './Dashboard.interface';
@@ -258,7 +259,7 @@ export interface SearchBarFilterOptionsInterface {
   label: React.ReactElement;
   operator?: Array<operatorObject>;
   options?: Array<operatorObject>;
-  optionType: 'text' | 'select' | 'multi-select' | 'date';
+  optionType: keyof typeof OPTION_TYPE;
 }
 
 export interface ModalInfoType {
@@ -349,7 +350,7 @@ export interface ModuleValueInterface {
 export interface FilterObjectInterface {
   id: string;
   moduleValue: ModuleValueInterface[];
-  optionType?: 'text' | 'select' | 'multi-select' | 'date';
+  optionType?: keyof typeof OPTION_TYPE;
 }
 
 export interface handleMultiInputChangeInterface {
@@ -359,7 +360,7 @@ export interface handleMultiInputChangeInterface {
   inputValue: string;
   setInputValue: React.Dispatch<SetStateAction<string>>;
   setShowFilterDropDownMenu: React.Dispatch<SetStateAction<boolean>>;
-  optionType: 'text' | 'select' | 'multi-select' | 'date' | undefined;
+  optionType: 'TEXT' | 'SELECT' | 'MULTI_SELECT' | 'DATE' | undefined;
   searchInputValue: string;
   setSearchInputValue: React.Dispatch<SetStateAction<string>>;
 }

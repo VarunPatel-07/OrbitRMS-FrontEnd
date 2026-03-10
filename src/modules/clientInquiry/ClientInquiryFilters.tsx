@@ -1,5 +1,6 @@
 import { SearchBarFilterOptionsInterface } from '@/interface/ComponentProps.interface';
 
+import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
 
 export const clientInquiryFiltersArray: SearchBarFilterOptionsInterface[] = [
@@ -12,7 +13,7 @@ export const clientInquiryFiltersArray: SearchBarFilterOptionsInterface[] = [
         <span>Email</span>
       </div>
     ),
-    optionType: 'text',
+    optionType: OPTION_TYPE.TEXT,
     operator: [
       {
         label: 'Equals',
@@ -45,7 +46,7 @@ export const clientInquiryFiltersArray: SearchBarFilterOptionsInterface[] = [
         <span>Name</span>
       </div>
     ),
-    optionType: 'text',
+    optionType: OPTION_TYPE.TEXT,
     operator: [
       {
         label: 'Equals',
@@ -79,7 +80,7 @@ export const clientInquiryFiltersArray: SearchBarFilterOptionsInterface[] = [
         <span>Status</span>
       </div>
     ),
-    optionType: 'select',
+    optionType: OPTION_TYPE.SELECT,
     operator: [
       {
         label: 'Equals',
@@ -114,7 +115,7 @@ export const clientInquiryFiltersArray: SearchBarFilterOptionsInterface[] = [
         <span>Date</span>
       </div>
     ),
-    optionType: 'date',
+    optionType: OPTION_TYPE.DATE,
     operator: [
       {
         label: 'Before',
@@ -148,7 +149,7 @@ export const clientInquiryFiltersArray: SearchBarFilterOptionsInterface[] = [
         <span>Priority</span>
       </div>
     ),
-    optionType: 'select',
+    optionType: OPTION_TYPE.SELECT,
     operator: [
       {
         label: 'Equals',
