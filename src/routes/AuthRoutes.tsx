@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 
-import { APP_AUTH_ROUTES_MODULE_ARRAY } from '../constant/AuthRoutesModuleArray';
-import RedirectToDashboard from '../Helper/RedirectToDashboard';
+import { APP_AUTH_ROUTES_MODULE_ARRAY } from '@/utils/constants/authRoutesModuleArray.constants';
+import RedirectToDashboard from '@/utils/helpers/RedirectToDashboard';
 
 function AuthRoutes() {
   return (

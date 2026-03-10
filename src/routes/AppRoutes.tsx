@@ -2,11 +2,12 @@ import React from 'react';
 
 import { Route, Routes } from 'react-router-dom';
 
-import { APPS_ROUTES_MODULE_ARRAY } from '../constant/AppRouteModuleArray';
-import { HandelPathFunction } from '../Helper/Helper';
-import ProtectedRoute from '../Helper/ProtectedRoute';
-import { appRouterArraysInterface } from '../interface/interface';
-import { GlobalContextStore } from '../interface/UserProfileInterface';
+import { appRouterArraysInterface } from '@/interface/Global.interface';
+import { GlobalContextStore } from '@/interface/UserProfile.interface';
+
+import { APPS_ROUTES_MODULE_ARRAY } from '@/utils/constants/appRouteModuleArray.constants';
+import { HandelPathFunction } from '@/utils/helpers/helpers';
+import ProtectedRoute from '@/utils/helpers/ProtectedRoute';
 
 function AppRoutes({
   GlobalStateProvider,
