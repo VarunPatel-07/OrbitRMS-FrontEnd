@@ -20,7 +20,6 @@ import {
   AddEditLeavesTypesInterface,
   LeavesTypesInterface,
 } from '@/interface/OrganizationSettings.interface';
-import ViewLeaveModal from '@/modules/organizationSettings//OrganizationSettingsPages/LeavesManager/ViewLeaveModal';
 
 import { useDebounce } from '@/hooks/useDebounce';
 
@@ -30,6 +29,7 @@ import Table from '@/components/common/table/Table';
 import TableInfoHeader from '@/components/common/table/TableInfoHeader';
 import TableLocalSearchBar from '@/components/common/table/TableLocalSearchBar';
 import TableNoDataFound from '@/components/common/table/TableNoDataFound';
+import ViewLeaveModal from '@/components/drawers/ViewLeaveModal';
 import TableSkeletonLoader from '@/components/loaders/table/TableSkeletonLoader';
 import AddEditLeavesTypesModal from '@/components/modals/AddEditLeavesTypesModal';
 import {
@@ -38,6 +38,7 @@ import {
   multiplePostApi,
 } from '@/utils/api/multipleAPI';
 import { formateDate } from '@/utils/helpers/commonHelpers';
+import { INITIAL_LEAVE_TYPE } from '@/utils/initialData/leaves.initial';
 
 import HolidayAnimation from '@/assets/lottie/HolidayAnimation.lottie';
 
@@ -69,7 +70,7 @@ function LeavesManager() {
     {
       name: 'Leaves Manager',
       label: 'holiday',
-      link: `/${organization}/organization-settings/holiday`,
+      link: `/${organization}/organization-settings/leaves-manager`,
     },
   ];
 
@@ -90,7 +91,8 @@ function LeavesManager() {
   const [editId, setEditId] = useState<string>('');
   const [editLeaveData, setEditLeaveData] =
     useState<AddEditLeavesTypesInterface | null>(null);
-  const [leaveData, setLeaveData] = useState<LeavesTypesInterface | null>(null);
+  const [leaveData, setLeaveData] =
+    useState<LeavesTypesInterface>(INITIAL_LEAVE_TYPE);
 
   const [reFetchingData, setReFetchingData] = useState<boolean>(false);
 
@@ -367,14 +369,19 @@ function LeavesManager() {
     },
   ];
 
-  const handelShowModal = () => {
-    setShowModal(true);
-    setModalType('add');
+  const toggleShowModal = (type: 'show' | 'close') => {
+    if (type === 'show') {
+      setShowModal(true);
+      setModalType('add');
+    } else {
+      setShowModal(false);
+      setModalType('add');
+    }
   };
 
   const handelCancel = () => {
     setShowViewModal(false);
-    setLeaveData(null);
+    setLeaveData(INITIAL_LEAVE_TYPE);
   };
 
   const optionsButtonArray: Array<TableInfoHeaderInterfaceButtonArrayObject> = [
@@ -382,7 +389,7 @@ function LeavesManager() {
       buttonTitle: 'Add Leaves Type',
       classNames:
         'font-inter text-white font-medium bg-[var(--them-green-color)] px-4 py-1.5 text-base rounded-lg',
-      onclickFunction: handelShowModal,
+      onclickFunction: () => toggleShowModal('show'),
     },
   ];
 
@@ -524,7 +531,7 @@ function LeavesManager() {
         loading={loading}
         modalType={modalType}
         editLeaveData={editLeaveData}
-        setShowModal={setShowModal}
+        onClose={() => toggleShowModal('close')}
         onSave={handelSaveLeave}
       />
 

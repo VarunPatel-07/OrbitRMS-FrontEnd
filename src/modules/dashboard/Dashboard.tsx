@@ -40,8 +40,8 @@ import HelmetSeo from '@/utils/helpers/HelmetSeo';
 import { getCroppedImageBlob } from '@/utils/helpers/ImageCropper';
 import { ImageDownscaler } from '@/utils/helpers/ImageDownscaler';
 
-const AddEditPostModal = React.lazy(
-  () => import('../../components/modals/AddEditPostModal')
+const AddEditPostDrawer = React.lazy(
+  () => import('../../components/drawers/AddEditPostDrawer')
 );
 
 const DeleteConfirmationDialog = React.lazy(
@@ -125,9 +125,14 @@ function Dashboard() {
     }
   }, 100);
 
-  const handelClickOnDeleteButton = (id: string) => {
-    setDeletePostId(id);
-    setShowDeleteModal(true);
+  const handelClickOnDeleteButton = (id?: string) => {
+    if (id) {
+      setDeletePostId(id);
+      setShowDeleteModal(true);
+    } else {
+      setDeletePostId('');
+      setShowDeleteModal(true);
+    }
   };
 
   const handelToggleLikeWithDebounce = useDebounce(async (post_id: string) => {
@@ -703,7 +708,7 @@ function Dashboard() {
           )}
         </div>
       </div>
-      <AddEditPostModal
+      <AddEditPostDrawer
         showAddEditPostModal={showAddEditPostModal}
         GlobalStateProvider={GlobalStateProvider}
         handelOnSubmit={handelSubmitApiCallingWithDebounce}
@@ -719,7 +724,7 @@ function Dashboard() {
       <DeleteConfirmationDialog
         loading={isDeleteLoading}
         showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
+        handelOnClose={handelClickOnDeleteButton}
         handelDelete={handelDeleteItem}
         name='Post'
       />

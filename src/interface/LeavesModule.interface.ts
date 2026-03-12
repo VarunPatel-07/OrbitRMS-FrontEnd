@@ -3,8 +3,8 @@ import React, { SetStateAction } from 'react';
 import { GlobalContextStore } from '@/interface/UserProfile.interface';
 
 export interface ManageSelfLeaveModuleInterface {
-  showModal: boolean;
-  setShowModal: React.Dispatch<SetStateAction<boolean>>;
+  showAddLaveModal: boolean;
+  setShowAddLeaveModal: React.Dispatch<SetStateAction<boolean>>;
 }
 
 export interface LeaveBalanceCardLoaderInterface {

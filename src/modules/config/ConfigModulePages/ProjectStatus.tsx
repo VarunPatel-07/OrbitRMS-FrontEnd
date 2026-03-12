@@ -378,6 +378,11 @@ function ProjectStatus({
     fetchProjectStatus();
   }, []);
 
+  const handelOnClose = () => {
+    setShowDeleteModal(false);
+    setDeleteItemId('');
+  };
+
   if (
     !permissions ||
     !permissions.some((perm) => perm.label === 'view' && perm.is_allowed)
@@ -474,37 +479,33 @@ function ProjectStatus({
       </div>
 
       <Suspense fallback={null}>
-        {showModal && (
-          <AddModal
-            modalTitle={
-              modalType == 'add' ? 'Add Project Status' : 'Edit Project Status'
-            }
-            labelFieldName='Project Status'
-            showColorPicker={true}
-            showPreview={true}
-            showModal={showModal}
-            setShowModal={setShowModal}
-            loading={loading}
-            handelFormSubmitFunction={handelFormSubmitFunction}
-            value={value}
-            setValue={setValue}
-            modalType={modalType}
-            color={statusColor}
-            setColor={setStatusColor}
-            dummyValue={dummyValue}
-            dummyColor={dummyStatusColor}
-          />
-        )}
+        <AddModal
+          modalTitle={
+            modalType == 'add' ? 'Add Project Status' : 'Edit Project Status'
+          }
+          labelFieldName='Project Status'
+          showColorPicker={true}
+          showPreview={true}
+          showModal={showModal}
+          setShowModal={setShowModal}
+          loading={loading}
+          handelFormSubmitFunction={handelFormSubmitFunction}
+          value={value}
+          setValue={setValue}
+          modalType={modalType}
+          color={statusColor}
+          setColor={setStatusColor}
+          dummyValue={dummyValue}
+          dummyColor={dummyStatusColor}
+        />
 
-        {showDeleteModal && (
-          <DeleteConfirmationDialog
-            loading={isDeleteLoading}
-            showDeleteModal={showDeleteModal}
-            setShowDeleteModal={setShowDeleteModal}
-            handelDelete={handelDeleteItem}
-            name='Project Status'
-          />
-        )}
+        <DeleteConfirmationDialog
+          loading={isDeleteLoading}
+          showDeleteModal={showDeleteModal}
+          handelOnClose={handelOnClose}
+          handelDelete={handelDeleteItem}
+          name='Project Status'
+        />
       </Suspense>
     </>
   );

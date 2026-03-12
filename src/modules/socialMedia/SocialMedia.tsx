@@ -505,20 +505,25 @@ function SocialMedia() {
   };
 
   const handelClickOnDeleteButton = (
-    postId: string,
-    selected_platforms: string
+    postId?: string,
+    selected_platforms?: string
   ) => {
-    setRenderExtraMessageForDelete(false);
-    if (postId) {
-      setDeletePostId(postId);
-      setShowDeleteModal(true);
-      if (selected_platforms !== '') {
-        JSON.parse(selected_platforms)?.forEach((item: string) => {
-          if (item === 'instagram') {
-            setRenderExtraMessageForDelete(true);
-          }
-        });
+    if (postId && selected_platforms) {
+      setRenderExtraMessageForDelete(false);
+      if (postId) {
+        setDeletePostId(postId);
+        setShowDeleteModal(true);
+        if (selected_platforms !== '') {
+          JSON.parse(selected_platforms)?.forEach((item: string) => {
+            if (item === 'instagram') {
+              setRenderExtraMessageForDelete(true);
+            }
+          });
+        }
       }
+    } else {
+      setDeletePostId('');
+      setShowDeleteModal(false);
     }
   };
 
@@ -690,7 +695,7 @@ function SocialMedia() {
       <DeleteConfirmationDialog
         loading={isDeleteLoading}
         showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
+        handelOnClose={handelClickOnDeleteButton}
         handelDelete={handelDeletePost}
         name='Social Media Post'
         ExtraErrorMessage={

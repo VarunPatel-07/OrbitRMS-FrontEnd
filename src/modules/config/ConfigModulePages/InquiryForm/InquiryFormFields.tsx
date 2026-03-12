@@ -232,6 +232,16 @@ export default function InquiryFormFields() {
     handelDeleteItemWithDebounce();
   };
 
+  const handelClickOnDeleteButton = (data?: InquiryFormFieldInterface) => {
+    if (data) {
+      setShowDeleteModal(true);
+      setDeleteItemId(data?.id);
+    } else {
+      setShowDeleteModal(false);
+      setDeleteItemId('');
+    }
+  };
+
   const columns: Array<Column> = [
     {
       key: 'field_name',
@@ -355,10 +365,7 @@ export default function InquiryFormFields() {
               data-tooltip-id='project_status_delete_button'
               disabled={data?.source_type == 'default'}
               data-tooltip-content='Delete'
-              onClick={() => {
-                setShowDeleteModal(true);
-                setDeleteItemId(data?.id);
-              }}
+              onClick={() => handelClickOnDeleteButton(data)}
             >
               <MdDelete className='text-[22px]' />
             </button>
@@ -481,7 +488,7 @@ export default function InquiryFormFields() {
       <DeleteConfirmationDialog
         loading={isDeleteLoading}
         showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
+        handelOnClose={handelClickOnDeleteButton}
         handelDelete={handelDeleteItem}
         name='Department'
       />

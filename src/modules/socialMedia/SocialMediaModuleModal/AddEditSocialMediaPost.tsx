@@ -23,7 +23,7 @@ import Image from '@/components/common/Image';
 import Loader from '@/components/common/Loader';
 import MultiSelectSearchDrop from '@/components/common/MultiSelectSearchDrop';
 import TextArea from '@/components/common/TextArea';
-import ChatWindowModal from '@/components/orbitAIChatBot/ChatWindowModal';
+import ChatWindowDialog from '@/components/orbitAIChatBot/ChatWindowDialog';
 import {
   classNames,
   compareTwoNestedObject,
@@ -426,7 +426,7 @@ const AddEditSocialMediaPost = React.memo(function AddEditSocialMediaPost(
             </div>
           </div>
         </div>
-        <ChatWindowModal
+        <ChatWindowDialog
           showModal={showOrbitAiChatWindow}
           handelClickOnCloseBtn={handelClickOnCloseBtn}
           orbitAiBaseData={orbitAiBaseData}

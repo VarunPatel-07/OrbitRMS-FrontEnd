@@ -19,6 +19,7 @@ import HandleMultiInputChange from '@/components/common/table/FilterInput/Filter
 import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
 import { classNames, convertToTitleCase } from '@/utils/helpers/commonHelpers';
+import { IsStringArrayString } from '@/utils/helpers/helpers';
 
 function FilterInput({
   filterColumnsArray,
@@ -226,12 +227,21 @@ function FilterInput({
           value: convertToTitleCase(arrayItem?.operator),
           type: FilterFieldsTypeEnums[1],
         });
-
-        modelValueArray.push({
-          label: arrayItem?.value,
-          value: arrayItem?.value,
-          type: FilterFieldsTypeEnums[2],
-        });
+        if (IsStringArrayString(arrayItem?.value)) {
+          JSON.parse(arrayItem.value)?.map((item: string) =>
+            modelValueArray.push({
+              label: item?.toLocaleLowerCase(),
+              value: item,
+              type: FilterFieldsTypeEnums[2],
+            })
+          );
+        } else {
+          modelValueArray.push({
+            label: arrayItem?.value,
+            value: arrayItem?.value,
+            type: FilterFieldsTypeEnums[2],
+          });
+        }
 
         const obj: FilterObjectInterface = {
           id: arrayItem?.field_name,
@@ -346,6 +356,8 @@ function FilterInput({
       </div>
     );
   };
+
+  console.log('selectedFilterObject', 'parsedFilter', selectedFilterObject);
 
   return (
     <div className='w-full relative' ref={boxRef}>

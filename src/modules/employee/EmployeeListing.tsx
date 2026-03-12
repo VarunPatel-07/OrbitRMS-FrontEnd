@@ -45,7 +45,7 @@ import { getDataFromLocalStorage } from '@/utils/helpers/commonHelpers';
 import HelmetSeo from '@/utils/helpers/HelmetSeo';
 import { BeautifulAccountStatusRenderer } from '@/utils/helpers/helpers';
 
-const initialMetadata: MetaDataInterface = {
+const INITIAL_META_DATA: MetaDataInterface = {
   total_data: 0,
   total_pages: 1,
   current_page: 1,
@@ -68,7 +68,8 @@ function EmployeeListing() {
 
   const useEffectRef = useRef(false);
   const [data, setData] = useState<EmployeeFieldInterface[]>([]);
-  const [metaData, setMetaData] = useState<MetaDataInterface>(initialMetadata);
+  const [metaData, setMetaData] =
+    useState<MetaDataInterface>(INITIAL_META_DATA);
   const [isInitialFetching, setIsInitialFetching] = useState<boolean>(true);
   const [isFetchingData, setIsFetchingData] = useState<boolean>(false);
 

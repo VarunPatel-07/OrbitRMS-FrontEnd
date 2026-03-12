@@ -7,9 +7,8 @@ import {
   GlobalStateContextApiProps,
 } from '@/contexts/globalState/GlobalStateContectApi';
 import { BreadcrumbsProps } from '@/interface/ComponentProps.interface';
-import ManageOrgTeamLeaves from '@/modules/leaves/screens/ManageOrganizationTeamLeaves';
 import ManageSelfLeave from '@/modules/leaves/screens/ManageSelfLeave';
-import ManageTeamLeaves from '@/modules/leaves/screens/ManageTeamLeave';
+import ManageTeamAndOrgLeave from '@/modules/leaves/screens/ManageTeamAndOrgLeave';
 
 import Breadcrumbs from '@/components/common/Breadcrumbs';
 import Button from '@/components/common/Button';
@@ -29,10 +28,10 @@ function Leaves() {
   const tabType = searchParam.get('tab');
 
   // Some Coman State For All The Type
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showAddLaveModal, setShowAddLeaveModal] = useState<boolean>(false);
 
   const handelClickOnAddLeave = () => {
-    setShowModal(true);
+    setShowAddLeaveModal(true);
   };
 
   const organization =
@@ -64,12 +63,15 @@ function Leaves() {
   const getLeaveModuleOnTabType = (type: string | null) => {
     if (type === LEAVE_MODULE_TAB_TYPE_OBJECT.SELF) {
       return (
-        <ManageSelfLeave showModal={showModal} setShowModal={setShowModal} />
+        <ManageSelfLeave
+          showAddLaveModal={showAddLaveModal}
+          setShowAddLeaveModal={setShowAddLeaveModal}
+        />
       );
     } else if (type === LEAVE_MODULE_TAB_TYPE_OBJECT.TEAM) {
-      return <ManageTeamLeaves />;
+      return <ManageTeamAndOrgLeave key='team' tab='team' />;
     } else if (type === LEAVE_MODULE_TAB_TYPE_OBJECT.ORGANIZATION) {
-      return <ManageOrgTeamLeaves />;
+      return <ManageTeamAndOrgLeave key='organization' tab='organization' />;
     } else {
       return <PageNotFound />;
     }
@@ -111,7 +113,7 @@ function Leaves() {
                 </p>
               </div>
               <div className='flex flex-row items-stretch justify-end gap-10'>
-                <LeavesTabs />
+                <LeavesTabs setShowAddLeaveModal={setShowAddLeaveModal} />
                 <Button
                   type='button'
                   className='text-white bg-[var(--them-green-color)] py-2 px-6 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'

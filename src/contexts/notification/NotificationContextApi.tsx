@@ -9,8 +9,8 @@ import React, {
 import { v4 as uuidv4 } from 'uuid';
 
 import {
-  getEnterAnimationClass,
-  getExitAnimationClass,
+  GET_EXIT_ANIMATION_CLASS,
+  GET_ENTER_ANIMATION_CLASS,
 } from '@/utils/constants/global.constants';
 
 export interface NotificationObject {
@@ -83,10 +83,10 @@ const NotificationContextApiProvider: React.FC<{ children: ReactNode }> = ({
         const element = document.getElementById(notificationId);
         if (element) {
           element.classList.remove(
-            getEnterAnimationClass[direction || 'top-right']
+            GET_ENTER_ANIMATION_CLASS[direction || 'top-right']
           );
           element.classList.add(
-            getExitAnimationClass[direction || 'top-right']
+            GET_EXIT_ANIMATION_CLASS[direction || 'top-right']
           );
           const onAnimationEnd = () => {
             setNotificationInfoArray((previous) =>

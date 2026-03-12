@@ -1,14 +1,14 @@
 import { MetaDataInterface } from '@/interface/ComponentProps.interface';
 import { AddEditLeavesTypesInterface } from '@/interface/OrganizationSettings.interface';
 
-export const getEnterAnimationClass = {
+export const GET_ENTER_ANIMATION_CLASS = {
   'top-right': 'animate-enter-top-right',
   'top-left': 'animate-enter-top-left',
   'bottom-right': 'animate-enter-bottom-right',
   'bottom-left': 'animate-enter-bottom-left',
   center: 'animate-enter-center',
 };
-export const getExitAnimationClass = {
+export const GET_EXIT_ANIMATION_CLASS = {
   'top-right': 'animate-exit-top-right',
   'top-left': 'animate-exit-top-left',
   'bottom-right': 'animate-exit-bottom-right',
@@ -95,21 +95,21 @@ export const MAX_SIGN_IN_ATTEMPT = 'sign_in_attempt';
 
 export const MAINTENANCE_MODE_LOCAL_STORAGE_KEY = 'MAINTENANCE_MODE';
 
-export const defaultCountryInfo = {
+export const DEFAULT_COUNTRY_INFO = {
   country_code: 'IN',
   country_flag: '🇮🇳',
   country_name: 'India',
   country_number_code: '+91',
 };
 
-export const initialMetadata: MetaDataInterface = {
+export const INITIAL_META_DATA: MetaDataInterface = {
   total_data: 0,
   total_pages: 1,
   current_page: 1,
   record_per_page: 10,
 };
 
-export const EmployeeCountArray = [
+export const EMPLOYEE_COUNTS_ARRAY = [
   'Less than 10',
   '10 - 20',
   '21 - 30',
@@ -123,7 +123,7 @@ export const EmployeeCountArray = [
   'More than 100',
 ];
 
-export const industryType: { label: string; value: string }[] = [
+export const INDUSTRY_WE_SERVE_ARRAY: { label: string; value: string }[] = [
   { label: 'software_company', value: 'Software Company' },
   { label: 'consultancy_firm', value: 'Consultancy Firm' },
   { label: 'media_agency', value: 'Media Agency' },
@@ -284,14 +284,7 @@ export const LEAVE_MODULE_TAB_TYPE_OBJECT = {
   ORGANIZATION: 'Organization',
 };
 
-export const TEAM_SUMMARY_INITIAL_DATA = {
-  total_employees: 0,
-  employees_on_leave: 0,
-  planned_leaves: 0,
-  unplanned_leaves: 0,
-  pending_leaves: 0,
-  cancelled_leaves: 0,
-};
+
 
 export const LEAVE_STATUS_CONFIG = {
   pending: {
@@ -322,4 +315,25 @@ export const LEAVE_STATUS_CONFIG = {
     border: 'border-gray-200',
     dot: 'bg-gray-400',
   },
+};
+
+export const COMMON_DRAWER_POSITION = {
+  RIGHT: `right-0 top-0 h-full ml-auto`,
+  LEFT: `left-0 top-0 h-full mr-auto`,
+  TOP: `top-0 left-0 w-full`,
+  BOTTOM: `bottom-0 left-0 w-full`,
+};
+
+export const COMMON_DRAWER_ENTER_ANIMATION = {
+  RIGHT: 'translate-x-0 opacity-100',
+  LEFT: 'translate-x-0 opacity-100',
+  TOP: 'translate-y-0 opacity-100',
+  BOTTOM: 'translate-y-0 opacity-100',
+};
+
+export const COMMON_DRAWER_EXIT_ANIMATION = {
+  RIGHT: 'translate-x-full opacity-0',
+  LEFT: '-translate-x-full opacity-0',
+  TOP: '-translate-y-full opacity-0',
+  BOTTOM: 'translate-y-full opacity-0',
 };

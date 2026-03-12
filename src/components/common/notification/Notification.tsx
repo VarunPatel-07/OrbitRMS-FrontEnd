@@ -9,7 +9,7 @@ import {
   NotificationObject,
 } from '@/contexts/notification/NotificationContextApi';
 
-import { getEnterAnimationClass } from '@/utils/constants/global.constants';
+import { GET_ENTER_ANIMATION_CLASS } from '@/utils/constants/global.constants';
 import { classNames } from '@/utils/helpers/commonHelpers';
 
 function Notification() {
@@ -68,7 +68,9 @@ function Notification() {
                     key={notification.id}
                     id={notification.id}
                     className={`bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.3)] rounded-md pl-3 pr-5 py-2 ${
-                      getEnterAnimationClass[notification.notificationDirection]
+                      GET_ENTER_ANIMATION_CLASS[
+                        notification.notificationDirection
+                      ]
                     }`}
                   >
                     <div className='flex items-center gap-2'>

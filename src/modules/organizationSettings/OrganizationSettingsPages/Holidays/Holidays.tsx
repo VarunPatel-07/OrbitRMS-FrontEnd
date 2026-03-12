@@ -163,6 +163,16 @@ function Holidays() {
     setEditId(data?.id);
   };
 
+  const handelClickOnDeleteButton = (data?: OrganizationHolidays) => {
+    if (data) {
+      setShowDeleteModal(true);
+      setDeleteItemId(data?.id);
+    } else {
+      setShowDeleteModal(false);
+      setDeleteItemId('');
+    }
+  };
+
   const columns: Array<Column> = [
     {
       key: 'holiday_name',
@@ -284,10 +294,7 @@ function Holidays() {
                   (item) => item.label == 'delete' && !item.is_allowed
                 )
               }
-              onClick={() => {
-                setShowDeleteModal(true);
-                setDeleteItemId(data?.id);
-              }}
+              onClick={() => handelClickOnDeleteButton(data)}
             >
               <MdDelete className='text-[22px]' />
             </Button>
@@ -542,7 +549,7 @@ function Holidays() {
       <DeleteConfirmationDialog
         loading={isDeleteLoading}
         showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
+        handelOnClose={handelClickOnDeleteButton}
         handelDelete={handelDeleteItem}
         name='Holiday'
       />

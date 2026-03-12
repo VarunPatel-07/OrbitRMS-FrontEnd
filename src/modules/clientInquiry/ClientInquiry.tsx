@@ -36,17 +36,16 @@ import TableFilterSearchBar from '@/components/common/table/TableFilterSearchBar
 import TableInfoHeader from '@/components/common/table/TableInfoHeader';
 import TableNoDataFound from '@/components/common/table/TableNoDataFound';
 import TablePagination from '@/components/common/table/TablePagination';
+import ClientInquiryDetailsDrawer from '@/components/drawers/ClientInquiryDetailsDrawer';
 import TableSkeletonLoader from '@/components/loaders/table/TableSkeletonLoader';
-import ClientInquirySliderModal from '@/components/modals/ClientInquirySliderModal';
 import {
   endpointObject,
   multipleDeleteApi,
   multipleFetchApi,
 } from '@/utils/api/multipleAPI';
-import { AddEditInquiryFormSchemaBreadcrumbs } from '@/utils/constants/configModule.constants';
 import {
   dropdownMenuArray,
-  initialMetadata,
+  INITIAL_META_DATA,
 } from '@/utils/constants/global.constants';
 import { META_TITLE_DESCRIPTION } from '@/utils/constants/seo.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
@@ -77,7 +76,8 @@ function ClientInquiry() {
   const [data, setData] = useState([]);
   const [recordsPerPage, setRecordsPerPage] = useState<string | number>(10);
   const [selectedPage, setSelectedPage] = useState<number>(1);
-  const [metaData, setMetaData] = useState<MetaDataInterface>(initialMetadata);
+  const [metaData, setMetaData] =
+    useState<MetaDataInterface>(INITIAL_META_DATA);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [clientInquiryData, setClientInquiryData] = useState<any>({});
   const [showClientInquiryDetail, setShowClientInquiryDetail] =
@@ -105,16 +105,35 @@ function ClientInquiry() {
     GlobalStateProvider?.organization?.general_info?.portal_slug ||
     JSON.parse(localStorageData)?.portal_slug;
 
-  const BreadcrumbsObjects = AddEditInquiryFormSchemaBreadcrumbs(organization);
+  const BreadcrumbsObjects = [
+    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
+    {
+      name: 'Client Inquiry',
+      label: 'config-module',
+      link: `/${organization}/client-inquiry`,
+    },
+  ];
 
-  const handelClickOnViewInquiryButton = (data: any) => {
-    setShowClientInquiryDetail(true);
-    setClientInquiryData(data);
+  
+
+  const handelClickOnViewInquiryButton = (data?: any) => {
+    if (data) {
+      setShowClientInquiryDetail(true);
+      setClientInquiryData(data);
+    } else {
+      setShowClientInquiryDetail(false);
+      setClientInquiryData({});
+    }
   };
 
-  const handelClickOnDeleteButton = (data: any) => {
-    setDeleteClientInquiryId(data?.id);
-    setShowDeleteModal(true);
+  const handelClickOnDeleteButton = (data?: any) => {
+    if (data) {
+      setDeleteClientInquiryId(data?.id);
+      setShowDeleteModal(true);
+    } else {
+      setDeleteClientInquiryId('');
+      setShowDeleteModal(false);
+    }
   };
 
   const initialColumns = [
@@ -633,7 +652,7 @@ function ClientInquiry() {
                     ) : (
                       <TableNoDataFound
                         tableWrapperClass={
-                          'max-h-[calc(100%-140px)] rounded-b-lg'
+                          'max-h-[calc(100vh-270px)] rounded-b-lg'
                         }
                         notFoundTitle={'No Client Inquiries Found'}
                         notFoundMessage={
@@ -653,14 +672,14 @@ function ClientInquiry() {
       <DeleteConfirmationDialog
         loading={isDeletingClientInquiry}
         showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
+        handelOnClose={handelClickOnDeleteButton}
         handelDelete={handelDelete}
         name='Form Field'
       />
-      <ClientInquirySliderModal
+      <ClientInquiryDetailsDrawer
         clientInquiryData={clientInquiryData}
         showClientInquiryDetail={showClientInquiryDetail}
-        setShowClientInquiryDetail={setShowClientInquiryDetail}
+        onClose={handelClickOnViewInquiryButton}
       />
     </>
   );

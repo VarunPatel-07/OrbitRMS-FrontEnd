@@ -205,7 +205,14 @@ const MultipleDragAndDropFileUploader = React.memo(
               ) : (
                 <>
                   <div
-                    className='py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]'
+                    className={classNames(
+                      'py-6 px-24  z-10 flex flex-col gap-2 items-center justify-center border border-indigo-500 border-dashed rounded-lg bg-[rgba(99,102,241,0.08)]',
+                      {
+                        'opacity-65 cursor-not-allowed': disabled
+                          ? true
+                          : false,
+                      }
+                    )}
                     style={{
                       border: showError && errorMessage ? '1px solid red' : '',
                     }}

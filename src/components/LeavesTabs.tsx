@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { SetStateAction, useEffect, useRef, useState } from 'react';
 
 import { useSearchParams } from 'react-router-dom';
 
@@ -14,7 +14,11 @@ const tabs = Object.keys(
   LEAVE_MODULE_TAB_TYPE_OBJECT
 ) as (keyof typeof LEAVE_MODULE_TAB_TYPE_OBJECT)[];
 
-export default function LeavesTabs() {
+export default function LeavesTabs({
+  setShowAddLeaveModal,
+}: {
+  setShowAddLeaveModal: React.Dispatch<SetStateAction<boolean>>;
+}) {
   const [searchParam, setSearchParams] = useSearchParams();
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -40,11 +44,12 @@ export default function LeavesTabs() {
     index: number,
     item: keyof typeof LEAVE_MODULE_TAB_TYPE_OBJECT
   ) => {
+    setShowAddLeaveModal(false);
     setActiveIndex(index);
     updateIndicator(index);
 
     const selectedTab = LEAVE_MODULE_TAB_TYPE_OBJECT[item];
-    const params = new URLSearchParams(searchParam);
+    const params = new URLSearchParams();
     params.set('tab', selectedTab);
     setSearchParams(params);
   };

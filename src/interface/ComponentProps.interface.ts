@@ -326,6 +326,7 @@ export interface RolesPermissionInterface {
   source_type: string;
   status: boolean;
   employees: number;
+  is_editable: boolean;
 }
 
 export interface UrlEncodedFilterQueryInterface {
@@ -442,7 +443,7 @@ export interface ErrorDialogInterface {
 
 export interface DeleteConfirmationDialogInterface {
   showDeleteModal: boolean;
-  setShowDeleteModal: React.Dispatch<SetStateAction<boolean>>;
+  handelOnClose: () => void;
   loading: boolean;
   handelDelete: () => void;
   name?: string;
@@ -453,7 +454,7 @@ export interface DeleteConfirmationDialogInterface {
 export interface ClientInquirySidebarModelInterface {
   clientInquiryData: any;
   showClientInquiryDetail: boolean;
-  setShowClientInquiryDetail: React.Dispatch<SetStateAction<boolean>>;
+  onClose: () => void;
 }
 
 export interface ResetPasswordLinkModalInterface {
@@ -465,8 +466,8 @@ export interface ResetPasswordLinkModalInterface {
 }
 
 export interface AlertDialogInterface {
-  showDeleteModal: boolean;
-  setShowDeleteModal: React.Dispatch<SetStateAction<boolean>>;
+  showAlertModal: boolean;
+  handelOnClose: () => void;
   loading: boolean;
   handelDelete: () => void;
   title?: string;
@@ -521,7 +522,7 @@ export interface AddEditLeavesTypePropsInterface {
   loading: boolean;
   modalType: 'add' | 'edit';
   editLeaveData: AddEditLeavesTypesInterface | null;
-  setShowModal: React.Dispatch<SetStateAction<boolean>>;
+  onClose: () => void;
   onSave: (data: AddEditLeavesTypesInterface, callback?: () => void) => void;
 }
 

@@ -393,3 +393,30 @@ export interface HalfToggleProps {
   ) => void;
   disabled?: boolean;
 }
+
+export interface DialogModalContainerInterface {
+  show: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+  loading?: boolean;
+  minWidth?: string;
+  maxWidth?: string;
+  minHeight?: string;
+  maxHeight?: string;
+  parentWrapper?: string;
+  className?: string;
+}
+
+export interface CommonDrawerContainerPropsInterface {
+  show: boolean;
+  onClose: () => void;
+  direction?: 'LEFT' | 'RIGHT' | 'TOP' | 'BOTTOM';
+  closeOnOutsideClick?: boolean;
+  children: React.ReactNode;
+  minWidth?: string;
+  maxWidth?: string;
+  minHeight?: string;
+  maxHeight?: string;
+  parentWrapper?: string;
+  className?: string;
+}

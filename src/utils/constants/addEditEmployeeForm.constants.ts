@@ -5,7 +5,7 @@ import {
 } from '@/interface/AddEditUserProfile.interface';
 import { CountryDataInterface } from '@/interface/Global.interface';
 
-import { defaultCountryInfo } from '@/utils/constants/global.constants';
+import { DEFAULT_COUNTRY_INFO } from '@/utils/constants/global.constants';
 
 export const AddEditEmployeeFormInitialState: AddEditUserProfileInterFace = {
   personal_info: {
@@ -140,7 +140,7 @@ export const employeeFormDropdownsInitial: employeeFormDropdownsInterface = {
 export const defaultEmergencyContactInfo = (filteredCountry: string) => {
   return {
     emergency_contact_country_info:
-      filteredCountry || JSON.stringify(defaultCountryInfo),
+      filteredCountry || JSON.stringify(DEFAULT_COUNTRY_INFO),
     emergency_contact_name: '',
     emergency_contact_number: '',
     contact_id: '',

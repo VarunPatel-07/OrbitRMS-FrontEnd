@@ -651,3 +651,40 @@ export const getMaxEndDate = (
 
   return maxDate;
 };
+
+export const CalculateNumberOfDays = ({
+  startDate,
+  startHalf,
+  endDate,
+  endHalf,
+}: {
+  startDate: Date | null;
+  startHalf: 'first_half' | 'second_half';
+  endDate: Date | null;
+  endHalf: 'first_half' | 'second_half';
+}) => {
+  if (!startDate || !endDate) return 0;
+  const leaveStartDate = new Date(startDate);
+  const leaveEndDate = new Date(endDate);
+
+  leaveStartDate.setHours(0, 0, 0, 0);
+  leaveEndDate.setHours(0, 0, 0, 0);
+
+  const diffBtwDays =
+    (leaveEndDate.getTime() - leaveStartDate.getTime()) /
+      (1000 * 60 * 60 * 24) +
+    1;
+
+  let total = diffBtwDays;
+
+  if (startHalf === 'second_half') {
+    total -= 0.5;
+  }
+
+  // end half adjustment
+  if (endHalf === 'first_half') {
+    total -= 0.5;
+  }
+
+  return total < 0 ? 0 : total;
+};

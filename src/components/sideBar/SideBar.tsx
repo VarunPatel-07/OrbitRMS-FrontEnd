@@ -68,7 +68,7 @@ function SideBar() {
               <Tooltip
                 id={data.label}
                 opacity={'100'}
-                className='z-[50] bg-white'
+                className='z-[100000] bg-white'
               />
             )}
           </>
