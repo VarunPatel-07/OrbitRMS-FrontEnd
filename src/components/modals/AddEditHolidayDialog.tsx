@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 import { FaStarOfLife } from 'react-icons/fa';
-import { IoCloseOutline } from 'react-icons/io5';
 
 import { AddEditHolidayDialogInterface } from '@/interface/ComponentProps.interface';
 
@@ -82,21 +81,9 @@ function AddEditHolidayDialog({
       className='rounded-lg overflow-hidden'
       maxWidth='600px'
       loading={loading}
+      modalTitle={modalTitle}
     >
       <div className='w-full'>
-        <div className='w-full flex px-5 py-6 border-b border-b-black/20 items-center justify-between'>
-          <span className='text-xl text-black font-inter font-semibold'>
-            {modalTitle}
-          </span>
-          <Button
-            type='button'
-            className=''
-            onClick={handelCancelButton}
-            disabled={loading}
-          >
-            <IoCloseOutline className='text-2xl text-black' />
-          </Button>
-        </div>
         <div
           className='px-5 py-8 mx-auto flex flex-col items-start justify-start w-full gap-5'
           onKeyDown={handelKeyPress}

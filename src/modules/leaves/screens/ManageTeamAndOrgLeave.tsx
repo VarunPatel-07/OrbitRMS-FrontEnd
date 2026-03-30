@@ -17,9 +17,12 @@ import {
   UrlEncodedFilterQueryInterface,
 } from '@/interface/ComponentProps.interface';
 import {
+  LeaveEmployeeData,
   ManageAppliedTeamLeavesInterface,
+  ManageTeamOrgLeaveModuleInterface,
   TeamLeaveSummaryDataInterface,
 } from '@/interface/LeavesModule.interface';
+import { ApplyTeamOrgLeaveForm } from '@/interface/OrganizationSettings.interface';
 import TeamOrgLeaveModuleHeader from '@/modules/leaves/components/TeamOrgLeaveModuleHeader';
 import {
   AddEmployeeInSearchFilter,
@@ -33,12 +36,14 @@ import Table from '@/components/common/table/Table';
 import TableFilterSearchBar from '@/components/common/table/TableFilterSearchBar';
 import TableNoDataFound from '@/components/common/table/TableNoDataFound';
 import TablePagination from '@/components/common/table/TablePagination';
+import ApplyOrgTeamLeaveDrawer from '@/components/drawers/ApplyOrgTeamLeaveDrawer';
 import ViewLeaveDetailDrawer from '@/components/drawers/ViewLeaveDetailDrawer';
 import LeaveBalanceSkeleton from '@/components/loaders/LeaveBalanceSkeleton';
 import TableSkeletonLoader from '@/components/loaders/table/TableSkeletonLoader';
 import {
   endpointObject,
   multipleFetchApi,
+  multiplePostApi,
   multiplePutApi,
 } from '@/utils/api/multipleAPI';
 import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
@@ -47,6 +52,7 @@ import {
   INITIAL_META_DATA,
 } from '@/utils/constants/global.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
+import { formatIsoDate } from '@/utils/helpers/commonHelpers';
 import {
   INITIAL_MANAGE_APPLIED_TEAM_LEAVE,
   TEAM_SUMMARY_INITIAL_DATA,
@@ -54,7 +60,11 @@ import {
 
 import { MANAGE_TEAM_ORG_LEAVE_COLUMNS } from '../tableColumns/teamOrgLeaves.columns';
 
-function ManageTeamAndOrgLeave({ tab }: { tab: 'organization' | 'team' }) {
+function ManageTeamAndOrgLeave({
+  tab,
+  setShowAddLeaveModal,
+  showAddLaveModal,
+}: ManageTeamOrgLeaveModuleInterface) {
   const { GlobalStateProvider } = useContext(
     GlobalStateContext
   ) as GlobalStateContextApiProps;
@@ -100,6 +110,9 @@ function ManageTeamAndOrgLeave({ tab }: { tab: 'organization' | 'team' }) {
   const [updateLeaveLoader, setUpdateLeaveLoader] = useState<
     'pending' | 'approved' | 'rejected' | 'cancelled' | null
   >(null);
+  const [employeesData, setEmployeesData] = useState<LeaveEmployeeData[]>([]);
+  const [fetchingEmplyeeData, setFetchingEmployeeData] =
+    useState<boolean>(false);
 
   const fetchAllLeavesWithDebounce = useDebounce(
     async ({
@@ -167,6 +180,25 @@ function ManageTeamAndOrgLeave({ tab }: { tab: 'organization' | 'team' }) {
     }
 
     setIsFetchingData(false);
+  }, 100);
+
+  const fetchNotifyingEmployeeWithDebounce = useDebounce(async () => {
+    const endPointObjectArr: endpointObject[] = [
+      {
+        endPoint:
+          tab === 'team'
+            ? 'employee/fetch/employee/all?scope=team'
+            : 'employee/fetch/employee/all?scope=organization',
+        protected: true,
+      },
+    ];
+
+    const response = await multipleFetchApi(endPointObjectArr);
+    const res = response[0];
+    if (res?.success) {
+      setEmployeesData(res?.data);
+    }
+    setFetchingEmployeeData(false);
   }, 100);
 
   const updateTheLeaveRequestWithDebounce = useDebounce(
@@ -273,6 +305,83 @@ function ManageTeamAndOrgLeave({ tab }: { tab: 'organization' | 'team' }) {
     fetchAllLeavesWithDebounce({ page: value });
   };
 
+  const addLeaveTypeWithDebounce = useDebounce(
+    async (data: ApplyTeamOrgLeaveForm, callback?: () => void) => {
+      if (!data?.leave_type) return;
+      const multipartFormData = new FormData();
+      multipartFormData.append(
+        'leave_type_id',
+        data?.leave_type?.leave_type_id
+      );
+      if (data?.start_date) {
+        multipartFormData.append(
+          'start_date',
+          formatIsoDate(data?.start_date, 'YYYY-MM-DD')
+        );
+      }
+      multipartFormData.append('start_half', data.start_half);
+      if (data?.end_date) {
+        multipartFormData.append(
+          'end_date',
+          formatIsoDate(data?.end_date, 'YYYY-MM-DD')
+        );
+      }
+
+      multipartFormData.append('end_half', data.end_half);
+      multipartFormData.append('current_date', data.current_date);
+      multipartFormData.append('description', data.description);
+      data?.documents?.map((item) => {
+        multipartFormData.append('documents', item.file);
+      });
+      data?.reporting_to_employee?.map((item) =>
+        multipartFormData.append('notify_to', item.id)
+      );
+      // if(data?.reporting_to_employee){
+
+      // }
+      const endPointArr: endpointObject[] = [
+        {
+          endPoint: `attendance/apply/leave?employee-id${data?.selectedEmployee?.id}`,
+          protected: true,
+          data: multipartFormData,
+          header: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      ];
+
+      const response = await multiplePostApi(endPointArr);
+      const res = response[0];
+      setLoading(false);
+      if (res?.success) {
+        if (callback) callback();
+
+        setShowAddLeaveModal(false);
+        const filterQuery = queryParameter.get('filter');
+        let queryString = '';
+        if (filterQuery) {
+          const decodeQuery = decodeURIComponent(filterQuery);
+          const parsedFilter = JSON.parse(decodeQuery);
+
+          setUrlDecodedFilterQuery(parsedFilter);
+          queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
+        }
+        fetchAllLeavesWithDebounce({
+          page: selectedPage,
+          limit: recordsPerPage,
+          filterQuery: queryString,
+        });
+      }
+      handelNotification(res, 'center');
+    },
+    100
+  );
+
+  const onApply = (formData: ApplyTeamOrgLeaveForm, callBack: () => void) => {
+    setLoading(true);
+    addLeaveTypeWithDebounce(formData, callBack);
+  };
+
   const toggleViewLeaveDetails = (
     leaveData?: ManageAppliedTeamLeavesInterface
   ) => {
@@ -311,6 +420,13 @@ function ManageTeamAndOrgLeave({ tab }: { tab: 'organization' | 'team' }) {
     });
     fetchAllTheLeaveTypesWithDebounce();
   }, [fetchAllLeavesWithDebounce, queryParameter]);
+
+  useEffect(() => {
+    if (showAddLaveModal) {
+      setFetchingEmployeeData(true);
+      fetchNotifyingEmployeeWithDebounce();
+    }
+  }, [showAddLaveModal]);
 
   return (
     <>
@@ -390,6 +506,19 @@ function ManageTeamAndOrgLeave({ tab }: { tab: 'organization' | 'team' }) {
           )}
         </div>
       </div>
+
+      <ApplyOrgTeamLeaveDrawer
+        title={
+          tab === 'organization'
+            ? 'Apply Leave For Org Member'
+            : 'Apply Leave For Team Member'
+        }
+        setShowModal={setShowAddLeaveModal}
+        showModal={showAddLaveModal}
+        employeesData={employeesData}
+        loading={fetchingEmplyeeData}
+        onApply={onApply}
+      />
 
       <ViewLeaveDetailDrawer
         leaveDetails={leaveDetailData}

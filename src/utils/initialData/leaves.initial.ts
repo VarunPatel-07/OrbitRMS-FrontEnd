@@ -4,7 +4,10 @@ import {
   ManageAppliedSelfLeavesInterface,
   ManageAppliedTeamLeavesInterface,
 } from '@/interface/LeavesModule.interface';
-import { LeaveBalanceInterface, LeavesTypesInterface } from '@/interface/OrganizationSettings.interface';
+import {
+  LeaveBalanceInterface,
+  LeavesTypesInterface,
+} from '@/interface/OrganizationSettings.interface';
 
 export const INITIAL_LEAVE_TYPE: LeavesTypesInterface = {
   id: '',
@@ -47,7 +50,7 @@ export const INITIAL_MANAGE_APPLIED_SELF_LEAVE: ManageAppliedSelfLeavesInterface
     status: 'pending',
 
     is_planned: false,
-    notify_to_id: null,
+    notify_to_users: [],
     documents: '[]',
 
     created_at: '',
@@ -79,7 +82,7 @@ export const INITIAL_MANAGE_APPLIED_TEAM_LEAVE: ManageAppliedTeamLeavesInterface
     status: 'pending',
 
     is_planned: false,
-    notify_to_id: null,
+    notify_to_users: [],
     documents: '[]',
 
     created_at: '',
@@ -91,6 +94,7 @@ export const INITIAL_MANAGE_APPLIED_TEAM_LEAVE: ManageAppliedTeamLeavesInterface
     reporting_manager: {} as LeavesReportingManager,
     employee_info: {} as LeaveAppliedEmployeeInfo,
   };
+
 export const TEAM_SUMMARY_INITIAL_DATA = {
   total_employees: 0,
   employees_on_leave: 0,

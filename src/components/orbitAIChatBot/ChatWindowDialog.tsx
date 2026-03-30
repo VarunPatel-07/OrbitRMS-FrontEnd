@@ -157,6 +157,7 @@ function ChatWindowDialog(props: ChatWindowModalInterface) {
       maxWidth='720px'
       minHeight='85vh'
       maxHeight='680px'
+      showDefaultModelHeder={false}
     >
       <div className='relative bg-gradient-to-r from-indigo-200 to-purple-200 px-6 py-3.5 flex items-center justify-between shadow-lg'>
         <div className='flex items-center gap-3'>

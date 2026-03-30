@@ -10,7 +10,7 @@ import {
 import {
   OrganizationSettingsSidebarList,
   OrganizationSettingsSidebarListInterface,
-} from '@/modules/organizationSettings//OrganizationSettingsSidebar/OrganizationSettingsSidebarList';
+} from '@/modules/organizationSettings/OrgSettingsSidebarList';
 
 import { getDataFromLocalStorage } from '@/utils/helpers/commonHelpers';
 

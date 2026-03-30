@@ -28,6 +28,7 @@ function ErrorDialog({
       className='delete-modal min-w-[400px] px-8 relative overflow-hidden flex flex-col items-start justify-end'
       maxWidth='700px'
       minHeight={`${minHeight || 300}px`}
+      showDefaultModelHeder={false}
     >
       <div className='error-icon absolute -top-[15%] -left-[10%]'>
         <span className='p-4 flex items-center justify-center overflow-hidden rounded-full border border-red-200'>

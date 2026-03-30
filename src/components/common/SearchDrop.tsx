@@ -10,26 +10,25 @@ import clsx from 'clsx';
 
 import { classNames } from '@/utils/helpers/commonHelpers';
 
-export default function SearchDrop(props: SearchDropProps) {
-  const {
-    labelFieldName,
-    isRequiredField,
-    className,
-    selectedValue,
-    placeHolderName,
-    options,
-    searchKey,
-    setSelectedValue,
-    onSelectValBtn,
-    position,
-    emptyDataMessage,
-    loading,
-    showSearchBar = true,
-    showError,
-    errorMessage,
-    disabled = false,
-  } = props;
-
+export default function SearchDrop({
+  labelFieldName,
+  isRequiredField,
+  className,
+  selectedValue,
+  placeHolderName,
+  options,
+  searchKey,
+  setSelectedValue,
+  onSelectValBtn,
+  position,
+  emptyDataMessage,
+  loading,
+  showSearchBar = true,
+  showError,
+  errorMessage,
+  disabled = false,
+  CustomElement,
+}: SearchDropProps) {
   const boxRef = useRef<HTMLDivElement>(null);
   const inputFieldRef = useRef<HTMLInputElement>(null);
   const dropDownRef = useRef<HTMLDivElement | null>(null);
@@ -183,7 +182,9 @@ export default function SearchDrop(props: SearchDropProps) {
         >
           {selectedValue ? (
             <span className='text-black font-inter capitalize text-nowrap text-ellipsis overflow-hidden'>
-              {selectedValue}
+              {typeof selectedValue === 'object'
+                ? selectedValue[searchKey]
+                : selectedValue}
             </span>
           ) : (
             <span className='text-black font-inter capitalize text-nowrap text-ellipsis overflow-hidden'>
@@ -272,9 +273,17 @@ export default function SearchDrop(props: SearchDropProps) {
                             }}
                             aria-disabled={isSelected}
                           >
-                            {typeof option === 'object'
-                              ? (option as Record<string, string>)[searchKey]
-                              : option}
+                            {!CustomElement ? (
+                              <>
+                                {typeof option === 'object'
+                                  ? (option as Record<string, string>)[
+                                      searchKey
+                                    ]
+                                  : option}
+                              </>
+                            ) : (
+                              <CustomElement data={option} />
+                            )}
                           </li>
                         );
                       }}

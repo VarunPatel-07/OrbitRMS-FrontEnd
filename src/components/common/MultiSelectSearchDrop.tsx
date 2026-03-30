@@ -11,27 +11,25 @@ import clsx from 'clsx';
 
 import { classNames } from '@/utils/helpers/commonHelpers';
 
-export default function MultiSelectSearchDrop(
-  props: MultiSelectSearchDropInterface
-) {
-  const {
-    labelFieldName,
-    isRequiredField,
-    className,
-    selectedValue,
-    placeHolderName,
-    options,
-    searchKey,
-    setSelectedValue,
-    onSelectValBtn,
-    position,
-    emptyDataMessage,
-    loading,
-    showSearchBar = true,
-    showError,
-    errorMessage,
-    disabled = false,
-  } = props;
+export default function MultiSelectSearchDrop({
+  labelFieldName,
+  isRequiredField,
+  className,
+  selectedValue,
+  placeHolderName,
+  options,
+  searchKey,
+  setSelectedValue,
+  onSelectValBtn,
+  position,
+  emptyDataMessage,
+  loading,
+  showSearchBar = true,
+  showError,
+  errorMessage,
+  disabled = false,
+  CustomElement,
+}: MultiSelectSearchDropInterface) {
   const boxRef = useRef<HTMLDivElement>(null);
   const inputFieldRef = useRef<HTMLInputElement>(null);
   const dropDownRef = useRef<HTMLDivElement | null>(null);
@@ -131,6 +129,10 @@ export default function MultiSelectSearchDrop(
     }
   }, [options, searchTerm]);
 
+  const getOptionValue = (option: string | Record<string, string>) => {
+    return typeof option === 'object' ? option[searchKey] : option;
+  };
+
   const handelKeyPress = (e: React.KeyboardEvent) => {
     if (!isOpen) return;
 
@@ -148,7 +150,9 @@ export default function MultiSelectSearchDrop(
         typeof option === 'object'
           ? (option as Record<string, string>)[searchKey]
           : option;
-      const isSelected = Boolean(selectedValue?.includes(value));
+      const isSelected = selectedValue?.some(
+        (item) => getOptionValue(item) === value
+      );
       if (!isSelected) handleOnClick(filteredOptions[highlightIndex]);
     } else if (e.key === 'Escape') {
       setIsOpen(false);
@@ -189,23 +193,27 @@ export default function MultiSelectSearchDrop(
         >
           {Array.isArray(selectedValue) && selectedValue.length !== 0 ? (
             <div className='flex items-center justify-start flex-wrap gap-1'>
-              {selectedValue?.map((data: string, index: number) => (
-                <span
-                  className='text-black font-inter capitalize text-nowrap text-ellipsis overflow-hidden px-2 py-1 bg-gray-200 text-xs rounded-[4px] flex items-center justify-start gap-1.5'
-                  key={index}
-                >
-                  <span className='text-xs text-black'>{data}</span>
+              {selectedValue?.map(
+                (data: string | Record<string, string>, index: number) => (
                   <span
-                    className='text-sm text-black'
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (onSelectValBtn) onSelectValBtn(data, index);
-                    }}
+                    className='text-black font-inter capitalize text-nowrap text-ellipsis overflow-hidden px-2 py-1 bg-gray-200 text-xs rounded-[4px] flex items-center justify-start gap-1.5'
+                    key={index}
                   >
-                    <IoClose />
+                    <span className='text-xs text-black'>
+                      {typeof data === 'object' ? data[searchKey] : data}
+                    </span>
+                    <span
+                      className='text-sm text-black'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onSelectValBtn) onSelectValBtn(data, index);
+                      }}
+                    >
+                      <IoClose />
+                    </span>
                   </span>
-                </span>
-              ))}
+                )
+              )}
             </div>
           ) : (
             <span className='text-black/50 font-inter capitalize text-nowrap text-ellipsis overflow-hidden'>
@@ -260,8 +268,8 @@ export default function MultiSelectSearchDrop(
                             ? (option as Record<string, string>)[searchKey]
                             : option;
 
-                        const isSelected = Boolean(
-                          selectedValue?.includes(val)
+                        const isSelected = selectedValue?.some(
+                          (item) => getOptionValue(item) === val
                         );
                         return (
                           <li
@@ -270,7 +278,7 @@ export default function MultiSelectSearchDrop(
                               'px-3 py-2 cursor-pointer w-full text-black text-nowrap text-ellipsis overflow-hidden',
                               {
                                 'bg-[var(--them-green-color)] text-white hover:!bg-[var(--them-green-color)] !cursor-not-allowed opacity-70':
-                                  isSelected,
+                                  Boolean(isSelected),
                                 'hover:bg-[#7fab98]/10 hover:text-black':
                                   !isSelected && highlightIndex !== index,
                                 'bg-[#7fab98]/40 text-black':
@@ -282,9 +290,17 @@ export default function MultiSelectSearchDrop(
                             }}
                             aria-disabled={isSelected}
                           >
-                            {typeof option === 'object'
-                              ? (option as Record<string, string>)[searchKey]
-                              : option}
+                            {!CustomElement ? (
+                              <>
+                                {typeof option === 'object'
+                                  ? (option as Record<string, string>)[
+                                      searchKey
+                                    ]
+                                  : option}
+                              </>
+                            ) : (
+                              <CustomElement data={option} />
+                            )}
                           </li>
                         );
                       })}

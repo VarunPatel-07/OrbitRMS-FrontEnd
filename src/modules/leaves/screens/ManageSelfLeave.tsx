@@ -17,6 +17,7 @@ import {
   UrlEncodedFilterQueryInterface,
 } from '@/interface/ComponentProps.interface';
 import {
+  LeaveEmployeeData,
   ManageAppliedSelfLeavesInterface,
   ManageSelfLeaveModuleInterface,
 } from '@/interface/LeavesModule.interface';
@@ -98,6 +99,8 @@ function ManageSelfLeave({
   const [searchFilterArray, setsSearchFilterArray] = useState<
     SearchBarFilterOptionsInterface[]
   >(SELF_LEAVES_SEARCH_FILTER);
+
+  const [employeesData, setEmployeesData] = useState<LeaveEmployeeData[]>([]);
 
   const fetchAllAppliedLeaveWithDebounce = useDebounce(
     async ({
@@ -183,6 +186,21 @@ function ManageSelfLeave({
     100
   );
 
+  const fetchNotifyingEmployeeWithDebounce = useDebounce(async () => {
+    const endPointObjectArr: endpointObject[] = [
+      {
+        endPoint: 'employee/fetch/employee/all?scope=organization',
+        protected: true,
+      },
+    ];
+
+    const response = await multipleFetchApi(endPointObjectArr);
+    const res = response[0];
+    if (res?.success) {
+      setEmployeesData(res?.data);
+    }
+  }, 100);
+
   const handelClickOnRecordPerPage = (value: string | number) => {
     setRecordsPerPage(value);
     setSelectedPage(1);
@@ -224,13 +242,19 @@ function ManageSelfLeave({
       data?.documents?.map((item) => {
         multipartFormData.append('documents', item.file);
       });
+      data?.reporting_to_employee?.map((item) =>
+        multipartFormData.append('notify_to', item.id)
+      );
+      // if(data?.reporting_to_employee){
+
+      // }
       const endPointArr: endpointObject[] = [
         {
           endPoint: `attendance/apply/leave`,
           protected: true,
           data: multipartFormData,
           header: {
-            'Content-Type': 'multipart/form-data;>',
+            'Content-Type': 'multipart/form-data',
           },
         },
       ];
@@ -346,7 +370,6 @@ function ManageSelfLeave({
     if (filterQuery) {
       const decodeQuery = decodeURIComponent(filterQuery);
       const parsedFilter = JSON.parse(decodeQuery);
-      console.log(parsedFilter, 'parsedFilter');
 
       setUrlDecodedFilterQuery(parsedFilter);
       queryString = `filter=${encodeURIComponent(JSON.stringify(parsedFilter))}`;
@@ -357,6 +380,8 @@ function ManageSelfLeave({
       limit: 10,
       filterQuery: queryString,
     });
+
+    fetchNotifyingEmployeeWithDebounce();
   }, [fetchAllAppliedLeaveWithDebounce, queryParameter]);
 
   return (
@@ -434,6 +459,7 @@ function ManageSelfLeave({
         showModal={showAddLaveModal}
         setShowModal={setShowAddLeaveModal}
         leaveTypes={leavesBalanceData}
+        employeesData={employeesData}
         loading={loading}
         onApply={onApply}
       />

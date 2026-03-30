@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { MdBusiness, MdClose, MdPerson } from 'react-icons/md';
+import { MdBusiness, MdPerson } from 'react-icons/md';
 
 import { ResetPasswordLinkModalInterface } from '@/interface/ComponentProps.interface';
 
@@ -65,23 +65,8 @@ const ResetPasswordLinkDialog = ({
       className='bg-white w-full'
       maxWidth='512px'
       loading={loading}
+      modalTitle='Send Reset Password Link'
     >
-      <div className='bg-gradient-to-r from-blue-100 to-purple-100 px-6 py-4 flex items-center justify-between'>
-        <div className='flex items-center gap-3'>
-          <div>
-            <h2 className='text-xl font-bold text-black'>
-              Send Reset Password Link
-            </h2>
-          </div>
-        </div>
-        <button
-          onClick={handleCancel}
-          className='text-black border border-transparent hover:bg-white hover:border hover:border-gray-400 rounded-full p-1.5 transition-all'
-        >
-          <MdClose size={24} />
-        </button>
-      </div>
-
       <div className='p-6 space-y-4 '>
         <div className='bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg mb-5'>
           <div className='flex items-start gap-3'>

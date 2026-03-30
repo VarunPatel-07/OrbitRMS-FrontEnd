@@ -2,6 +2,7 @@ import {
   ModuleValueInterface,
   SearchBarFilterOptionsInterface,
 } from '@/interface/ComponentProps.interface';
+import { LeaveEmployeeData } from '@/interface/LeavesModule.interface';
 
 import { Is, OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
@@ -34,7 +35,7 @@ export const AddLeaveTypesInFilterArray = (
 
 export const AddEmployeeInSearchFilter = (
   title: string,
-  optionsArray: [{ id: string; full_name: string; employee_code: string }]
+  optionsArray: LeaveEmployeeData[]
 ): SearchBarFilterOptionsInterface => {
   const options: ModuleValueInterface[] = optionsArray?.map((item) => ({
     label: item?.id,

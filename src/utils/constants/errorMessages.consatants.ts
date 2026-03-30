@@ -25,4 +25,11 @@ export const ERROR_MESSAGES = {
   INVALID_DATE: 'Please enter a valid date.',
   INVALID_FORMAT: 'Invalid format.',
   PERMISSION_DENIED: 'You do not have permission to perform this action.',
+  LEAVE_TYPE_IS_REQUIRED: 'Leave type is required',
+  MINIMUM_ALLOWED_RADIUS: 'Minimum allowed radius is 500 meter',
+  MAXIMUM_ALLOWED_RADIUS: 'Maximum allowed radius is 1500 meter',
+  LOCATION_PERMISSION_DENIED:
+    'Location access is disabled. Please enable location permission in your browser settings.',
+
+  LOCATION_COORDINATE_REQUIRED: 'Location coordinates are required.',
 };

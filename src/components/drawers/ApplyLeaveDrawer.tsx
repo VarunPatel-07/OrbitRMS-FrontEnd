@@ -5,6 +5,7 @@ import { FaStarOfLife } from 'react-icons/fa';
 import { IoClose, IoInformationCircleOutline } from 'react-icons/io5';
 
 import { SelectedFileArrayObjInterface } from '@/interface/Global.interface';
+import { LeaveEmployeeData } from '@/interface/LeavesModule.interface';
 import {
   ApplyLeaveForm,
   ApplyLeaveModalProps,
@@ -21,8 +22,10 @@ import {
   getMaxEndDate,
 } from '@/utils/helpers/commonHelpers';
 import { LeavesHalfToggleButton } from '@/utils/helpers/helpers';
+import { LeaveFormValidation } from '@/utils/validation/leaves.validation';
 
 import CommonDrawerContainer from '../common/CommonDrawerContainer';
+import MultiSelectSearchDrop from '../common/MultiSelectSearchDrop';
 
 const initialForm: ApplyLeaveForm = {
   leave_type: null,
@@ -33,17 +36,19 @@ const initialForm: ApplyLeaveForm = {
   current_date: new Date().toISOString(),
   description: '',
   documents: [],
+  reporting_to_employee: [],
 };
 
 function ApplyLeaveDrawer({
   showModal,
   loading,
   leaveTypes,
+  employeesData,
   setShowModal,
   onApply,
 }: ApplyLeaveModalProps) {
   const [formData, setFormData] = useState<ApplyLeaveForm>(initialForm);
-  const [showError, setShowError] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string> | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -77,43 +82,57 @@ function ApplyLeaveDrawer({
     }
   };
 
-  const isInvalidDateRange = () => {
-    if (!formData.start_date || !formData.end_date) return false;
-    if (formData.end_date < formData.start_date) return true;
-    if (
-      formData.start_date === formData.end_date &&
-      formData.start_half === 'second_half' &&
-      formData.end_half === 'first_half'
-    ) {
-      return true;
-    }
-    return false;
-  };
-
   const handleSave = () => {
-    if (
-      !formData.leave_type ||
-      !formData.start_date ||
-      !formData.start_half ||
-      !formData.end_date ||
-      !formData.end_half ||
-      isInvalidDateRange()
-    ) {
-      setShowError(true);
+    const { isValid, errors } = LeaveFormValidation({ values: formData });
+
+    if (!isValid) {
+      setErrors(errors);
       return;
+    } else {
+      setErrors(null);
     }
-    setShowError(false);
+
     onApply(formData, () => setFormData(initialForm));
   };
 
   const handleClose = () => {
     setShowModal(false);
     setFormData(initialForm);
-    setShowError(false);
+    setErrors(null);
   };
 
   const handelUploadImage = (data: SelectedFileArrayObjInterface[]) => {
     setFormData((perv) => ({ ...perv, documents: data }));
+  };
+
+  const handleSelectValButton = (data: string | object, index?: number) => {
+    if (index !== undefined && index >= 0) {
+      setFormData((prev) => ({
+        ...prev,
+        reporting_to_employee: prev.reporting_to_employee.filter(
+          (_, i) => i !== index
+        ),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        reporting_to_employee: [
+          ...prev.reporting_to_employee,
+          data as LeaveEmployeeData,
+        ],
+      }));
+    }
+  };
+
+  const renderEmployeeProfile = (data: LeaveEmployeeData) => {
+    return (
+      <div className='flex items-start'>
+        <span className='font-inter text-sm text-black font-normal capitalize'>
+          {data?.full_name}{' '}
+          <span className='text-xs text-blue-600'>({data?.employee_code})</span>
+        </span>
+      </div>
+    );
   };
 
   return (
@@ -153,12 +172,13 @@ function ApplyLeaveDrawer({
             position='bottom'
             searchKey='leave_code'
             labelFieldName='Leave Type'
+            placeHolderName='Select Leave Type'
             options={leaveTypes}
             selectedValue={formData.leave_type?.leave_code}
             onSelectValBtn={(val) => handleSelectLeaveType(val)}
             isRequiredField
-            showError={showError && !formData.leave_type}
-            errorMessage='Leave type is required'
+            showError={!!errors?.leave_type}
+            errorMessage={errors?.leave_type}
             disabled={loading}
           />
         </div>
@@ -287,7 +307,10 @@ function ApplyLeaveDrawer({
           </span>
           days
         </span>
-        {isInvalidDateRange() && (
+        {(errors?.start_date ||
+          errors?.start_half ||
+          errors?.end_date ||
+          errors?.end_half) && (
           <div className='flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3'>
             <IoInformationCircleOutline className='text-red-500 text-lg mt-0.5 flex-shrink-0' />
             <p className='text-sm text-red-700 font-medium'>
@@ -316,6 +339,8 @@ function ApplyLeaveDrawer({
             !formData.leave_type?.leave_code ||
             formData?.leave_type?.available_leaves === 0
           }
+          showError={!!errors?.description}
+          errorMessage={errors?.description}
         />
 
         {/* Attachment */}
@@ -350,6 +375,25 @@ function ApplyLeaveDrawer({
             Accepted: PDF, DOC, DOCX — Max 100MB
           </p>
         </div>
+
+        {/* Select Notify To Employee */}
+        <div className='w-full'>
+          <MultiSelectSearchDrop
+            emptyDataMessage='No Reporting Manager Found'
+            position='top'
+            searchKey='full_name'
+            options={employeesData}
+            labelFieldName='Refill Start From'
+            selectedValue={formData.reporting_to_employee}
+            onSelectValBtn={handleSelectValButton}
+            disabled={
+              loading ||
+              !formData.leave_type?.leave_code ||
+              formData?.leave_type?.available_leaves === 0
+            }
+            CustomElement={({ data }) => renderEmployeeProfile(data)}
+          />
+        </div>
       </div>
 
       <div className='px-8 py-5 border-t border-gray-100 bg-gray-50/60 flex gap-3'>
@@ -367,15 +411,11 @@ function ApplyLeaveDrawer({
           disabled={
             formData?.leave_type?.available_leaves === 0 ||
             !formData.leave_type?.leave_code ||
-            loading ||
-            isInvalidDateRange()
+            loading
           }
           className='flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md disabled:opacity-50 disabled:cursor-not-allowed'
           style={{
-            background:
-              loading || isInvalidDateRange()
-                ? '#9ca3af'
-                : 'var(--them-green-color)',
+            background: loading ? '#9ca3af' : 'var(--them-green-color)',
           }}
         >
           {loading ? <Loader loaderText='Applying...' /> : 'Apply Leave'}

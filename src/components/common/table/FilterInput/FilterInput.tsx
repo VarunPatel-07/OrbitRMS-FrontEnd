@@ -357,7 +357,6 @@ function FilterInput({
     );
   };
 
-  console.log('selectedFilterObject', 'parsedFilter', selectedFilterObject);
 
   return (
     <div className='w-full relative' ref={boxRef}>

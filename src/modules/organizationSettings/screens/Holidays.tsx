@@ -1,8 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useRef, useState } from 'react';
-
-import { MdDelete, MdModeEdit } from 'react-icons/md';
-import { Tooltip } from 'react-tooltip';
 
 import {
   GlobalStateContext,
@@ -12,10 +8,7 @@ import {
   NotificationContext,
   NotificationContextApiProps,
 } from '@/contexts/notification/NotificationContextApi';
-import {
-  Column,
-  TableInfoHeaderInterfaceButtonArrayObject,
-} from '@/interface/ComponentProps.interface';
+import { TableInfoHeaderInterfaceButtonArrayObject } from '@/interface/ComponentProps.interface';
 import {
   HolidayFormData,
   OrganizationHolidays,
@@ -25,7 +18,6 @@ import AccessDeniedRedirect from '@/routes/AccessDeniedRedirect';
 import { useDebounce } from '@/hooks/useDebounce';
 
 import Breadcrumbs from '@/components/common/Breadcrumbs';
-import Button from '@/components/common/Button';
 import Table from '@/components/common/table/Table';
 import TableInfoHeader from '@/components/common/table/TableInfoHeader';
 import TableLocalSearchBar from '@/components/common/table/TableLocalSearchBar';
@@ -37,16 +29,18 @@ import {
   multipleFetchApi,
   multiplePostApi,
 } from '@/utils/api/multipleAPI';
-import { formateDate } from '@/utils/helpers/commonHelpers';
+import { ORGANIZATION_SETTINGS_BREADCRUMBS } from '@/utils/constants/breadcrumbs.constants';
 
 import HolidayAnimation from '@/assets/lottie/HolidayAnimation.lottie';
 
+import { ORG_HOLIDAYS_COLUMNS } from '../tableColumns/orgHolidays.columns';
+
 const DeleteConfirmationDialog = React.lazy(
-  () => import('../../../../components/modals/DeleteConfirmationDialog')
+  () => import('@/components/modals/DeleteConfirmationDialog')
 );
 
 const AddEditHolidayDialog = React.lazy(
-  () => import('../../../../components/modals/AddEditHolidayDialog')
+  () => import('@/components/modals/AddEditHolidayDialog')
 );
 const DotLottieReact = React.lazy(() =>
   import('@lottiefiles/dotlottie-react').then((mod) => ({
@@ -65,20 +59,6 @@ function Holidays() {
 
   const organization =
     GlobalStateProvider.organization.general_info.portal_slug;
-
-  const BreadcrumbsObjects = [
-    { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
-    {
-      name: 'Organization Settings',
-      label: 'organization-settings',
-      link: `/${organization}/organization-settings/general-info`,
-    },
-    {
-      name: 'Holiday',
-      label: 'holiday',
-      link: `/${organization}/organization-settings/holiday`,
-    },
-  ];
 
   //   Defining All The Relevant UseRef
 
@@ -172,152 +152,6 @@ function Holidays() {
       setDeleteItemId('');
     }
   };
-
-  const columns: Array<Column> = [
-    {
-      key: 'holiday_name',
-      title: 'Holiday Name',
-      isSortable: true,
-      isSticky: false,
-      canToggleVisibility: true,
-      renderContent: (data: any) => (
-        <span className='w-fit font-inter text-sm font-medium inline-block text-nowrap text-ellipsis overflow-hidden max-w-[300px]'>
-          {data}
-        </span>
-      ),
-    },
-    {
-      key: 'date',
-      title: 'Date',
-      isSortable: true,
-      isSticky: false,
-      canToggleVisibility: true,
-      renderContent: (data: any) => (
-        <span className='w-fit font-inter text-sm font-medium inline-block'>
-          {formateDate(
-            data,
-            GlobalStateProvider?.organization?.organization_settings
-              ?.default_dateformat,
-            false
-          )}
-        </span>
-      ),
-    },
-    {
-      key: 'created_by',
-      childKey: 'created_at',
-      title: 'Created By',
-      isSortable: true,
-      isSticky: false,
-      canToggleVisibility: true,
-      renderContent: (data: any, childKeyData: any) => {
-        return data ? (
-          <div className='flex flex-col w-full'>
-            <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>{`${JSON.parse(data).first_name} ${JSON.parse(data).last_name}`}</span>
-            <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(
-                childKeyData,
-                GlobalStateProvider?.organization?.organization_settings
-                  ?.default_dateformat
-              )}
-            </span>
-          </div>
-        ) : (
-          <div className='flex flex-col w-full'>
-            <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              system
-            </span>
-            <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(
-                childKeyData,
-                GlobalStateProvider?.organization?.organization_settings
-                  ?.default_dateformat
-              )}
-            </span>
-          </div>
-        );
-      },
-    },
-    {
-      key: 'updated_by',
-      childKey: 'updated_at',
-      title: 'Updated By',
-      isSortable: true,
-      isSticky: false,
-      canToggleVisibility: true,
-      renderContent: (data: any, childKeyData: any) => {
-        return data ? (
-          <div className='flex flex-col w-full'>
-            <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>{`${JSON.parse(data).first_name} ${JSON.parse(data).last_name}`}</span>
-            <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
-              {formateDate(
-                childKeyData,
-                GlobalStateProvider?.organization?.organization_settings
-                  ?.default_dateformat
-              )}
-            </span>
-          </div>
-        ) : (
-          <span>-</span>
-        );
-      },
-    },
-    {
-      key: 'action',
-      title: 'Action',
-      isSortable: false,
-      isSticky: true,
-      canToggleVisibility: true,
-      renderContent: (data: OrganizationHolidays) => {
-        return (
-          <div className='w-full h-full flex items-center justify-start gap-2'>
-            <Button
-              type='button'
-              className='text-black/80 p-1.5'
-              data-tooltip-id='holiday_edit_button'
-              data-tooltip-content='Edit'
-              onClick={() => handelEditButtonClick(data)}
-              disabled={permissionData?.permissions?.some(
-                (item) => item.label == 'edit' && !item.is_allowed
-              )}
-            >
-              <MdModeEdit className='text-[22px]' />
-            </Button>
-            <Button
-              type='button'
-              className='text-black/80 p-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
-              data-tooltip-id='holiday_delete_button'
-              data-tooltip-content='Delete'
-              disabled={
-                data?.source_type == 'default' ||
-                permissionData?.permissions?.some(
-                  (item) => item.label == 'delete' && !item.is_allowed
-                )
-              }
-              onClick={() => handelClickOnDeleteButton(data)}
-            >
-              <MdDelete className='text-[22px]' />
-            </Button>
-            <Tooltip
-              id='holiday_edit_button'
-              opacity={'100'}
-              className='z-[15] bg-white'
-              place='left'
-            />
-
-            {data?.source_type != 'default' && (
-              <Tooltip
-                id='holiday_delete_button'
-                opacity={'100'}
-                className='z-[15] bg-white'
-                place='left'
-              />
-            )}
-          </div>
-        );
-      },
-    },
-  ];
 
   const handelShowModal = () => {
     setShowModal(true);
@@ -432,6 +266,13 @@ function Holidays() {
       (item) => item.label == 'view' && item.is_allowed
     );
 
+  const COLUMNS = ORG_HOLIDAYS_COLUMNS({
+    GlobalStateProvider,
+    permissionData,
+    handelEditButtonClick,
+    handelClickOnDeleteButton,
+  });
+
   if (hasNoViewHolidayPermission)
     return (
       <AccessDeniedRedirect
@@ -442,7 +283,11 @@ function Holidays() {
   return (
     <>
       <div className='w-full h-full relative'>
-        <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
+        <Breadcrumbs
+          BreadcrumbsNavigationFlow={ORGANIZATION_SETTINGS_BREADCRUMBS.ORG_HOLIDAYS(
+            organization
+          )}
+        />
         <div className='w-full h-full pt-9'>
           <div className='w-full h-full p-4 2xl:p-5'>
             {isFetchingData ? (
@@ -492,7 +337,7 @@ function Holidays() {
                     {(data?.length > 0 && !showSearchFilterData) ||
                     (showSearchFilterData && filterData?.length > 0) ? (
                       <Table
-                        columns={columns}
+                        columns={COLUMNS}
                         data={showSearchFilterData ? filterData : data}
                         tableWrapperClass={
                           'overflow-auto max-h-[calc(100vh-280px)] rounded-b-lg'

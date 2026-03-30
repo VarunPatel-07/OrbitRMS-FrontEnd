@@ -24,6 +24,7 @@ function DeleteConfirmationDialog({
       maxWidth='600px'
       minHeight={`${minHeight || 300}px`}
       className='delete-modal relative overflow-hidden flex flex-col items-start justify-end px-8'
+      showDefaultModelHeder={false}
     >
       <>
         <div className='delete absolute -top-[15%]  -left-[10%]'>

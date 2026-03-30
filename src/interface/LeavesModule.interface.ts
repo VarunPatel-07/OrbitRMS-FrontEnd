@@ -6,9 +6,16 @@ export interface ManageSelfLeaveModuleInterface {
   showAddLaveModal: boolean;
   setShowAddLeaveModal: React.Dispatch<SetStateAction<boolean>>;
 }
+export interface ManageTeamOrgLeaveModuleInterface {
+  showAddLaveModal: boolean;
+  setShowAddLeaveModal: React.Dispatch<SetStateAction<boolean>>;
+  tab: 'organization' | 'team';
+}
 
 export interface LeaveBalanceCardLoaderInterface {
   totalNumberOfCards: number;
+  className?: string;
+  size?: 'sm' | 'xl';
 }
 
 export interface TeamLeaveSummaryCardInterface {
@@ -50,6 +57,15 @@ export interface LeaveAppliedEmployeeInfo {
   employee_code: string;
 }
 
+export interface NotifyToUserDetailInterface {
+  employee_code: string;
+  first_name: string;
+  full_name: string;
+  id: string;
+  last_name: string;
+  middle_name: string;
+}
+
 export interface ManageAppliedSelfLeavesInterface {
   id: string;
   user_id: string;
@@ -69,7 +85,7 @@ export interface ManageAppliedSelfLeavesInterface {
   status: 'pending' | 'approved' | 'rejected' | string;
 
   is_planned: boolean;
-  notify_to_id: string | null;
+  notify_to_users: NotifyToUserDetailInterface[];
   documents: string;
 
   created_at: string;
@@ -100,7 +116,7 @@ export interface ManageAppliedTeamLeavesInterface {
   status: 'pending' | 'approved' | 'rejected' | string;
 
   is_planned: boolean;
-  notify_to_id: string | null;
+  notify_to_users: NotifyToUserDetailInterface[];
   documents: string;
 
   created_at: string;
@@ -150,4 +166,11 @@ export interface ManageSelfLeaveColumnsInterface {
 export interface ManageTeamOrgLeaveColumnsInterface {
   GlobalStateProvider: GlobalContextStore;
   toggleViewLeaveDetails: (data: ManageAppliedTeamLeavesInterface) => void;
+}
+
+export interface LeaveEmployeeData {
+  id: string;
+  full_name: string;
+  employee_code: string;
+  reporting_to_id: string;
 }

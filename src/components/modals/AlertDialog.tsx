@@ -27,6 +27,7 @@ function AlertDialog({
       maxWidth='700px'
       minHeight={`${minHeight || 300}px`}
       loading={loading}
+      showDefaultModelHeder={false}
     >
       <div className='delete absolute -top-[15%]  -left-[10%]'>
         <span className='p-4 flex items-center justify-center overflow-hidden rounded-full border border-orange-200'>

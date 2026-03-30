@@ -68,7 +68,7 @@ function ViewLeaveDetailDrawer({
       onClose={toggleViewLeaveDetails}
       closeOnOutsideClick={false}
       direction='RIGHT'
-      minWidth="500px"
+      minWidth='500px'
     >
       <div className='w-full h-full flex flex-col'>
         <div className='flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-white  z-10'>
@@ -210,11 +210,27 @@ function ViewLeaveDetailDrawer({
                 label='Is Planned'
                 value={leaveDetails.is_planned ? 'Yes' : 'No'}
               />
-              <LeaveInfoRow
-                label='Notify To'
-                value={leaveDetails.notify_to_id ?? 'Not specified'}
-              />
             </div>
+
+            {leaveDetails.notify_to_users?.length > 0 && (
+              <>
+                <LeaveSectionTitle>Notified Employee</LeaveSectionTitle>
+                <div className='bg-gray-50 rounded-xl p-4 border border-gray-100'>
+                  <div className='leading-relaxed flex items-center justify-start gap-2'>
+                    {leaveDetails.notify_to_users?.map((item) => (
+                      <div className='flex items-start border border-gray-300 px-2 py-1 rounded-md'>
+                        <span className='font-inter text-sm text-gray-700 font-normal capitalize'>
+                          {item?.full_name}
+                          <span className='text-xs text-blue-600 pl-1'>
+                            ({item?.employee_code})
+                          </span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
 
             {leaveDetails.description && (
               <>

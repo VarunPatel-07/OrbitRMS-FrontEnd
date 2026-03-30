@@ -11,6 +11,7 @@ import { AddEditPostFormdataInterface } from './Dashboard.interface';
 import {
   AddEditLeavesTypesInterface,
   HolidayFormData,
+  OrgLocationConfigDataArrayInterface,
 } from './OrganizationSettings.interface';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -193,13 +194,15 @@ export interface RichTextEditorInterface {
   showMenuBar?: boolean;
   disabled?: boolean;
 }
-
+type OptionType = {
+  [key: string]: any;
+};
 export interface SearchDropProps {
   name?: string;
   className?: string;
   labelFieldName?: string;
   isRequiredField?: boolean;
-  selectedValue?: string;
+  selectedValue?: string | OptionType;
   setSelectedValue?: React.Dispatch<SetStateAction<string>>;
   onSelectValBtn?: (data: string | object, index?: number) => void;
   placeHolderName?: string;
@@ -212,6 +215,7 @@ export interface SearchDropProps {
   showError?: boolean;
   errorMessage?: string;
   disabled?: boolean;
+  CustomElement?: React.ComponentType<{ data: any }>;
 }
 
 export interface MultiSelectSearchDropInterface {
@@ -219,9 +223,9 @@ export interface MultiSelectSearchDropInterface {
   className?: string;
   labelFieldName?: string;
   isRequiredField?: boolean;
-  selectedValue?: string[];
-  setSelectedValue?: React.Dispatch<SetStateAction<string>>;
-  onSelectValBtn?: (data: string | object, index?: number) => void;
+  selectedValue?: string[] | OptionType[];
+  setSelectedValue?: React.Dispatch<SetStateAction<string | OptionType>>;
+  onSelectValBtn?: (data: string | object | OptionType, index?: number) => void;
   placeHolderName?: string;
   options: Array<string | object>;
   searchKey: string;
@@ -232,6 +236,7 @@ export interface MultiSelectSearchDropInterface {
   showError?: boolean;
   errorMessage?: string;
   disabled?: boolean;
+  CustomElement?: React.ComponentType<{ data: any }>;
 }
 
 export interface Column {
@@ -537,4 +542,15 @@ export interface AddEditHolidayDialogInterface {
   handelFormSubmitFunction: (formData: HolidayFormData) => void;
   modalType: 'add' | 'edit';
   year: number;
+}
+
+export interface AddLocationConfigInterface {
+  loading: boolean;
+  showModal: boolean;
+  locationData: OrgLocationConfigDataArrayInterface | null;
+  setShowModal: React.Dispatch<SetStateAction<boolean>>;
+  handelFormSubmitFunction: (
+    data: OrgLocationConfigDataArrayInterface,
+    callBack?: () => void
+  ) => void;
 }

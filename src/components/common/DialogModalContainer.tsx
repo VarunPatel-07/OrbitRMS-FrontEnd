@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { MdClose } from 'react-icons/md';
+
 import { DialogModalContainerInterface } from '@/interface/Global.interface';
 import clsx from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -17,6 +19,8 @@ function DialogModalContainer({
   maxWidth,
   minHeight,
   maxHeight,
+  modalTitle,
+  showDefaultModelHeder = true,
 }: DialogModalContainerInterface) {
   const modalBoxRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState<boolean>(show);
@@ -82,6 +86,21 @@ function DialogModalContainer({
           )
         )}
       >
+        {showDefaultModelHeder && (
+          <div className='bg-gradient-to-r from-blue-100 to-purple-100 px-6 py-4 flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <div className='w-fit'>
+                <h2 className='text-xl font-bold text-black'>{modalTitle}</h2>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className='text-black border border-transparent hover:bg-white hover:border hover:border-gray-400 rounded-full p-1.5 transition-all'
+            >
+              <MdClose size={24} />
+            </button>
+          </div>
+        )}
         {children}
       </div>
     </div>

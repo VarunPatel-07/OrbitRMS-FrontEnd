@@ -25,6 +25,7 @@ function Leaves() {
     GlobalStateContext
   ) as GlobalStateContextApiProps;
   const [searchParam, setSearchParams] = useSearchParams();
+
   const tabType = searchParam.get('tab');
 
   // Some Coman State For All The Type
@@ -69,9 +70,23 @@ function Leaves() {
         />
       );
     } else if (type === LEAVE_MODULE_TAB_TYPE_OBJECT.TEAM) {
-      return <ManageTeamAndOrgLeave key='team' tab='team' />;
+      return (
+        <ManageTeamAndOrgLeave
+          key='team'
+          tab='team'
+          showAddLaveModal={showAddLaveModal}
+          setShowAddLeaveModal={setShowAddLeaveModal}
+        />
+      );
     } else if (type === LEAVE_MODULE_TAB_TYPE_OBJECT.ORGANIZATION) {
-      return <ManageTeamAndOrgLeave key='organization' tab='organization' />;
+      return (
+        <ManageTeamAndOrgLeave
+          key='organization'
+          tab='organization'
+          showAddLaveModal={showAddLaveModal}
+          setShowAddLeaveModal={setShowAddLeaveModal}
+        />
+      );
     } else {
       return <PageNotFound />;
     }
