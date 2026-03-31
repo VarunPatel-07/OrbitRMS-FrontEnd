@@ -12,6 +12,7 @@ import {
   EndsWith,
   Equals,
   Is,
+  OPTION_TYPE,
   StartsWith,
 } from '@/utils/constants/filterOperators.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
@@ -76,7 +77,8 @@ export const handelGeneratingDynamicClientColumn = (
             </span>
           </div>
         ),
-        optionType: data?.type == 'boolean' ? 'select' : 'text',
+        optionType:
+          data?.type == 'boolean' ? OPTION_TYPE.SELECT : OPTION_TYPE.TEXT,
         operator:
           data?.type == 'boolean'
             ? [Is]

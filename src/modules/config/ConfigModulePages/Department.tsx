@@ -233,6 +233,16 @@ export default function AttachmentTypes({
     handelDeleteItemWithDebounce();
   };
 
+  const handelClickOnDeleteButton = (data?: DepartmentConfig) => {
+    if (data) {
+      setShowDeleteModal(true);
+      setDeleteItemId(data?.id);
+    } else {
+      setShowDeleteModal(false);
+      setDeleteItemId('');
+    }
+  };
+
   const columns: Array<Column> = [
     {
       key: 'department_name',
@@ -311,7 +321,7 @@ export default function AttachmentTypes({
       isSortable: false,
       isSticky: true,
       canToggleVisibility: true,
-      renderContent: (data: any) => {
+      renderContent: (data: DepartmentConfig) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
             <Button
@@ -341,10 +351,7 @@ export default function AttachmentTypes({
                   ))
               }
               data-tooltip-content='Delete'
-              onClick={() => {
-                setShowDeleteModal(true);
-                setDeleteItemId(data?.id);
-              }}
+              onClick={() => handelClickOnDeleteButton(data)}
             >
               <MdDelete className='text-[22px]' />
             </Button>
@@ -471,36 +478,29 @@ export default function AttachmentTypes({
         </div>
       </div>
       <Suspense fallback={null}>
-        {showModal && (
-          <AddModal
-            modalTitle={
-              modalType == 'add'
-                ? 'Add Attachment Type'
-                : 'Edit Attachment Type'
-            }
-            labelFieldName='Department Name'
-            showColorPicker={false}
-            showPreview={false}
-            showModal={showModal}
-            setShowModal={setShowModal}
-            loading={loading}
-            handelFormSubmitFunction={handelFormSubmitFunction}
-            value={value}
-            setValue={setValue}
-            modalType={modalType}
-            dummyValue={dummyValue}
-          />
-        )}
-
-        {showDeleteModal && (
-          <DeleteConfirmationDialog
-            loading={isDeleteLoading}
-            showDeleteModal={showDeleteModal}
-            setShowDeleteModal={setShowDeleteModal}
-            handelDelete={handelDeleteItem}
-            name='Department'
-          />
-        )}
+        <AddModal
+          modalTitle={
+            modalType == 'add' ? 'Add Attachment Type' : 'Edit Attachment Type'
+          }
+          labelFieldName='Department Name'
+          showColorPicker={false}
+          showPreview={false}
+          showModal={showModal}
+          setShowModal={setShowModal}
+          loading={loading}
+          handelFormSubmitFunction={handelFormSubmitFunction}
+          value={value}
+          setValue={setValue}
+          modalType={modalType}
+          dummyValue={dummyValue}
+        />
+        <DeleteConfirmationDialog
+          loading={isDeleteLoading}
+          showDeleteModal={showDeleteModal}
+          handelOnClose={handelClickOnDeleteButton}
+          handelDelete={handelDeleteItem}
+          name='Department'
+        />
       </Suspense>
     </>
   );

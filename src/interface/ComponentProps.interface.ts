@@ -4,12 +4,14 @@ import { SelectedFileArrayObjInterface } from '@/interface/Global.interface';
 import { GlobalContextStore } from '@/interface/UserProfile.interface';
 import { Editor } from '@tiptap/react';
 
+import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { countryObject } from '@/utils/helpers/countryData';
 
 import { AddEditPostFormdataInterface } from './Dashboard.interface';
 import {
   AddEditLeavesTypesInterface,
   HolidayFormData,
+  OrgLocationConfigDataArrayInterface,
 } from './OrganizationSettings.interface';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -192,13 +194,15 @@ export interface RichTextEditorInterface {
   showMenuBar?: boolean;
   disabled?: boolean;
 }
-
+type OptionType = {
+  [key: string]: any;
+};
 export interface SearchDropProps {
   name?: string;
   className?: string;
   labelFieldName?: string;
   isRequiredField?: boolean;
-  selectedValue?: string;
+  selectedValue?: string | OptionType;
   setSelectedValue?: React.Dispatch<SetStateAction<string>>;
   onSelectValBtn?: (data: string | object, index?: number) => void;
   placeHolderName?: string;
@@ -211,6 +215,7 @@ export interface SearchDropProps {
   showError?: boolean;
   errorMessage?: string;
   disabled?: boolean;
+  CustomElement?: React.ComponentType<{ data: any }>;
 }
 
 export interface MultiSelectSearchDropInterface {
@@ -218,9 +223,9 @@ export interface MultiSelectSearchDropInterface {
   className?: string;
   labelFieldName?: string;
   isRequiredField?: boolean;
-  selectedValue?: string[];
-  setSelectedValue?: React.Dispatch<SetStateAction<string>>;
-  onSelectValBtn?: (data: string | object, index?: number) => void;
+  selectedValue?: string[] | OptionType[];
+  setSelectedValue?: React.Dispatch<SetStateAction<string | OptionType>>;
+  onSelectValBtn?: (data: string | object | OptionType, index?: number) => void;
   placeHolderName?: string;
   options: Array<string | object>;
   searchKey: string;
@@ -231,6 +236,7 @@ export interface MultiSelectSearchDropInterface {
   showError?: boolean;
   errorMessage?: string;
   disabled?: boolean;
+  CustomElement?: React.ComponentType<{ data: any }>;
 }
 
 export interface Column {
@@ -258,7 +264,7 @@ export interface SearchBarFilterOptionsInterface {
   label: React.ReactElement;
   operator?: Array<operatorObject>;
   options?: Array<operatorObject>;
-  optionType: 'text' | 'select' | 'multi-select' | 'date';
+  optionType: keyof typeof OPTION_TYPE;
 }
 
 export interface ModalInfoType {
@@ -325,6 +331,7 @@ export interface RolesPermissionInterface {
   source_type: string;
   status: boolean;
   employees: number;
+  is_editable: boolean;
 }
 
 export interface UrlEncodedFilterQueryInterface {
@@ -349,7 +356,7 @@ export interface ModuleValueInterface {
 export interface FilterObjectInterface {
   id: string;
   moduleValue: ModuleValueInterface[];
-  optionType?: 'text' | 'select' | 'multi-select' | 'date';
+  optionType?: keyof typeof OPTION_TYPE;
 }
 
 export interface handleMultiInputChangeInterface {
@@ -359,7 +366,7 @@ export interface handleMultiInputChangeInterface {
   inputValue: string;
   setInputValue: React.Dispatch<SetStateAction<string>>;
   setShowFilterDropDownMenu: React.Dispatch<SetStateAction<boolean>>;
-  optionType: 'text' | 'select' | 'multi-select' | 'date' | undefined;
+  optionType: 'TEXT' | 'SELECT' | 'MULTI_SELECT' | 'DATE' | undefined;
   searchInputValue: string;
   setSearchInputValue: React.Dispatch<SetStateAction<string>>;
 }
@@ -441,7 +448,7 @@ export interface ErrorDialogInterface {
 
 export interface DeleteConfirmationDialogInterface {
   showDeleteModal: boolean;
-  setShowDeleteModal: React.Dispatch<SetStateAction<boolean>>;
+  handelOnClose: () => void;
   loading: boolean;
   handelDelete: () => void;
   name?: string;
@@ -452,7 +459,7 @@ export interface DeleteConfirmationDialogInterface {
 export interface ClientInquirySidebarModelInterface {
   clientInquiryData: any;
   showClientInquiryDetail: boolean;
-  setShowClientInquiryDetail: React.Dispatch<SetStateAction<boolean>>;
+  onClose: () => void;
 }
 
 export interface ResetPasswordLinkModalInterface {
@@ -464,8 +471,8 @@ export interface ResetPasswordLinkModalInterface {
 }
 
 export interface AlertDialogInterface {
-  showDeleteModal: boolean;
-  setShowDeleteModal: React.Dispatch<SetStateAction<boolean>>;
+  showAlertModal: boolean;
+  handelOnClose: () => void;
   loading: boolean;
   handelDelete: () => void;
   title?: string;
@@ -520,7 +527,7 @@ export interface AddEditLeavesTypePropsInterface {
   loading: boolean;
   modalType: 'add' | 'edit';
   editLeaveData: AddEditLeavesTypesInterface | null;
-  setShowModal: React.Dispatch<SetStateAction<boolean>>;
+  onClose: () => void;
   onSave: (data: AddEditLeavesTypesInterface, callback?: () => void) => void;
 }
 
@@ -535,4 +542,15 @@ export interface AddEditHolidayDialogInterface {
   handelFormSubmitFunction: (formData: HolidayFormData) => void;
   modalType: 'add' | 'edit';
   year: number;
+}
+
+export interface AddLocationConfigInterface {
+  loading: boolean;
+  showModal: boolean;
+  locationData: OrgLocationConfigDataArrayInterface | null;
+  setShowModal: React.Dispatch<SetStateAction<boolean>>;
+  handelFormSubmitFunction: (
+    data: OrgLocationConfigDataArrayInterface,
+    callBack?: () => void
+  ) => void;
 }

@@ -282,6 +282,32 @@ function InquiryFormSchema({
     handelToggleEmailNotificationWithDebounce();
   };
 
+  const handelClickOnDeleteButton = (
+    data?: AddEditInquiryFormSchemaInterface
+  ) => {
+    if (data) {
+      setShowDeleteModal(true);
+      setDeleteItemId(data?.id);
+    } else {
+      setShowDeleteModal(false);
+      setDeleteItemId('');
+    }
+  };
+
+  const toggleAlertModal = (data?: AddEditInquiryFormSchemaInterface) => {
+    if (data) {
+      setShowAlertModal(true);
+      setDeleteItemId(data?.id);
+      setEmailNotificationStatus(
+        data?.email_notification ? 'active' : 'inactive'
+      );
+    } else {
+      setShowAlertModal(false);
+      setDeleteItemId('');
+      setEmailNotificationStatus('inactive');
+    }
+  };
+
   const columns: Array<Column> = [
     {
       key: 'form_id',
@@ -468,13 +494,7 @@ function InquiryFormSchema({
                         ? 'Turn Off Email Notification'
                         : 'Turn On Email Notification'
                   }
-                  onClick={() => {
-                    setShowAlertModal(true);
-                    setDeleteItemId(data?.id);
-                    setEmailNotificationStatus(
-                      data?.email_notification ? 'active' : 'inactive'
-                    );
-                  }}
+                  onClick={() => toggleAlertModal(data)}
                   disabled={data?.authorized_recipient_emails?.length <= 0}
                 >
                   {data?.email_notification ? (
@@ -501,10 +521,7 @@ function InquiryFormSchema({
                     (perm) => perm.label === 'delete' && !perm.is_allowed
                   ))
               }
-              onClick={() => {
-                setShowDeleteModal(true);
-                setDeleteItemId(data?.id);
-              }}
+              onClick={() => handelClickOnDeleteButton(data)}
             >
               <MdDelete className='text-[22px]' />
             </Button>
@@ -637,47 +654,43 @@ function InquiryFormSchema({
       </div>
 
       <Suspense fallback={null}>
-        {showModal && (
-          <AddEditInquiryFormSchema
-            modalTitle={modalType == 'add' ? 'Add Form' : 'Edit Form'}
-            showModal={showModal}
-            setShowModal={setShowModal}
-            loading={loading}
-            handelFormSubmitFunction={handelFormSubmitFunction}
-            formData={formData}
-            setFormData={setFormData}
-            modalType={modalType}
-            dummyFormData={dummyFormData}
-          />
-        )}
-        {showDeleteModal && (
-          <DeleteConfirmationDialog
-            loading={isDeleteLoading}
-            showDeleteModal={showDeleteModal}
-            setShowDeleteModal={setShowDeleteModal}
-            handelDelete={handelDeleteItem}
-            name='Form Field'
-          />
-        )}
-        {showAlertModal && (
-          <AlertDialog
-            loading={isDeleteLoading}
-            showDeleteModal={showAlertModal}
-            setShowDeleteModal={setShowAlertModal}
-            handelDelete={handelToggleEmailNotification}
-            title={
-              emailNotificationStatus == 'active'
-                ? 'Turn Off Email Notifications?'
-                : 'Turn On Email Notifications?'
-            }
-            description='You will no longer receive email updates or alerts. Are you sure you want to disable this feature?'
-            secondaryButtonTitle={
-              emailNotificationStatus == 'active'
-                ? 'Turn Off Notification'
-                : 'Turn On Notification'
-            }
-          />
-        )}
+        <AddEditInquiryFormSchema
+          modalTitle={modalType == 'add' ? 'Add Form' : 'Edit Form'}
+          showModal={showModal}
+          setShowModal={setShowModal}
+          loading={loading}
+          handelFormSubmitFunction={handelFormSubmitFunction}
+          formData={formData}
+          setFormData={setFormData}
+          modalType={modalType}
+          dummyFormData={dummyFormData}
+        />
+
+        <DeleteConfirmationDialog
+          loading={isDeleteLoading}
+          showDeleteModal={showDeleteModal}
+          handelOnClose={handelClickOnDeleteButton}
+          handelDelete={handelDeleteItem}
+          name='Form Field'
+        />
+
+        <AlertDialog
+          loading={isDeleteLoading}
+          showAlertModal={showAlertModal}
+          handelOnClose={toggleAlertModal}
+          handelDelete={handelToggleEmailNotification}
+          title={
+            emailNotificationStatus == 'active'
+              ? 'Turn Off Email Notifications?'
+              : 'Turn On Email Notifications?'
+          }
+          description='You will no longer receive email updates or alerts. Are you sure you want to disable this feature?'
+          secondaryButtonTitle={
+            emailNotificationStatus == 'active'
+              ? 'Turn Off Notification'
+              : 'Turn On Notification'
+          }
+        />
       </Suspense>
     </>
   );

@@ -241,3 +241,20 @@ export const LeavesHalfToggleButton = ({
     </div>
   );
 };
+
+export const IsStringArrayString = (string: string): boolean => {
+  try {
+    const parsed = JSON?.parse(string);
+
+    if (
+      Array.isArray(parsed) &&
+      parsed.every((item) => typeof item === 'string')
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch {
+    return false;
+  }
+};

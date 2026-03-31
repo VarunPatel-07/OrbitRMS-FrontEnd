@@ -2,6 +2,8 @@ import React, { SetStateAction } from 'react';
 
 import { SelectedFileArrayObjInterface } from '@/interface/Global.interface';
 
+import { LeaveEmployeeData } from './LeavesModule.interface';
+
 interface GeneralInfo {
   country_info: {
     country_code: string;
@@ -160,6 +162,10 @@ export interface LeaveBalanceInterface {
 
 export interface LeaveBalanceCardProps {
   leaveData: LeaveBalanceInterface;
+  minWidth?: number;
+  infoIcon?: boolean;
+  minHeight?: number;
+  size?: 'sm' | 'xl';
 }
 
 export interface ApplyLeaveForm {
@@ -171,12 +177,65 @@ export interface ApplyLeaveForm {
   current_date: string;
   description: string;
   documents: SelectedFileArrayObjInterface[];
+  reporting_to_employee: LeaveEmployeeData[];
+}
+
+export interface ApplyTeamOrgLeaveForm {
+  selectedEmployee: LeaveEmployeeData | null;
+  leave_type: LeaveBalanceInterface | null;
+  start_date: Date | null;
+  start_half: 'first_half' | 'second_half';
+  end_date: Date | null;
+  end_half: 'first_half' | 'second_half';
+  current_date: string;
+  description: string;
+  documents: SelectedFileArrayObjInterface[];
+  reporting_to_employee: LeaveEmployeeData[];
 }
 
 export interface ApplyLeaveModalProps {
   showModal: boolean;
   loading: boolean;
   leaveTypes: LeaveBalanceInterface[];
+  employeesData: LeaveEmployeeData[];
   setShowModal: React.Dispatch<SetStateAction<boolean>>;
   onApply: (data: ApplyLeaveForm, cb: () => void) => void;
+}
+
+export interface ApplyTeamOrgLeaveModalProps {
+  title: string;
+  showModal: boolean;
+  loading: boolean;
+  employeesData: LeaveEmployeeData[];
+  setShowModal: React.Dispatch<SetStateAction<boolean>>;
+  onApply: (data: ApplyTeamOrgLeaveForm, cb: () => void) => void;
+}
+
+export interface OrgLocationConfigCoordinates {
+  accuracy: number;
+  latitude: number;
+  longitude: number;
+}
+
+export interface OrgLocationConfigDataArrayInterface {
+  location_name: string;
+  location_coordinates: OrgLocationConfigCoordinates | null;
+  allowed_radius_meters: number;
+  status: boolean;
+}
+
+export interface LocationConfigDataInterface {
+  id: string;
+  location_name: string;
+  location_coordinates: string;
+  allowed_radius_meters: number;
+  status: boolean;
+
+  organization_id: string;
+
+  created_at: string;
+  updated_at: string | null;
+
+  created_by: string;
+  updated_by: string | null;
 }

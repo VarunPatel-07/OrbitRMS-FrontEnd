@@ -122,6 +122,15 @@ function RolesAndPermission({
     },
   ];
 
+  const handelClickOnDeleteButton = (data?: RolesPermissionInterface) => {
+    if (data) {
+      setShowDeleteModal(true);
+      setDeleteItemId(data?.id);
+    } else {
+      setShowDeleteModal(false);
+      setDeleteItemId('');
+    }
+  };
   const BreadcrumbsObjects = [
     { name: 'Home', label: 'home', link: `/${organization}/dashboard` },
     {
@@ -258,7 +267,7 @@ function RolesAndPermission({
       isSortable: false,
       isSticky: true,
       canToggleVisibility: true,
-      renderContent: (data: any) => {
+      renderContent: (data: RolesPermissionInterface) => {
         return (
           <div className='w-full h-full flex items-center justify-start gap-2'>
             <Button
@@ -306,10 +315,7 @@ function RolesAndPermission({
                     (perm) => perm.label === 'delete' && !perm.is_allowed
                   ))
               }
-              onClick={() => {
-                setShowDeleteModal(true);
-                setDeleteItemId(data?.id);
-              }}
+              onClick={() => handelClickOnDeleteButton(data)}
             >
               <MdDelete className='text-[22px]' />
             </Button>
@@ -562,29 +568,26 @@ function RolesAndPermission({
       </div>
 
       <Suspense fallback={null}>
-        {showModal && (
-          <AddEditRolePermission
-            modalTitle={modalType == 'add' ? 'Add Role' : 'Edit Role'}
-            loading={loading}
-            value={value}
-            setValue={setValue}
-            modalType={modalType}
-            handelFormSubmitFunction={handelFormSubmitFunction}
-            setShowModal={setShowModal}
-            showModal={showModal}
-            ActiveRolesPermissionArray={data}
-            dummyValue={dummyValue}
-          />
-        )}
-        {showDeleteModal && (
-          <DeleteConfirmationDialog
-            loading={isDeleteLoading}
-            showDeleteModal={showDeleteModal}
-            setShowDeleteModal={setShowDeleteModal}
-            handelDelete={handelDeleteItem}
-            name='Role'
-          />
-        )}
+        <AddEditRolePermission
+          modalTitle={modalType == 'add' ? 'Add Role' : 'Edit Role'}
+          loading={loading}
+          value={value}
+          setValue={setValue}
+          modalType={modalType}
+          handelFormSubmitFunction={handelFormSubmitFunction}
+          setShowModal={setShowModal}
+          showModal={showModal}
+          ActiveRolesPermissionArray={data}
+          dummyValue={dummyValue}
+        />
+
+        <DeleteConfirmationDialog
+          loading={isDeleteLoading}
+          showDeleteModal={showDeleteModal}
+          handelOnClose={handelClickOnDeleteButton}
+          handelDelete={handelDeleteItem}
+          name='Role'
+        />
       </Suspense>
     </>
   );

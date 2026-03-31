@@ -1,5 +1,5 @@
 import { TeamOrgLeaveModuleHeaderInterface } from '@/interface/LeavesModule.interface';
-import { TeamLeaveSummaryCard } from '@/modules/leaves/LeavesBalanceCard';
+import { TeamLeaveSummaryCard } from '@/modules/leaves/components/LeavesBalanceCard';
 
 function TeamOrgLeaveModuleHeader({
   GlobalStateProvider,

@@ -26,8 +26,8 @@ import AppSuspenseLoader from '@/components/loaders/AppSuspenseLoader';
 import { signUpApiFunction, verifyUsersLoginStatus } from '@/utils/api/api';
 import { endpointObject, multiplePostApi } from '@/utils/api/multipleAPI';
 import {
-  EmployeeCountArray,
-  industryType,
+  EMPLOYEE_COUNTS_ARRAY,
+  INDUSTRY_WE_SERVE_ARRAY,
   WebsiteUrlSafetyCheckErrorMessages,
 } from '@/utils/constants/global.constants';
 import { PUBLIC_EMAIL_PROVIDERS } from '@/utils/constants/publicEmailArray.constants';
@@ -437,7 +437,7 @@ function SignUp() {
         </div>
         <div className='w-full'>
           <SearchDrop
-            options={industryType}
+            options={INDUSTRY_WE_SERVE_ARRAY}
             searchKey='value'
             isRequiredField={true}
             labelFieldName='Organization Type'
@@ -456,7 +456,7 @@ function SignUp() {
         </div>
         <div className='w-full'>
           <SearchDrop
-            options={EmployeeCountArray}
+            options={EMPLOYEE_COUNTS_ARRAY}
             searchKey=''
             isRequiredField={true}
             labelFieldName='Employee Strength'

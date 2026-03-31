@@ -6,13 +6,15 @@ import {
   GlobalStateContext,
   GlobalStateContextApiProps,
 } from '@/contexts/globalState/GlobalStateContectApi';
-import GeneralInfo from '@/modules/organizationSettings//OrganizationSettingsPages/GeneralInfoPages/GeneralInfo';
-import Holidays from '@/modules/organizationSettings//OrganizationSettingsPages/Holidays/Holidays';
-import LeavesManager from '@/modules/organizationSettings//OrganizationSettingsPages/LeavesManager/LeavesManager';
-import OrganizationSettingsSidebar from '@/modules/organizationSettings//OrganizationSettingsSidebar/OrganizationSettingsSidebar';
+import OrganizationSettingsSidebar from '@/modules/organizationSettings/OrgSettingsSidebar';
+import GeneralInfo from '@/modules/organizationSettings/screens/GeneralInfo';
+import LeavesManager from '@/modules/organizationSettings/screens/LeavesManager';
 
 import { getDataFromLocalStorage } from '@/utils/helpers/commonHelpers';
 import ProtectedRoute from '@/utils/helpers/ProtectedRoute';
+
+import Holidays from './screens/Holidays';
+import OrganizationLocationConfig from './screens/OrganizationLocationConfig';
 
 function OrganizationSettings() {
   const navigate = useNavigate();
@@ -52,6 +54,12 @@ function OrganizationSettings() {
             <Route
               path='/leaves-manager'
               element={<ProtectedRoute element={<LeavesManager />} />}
+            />
+            <Route
+              path='/org-location-config'
+              element={
+                <ProtectedRoute element={<OrganizationLocationConfig />} />
+              }
             />
           </Routes>
         </div>

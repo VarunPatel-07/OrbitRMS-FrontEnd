@@ -23,7 +23,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import Breadcrumbs from '@/components/common/Breadcrumbs';
 import Button from '@/components/common/Button';
 import EmployeeProfilePicture from '@/components/EmployeeProfilePicture';
-import ResetPasswordLinkModal from '@/components/modals/ResetPasswordLinkModal';
+import ResetPasswordLinkDialog from '@/components/modals/ResetPasswordLinkDialog';
 import {
   endpointObject,
   multipleFetchApi,
@@ -612,7 +612,7 @@ function EmployeeProfile() {
           ?.permissions?.some(
             (item) => item.label == 'edit' && item.is_allowed
           ) && (
-          <ResetPasswordLinkModal
+          <ResetPasswordLinkDialog
             isOpen={showResetPasswordModal}
             setIsOpen={setShowResetPasswordModal}
             handelSubmit={handelClickOnProceedButton}

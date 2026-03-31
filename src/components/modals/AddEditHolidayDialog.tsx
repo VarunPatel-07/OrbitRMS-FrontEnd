@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 
 import { FaStarOfLife } from 'react-icons/fa';
-import { IoCloseOutline } from 'react-icons/io5';
 
 import { AddEditHolidayDialogInterface } from '@/interface/ComponentProps.interface';
 
@@ -9,10 +8,9 @@ import Button from '@/components/common/Button';
 import CommonDatePicker from '@/components/common/CommonDatePicker';
 import Input from '@/components/common/Input';
 import Loader from '@/components/common/Loader';
-import {
-  classNames,
-  compareTwoNestedObject,
-} from '@/utils/helpers/commonHelpers';
+import { compareTwoNestedObject } from '@/utils/helpers/commonHelpers';
+
+import DialogModalContainer from '../common/DialogModalContainer';
 
 function AddEditHolidayDialog({
   formData,
@@ -26,11 +24,7 @@ function AddEditHolidayDialog({
   year,
   dummyFormData,
 }: AddEditHolidayDialogInterface) {
-  const modalBoxRef = useRef<HTMLDivElement>(null);
-
   const [showError, setShowError] = useState<boolean>(false);
-  const [isVisible, setIsVisible] = useState(showModal);
-  const [isMounted, setIsMounted] = useState(false);
 
   const handelSubmitButton = async () => {
     if (
@@ -80,164 +74,97 @@ function AddEditHolidayDialog({
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalBoxRef.current &&
-        !modalBoxRef.current.contains(event.target as Node)
-      ) {
-        setShowModal(false);
-        setShowError(false);
-      }
-    };
-
-    if (showModal && !loading) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [loading, setShowModal, showModal]);
-
-  useEffect(() => {
-    if (showModal) {
-      setIsMounted(true);
-      setTimeout(() => {
-        setIsVisible(true);
-      }, 10);
-    } else {
-      setIsVisible(false);
-      setTimeout(() => {
-        setIsMounted(false);
-      }, 300);
-    }
-  }, [showModal]);
-  if (!isMounted) return null;
-
-  if (showModal)
-    return (
-      <div
-        className={classNames(
-          'w-full h-screen bg-black/30 fixed z-50 top-0 left-0 overflow-hidden transition-all duration-100',
-          {
-            'opacity-0 invisible': !isVisible,
-            'opacity-100 visible': isVisible,
-          }
-        )}
-      >
-        <div className='w-full h-full p-4 flex items-center justify-center overflow-hidden'>
-          <div
-            className={classNames(
-              'bg-white w-full h-fit max-w-[600px] rounded-lg transition-all',
-              {
-                'opacity-0 scale-50': !isVisible,
-                'opacity-100 scale-100': isVisible,
+  return (
+    <DialogModalContainer
+      show={showModal}
+      onClose={handelCancelButton}
+      className='rounded-lg overflow-hidden'
+      maxWidth='600px'
+      loading={loading}
+      modalTitle={modalTitle}
+    >
+      <div className='w-full'>
+        <div
+          className='px-5 py-8 mx-auto flex flex-col items-start justify-start w-full gap-5'
+          onKeyDown={handelKeyPress}
+        >
+          <div className='w-full'>
+            <Input
+              name='holiday_name'
+              type='text'
+              labelFieldName='Holiday Name'
+              className='border border-black/45'
+              isRequiredField={true}
+              value={formData.holiday_name}
+              onChange={handelOnChange}
+              showError={showError}
+              disabled={loading}
+              errorMessage={
+                showError
+                  ? formData.holiday_name?.trim() == ''
+                    ? 'this is an required field'
+                    : ''
+                  : ''
               }
-            )}
-            ref={modalBoxRef}
-          >
-            <div className='w-full'>
-              <div className='w-full flex px-5 py-6 border-b border-b-black/20 items-center justify-between'>
-                <span className='text-xl text-black font-inter font-semibold'>
-                  {modalTitle}
-                </span>
-                <Button
-                  type='button'
-                  className=''
-                  onClick={handelCancelButton}
-                  disabled={loading}
-                >
-                  <IoCloseOutline className='text-2xl text-black' />
-                </Button>
-              </div>
-              <div
-                className='px-5 py-8 mx-auto flex flex-col items-start justify-start w-full gap-5'
-                onKeyDown={handelKeyPress}
-              >
-                <div className='w-full'>
-                  <Input
-                    name='holiday_name'
-                    type='text'
-                    labelFieldName='Holiday Name'
-                    className='border border-black/45'
-                    isRequiredField={true}
-                    value={formData.holiday_name}
-                    onChange={handelOnChange}
-                    showError={showError}
-                    disabled={loading}
-                    errorMessage={
-                      showError
-                        ? formData.holiday_name?.trim() == ''
-                          ? 'this is an required field'
-                          : ''
-                        : ''
-                    }
-                  />
-                </div>
-                <div className='w-full'>
-                  <CommonDatePicker
-                    onChange={handleDatePickerOnChangeFunction}
-                    selectedValue={
-                      formData?.date ? new Date(formData?.date) : null
-                    }
-                    name='date'
-                    labelFieldName='Date'
-                    isRequiredField={true}
-                    showError={showError}
-                    errorMessage={
-                      formData?.date ? '' : 'this field is required'
-                    }
-                    datePickerPosition='top'
-                    year={year}
-                    disabled={loading}
-                  />
-                </div>
-                <div className='w-full'>
-                  <span className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'>
-                    <span className='flex gap-1'>
-                      <span>Year</span>
-                      <FaStarOfLife className='w-1.5 text-red-700' />
-                    </span>
-                  </span>
-                  <p className='inline-block bg-[#7fab98]/15 rounded-lg border border-[#7fab98] w-full text-black font-inter text-base px-4 py-[7px]'>
-                    {formData?.year}
-                  </p>
-                </div>
-              </div>
-              <div className='px-5 pb-6 w-full grid grid-cols-2 gap-2.5'>
-                <Button
-                  type='button'
-                  className='text-black bg-transparent py-2 rounded-lg border border-black/45 hover:bg-gray-800/5'
-                  onClick={handelCancelButton}
-                  disabled={loading}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type='button'
-                  className='text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'
-                  disabled={
-                    loading || compareTwoNestedObject(formData, dummyFormData)
-                  }
-                  onClick={handelSubmitButton}
-                >
-                  {loading ? (
-                    <Loader
-                      loaderText={
-                        modalType == 'add' ? 'Adding...' : 'Updating...'
-                      }
-                    />
-                  ) : modalType == 'add' ? (
-                    <span>Add</span>
-                  ) : (
-                    <span>Update</span>
-                  )}
-                </Button>
-              </div>
-            </div>
+            />
+          </div>
+          <div className='w-full'>
+            <CommonDatePicker
+              onChange={handleDatePickerOnChangeFunction}
+              selectedValue={formData?.date ? new Date(formData?.date) : null}
+              name='date'
+              labelFieldName='Date'
+              isRequiredField={true}
+              showError={showError}
+              errorMessage={formData?.date ? '' : 'this field is required'}
+              datePickerPosition='top'
+              year={year}
+              disabled={loading}
+            />
+          </div>
+          <div className='w-full'>
+            <span className='text-sm font-inter font-normal text-black/65 pb-2 inline-block'>
+              <span className='flex gap-1'>
+                <span>Year</span>
+                <FaStarOfLife className='w-1.5 text-red-700' />
+              </span>
+            </span>
+            <p className='inline-block bg-[#7fab98]/15 rounded-lg border border-[#7fab98] w-full text-black font-inter text-base px-4 py-[7px]'>
+              {formData?.year}
+            </p>
           </div>
         </div>
+        <div className='px-5 pb-6 w-full grid grid-cols-2 gap-2.5'>
+          <Button
+            type='button'
+            className='text-black bg-transparent py-2 rounded-lg border border-black/45 hover:bg-gray-800/5'
+            onClick={handelCancelButton}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type='button'
+            className='text-white bg-[var(--them-green-color)] py-2 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'
+            disabled={
+              loading || compareTwoNestedObject(formData, dummyFormData)
+            }
+            onClick={handelSubmitButton}
+          >
+            {loading ? (
+              <Loader
+                loaderText={modalType == 'add' ? 'Adding...' : 'Updating...'}
+              />
+            ) : modalType == 'add' ? (
+              <span>Add</span>
+            ) : (
+              <span>Update</span>
+            )}
+          </Button>
+        </div>
       </div>
-    );
+    </DialogModalContainer>
+  );
 }
 
 export default AddEditHolidayDialog;

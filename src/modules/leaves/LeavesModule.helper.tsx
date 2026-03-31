@@ -2,8 +2,9 @@ import {
   ModuleValueInterface,
   SearchBarFilterOptionsInterface,
 } from '@/interface/ComponentProps.interface';
+import { LeaveEmployeeData } from '@/interface/LeavesModule.interface';
 
-import { Is } from '@/utils/constants/filterOperators.constants';
+import { Is, OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
 
 export const AddLeaveTypesInFilterArray = (
@@ -11,7 +12,7 @@ export const AddLeaveTypesInFilterArray = (
   optionsArray: string[]
 ): SearchBarFilterOptionsInterface => {
   const options = optionsArray?.map((item) => ({
-    label: item.toLowerCase(), // lowercase label
+    label: item.toLowerCase(),
     value: item,
     type: FilterFieldsTypeEnums[2],
   }));
@@ -26,7 +27,7 @@ export const AddLeaveTypesInFilterArray = (
         </span>
       </div>
     ),
-    optionType: 'multi-select',
+    optionType: OPTION_TYPE.MULTI_SELECT,
     operator: [Is],
     options: options,
   };
@@ -34,7 +35,7 @@ export const AddLeaveTypesInFilterArray = (
 
 export const AddEmployeeInSearchFilter = (
   title: string,
-  optionsArray: [{ id: string; full_name: string; employee_code: string }]
+  optionsArray: LeaveEmployeeData[]
 ): SearchBarFilterOptionsInterface => {
   const options: ModuleValueInterface[] = optionsArray?.map((item) => ({
     label: item?.id,
@@ -60,7 +61,7 @@ export const AddEmployeeInSearchFilter = (
         </span>
       </div>
     ),
-    optionType: 'multi-select',
+    optionType: OPTION_TYPE.MULTI_SELECT,
     operator: [Is],
     options: options,
   };

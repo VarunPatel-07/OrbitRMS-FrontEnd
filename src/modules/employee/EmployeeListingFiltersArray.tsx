@@ -5,6 +5,7 @@ import {
   EndsWith,
   Equals,
   Is,
+  OPTION_TYPE,
   StartsWith,
 } from '@/utils/constants/filterOperators.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
@@ -21,7 +22,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
         </span>
       </div>
     ),
-    optionType: 'text',
+    optionType: OPTION_TYPE.TEXT,
     operator: [Equals, Contains, StartsWith, EndsWith],
     options: [], // No options for text filters
   },
@@ -35,7 +36,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
         </span>
       </div>
     ),
-    optionType: 'select',
+    optionType: OPTION_TYPE.SELECT,
     operator: [Is],
     options: [
       {
@@ -61,7 +62,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
         </span>
       </div>
     ),
-    optionType: 'select',
+    optionType: OPTION_TYPE.SELECT,
     operator: [Is],
     options: [
       {
@@ -96,7 +97,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
         </span>
       </div>
     ),
-    optionType: 'multi-select',
+    optionType: OPTION_TYPE.MULTI_SELECT,
     operator: [Equals],
     options: [
       {
@@ -132,7 +133,7 @@ export const EmployeeListingFiltersArray: SearchBarFilterOptionsInterface[] = [
         </span>
       </div>
     ),
-    optionType: 'text',
+    optionType: OPTION_TYPE.TEXT,
     operator: [Equals, Contains, StartsWith, EndsWith],
     options: [], // No options for text filters
   },

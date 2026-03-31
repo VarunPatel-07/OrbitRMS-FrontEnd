@@ -37,6 +37,7 @@ import TablePagination from '@/components/common/table/TablePagination';
 import EmployeeProfilePicture from '@/components/EmployeeProfilePicture';
 import TableSkeletonLoader from '@/components/loaders/table/TableSkeletonLoader';
 import { endpointObject, multipleFetchApi } from '@/utils/api/multipleAPI';
+import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { dropdownMenuArray } from '@/utils/constants/global.constants';
 import { META_TITLE_DESCRIPTION } from '@/utils/constants/seo.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
@@ -44,7 +45,7 @@ import { getDataFromLocalStorage } from '@/utils/helpers/commonHelpers';
 import HelmetSeo from '@/utils/helpers/HelmetSeo';
 import { BeautifulAccountStatusRenderer } from '@/utils/helpers/helpers';
 
-const initialMetadata: MetaDataInterface = {
+const INITIAL_META_DATA: MetaDataInterface = {
   total_data: 0,
   total_pages: 1,
   current_page: 1,
@@ -67,7 +68,8 @@ function EmployeeListing() {
 
   const useEffectRef = useRef(false);
   const [data, setData] = useState<EmployeeFieldInterface[]>([]);
-  const [metaData, setMetaData] = useState<MetaDataInterface>(initialMetadata);
+  const [metaData, setMetaData] =
+    useState<MetaDataInterface>(INITIAL_META_DATA);
   const [isInitialFetching, setIsInitialFetching] = useState<boolean>(true);
   const [isFetchingData, setIsFetchingData] = useState<boolean>(false);
 
@@ -379,7 +381,7 @@ function EmployeeListing() {
             obj.operator = moduleValue?.label;
           }
           if (moduleValue?.type === FilterFieldsTypeEnums[2]) {
-            if (queryObj?.optionType == 'multi-select') {
+            if (queryObj?.optionType == OPTION_TYPE.MULTI_SELECT) {
               const MultiSelectArr: string[] = [];
               queryObj?.moduleValue
                 ?.filter((tem) => tem.type === FilterFieldsTypeEnums[2])

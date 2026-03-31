@@ -13,7 +13,7 @@ function Table({
   stickyHeaderClass,
 }: {
   columns: Array<Column>;
-  data: any;
+  data: any[];
   tableWrapperClass?: string;
   stickyHeaderClass?: string;
 }) {
@@ -21,7 +21,7 @@ function Table({
 
   return (
     <div
-      className={`overflow-auto ${tableWrapperClass} hide-scrollbar border border-black/10 border-t-0`}
+      className={`overflow-auto ${tableWrapperClass} hide-scrollbar border border-black/10 border-y-0`}
     >
       <table className='table-auto border-collapse w-full relative'>
         <thead>
@@ -65,7 +65,7 @@ function Table({
                   <td
                     key={_subIndex}
                     className={classNames(
-                      'bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointe min-w-[220px] border-b border-b-black/10',
+                      'bg-white px-6 py-3 text-black group-hover:bg-gray-50 cursor-pointe min-w-[220px] border-0 border-b border-b-black/10',
                       {
                         'min-w-fit sticky right-0 shadow-2xl bg-white border-0':
                           column?.key == 'action' && column?.isSticky,

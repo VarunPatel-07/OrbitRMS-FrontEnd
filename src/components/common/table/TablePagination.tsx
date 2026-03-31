@@ -70,7 +70,7 @@ function TablePagination({
   };
 
   return (
-    <div className='w-full bg-white border border-black/10 border-t-0 px-4 py-3 rounded-b-lg'>
+    <div className='w-full bg-white border border-black/10 px-4 py-3 rounded-b-lg'>
       <div className='w-full flex items-center justify-between'>
         <div className='flex items-center justify-start gap-2'>
           <p className='text-slate-950 font-medium text-sm capitalize'>

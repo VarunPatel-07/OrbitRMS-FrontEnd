@@ -31,3 +31,10 @@ export const EndsWith = {
   value: 'Ends With',
   type: FilterFieldsTypeEnums[1],
 };
+
+export const OPTION_TYPE = {
+  TEXT: 'TEXT',
+  SELECT: 'SELECT',
+  MULTI_SELECT: 'MULTI_SELECT',
+  DATE: 'DATE',
+} as const;

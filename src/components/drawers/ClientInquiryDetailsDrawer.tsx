@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from 'react';
 
 import { IoClose } from 'react-icons/io5';
 
 import { ClientInquirySidebarModelInterface } from '@/interface/ComponentProps.interface';
 
 import { NotAllowedObjectField } from '@/utils/constants/global.constants';
-import { classNames } from '@/utils/helpers/commonHelpers';
+
+import CommonDrawerContainer from '../common/CommonDrawerContainer';
 
 interface InquiryData {
   [key: string]: any;
@@ -16,30 +16,11 @@ interface Props {
   data: InquiryData;
 }
 
-function ClientInquirySliderModal({
+function ClientInquiryDetailsDrawer({
   clientInquiryData,
   showClientInquiryDetail,
-  setShowClientInquiryDetail,
+  onClose,
 }: ClientInquirySidebarModelInterface) {
-  const modalBoxRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalBoxRef.current &&
-        !modalBoxRef.current.contains(event.target as Node)
-      ) {
-        setShowClientInquiryDetail(false);
-      }
-    };
-
-    if (showClientInquiryDetail) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [setShowClientInquiryDetail, showClientInquiryDetail]);
-
   const filteredObjKey = Object.keys(clientInquiryData)
     ?.filter((key) => !NotAllowedObjectField.includes(key))
     .reduce((obj: any, key) => {
@@ -97,42 +78,30 @@ function ClientInquirySliderModal({
     );
   };
   return (
-    <div
-      className={classNames(
-        'bg-black/30 backdrop-blur-[1px] fixed top-0 left-0 h-full w-full z-50 overflow-hidden transition-all duration-300',
-        {
-          'opacity-0 pointer-events-none invisible': !showClientInquiryDetail,
-          'opacity-100 visible': showClientInquiryDetail,
-        }
-      )}
+    <CommonDrawerContainer
+      show={showClientInquiryDetail}
+      onClose={onClose}
+      maxWidth='700px'
+      minWidth='550px'
+      direction='RIGHT'
+      closeOnOutsideClick={true}
     >
-      <div
-        className={classNames(
-          'w-full bg-white max-w-[800px] h-full ml-auto transition-all duration-300',
-          {
-            'translate-x-full': !showClientInquiryDetail,
-            'translate-x-0': showClientInquiryDetail,
-          }
-        )}
-        ref={modalBoxRef}
-      >
-        <div className='w-full flex items-center justify-between border-b border-b-black/20 p-5'>
-          <p className='font-inter text-lg text-black font-medium'>
-            Client Inquiry Detail
-          </p>
-          <button
-            className='h-10 w-10 flex items-center justify-center rounded-lg bg-black'
-            onClick={() => setShowClientInquiryDetail(false)}
-          >
-            <IoClose className='text-2xl text-white' />
-          </button>
-        </div>
-        <div className='w-full py-6 px-5 h-[calc(100%-100px)] overflow-auto text-base'>
-          <JsonTable data={filteredObjKey} />
-        </div>
+      <div className='w-full flex items-center justify-between border-b border-b-black/20 p-5'>
+        <p className='font-inter text-lg text-black font-medium'>
+          Client Inquiry Detail
+        </p>
+        <button
+          className='h-10 w-10 flex items-center justify-center rounded-lg bg-black'
+          onClick={() => onClose()}
+        >
+          <IoClose className='text-2xl text-white' />
+        </button>
       </div>
-    </div>
+      <div className='w-full py-6 px-5 h-[calc(100%-100px)] overflow-auto text-base'>
+        <JsonTable data={filteredObjKey} />
+      </div>
+    </CommonDrawerContainer>
   );
 }
 
-export default ClientInquirySliderModal;
+export default ClientInquiryDetailsDrawer;

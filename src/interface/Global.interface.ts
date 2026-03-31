@@ -6,6 +6,8 @@ import React, {
 
 import { Area } from 'react-easy-crop';
 
+import { BreadcrumbsProps } from './ComponentProps.interface';
+
 export interface SidebarMenuItemInterface {
   id:
     | 'dashboard'
@@ -393,3 +395,42 @@ export interface HalfToggleProps {
   ) => void;
   disabled?: boolean;
 }
+
+export interface DialogModalContainerInterface {
+  show: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+  modalTitle?: string;
+  loading?: boolean;
+  minWidth?: string;
+  maxWidth?: string;
+  minHeight?: string;
+  maxHeight?: string;
+  parentWrapper?: string;
+  className?: string;
+  showDefaultModelHeder?: boolean;
+}
+
+export interface CommonDrawerContainerPropsInterface {
+  show: boolean;
+  onClose: () => void;
+  direction?: 'LEFT' | 'RIGHT' | 'TOP' | 'BOTTOM';
+  closeOnOutsideClick?: boolean;
+  children: React.ReactNode;
+  minWidth?: string;
+  maxWidth?: string;
+  minHeight?: string;
+  maxHeight?: string;
+  parentWrapper?: string;
+  className?: string;
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  errors: Record<string, string>;
+}
+
+export type BreadcrumbsConstantObjectInterface = Record<
+  string,
+  (organization: string) => BreadcrumbsProps[]
+>;

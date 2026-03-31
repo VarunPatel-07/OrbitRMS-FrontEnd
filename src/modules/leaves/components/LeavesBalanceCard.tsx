@@ -8,7 +8,13 @@ import { LeaveBalanceCardProps } from '@/interface/OrganizationSettings.interfac
 import Button from '@/components/common/Button';
 import { formateDate } from '@/utils/helpers/commonHelpers';
 
-export const LeaveBalanceCard = ({ leaveData }: LeaveBalanceCardProps) => {
+export const LeaveBalanceCard = ({
+  leaveData,
+  minWidth = 300,
+  infoIcon = true,
+  minHeight,
+  size = 'xl',
+}: LeaveBalanceCardProps) => {
   const {
     available_leaves,
     leave_name,
@@ -19,12 +25,15 @@ export const LeaveBalanceCard = ({ leaveData }: LeaveBalanceCardProps) => {
   } = leaveData;
 
   return (
-    <div className='min-w-[300px] w-full max-w-[300px] bg-white rounded-lg overflow-hidden border border-gray-200'>
+    <div
+      className='w-full max-w-[300px] bg-white rounded-lg overflow-hidden border border-gray-200'
+      style={{ minWidth: `${minWidth}px`, minHeight: `${minHeight}px` }}
+    >
       <div className='bg-gradient-to-r from-blue-500/10 to-blue-600/10 p-3'>
         <div className='flex items-center justify-between'>
-          <div className='w-full'>
+          <div className='w-fit max-w-[80%]'>
             <h3
-              className='text-black text-xs font-semibold max-w-[85%] text-ellipsis overflow-hidden text-nowrap'
+              className='text-black text-xs font-semibold max-w-[100%] text-ellipsis overflow-hidden text-nowrap'
               title={leave_name + ' ' + '(' + leave_code + ')'}
             >
               {leave_name}
@@ -33,8 +42,8 @@ export const LeaveBalanceCard = ({ leaveData }: LeaveBalanceCardProps) => {
               </span>
             </h3>
           </div>
-          {description && (
-            <div className='flex items-center gap-2'>
+          {infoIcon && description && (
+            <div className='flex items-center gap-2 min-w-5 min-h-5'>
               <span
                 className='cursor-pointer'
                 data-tooltip-id='leave_balance_info_button'
@@ -53,27 +62,33 @@ export const LeaveBalanceCard = ({ leaveData }: LeaveBalanceCardProps) => {
         </div>
       </div>
 
-      <div className='px-6 py-[18px]'>
+      <div className={`${size === 'xl' ? 'px-6 py-[18px]' : 'p-2.5'}`}>
         <div className='flex items-end justify-between'>
           <div>
             <div className='flex items-baseline'>
-              <span className='text-xl font-bold text-gray-800'>
+              <span
+                className={`${size === 'xl' ? 'text-xl' : 'text-sm'} font-bold text-gray-800`}
+              >
                 {available_leaves}
               </span>
-              <span className='text-gray-500 text-sm ml-2'>
+              <span
+                className={`${size === 'xl' ? ' text-sm' : 'text-[10px]'} text-gray-500 ml-2`}
+              >
                 / {max_number_of_leave}
               </span>
             </div>
           </div>
-          <div
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              is_paid
-                ? 'bg-green-100 text-green-700'
-                : 'bg-gray-100 text-gray-700'
-            }`}
-          >
-            {is_paid ? 'Paid' : 'Unpaid'}
-          </div>
+          {size === 'xl' && (
+            <div
+              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                is_paid
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              {is_paid ? 'Paid' : 'Unpaid'}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -16,8 +16,10 @@ import FiltersOperatorDropdown from '@/components/common/table/FilterInput/Filte
 import FiltersOptionsDropdown from '@/components/common/table/FilterInput/FilterInputHelperFunctions/FiltersOptionsDropdown';
 import FinalFilterRenderHelper from '@/components/common/table/FilterInput/FilterInputHelperFunctions/FinalFilterRenderHelper';
 import HandleMultiInputChange from '@/components/common/table/FilterInput/FilterInputHelperFunctions/HandleMultiInputChange';
+import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { FilterFieldsTypeEnums } from '@/utils/enums/enums';
 import { classNames, convertToTitleCase } from '@/utils/helpers/commonHelpers';
+import { IsStringArrayString } from '@/utils/helpers/helpers';
 
 function FilterInput({
   filterColumnsArray,
@@ -142,7 +144,7 @@ function FilterInput({
       (val) => val.id === currentFilterId
     );
 
-    if (selectedFilter?.optionType == 'text') {
+    if (selectedFilter?.optionType == OPTION_TYPE.TEXT) {
       if (inputValue !== '') {
         const newObject = {
           label: 'input_value',
@@ -225,12 +227,21 @@ function FilterInput({
           value: convertToTitleCase(arrayItem?.operator),
           type: FilterFieldsTypeEnums[1],
         });
-
-        modelValueArray.push({
-          label: arrayItem?.value,
-          value: arrayItem?.value,
-          type: FilterFieldsTypeEnums[2],
-        });
+        if (IsStringArrayString(arrayItem?.value)) {
+          JSON.parse(arrayItem.value)?.map((item: string) =>
+            modelValueArray.push({
+              label: item?.toLocaleLowerCase(),
+              value: item,
+              type: FilterFieldsTypeEnums[2],
+            })
+          );
+        } else {
+          modelValueArray.push({
+            label: arrayItem?.value,
+            value: arrayItem?.value,
+            type: FilterFieldsTypeEnums[2],
+          });
+        }
 
         const obj: FilterObjectInterface = {
           id: arrayItem?.field_name,
@@ -329,7 +340,7 @@ function FilterInput({
 
           {currentFilterId?.trim() !== '' &&
             filterColumnsArray?.find((item) => item?.id === currentFilterId)
-              ?.optionType === 'date' && (
+              ?.optionType === OPTION_TYPE.DATE && (
               <FilterInputDateSelector
                 setShowCurrentOptionDropdown={setShowCurrentOptionDropdown}
                 showCurrentOptionDropdown={showCurrentOptionDropdown}
@@ -345,6 +356,7 @@ function FilterInput({
       </div>
     );
   };
+
 
   return (
     <div className='w-full relative' ref={boxRef}>
