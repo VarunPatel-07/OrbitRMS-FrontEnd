@@ -7,6 +7,7 @@ import { Editor } from '@tiptap/react';
 import { OPTION_TYPE } from '@/utils/constants/filterOperators.constants';
 import { countryObject } from '@/utils/helpers/countryData';
 
+import { AttendanceSessionInterface } from './Attendance.inteeface';
 import { AddEditPostFormdataInterface } from './Dashboard.interface';
 import {
   AddEditLeavesTypesInterface,
@@ -470,11 +471,31 @@ export interface ResetPasswordLinkModalInterface {
   personalEmail: string;
 }
 
+export interface ShowAttendanceSessionModalInterface {
+  session: AttendanceSessionInterface | null;
+  handleCancel: () => void;
+}
+
 export interface AlertDialogInterface {
   showAlertModal: boolean;
   handelOnClose: () => void;
   loading: boolean;
   handelDelete: () => void;
+  title?: string;
+  ExtraErrorMessage?: React.ReactElement;
+  minHeight?: number;
+  description?: string;
+  secondaryButtonTitle?: string;
+}
+
+export interface ConfirmDialogInterface {
+  showConfirmModal: boolean;
+  handelOnClose: () => void;
+  loading: boolean;
+  modalType: 'punchIn' | 'punchOut' | 'startBreak' | 'endBreak';
+  handelConfirm: (
+    type: 'punchIn' | 'punchOut' | 'startBreak' | 'endBreak'
+  ) => void;
   title?: string;
   ExtraErrorMessage?: React.ReactElement;
   minHeight?: number;

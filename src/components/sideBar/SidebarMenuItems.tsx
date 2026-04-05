@@ -1,3 +1,4 @@
+import { BsPersonFillCheck } from 'react-icons/bs';
 import {
   FaCalendarAlt,
   FaHashtag,
@@ -22,6 +23,17 @@ export const SidebarMenuItems = (
     protected: true,
     showToolTip: true,
     ToolTipValue: 'Dashboard',
+  },
+
+  {
+    id: 'dashboard',
+    name: 'Attendance',
+    icon: <BsPersonFillCheck className='w-7 h-7' />,
+    label: 'data-tooltip-attendance',
+    link: `/${organization}/attendance`,
+    protected: true,
+    showToolTip: true,
+    ToolTipValue: 'Attendance',
   },
   {
     id: 'dashboard',

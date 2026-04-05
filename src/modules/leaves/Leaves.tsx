@@ -128,7 +128,10 @@ function Leaves() {
                 </p>
               </div>
               <div className='flex flex-row items-stretch justify-end gap-10'>
-                <LeavesTabs setShowAddLeaveModal={setShowAddLeaveModal} />
+                <LeavesTabs
+                  setShowAddLeaveModal={setShowAddLeaveModal}
+                  RenderTabsObjects={LEAVE_MODULE_TAB_TYPE_OBJECT}
+                />
                 <Button
                   type='button'
                   className='text-white bg-[var(--them-green-color)] py-2 px-6 rounded-lg font-inter text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed'

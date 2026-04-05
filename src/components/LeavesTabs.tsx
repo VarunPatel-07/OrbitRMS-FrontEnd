@@ -6,19 +6,20 @@ import Button from '@/components/common/Button';
 import {
   DEFAULT_LEAVE_TAB,
   LEAVE_MODULE_TAB_TYPE,
-  LEAVE_MODULE_TAB_TYPE_OBJECT,
 } from '@/utils/constants/global.constants';
 import { classNames, IsOdd } from '@/utils/helpers/commonHelpers';
 
-const tabs = Object.keys(
-  LEAVE_MODULE_TAB_TYPE_OBJECT
-) as (keyof typeof LEAVE_MODULE_TAB_TYPE_OBJECT)[];
-
 export default function LeavesTabs({
+  RenderTabsObjects,
   setShowAddLeaveModal,
 }: {
-  setShowAddLeaveModal: React.Dispatch<SetStateAction<boolean>>;
+  RenderTabsObjects: Record<string, string>;
+  setShowAddLeaveModal?: React.Dispatch<SetStateAction<boolean>>;
 }) {
+  const tabs = Object.keys(
+    RenderTabsObjects
+  ) as (keyof typeof RenderTabsObjects)[];
+
   const [searchParam, setSearchParams] = useSearchParams();
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -40,15 +41,12 @@ export default function LeavesTabs({
     }
   };
 
-  const handleClick = (
-    index: number,
-    item: keyof typeof LEAVE_MODULE_TAB_TYPE_OBJECT
-  ) => {
-    setShowAddLeaveModal(false);
+  const handleClick = (index: number, item: keyof typeof RenderTabsObjects) => {
+    if (setShowAddLeaveModal) setShowAddLeaveModal(false);
     setActiveIndex(index);
     updateIndicator(index);
 
-    const selectedTab = LEAVE_MODULE_TAB_TYPE_OBJECT[item];
+    const selectedTab = RenderTabsObjects[item];
     const params = new URLSearchParams();
     params.set('tab', selectedTab);
     setSearchParams(params);
@@ -68,12 +66,10 @@ export default function LeavesTabs({
       return;
     }
 
-    const tabKey = Object.keys(LEAVE_MODULE_TAB_TYPE_OBJECT).find(
+    const tabKey = Object.keys(RenderTabsObjects).find(
       (key) =>
-        LEAVE_MODULE_TAB_TYPE_OBJECT[
-          key as keyof typeof LEAVE_MODULE_TAB_TYPE_OBJECT
-        ] === tabType
-    ) as keyof typeof LEAVE_MODULE_TAB_TYPE_OBJECT | undefined;
+        RenderTabsObjects[key as keyof typeof RenderTabsObjects] === tabType
+    ) as keyof typeof RenderTabsObjects | undefined;
 
     if (tabKey) {
       const index = tabs.indexOf(tabKey);
