@@ -1,7 +1,7 @@
 import { appRouterArraysInterface } from '@/interface/Global.interface';
 import ApiManager from '@/modules/apiManager/ApiManager';
+import AttendanceModule from '@/modules/Attendance';
 import ClientInquiry from '@/modules/clientInquiry/ClientInquiry';
-import Config from '@/modules/config/Config';
 import Dashboard from '@/modules/dashboard/Dashboard';
 import EmployeeListing from '@/modules/employee/EmployeeListing';
 import AddEditEmployeeProfile from '@/modules/employeeProfile/AddEditEmployeeProfile/AddEditEmployeeProfile';
@@ -10,11 +10,19 @@ import Leaves from '@/modules/leaves/Leaves';
 import OrganizationSettings from '@/modules/organizationSettings/OrganizationSettings';
 import SocialMedia from '@/modules/socialMedia/SocialMedia';
 
+import Config from '@/modules/config/Config';
+
 export const APPS_ROUTES_MODULE_ARRAY: appRouterArraysInterface[] = [
   {
     label: 'dashboard',
     path: '/dashboard',
     module: <Dashboard />,
+    subModule: [],
+  },
+  {
+    label: 'dashboard',
+    path: '/attendance/*',
+    module: <AttendanceModule />,
     subModule: [],
   },
   {

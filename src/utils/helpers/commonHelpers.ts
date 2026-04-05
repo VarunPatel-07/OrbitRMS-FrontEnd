@@ -430,6 +430,21 @@ export const formateDate = (
   return formattedDate;
 };
 
+export const renderFormateTime = (UTCString: string): string => {
+  try {
+    const date = new Date(UTCString + 'Z');
+
+    const creationTime = date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+    return creationTime;
+  } catch {
+    return '-';
+  }
+};
+
 export const formatIsoDate = (
   dateInput: string | Date,
   default_dateformat: string
@@ -687,4 +702,71 @@ export const CalculateNumberOfDays = ({
   }
 
   return total < 0 ? 0 : total;
+};
+
+export const ParseIsoDateToLocalDate = (dateStr: string): Date | null => {
+  if (!dateStr) return null;
+
+  const formatted = dateStr.replace(' ', 'T').split('.')[0] + 'Z';
+
+  return new Date(formatted);
+};
+
+export const formatHoursToHM = (hours: number) => {
+  if (!hours || hours <= 0) return '0h 0m';
+
+  const totalMinutes = Math.round(hours * 60);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+
+  return `${h}h ${m}m`;
+};
+
+export const formatDurationString = (minutes: number) => {
+  if (!minutes) return '0h 0m';
+
+  const h = Math.floor(minutes / 60);
+  const m = Math.round(minutes % 60);
+
+  return `${h}h ${m}m`;
+};
+
+export const calculateEffectiveGrossHors = ({
+  punchInTime,
+  breakHours = 0,
+  punchOutTime,
+}: {
+  punchInTime: string;
+  breakHours?: number;
+  punchOutTime?: string;
+}) => {
+  if (!punchInTime) return `0h 0m`;
+
+  const start = ParseIsoDateToLocalDate(punchInTime)?.getTime();
+  if (!start) return `0h 0m`;
+
+  const now = punchOutTime
+    ? ParseIsoDateToLocalDate(punchOutTime)?.getTime()
+    : new Date().getTime();
+
+  if (!now) return `0h 0m`;
+
+  const diffMs = now - start;
+
+  // total minutes worked
+  let totalMinutes = Math.floor(diffMs / (1000 * 60));
+
+  // 🔥 convert break hours → minutes
+  const breakMinutes = Math.floor(breakHours * 60);
+
+  // subtract break time
+  totalMinutes -= breakMinutes;
+
+  // safety
+  if (totalMinutes < 0) totalMinutes = 0;
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${hours}h ${minutes}m`;
 };

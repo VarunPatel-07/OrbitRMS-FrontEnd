@@ -10,7 +10,7 @@ function PageNotFound() {
   };
   return (
     <div className='w-full h-full flex items-center justify-center'>
-      <div className='bg-white w-full max-w-[500px] p-6 rounded-lg shadow-lg text-center'>
+      <div className='bg-white w-full max-w-[500px] p-6 rounded-lg shadow-lg text-center border border-gray-200'>
         <h2 className='font-inter text-3xl text-blue-600 font-bold'>
           404 - Page Not Found
         </h2>
