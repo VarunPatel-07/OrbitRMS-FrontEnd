@@ -1,5 +1,11 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 
+import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
+
+import {
+  GlobalStateContext,
+  GlobalStateContextApiProps,
+} from '@/contexts/globalState/GlobalStateContectApi';
 import {
   NotificationContext,
   NotificationContextApiProps,
@@ -13,35 +19,26 @@ import AttendanceHeader from '@/modules/Attendance/AttendanceHeader';
 
 import { useDebounce } from '@/hooks/useDebounce';
 
+import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 import {
   endpointObject,
   multipleFetchApi,
   multiplePostApi,
 } from '@/utils/api/multipleAPI';
+import { GetEndpointBasedType } from '@/utils/helpers/commonHelpers';
 
 import AttendanceSessionRow from '../AttendanceSessionCard';
-
-const getEndpointBasedType = (
-  type: 'punchIn' | 'punchOut' | 'startBreak' | 'endBreak'
-) => {
-  switch (type) {
-    case 'punchIn':
-      return 'punch-in';
-    case 'punchOut':
-      return 'punch-out';
-    case 'startBreak':
-      return 'break/start-break';
-    case 'endBreak':
-      return 'break/end-break';
-  }
-};
 
 function ManageSelfAttendance() {
   const useEffectRef = useRef(false);
   const { handelNotification } = useContext(
     NotificationContext
   ) as NotificationContextApiProps;
+
+  const { GlobalStateProvider } = useContext(
+    GlobalStateContext
+  ) as GlobalStateContextApiProps;
 
   const [modelType, setModelType] = useState<
     'punchIn' | 'punchOut' | 'startBreak' | 'endBreak' | null
@@ -68,7 +65,7 @@ function ManageSelfAttendance() {
     ) => {
       const endPointObj: endpointObject[] = [
         {
-          endPoint: `attendance/${getEndpointBasedType(type)}`,
+          endPoint: `attendance/${GetEndpointBasedType(type)?.url}`,
           protected: true,
           data: { location_coordinates: data, is_work_from_home: false },
         },
@@ -180,14 +177,43 @@ function ManageSelfAttendance() {
   }, []);
   return (
     <>
-      <div>
-        <AttendanceHeader
-          handlePunchIn={handlePunchIn}
-          attendanceState={attendanceState}
-        />
-        <div>
+      <div className='w-full h-full flex flex-col items-start justify-start'>
+        <div className='w-full px-3 pb-4'>
+          <AttendanceHeader
+            handlePunchIn={handlePunchIn}
+            attendanceState={attendanceState}
+          />
+        </div>
+        <div className='w-full flex items-center justify-between px-4 py-2 bg-gray-100'>
+          <Button
+            type='button'
+            className='w-9 h-9 flex items-center justify-center border border-black/20 rounded-lg'
+          >
+            <RiArrowLeftSLine className='text-slate-900 text-2xl' />
+          </Button>
+          <div className='border border-black/20 px-5 py-2 rounded-md flex items-center justify-center bg-white'>
+            <span className='text-black font-semibold text-sm inline-block'>
+              April
+            </span>
+          </div>
+
+          <Button
+            type='button'
+            className='w-9 h-9 flex items-center justify-center border border-black/20 rounded-lg'
+          >
+            <RiArrowRightSLine className='text-slate-900 text-2xl' />
+          </Button>
+        </div>
+        <div className='w-full h-full max-h-[calc(100vh-400px)] overflow-auto flex flex-col gap-3 pt-4 pb-3 px-3'>
           {attendanceData?.map((session) => (
-            <AttendanceSessionRow key={session.id} session={session} />
+            <AttendanceSessionRow
+              key={session.id}
+              session={session}
+              defaultDateFormate={
+                GlobalStateProvider?.organization?.organization_settings
+                  ?.default_dateformat
+              }
+            />
           ))}
         </div>
       </div>
@@ -199,9 +225,9 @@ function ManageSelfAttendance() {
           loading={isPunchInOutBreakLoading}
           handelConfirm={confirmPunchInOutBreaks}
           modalType={modelType}
-          title={`Are you sure you want to ${getEndpointBasedType(modelType)?.replace('-', ' ')}?`}
+          title={`Are you sure you want to ${GetEndpointBasedType(modelType)?.label}?`}
           description='Please confirm your action.'
-          secondaryButtonTitle={`Confirm ${getEndpointBasedType(modelType)?.replace('-', ' ')}`}
+          secondaryButtonTitle={`Confirm ${GetEndpointBasedType(modelType)?.label}`}
         />
       )}
     </>

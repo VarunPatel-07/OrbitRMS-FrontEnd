@@ -284,8 +284,6 @@ export const LEAVE_MODULE_TAB_TYPE_OBJECT = {
   ORGANIZATION: 'Organization',
 };
 
-
-
 export const LEAVE_STATUS_CONFIG = {
   pending: {
     label: 'Pending',
@@ -337,3 +335,18 @@ export const COMMON_DRAWER_EXIT_ANIMATION = {
   TOP: '-translate-y-full opacity-0',
   BOTTOM: 'translate-y-full opacity-0',
 };
+
+export const MONTHS_ARRAY = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { AttendanceBreaksInterface } from '@/interface/Attendance.inteeface';
 import { AxiosError } from 'axios';
 import Cleave from 'cleave.js';
 import CryptoJS from 'crypto-js';
@@ -769,4 +770,45 @@ export const calculateEffectiveGrossHors = ({
   const minutes = totalMinutes % 60;
 
   return `${hours}h ${minutes}m`;
+};
+
+export const calculateEffectiveBreakHours = (
+  breaks: AttendanceBreaksInterface[]
+): number => {
+  if (!breaks || breaks.length === 0) return 0;
+  let totalMinutes = 0;
+
+  for (const b of breaks) {
+    if (b.break_end_time && b.break_duration) {
+      // FIX: Ensure b.break_duration is in the correct unit.
+      // If your DB saves seconds, divide by 60 here.
+      totalMinutes += b.break_duration;
+    } else if (b.break_start_time) {
+      const start = ParseIsoDateToLocalDate(b.break_start_time)?.getTime();
+      if (!start) continue;
+      const now = Date.now();
+      const diffInMs = now - start;
+      if (diffInMs > 0) {
+        totalMinutes += diffInMs / 60000;
+      }
+    }
+  }
+
+  // Return hours because formatDurationString likely expects hours
+  return Math.floor(totalMinutes) / 60;
+};
+
+export const GetEndpointBasedType = (
+  type: 'punchIn' | 'punchOut' | 'startBreak' | 'endBreak'
+): { url: string; label: string } => {
+  switch (type) {
+    case 'punchIn':
+      return { url: 'punch-in', label: 'Punch In' };
+    case 'punchOut':
+      return { url: 'punch-out', label: 'Punch Out' };
+    case 'startBreak':
+      return { url: 'break/start-break', label: 'Start Break' };
+    case 'endBreak':
+      return { url: 'break/end-break', label: 'End Break' };
+  }
 };
