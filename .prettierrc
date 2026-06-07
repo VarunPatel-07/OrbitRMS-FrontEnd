@@ -1,6 +1,6 @@
 {
   "trailingComma": "es5",
-  "tabWidth": 2,
+  "tabWidth": 3,
   "semi": true,
   "singleQuote": true,
   "jsxSingleQuote": true,
@@ -15,7 +15,7 @@
     "^types$",
     "^@/env(.*)$",
     "",
-    "^@/config/(.*)$",
+    "^@/modules/config/(.*)$",
     "^@/hooks/(.*)$",
     "",
     "^@/context/(.*)$",
@@ -39,7 +39,6 @@
     "decorators-legacy",
     "js"
   ],
-  
   "plugins": [
     "@ianvs/prettier-plugin-sort-imports"
   ]
