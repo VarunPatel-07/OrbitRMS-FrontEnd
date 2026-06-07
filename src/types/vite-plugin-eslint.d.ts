@@ -3,3 +3,5 @@ declare module 'vite-plugin-eslint' {
   const plugin: () => PluginOption;
   export default plugin;
 }
+
+
