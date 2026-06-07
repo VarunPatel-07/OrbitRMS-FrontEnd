@@ -26,7 +26,7 @@ export const SidebarMenuItems = (
   },
 
   {
-    id: 'dashboard',
+    id: 'attendance',
     name: 'Attendance',
     icon: <BsPersonFillCheck className='w-7 h-7' />,
     label: 'data-tooltip-attendance',
@@ -36,7 +36,7 @@ export const SidebarMenuItems = (
     ToolTipValue: 'Attendance',
   },
   {
-    id: 'dashboard',
+    id: 'leaves',
     name: 'leaves',
     icon: <FaCalendarAlt className='w-5 h-5' />,
     label: 'data-tooltip-leaves',

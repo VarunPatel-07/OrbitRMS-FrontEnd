@@ -38,6 +38,8 @@ export const formFieldAllowedFieldType = [
   'object',
   'array of string',
   'array of object',
+  'email',
+  'file',
 ];
 
 export const MARITAL_STATUS = [

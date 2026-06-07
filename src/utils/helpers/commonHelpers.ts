@@ -813,3 +813,12 @@ export const GetEndpointBasedType = (
          return { url: 'break/end-break', label: 'End Break' };
    }
 };
+
+export const verifyURL = (url: string) => {
+   try {
+      new URL(url);
+      return true;
+   } catch {
+      return false;
+   }
+};
