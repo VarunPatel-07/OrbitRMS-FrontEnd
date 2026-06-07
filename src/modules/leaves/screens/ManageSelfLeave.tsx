@@ -387,7 +387,7 @@ function ManageSelfLeave({
   return (
     <>
       <div className='w-full h-full flex flex-col max-h-[calc(100vh-215px)] overflow-auto rounded-b-lg'>
-        <div className='w-full p-4'>
+        <div className='w-full p-4 border-x border-black/10'>
           <div className='w-full flex items-stretch max-w-full flex-nowrap gap-4 overflow-auto hide-scrollbar'>
             {isFetchingData ? (
               <LeaveBalanceSkeleton totalNumberOfCards={6} />

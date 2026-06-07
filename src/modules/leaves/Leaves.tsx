@@ -105,7 +105,7 @@ function Leaves() {
       <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />
       <div className='p-4 2xl:p-5 h-full pt-14'>
         <div className='bg-white rounded-xl h-full flex flex-col'>
-          <div className='bg-white rounded-t-xl border-b border-gray-200 px-6 py-4'>
+          <div className='bg-white rounded-t-xl border border-black/10 px-6 py-4'>
             <div className='flex items-center justify-between'>
               <div>
                 <h1 className='text-2xl font-semibold text-gray-900'>

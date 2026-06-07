@@ -36,9 +36,12 @@ export interface AttendanceSessionInterface {
 
   status: 'completed' | 'active';
 
-  gross_hours: number;
-  total_break_hours: number;
-  total_working_hours: number;
+  total_gross_minutes: number;
+  total_break_minutes: number;
+  total_effective_minutes: number;
+
+  is_regularize_required: boolean;
+  session_completed: boolean;
 
   created_at: string;
   updated_at: string;
