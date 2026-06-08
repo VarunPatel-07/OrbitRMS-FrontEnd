@@ -47,7 +47,6 @@ export const handelGeneratingDynamicClientColumn = (
             canToggleVisibility: true,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             renderContent: (data: any) => {
-               console.log('test Data', data);
                return (
                   <div className='w-fit'>
                      {columnData?.type === 'file' ? (

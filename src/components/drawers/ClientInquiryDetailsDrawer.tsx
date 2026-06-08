@@ -5,7 +5,7 @@ import { IoClose } from 'react-icons/io5';
 import { ClientInquirySidebarModelInterface } from '@/interface/ComponentProps.interface';
 
 import { NotAllowedObjectField } from '@/utils/constants/global.constants';
-import { verifyURL } from '@/utils/helpers/commonHelpers';
+import { formateDate, verifyURL } from '@/utils/helpers/commonHelpers';
 
 import CommonDrawerContainer from '../common/CommonDrawerContainer';
 
@@ -20,6 +20,7 @@ interface Props {
 function ClientInquiryDetailsDrawer({
    clientInquiryData,
    showClientInquiryDetail,
+   GlobalStateProvider,
    onClose,
 }: ClientInquirySidebarModelInterface) {
    const filteredObjKey = Object.keys(clientInquiryData)
@@ -53,9 +54,21 @@ function ClientInquiryDetailsDrawer({
          }
       };
 
-      const renderValue = (value: any) => {
+      const renderValue = (value: any, key: string) => {
+         console.log('key', key);
          if (value === null || value === undefined) {
             return <span className='text-black/60'>-</span>;
+         }
+         if (key === 'created_at') {
+            return (
+               <span className='w-full font-inter text-sm capitalize font-medium inline-block text-black/70'>
+                  {formateDate(
+                     value,
+                     GlobalStateProvider?.organization?.organization_settings
+                        ?.default_dateformat
+                  )}
+               </span>
+            );
          }
 
          if (Array.isArray(value)) {
@@ -111,7 +124,7 @@ function ClientInquiryDetailsDrawer({
                <div className='flex flex-col gap-2'>
                   {value.map((item, index) => (
                      <div key={index} className='text-black/80'>
-                        {renderValue(item)}
+                        {renderValue(item, key)}
                      </div>
                   ))}
                </div>
@@ -130,7 +143,9 @@ function ClientInquiryDetailsDrawer({
                      <td className='border px-4 py-2 bg-gray-50 w-1/3 text-black capitalize font-semibold'>
                         {key?.replace(/_/g, ' ')}
                      </td>
-                     <td className='border px-4 py-2'>{renderValue(value)}</td>
+                     <td className='border px-4 py-2'>
+                        {renderValue(value, key)}
+                     </td>
                   </tr>
                ))}
             </tbody>

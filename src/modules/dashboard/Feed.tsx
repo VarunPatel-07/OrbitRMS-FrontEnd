@@ -67,7 +67,6 @@ function Feed(props: OrganizationFeedPropsInterface) {
       }, 150);
    };
 
-   console.log(feedPostData, 'feedPostData');
    return (
       <div className='w-full h-full relative'>
          <div className='w-full bg-white relative flex flex-col items-start justify-start max-h-[calc(100vh-56px)] h-full overflow-auto hide-scrollbar'>
