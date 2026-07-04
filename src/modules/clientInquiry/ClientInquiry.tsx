@@ -137,7 +137,7 @@ function ClientInquiry() {
       }
    };
 
-   const initialColumns = [
+   const initialColumns: Column[] = [
       {
          key: 'form_id',
          title: 'Form Id',

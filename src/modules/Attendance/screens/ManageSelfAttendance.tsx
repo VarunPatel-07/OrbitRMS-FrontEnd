@@ -87,7 +87,7 @@ function ManageSelfAttendance() {
   const fetchStatusWithDebounce = useDebounce(async () => {
     const endPointObj: endpointObject[] = [
       {
-        endPoint: `attendance/attendance-status`,
+        endPoint: `attendance/session/attendance-status`,
         protected: true,
       },
     ];
@@ -118,7 +118,7 @@ function ManageSelfAttendance() {
   const fetchMonthlyAttendanceWithDebounce = useDebounce(async () => {
     const endPointObj: endpointObject[] = [
       {
-        endPoint: `attendance/punch-in-out/fetch`,
+        endPoint: `attendance/session/punch-in-out/fetch`,
         protected: true,
       },
     ];

@@ -410,6 +410,7 @@ export interface DialogModalContainerInterface {
    parentWrapper?: string;
    className?: string;
    showDefaultModelHeder?: boolean;
+   closeWhenClickOutside?: boolean;
 }
 
 export interface CommonDrawerContainerPropsInterface {

@@ -128,8 +128,8 @@ function ManageTeamAndOrgLeave({
       const endPointArr: endpointObject[] = [
         {
           endPoint: filterQuery
-            ? `attendance/fetch/${selectedTab}/leaves?page=${page}&limit=${limit}&${filterQuery}`
-            : `attendance/fetch/${selectedTab}/leaves?page=${page}&limit=${limit}`,
+            ? `attendance/leaves/${selectedTab}/fetch?page=${page}&limit=${limit}&${filterQuery}`
+            : `attendance/leaves/${selectedTab}/fetch?page=${page}&limit=${limit}`,
           protected: true,
         },
       ];
@@ -152,7 +152,7 @@ function ManageTeamAndOrgLeave({
   const fetchAllTheLeaveTypesWithDebounce = useDebounce(async () => {
     const endPointArr: endpointObject[] = [
       {
-        endPoint: `attendance/fetch/leave-types`,
+        endPoint: `attendance/leaves/types/fetch`,
         protected: true,
       },
       { endPoint: `employee/fetch/employee/all?scope=team`, protected: true },
@@ -208,7 +208,7 @@ function ManageTeamAndOrgLeave({
     ) => {
       const endPointArr: endpointObject[] = [
         {
-          endPoint: `attendance/leave-request/update?id=${leave_id}&status=${leave_status}`,
+          endPoint: `attendance/leaves/request/update?id=${leave_id}&status=${leave_status}`,
           protected: true,
         },
       ];
@@ -341,7 +341,7 @@ function ManageTeamAndOrgLeave({
       // }
       const endPointArr: endpointObject[] = [
         {
-          endPoint: `attendance/apply/leave?employee-id${data?.selectedEmployee?.id}`,
+          endPoint: `attendance/leave/apply?employee-id${data?.selectedEmployee?.id}`,
           protected: true,
           data: multipartFormData,
           header: {
@@ -430,8 +430,8 @@ function ManageTeamAndOrgLeave({
 
   return (
     <>
-      <div className='w-full h-full flex flex-col max-h-[calc(100vh-215px)] overflow-auto rounded-b-lg'>
-        <div className='w-full p-4'>
+      <div className='w-full h-full flex flex-col max-h-[calc(100vh-215px)] overflow-auto rounded-b-lg hide-scrollbar'>
+        <div className='w-full p-4 bg-white border border-black/10 border-y-0'>
           <div className='w-full flex items-stretch max-w-full flex-nowrap gap-4 overflow-auto hide-scrollbar'>
             {isFetchingData ? (
               <LeaveBalanceSkeleton totalNumberOfCards={6} />
@@ -455,7 +455,7 @@ function ManageTeamAndOrgLeave({
           ) : (
             <>
               <div className='relative grow'>
-                <div className='sticky top-0 bg-gray-50 z-50'>
+                <div className='sticky top-0 bg-white z-50'>
                   <TableFilterSearchBar
                     filterColumnsArray={searchFilterArray}
                     handelApplyFilterFunc={handelApplyLeaveFilter}
