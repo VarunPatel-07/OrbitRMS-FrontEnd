@@ -35,6 +35,7 @@ import { INITIAL_LEAVE_TYPE } from '@/utils/initialData/leaves.initial';
 import HolidayAnimation from '@/assets/lottie/HolidayAnimation.lottie';
 
 import { LeavesManagerColumn } from '../tableColumns/leavesManager.columns';
+import AccessDeniedRedirect from '@/routes/AccessDeniedRedirect';
 
 const DotLottieReact = React.lazy(() =>
   import('@lottiefiles/dotlottie-react').then((mod) => ({
@@ -200,20 +201,20 @@ function LeavesManager() {
     .find((item) => item.module_label == parentSection.replace('-', '_'))
     ?.sub_modules?.find((item) => item.module_label == childSection);
 
-  //   const hasNoViewHolidayPermission =
-  //     !permissionData ||
-  //     !permissionData.is_active ||
-  //     !permissionData?.permissions?.some(
-  //       (item) => item.label == 'view' && item.is_allowed
-  //     );
+    const hasNoViewHolidayPermission =
+      !permissionData ||
+      !permissionData.is_active ||
+      !permissionData?.permissions?.some(
+        (item) => item.label == 'view' && item.is_allowed
+      );
 
-  //   if (hasNoViewHolidayPermission)
-  //     return (
-  //       <AccessDeniedRedirect
-  //         message="You don't have permission For Holidays."
-  //         isAccessDenied={hasNoViewHolidayPermission}
-  //       />
-  //     );
+    if (hasNoViewHolidayPermission)
+      return (
+        <AccessDeniedRedirect
+          message="You don't have permission For Holidays."
+          isAccessDenied={hasNoViewHolidayPermission}
+        />
+      );
 
   const COLUMNS = LeavesManagerColumn({
     GlobalStateProvider,

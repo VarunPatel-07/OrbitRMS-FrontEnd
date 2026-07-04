@@ -67,7 +67,7 @@ function CommonDrawerContainer({
       className={clsx(
         twMerge(
           classNames(
-            'fixed inset-0 z-50 bg-black/30 transition-all duration-300',
+            'fixed inset-0 z-50 bg-black/30 transition-all duration-300 hide-scrollbar',
             {
               'opacity-100 visible': isVisible,
               'opacity-0 invisible pointer-events-none': !isVisible,

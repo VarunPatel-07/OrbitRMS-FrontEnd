@@ -1,5 +1,5 @@
 import { appRouterArraysInterface } from '@/interface/Global.interface';
-import ApiManager from '@/modules/apiManager/ApiManager';
+import ApiManager from '@/modules/apiManager';
 import AttendanceModule from '@/modules/Attendance';
 import ClientInquiry from '@/modules/clientInquiry/ClientInquiry';
 import Dashboard from '@/modules/dashboard/Dashboard';

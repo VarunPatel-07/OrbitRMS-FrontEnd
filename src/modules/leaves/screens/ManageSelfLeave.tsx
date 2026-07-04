@@ -115,12 +115,12 @@ function ManageSelfLeave({
       const endPointArr: endpointObject[] = [
         {
           endPoint: filterQuery
-            ? `attendance/fetch/leaves?page=${page}&limit=${limit}&${filterQuery}`
-            : `attendance/fetch/leaves?page=${page}&limit=${limit}`,
+            ? `attendance/leave/fetch-all?page=${page}&limit=${limit}&${filterQuery}`
+            : `attendance/leave/fetch-all?page=${page}&limit=${limit}`,
           protected: true,
         },
         {
-          endPoint: `attendance/fetch/leave-balance`,
+          endPoint: `attendance/leaves/balance/fetch`,
           protected: true,
         },
       ];
@@ -167,8 +167,8 @@ function ManageSelfLeave({
       const endPointArr: endpointObject[] = [
         {
           endPoint: filterQuery
-            ? `attendance/fetch/leaves?page=${page}&limit=${limit}&${filterQuery}`
-            : `attendance/fetch/leaves?page=${page}&limit=${limit}`,
+            ? `attendance/leave/fetch-all?page=${page}&limit=${limit}&${filterQuery}`
+            : `attendance/leave/fetch-all?page=${page}&limit=${limit}`,
           protected: true,
         },
       ];
@@ -250,7 +250,7 @@ function ManageSelfLeave({
       // }
       const endPointArr: endpointObject[] = [
         {
-          endPoint: `attendance/apply/leave`,
+          endPoint: `attendance/leave/apply`,
           protected: true,
           data: multipartFormData,
           header: {
@@ -386,8 +386,8 @@ function ManageSelfLeave({
 
   return (
     <>
-      <div className='w-full h-full flex flex-col max-h-[calc(100vh-215px)] overflow-auto rounded-b-lg'>
-        <div className='w-full p-4 border-x border-black/10'>
+      <div className='w-full h-full flex flex-col max-h-[calc(100vh-215px)] overflow-auto rounded-b-lg hide-scrollbar'>
+        <div className='w-full p-4 border-x border-black/10 border-y-0 bg-white'>
           <div className='w-full flex items-stretch max-w-full flex-nowrap gap-4 overflow-auto hide-scrollbar'>
             {isFetchingData ? (
               <LeaveBalanceSkeleton totalNumberOfCards={6} />

@@ -156,13 +156,13 @@ function AddEditEmployeeProfile() {
             organization: perValue.organization,
             user: {
               ...perValue?.user,
-              employee_info: {
-                ...perValue?.user?.employee_info,
-                ...data?.employee_info,
-              },
               personal_info: {
-                ...perValue?.user?.personal_info,
+                ...perValue.user?.personal_info,
                 ...data?.personal_info,
+              },
+              employee_info: {
+                ...perValue.user?.employee_info,
+                ...data?.employee_info,
               },
             },
           }));

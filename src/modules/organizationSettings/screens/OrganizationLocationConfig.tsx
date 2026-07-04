@@ -34,6 +34,7 @@ import {
 import { ORGANIZATION_SETTINGS_BREADCRUMBS } from '@/utils/constants/breadcrumbs.constants';
 
 import { LocationConfigColumns } from '../tableColumns/locationConfig.columns';
+import AccessDeniedRedirect from '@/routes/AccessDeniedRedirect';
 
 function OrganizationLocationConfig() {
   const { GlobalStateProvider } = useContext(
@@ -206,20 +207,20 @@ function OrganizationLocationConfig() {
     .find((item) => item.module_label == parentSection.replace('-', '_'))
     ?.sub_modules?.find((item) => item.module_label == childSection);
 
-  //   const hasNoViewHolidayPermission =
-  //     !permissionData ||
-  //     !permissionData.is_active ||
-  //     !permissionData?.permissions?.some(
-  //       (item) => item.label == 'view' && item.is_allowed
-  //     );
+    const hasNoViewHolidayPermission =
+      !permissionData ||
+      !permissionData.is_active ||
+      !permissionData?.permissions?.some(
+        (item) => item.label == 'view' && item.is_allowed
+      );
 
-  //   if (hasNoViewHolidayPermission)
-  //     return (
-  //       <AccessDeniedRedirect
-  //         message="You don't have permission For Holidays."
-  //         isAccessDenied={hasNoViewHolidayPermission}
-  //       />
-  //     );
+    if (hasNoViewHolidayPermission)
+      return (
+        <AccessDeniedRedirect
+          message="You don't have permission For Holidays."
+          isAccessDenied={hasNoViewHolidayPermission}
+        />
+      );
 
   const COLUMNS = LocationConfigColumns({
     GlobalStateProvider,

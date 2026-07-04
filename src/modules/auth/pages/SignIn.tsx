@@ -99,8 +99,8 @@ function SignIn() {
     e.preventDefault();
 
     if (isFormValid) {
-      setLoading(true); // Set loading state immediately
-      signInApiHandlerFunction(); // Await the API call
+      setLoading(true);
+      signInApiHandlerFunction();
     } else {
       setShowError(true);
     }

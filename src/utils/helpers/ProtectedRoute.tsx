@@ -5,14 +5,14 @@ import { Navigate } from 'react-router-dom';
 import { getDataFromSecureCookie } from '@/utils/helpers/commonHelpers';
 
 function ProtectedRoute({ element }: { element: React.ReactElement }) {
-  const isAuthenticated = getDataFromSecureCookie('authenticationToken');
+   const isAuthenticated = getDataFromSecureCookie('authenticationToken');
 
-  return typeof isAuthenticated === 'string' &&
-    isAuthenticated.trim() !== '' ? (
-    element
-  ) : (
-    <Navigate to='/auth/sign-in' />
-  );
+   return typeof isAuthenticated === 'string' &&
+      isAuthenticated.trim() !== '' ? (
+      element
+   ) : (
+      <Navigate to='/auth/sign-in' />
+   );
 }
 
 export default ProtectedRoute;

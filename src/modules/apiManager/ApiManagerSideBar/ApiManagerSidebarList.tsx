@@ -16,6 +16,6 @@ export const ApiManagerSidebarList = (
     label: 'api-manager-client-inquiry-tooltip',
     link: `/${organization}/api-manager/client-inquiry`,
     showToolTip: false,
-    ToolTipValue: 'Project Status',
+    ToolTipValue: 'Client Inquiry API Manager',
   },
 ];

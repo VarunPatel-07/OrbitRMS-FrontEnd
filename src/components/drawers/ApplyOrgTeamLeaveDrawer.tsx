@@ -151,7 +151,7 @@ function ApplyOrgTeamLeaveDrawer({
   const fetchEmployeeLeavesBalance = useDebounce(async (employee_id) => {
     const endpointObj: endpointObject[] = [
       {
-        endPoint: `attendance/fetch/leave-balance?employee-id${employee_id}`,
+        endPoint: `attendance/leaves/balance/fetch?employee-id${employee_id}`,
         protected: true,
       },
     ];
@@ -200,7 +200,7 @@ function ApplyOrgTeamLeaveDrawer({
       </div>
       <div className='w-full h-full flex items-stretch justify-start relative'>
         <div className='w-full h-full relative'>
-          <div className='flex-1 max-h-[calc(100%-155px)] overflow-y-auto px-8 py-6 space-y-7'>
+          <div className='flex-1 max-h-[calc(100%-155px)] overflow-y-auto px-8 py-6 space-y-7 hide-scrollbar'>
             <div className='w-full'>
               <SearchDrop
                 emptyDataMessage=''
