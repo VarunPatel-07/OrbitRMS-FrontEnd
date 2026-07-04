@@ -105,7 +105,7 @@ function HolidayCard(props: HolidayedPropsInterFace) {
             spaceBetween={0}
             slidesPerView={1}
             allowTouchMove={false}
-            className='w-full h-full  px-4 py-5'
+            className='w-full h-full'
           >
             {sortedHolidayData?.map((holiday) => {
               if (holiday?.date) {
