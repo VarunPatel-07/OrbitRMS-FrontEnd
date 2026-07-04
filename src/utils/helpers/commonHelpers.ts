@@ -804,13 +804,13 @@ export const GetEndpointBasedType = (
 ): { url: string; label: string } => {
    switch (type) {
       case 'punchIn':
-         return { url: 'punch-in', label: 'Punch In' };
+         return { url: 'session/punch-in', label: 'Punch In' };
       case 'punchOut':
-         return { url: 'punch-out', label: 'Punch Out' };
+         return { url: 'session/punch-out', label: 'Punch Out' };
       case 'startBreak':
-         return { url: 'break/start-break', label: 'Start Break' };
+         return { url: 'session/break/start-break', label: 'Start Break' };
       case 'endBreak':
-         return { url: 'break/end-break', label: 'End Break' };
+         return { url: 'session/break/end-break', label: 'End Break' };
    }
 };
 

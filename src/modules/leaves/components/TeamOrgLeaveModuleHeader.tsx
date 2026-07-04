@@ -6,7 +6,7 @@ function TeamOrgLeaveModuleHeader({
   data,
 }: TeamOrgLeaveModuleHeaderInterface) {
   return (
-    <div className='w-full flex items-stretch max-w-full flex-nowrap gap-4 overflow-auto hide-scrollbar'>
+    <div className='w-full flex items-stretch max-w-full flex-nowrap gap-4 overflow-auto hide-scrollbar bg-white'>
       <TeamLeaveSummaryCard
         cardTitle='Current Date'
         renderDate={true}

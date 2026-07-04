@@ -9,7 +9,6 @@ import {
 import { BreadcrumbsProps } from '@/interface/ComponentProps.interface';
 import ManageSelfLeave from '@/modules/leaves/screens/ManageSelfLeave';
 import ManageTeamAndOrgLeave from '@/modules/leaves/screens/ManageTeamAndOrgLeave';
-import AccessDeniedRedirect from '@/routes/AccessDeniedRedirect';
 
 import Breadcrumbs from '@/components/common/Breadcrumbs';
 import Button from '@/components/common/Button';
@@ -20,6 +19,7 @@ import {
    LEAVE_MODULE_TAB_TYPE,
    LEAVE_MODULE_TAB_TYPE_OBJECT,
 } from '@/utils/constants/global.constants';
+import AccessDeniedRedirect from '@/routes/AccessDeniedRedirect';
 
 function Leaves() {
    const { GlobalStateProvider } = useContext(

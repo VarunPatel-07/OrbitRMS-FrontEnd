@@ -7,7 +7,6 @@ import {
    GlobalStateContextApiProps,
 } from '@/contexts/globalState/GlobalStateContectApi';
 import { BreadcrumbsProps } from '@/interface/ComponentProps.interface';
-import AccessDeniedRedirect from '@/routes/AccessDeniedRedirect';
 
 import Breadcrumbs from '@/components/common/Breadcrumbs';
 import LeavesTabs from '@/components/LeavesTabs';
@@ -75,29 +74,29 @@ function AttendanceModule() {
       }
    }, []);
 
-   const segments = location.pathname.split('/').filter(Boolean);
+   // const segments = location.pathname.split('/').filter(Boolean);
 
-   const parentSection = segments[1];
-   const childSection = segments[2];
+   // const parentSection = segments[1];
+   // const childSection = segments[2];
 
-   const permissionData = GlobalStateProvider.roles_permissions.permissions
-      .find((item) => item.module_label == parentSection.replace('-', '_'))
-      ?.sub_modules?.find((item) => item.module_label == childSection);
+   // const permissionData = GlobalStateProvider.roles_permissions.permissions
+   //    .find((item) => item.module_label == parentSection.replace('-', '_'))
+   //    ?.sub_modules?.find((item) => item.module_label == childSection);
 
-   const hasNoViewHolidayPermission =
-      !permissionData ||
-      !permissionData.is_active ||
-      !permissionData?.permissions?.some(
-         (item) => item.label == 'view' && item.is_allowed
-      );
+   // const hasNoViewHolidayPermission =
+   //    !permissionData ||
+   //    !permissionData.is_active ||
+   //    !permissionData?.permissions?.some(
+   //       (item) => item.label == 'view' && item.is_allowed
+   //    );
 
-   if (hasNoViewHolidayPermission)
-      return (
-         <AccessDeniedRedirect
-            message="You don't have permission For Holidays."
-            isAccessDenied={hasNoViewHolidayPermission}
-         />
-      );
+   // if (hasNoViewHolidayPermission)
+   //    return (
+   //       <AccessDeniedRedirect
+   //          message="You don't have permission For Holidays."
+   //          isAccessDenied={hasNoViewHolidayPermission}
+   //       />
+   //    );
    return (
       <div className='relative w-full h-full'>
          <Breadcrumbs BreadcrumbsNavigationFlow={BreadcrumbsObjects} />

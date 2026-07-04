@@ -165,7 +165,7 @@ function ApplyLeaveDrawer({
         </Button>
       </div>
 
-      <div className='flex-1 overflow-y-auto px-8 py-6 space-y-7'>
+      <div className='flex-1 overflow-y-auto px-8 py-6 space-y-7 hide-scrollbar'>
         <div className='w-full'>
           <SearchDrop
             emptyDataMessage=''
