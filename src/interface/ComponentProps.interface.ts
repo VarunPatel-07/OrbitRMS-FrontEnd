@@ -27,7 +27,7 @@ export interface BreadcrumbsProps {
 export interface InputProps {
    name: string;
    type?: 'text' | 'password' | 'email' | 'number' | 'url' | 'checkbox'; // More specific input types
-   value?: string;
+   value?: string | boolean;
    setValue?: (value: string) => void; // Function that updates the value
    placeHolder?: string; // Optional placeholder
    className?: string;
@@ -38,13 +38,15 @@ export interface InputProps {
    isRequiredField?: boolean;
    setUrlErrorType?: (value: string) => void;
    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+   onClick?: () => void;
    countryDropDownPosition?: 'top' | 'bottom';
    dropDownSelectedValue?: string | number;
-   setDropDownSelectedValue?: React.Dispatch<SetStateAction<string | number>>;
+   setDropDownSelectedValue?: (value: string | number) => void;
    disabled?: boolean;
    countryDropDownMaxHeight?: number;
    countryOptionsData?: Array<countryObject>;
    InfoIconContent?: string;
+   checkboxLabel?: string | React.ReactElement;
    InfoIconToolTipPlace?:
       | 'top'
       | 'top-start'

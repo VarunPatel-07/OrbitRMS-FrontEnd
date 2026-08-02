@@ -685,7 +685,7 @@ function Onboarding() {
         setIsFetchingCountryData(true);
         const endpointArray: Array<endpointObject> = [
           {
-            endPoint: 'country-info/fetchAllCountry',
+            endPoint: 'country-info/fetchAll',
             protected: false,
           },
         ];
