@@ -7,7 +7,7 @@ import {
    GlobalStateContext,
    GlobalStateContextApiProps,
 } from '@/contexts/globalState/GlobalStateContectApi';
-import { ApiManagerSidebarList } from '@/modules/apiManager/apiManagerSideBar/ApiManagerSidebarList';
+import { ApiManagerSidebarList } from '@/modules/apiManager/ApiManagerSideBar/ApiManagerSidebarList';
 
 import { getDataFromLocalStorage } from '@/utils/helpers/commonHelpers';
 

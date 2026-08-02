@@ -6,6 +6,10 @@ import React, {
 
 import { Area } from 'react-easy-crop';
 
+import { signUpFormFormDataInterface } from '@/interface/FunctionParams.interface';
+
+import { countryObject } from '@/utils/helpers/countryData';
+
 import { BreadcrumbsProps } from './ComponentProps.interface';
 
 export interface SidebarMenuItemInterface {
@@ -331,16 +335,6 @@ export interface appRouterArraysInterface {
    subModule: appRouterArraysInterface[];
 }
 
-export interface OrganizationFormInfoInterface {
-   organizationName: string;
-   primaryEmail: string;
-   defaultPortalUrlSlug: string;
-   websiteUrl: string;
-   contactNumber: string;
-   industry: { label: string; value: string };
-   employeeCount: string;
-}
-
 export type SocialMediaErrorCode =
    | 'fb_auth_denied'
    | 'fb_token_exchange_failed'
@@ -374,6 +368,20 @@ export interface LeavesReportingManagerModuleInterface {
    last_name: string;
    profile_picture: string;
    employee_code: string;
+}
+
+export interface SignUpFormStepOneProps {
+   formData: signUpFormFormDataInterface;
+   loading: boolean;
+   countryOptionsDataArray: Array<countryObject>;
+   setFormData: React.Dispatch<SetStateAction<signUpFormFormDataInterface>>;
+   setCurrentPage: React.Dispatch<SetStateAction<number>>;
+}
+export interface SignUpFormStepTwoProps {
+   formData: signUpFormFormDataInterface;
+   loading: boolean;
+   setFormData: React.Dispatch<SetStateAction<signUpFormFormDataInterface>>;
+   handelSignUpSubmitForm: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
