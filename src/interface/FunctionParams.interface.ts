@@ -1,20 +1,20 @@
-export interface loginForm {
-  email: string;
-  password: string;
-  rememberMe: boolean;
+export interface loginFormDataInterface {
+   email: string;
+   password: string;
+   rememberMe: boolean;
 }
 
-export interface signUpForm {
-  organizationName: string;
-  primaryEmail: string;
-  defaultPortalUrlSlug: string;
-  websiteUrl: string;
-  contactNumber: string;
-  portalUrl: string;
-  termsAccepted: boolean;
-  countryInfo: string;
-  industry: { label: string; value: string };
-  employeeCount: string;
+export interface signUpFormFormDataInterface {
+   organizationName: string;
+   primaryEmail: string;
+   defaultPortalUrlSlug: string;
+   websiteUrl: string;
+   contactNumber: string;
+   portalUrl: string;
+   termsAccepted: boolean;
+   countryInfo: string;
+   industry: { label: string; value: string };
+   employeeCount: string;
 }
 
 // const initialOrganizationFormInfo = {
