@@ -286,8 +286,13 @@ function AddEditInquiryFormSchema(props: AddModalProps) {
                       <Input
                         type='checkbox'
                         name='termsAccepted'
-                        value={formData?.status ? 'true' : 'false'}
+                        value={formData?.status ? 'true' : ''}
                         setValue={handelClickOnCheckBox}
+                        onClick={() =>
+                          handelClickOnCheckBox(
+                            formData?.status ? 'false' : 'true'
+                          )
+                        }
                       />
                     </div>
                   </div>
